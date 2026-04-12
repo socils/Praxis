@@ -90,24 +90,26 @@
     const sidebar = document.getElementById('sidebar');
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // Lógica para evitar el "null":
-        // Si no hay displayName, usa el email. Si no hay foto, usa una de Google por defecto.
-        const nombreFinal = user.displayName || user.email.split('@')[0];
-        const fotoFinal = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+    const userInfoDiv = document.getElementById('user-info');
 
-        document.getElementById('user-info').innerHTML = `
+    if (user) {
+        // SOLUCIÓN: Si displayName es null, extraemos el nombre del correo electrónico
+        // Si photoURL es null, usamos un avatar genérico de Google
+        const nombreDisplay = user.displayName || user.email.split('@')[0];
+        const fotoDisplay = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+
+        userInfoDiv.innerHTML = `
             <span style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 500;">
-                ${nombreFinal}
+                ${nombreDisplay}
             </span>
-            <img src="${fotoFinal}" alt="User" 
+            <img src="${fotoDisplay}" alt="User" 
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
     } else {
+        // Si no hay usuario, regresamos al login
         window.location.href = "index.html";
     }
 });
-
   function cargarAgenda(currentUserUid) {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
