@@ -191,7 +191,7 @@
     </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getAuth, 
         signInWithPopup, 
@@ -225,21 +225,26 @@
 
     let isRegisterMode = false;
 
+    // 1. FUNCIÓN PARA CAMBIAR TEXTOS (Sin lógica de Firebase aquí)
     toggleBtn.onclick = (e) => {
         e.preventDefault();
         isRegisterMode = !isRegisterMode;
         errorDiv.innerText = "";
         
-       if (isRegisterMode) {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    
-    // ESTO ES LO QUE FALTA: Guarda el nombre para que no sea null
-    await updateProfile(userCredential.user, {
-        displayName: email.split('@')[0], // Usa la parte antes del @ como nombre
-        photoURL: "https://ui-avatars.com/api/?name=Usuario&background=random"
-    });
-    }
+        if (isRegisterMode) {
+            authTitle.innerText = "Crear cuenta";
+            authSubtitle.innerText = "Regístrate en Praxis";
+            btnMain.innerText = "Crear cuenta ahora";
+            toggleBtn.innerText = "¿Ya tienes cuenta? Inicia sesión";
+        } else {
+            authTitle.innerText = "Acceder";
+            authSubtitle.innerText = "Usa tu cuenta de Praxis";
+            btnMain.innerText = "Iniciar Sesión";
+            toggleBtn.innerText = "¿No tienes cuenta? Hazlo aquí";
+        }
+    };
 
+    // 2. LÓGICA DE BOTÓN PRINCIPAL (Aquí es donde se crea la cuenta)
     btnMain.onclick = async () => {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
@@ -252,11 +257,22 @@
 
         try {
             if (isRegisterMode) {
-                await createUserWithEmailAndPassword(auth, email, password);
+                // MODO REGISTRO
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // ACTUALIZAR PERFIL: Para que no salga null en el menú
+                await updateProfile(userCredential.user, {
+                    displayName: email.split('@')[0], // Usa la parte antes del @ como nombre
+                    photoURL: "https://ui-avatars.com/api/?name=" + email.split('@')[0] + "&background=random"
+                });
+                console.log("Perfil actualizado y cuenta creada");
+
             } else {
+                // MODO LOGIN
                 await signInWithEmailAndPassword(auth, email, password);
             }
         } catch (error) {
+            console.error("Error:", error.code);
             if (error.code === 'auth/email-already-in-use') {
                 errorDiv.innerText = "Este correo ya está registrado.";
             } else if (error.code === 'auth/weak-password') {
@@ -269,6 +285,7 @@
         }
     };
 
+    // 3. GOOGLE AUTH
     document.getElementById('btn-google').onclick = async () => {
         try {
             await signInWithPopup(auth, provider);
@@ -279,6 +296,7 @@
         }
     };
 
+    // 4. REDIRECCIÓN AUTOMÁTICA
     onAuthStateChanged(auth, (user) => {
         if (user) window.location.href = "menu.html";
     });
