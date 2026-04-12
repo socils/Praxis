@@ -123,7 +123,7 @@
                 if (esDuenio) {
                     const adminBtn = document.createElement('button');
                     adminBtn.id = 'admin-publish-btn';
-                    adminBtn.innerText = "➕ Publicar Nueva Tarea";
+                    adminBtn.innerHTML = "<img src='anadir.png' width='20px' height='20px'> Publicar Nueva Tarea";
                     adminBtn.className = "btn-confirm"; 
                     adminBtn.style.marginTop = "15px";
                     adminBtn.onclick = () => abrirModalTarea(code); 
