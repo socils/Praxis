@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="header-left">
+            <button class="menu-btn" id="btn-toggle-sidebar">☰</button>
+            <div class="logo">Praxis</div>
+        </div>
+        <div class="header-right">
+            <div class="action-menu">
+                <button class="add-btn" id="btn-plus">+</button>
+                <div class="dropdown-content" id="plus-dropdown">
+                    <a href="#" id="open-join">Unirse a una agenda</a>
+                    <a href="#" id="open-create">Crear agenda</a>
+                </div>
+            </div>
+            <div class="code-display" id="display-code">...</div>
+            <div id="user-info" style="display: flex; align-items: center; gap: 10px;">
+                <span id="user-name" style="font-size: 14px; color: #5f6368; font-weight: 500;"></span>
+                <img id="user-photo" src="" alt="A" class="user-avatar" style="border: 1px solid #dadce0; object-fit: cover; width: 32px; height: 32px; border-radius: 50%;">
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="nav-item active"><img src="pagina-de-inicio.png" alt="" style="width: 20px;"> Inicio</div>
+            <div class="nav-item"><img src="calendario.png" alt="" style="width: 20px;"> Calendario</div>
+            <div class="nav-item"><img src="pendiente.png" alt="" style="width: 20px;"> Pendientes</div>
+            <hr>
+            <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>
+            <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Sincronizar Drive</div>
+            <hr>
+            <div class="nav-item logout" id="btn-logout"><img src="cerrar-sesion.png" alt="" style="width: 20px;"> Salir</div>
+        </nav>
+
+        <main class="content" id="main-content">
+            <div class="banner">
+                <h1 id="banner-title">Cargando...</h1>
+                <p>Gestión académica Praxis</p>
+            </div>
+
+            <div id="status-message"></div>
+            <div class="task-grid" id="task-container"></div>
+        </main>
+    </div>
+
+    <div id="action-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Acción</h2>
+            <input type="text" id="modal-input">
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="btn-close-modal">Cancelar</button>
+                <button class="btn-confirm" id="btn-action-confirm">Aceptar</button>
+            </div>
+        </div>
+    </div>
+<div id="sidebar-overlay" onclick="toggleMobileMenu()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1500;"></div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+   import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9738f534"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const displayCode = document.getElementById('display-code');
+    const bannerTitle = document.getElementById('banner-title');
+    const container = document.getElementById('task-container');
+    const statusMsg = document.getElementById('status-message');
+    const sidebar = document.getElementById('sidebar');
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('user-name').innerText = user.displayName.split(' ')[0];
+            document.getElementById('user-photo').src = user.photoURL;
+            cargarAgenda(user.uid); // Pasamos el ID del usuario actual
+        } else {
+            window.location.href = "index.html";
+        }
+    });
+
+  function cargarAgenda(currentUserUid) {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    
+    if (code) {
+        const agendaRef = ref(db, 'agendas/' + code);
+        
+        onValue(agendaRef, (snapshot) => {
+            const data = snapshot.val();
+            container.innerHTML = "";
+            statusMsg.innerHTML = "";
+            
+            const oldAdminBtn = document.getElementById('admin-publish-btn');
+            if(oldAdminBtn) oldAdminBtn.remove();
+
+            if (data) {
+                bannerTitle.innerText = data.nombre || "Agenda sin nombre";
+                displayCode.innerHTML = `Código de acceso: <span style="color:#1a73e8; font-weight:bold;">${code.toUpperCase()}</span>`;
+
+                const esDuenio = data.owner === currentUserUid;
+
+                if (esDuenio) {
+                    const adminBtn = document.createElement('button');
+                    adminBtn.id = 'admin-publish-btn';
+                    adminBtn.innerText = "➕ Publicar Nueva Tarea";
+                    adminBtn.className = "btn-confirm"; 
+                    adminBtn.style.marginTop = "15px";
+                    adminBtn.onclick = () => abrirModalTarea(code); 
+                    document.querySelector('.banner').appendChild(adminBtn);
+                }
+
+                if (data.tareas) {
+                    Object.keys(data.tareas).reverse().forEach(id => {
+                        const t = data.tareas[id];
+                        
+                        // Si es dueño, creamos el botón de eliminar
+                        const btnEliminar = esDuenio 
+                            ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea">🗑️</button>` 
+                            : "";
+
+                        container.innerHTML += `
+                            <div class="card">
+                                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <div>
+                                        <h3>${t.titulo}</h3>
+                                        <span>${t.materia}</span>
+                                    </div>
+                                    ${btnEliminar}
+                                </div>
+                                <div class="card-body"><p>${t.descripcion}</p></div>
+                                <div class="card-footer"><span>Entrega: ${t.fecha}</span></div>
+                            </div>`;
+                    });
+                }
+            } else {
+                mostrarEstadoVacio("La agenda " + code + " no existe.");
+            }
+        });
+    } else {
+        mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
+    }
+}
+
+// FUNCIÓN PARA ELIMINAR (Agrégala al final de tu script)
+window.eliminarTarea = async (agendaCode, tareaId) => {
+    if (confirm("¿Seguro que quieres borrar esta tarea?")) {
+        try {
+            const tareaRef = ref(db, `agendas/${agendaCode}/tareas/${tareaId}`);
+            await set(tareaRef, null); // En Firebase, null elimina el dato
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+        }
+    }
+};
+
+    function mostrarEstadoVacio(msg) {
+        displayCode.innerText = "SIN AGENDA";
+        bannerTitle.innerText = "Bienvenido a Praxis";
+        statusMsg.innerHTML = `
+            <div class="no-agenda-box">
+                <img src="https://www.gstatic.com/classroom/empty_states_home.png" style="width: 250px;">
+                <h2>${msg}</h2>
+                <p>Usa el botón "+" para unirte o crear una nueva.</p>
+            </div>`;
+    }
+
+// BOTÓN DE TRES RAYAS (Sidebar Toggle)
+const btnToggle = document.getElementById('btn-toggle-sidebar');
+const mainContent = document.getElementById('main-content');
+
+btnToggle.onclick = () => {
+    sidebar.classList.toggle('collapsed');
+    
+    // Opcional: Ajustar el margen del contenido principal al colapsar
+    if (sidebar.classList.contains('collapsed')) {
+        mainContent.style.marginLeft = "0";
+    } else {
+        mainContent.style.marginLeft = "250px"; // Ajusta según el ancho de tu sidebar
+    }
+};
+
+    // CERRAR SESIÓN
+    document.getElementById('btn-logout').onclick = () => {
+        signOut(auth).then(() => {
+            window.location.href = "index.html";
+        });
+    };
+
+    const btnPlus = document.getElementById('btn-plus');
+    const dropdown = document.getElementById('plus-dropdown');
+    const modal = document.getElementById('action-modal');
+    const modalInput = document.getElementById('modal-input');
+    let currentMode = "";
+
+    btnPlus.onclick = (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('show');
+    };
+
+    document.getElementById('open-join').onclick = (e) => {
+        e.preventDefault();
+        currentMode = "join";
+        document.getElementById('modal-title').innerText = "Unirse a la agenda";
+        modalInput.placeholder = "Escribe el código existente...";
+        modalInput.value = "";
+        modal.style.display = "flex";
+        dropdown.classList.remove('show');
+    };
+
+document.getElementById('open-create').onclick = (e) => {
+    e.preventDefault();
+    currentMode = "create";
+    document.getElementById('modal-title').innerText = "Crear nueva clase";
+    modalInput.placeholder = "Nombre del aula o materia...";
+    modalInput.value = "";
+    modal.style.display = "flex";
+    dropdown.classList.remove('show');
+};
+
+    document.getElementById('btn-close-modal').onclick = () => {
+        modal.style.display = "none";
+    };
+
+  document.getElementById('btn-action-confirm').onclick = async () => {
+    const val = modalInput.value.trim();
+    if(!val) return;
+
+    if(currentMode === "create") {
+        const codigoSecreto = generarCodigoAleatorio(); // Generamos el código aleatorio
+        const agendaRef = ref(db, 'agendas/' + codigoSecreto);
+        
+        await set(agendaRef, {
+            nombre: val, // Nombre que eligió el usuario (ej: Historia)
+            owner: auth.currentUser.uid,
+            tareas: {
+                tarea_inicial: {
+                    titulo: `Bienvenidos a ${val}`,
+                    materia: "Sistema",
+                    descripcion: "Este es el muro de tareas.",
+                    fecha: "Hoy"
+                }
+            }
+        });
+        // Redirigimos usando el código aleatorio generado
+        window.location.href = `menu.html?code=${codigoSecreto}`;
+    } else {
+        // En modo "join", el valor ingresado sí es el código
+        window.location.href = `menu.html?code=${val.toUpperCase()}`;
+    }
+};
+
+    window.onclick = () => {
+        dropdown.classList.remove('show');
+    };function abrirModalTarea(code) {
+    const modal = document.getElementById('action-modal');
+    const modalContent = document.querySelector('.modal-content');
+
+    // Cambiamos el contenido del modal para el formulario de tareas
+    modalContent.innerHTML = `
+        <h2>Publicar Tarea</h2>
+        <input type="text" id="t-titulo" placeholder="Título (ej: Tarea de Fracciones)" style="width:90%; margin:10px 0; padding:10px;">
+        <input type="text" id="t-materia" placeholder="Materia (ej: Matemática)" style="width:90%; margin:10px 0; padding:10px;">
+        <textarea id="t-desc" placeholder="Descripción" style="width:90%; margin:10px 0; padding:10px; height:80px;"></textarea>
+        <input type="text" id="t-fecha" placeholder="Fecha de entrega" style="width:90%; margin:10px 0; padding:10px;">
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="document.getElementById('action-modal').style.display='none'">Cancelar</button>
+            <button class="btn-confirm" id="btn-save-task">Publicar Ahora</button>
+        </div>
+    `;
+    
+    modal.style.display = "flex";
+
+    // Evento para guardar en Firebase
+    document.getElementById('btn-save-task').onclick = async () => {
+        const titulo = document.getElementById('t-titulo').value.trim();
+        const materia = document.getElementById('t-materia').value.trim();
+        const descripcion = document.getElementById('t-desc').value.trim();
+        const fecha = document.getElementById('t-fecha').value.trim();
+
+        if (titulo && materia) {
+            // Referencia a la lista de tareas de esa agenda
+            const tareasRef = ref(db, 'agendas/' + code + '/tareas');
+            
+            // Creamos una nueva posición con ID único usando push()
+            const nuevaTareaRef = push(tareasRef);
+
+            await set(nuevaTareaRef, {
+                titulo: titulo,
+                materia: materia,
+                descripcion: descripcion,
+                fecha: fecha
+            });
+
+            modal.style.display = "none";
+            // No hace falta recargar, onValue actualizará la lista automáticamente
+        } else {
+            alert("Por favor completa el título y la materia.");
+        }
+    };}
+// --- LÓGICA DE NAVEGACIÓN DEL SIDEBAR ---
+
+const navItems = document.querySelectorAll('.nav-item');
+
+navItems.forEach(item => {
+    item.onclick = (e) => {
+        // Ignorar el click si es el botón de Cerrar Sesión (ya tiene su propia lógica)
+        if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
+
+        // 1. Efecto Visual de Selección
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+
+        // 2. Obtener el texto para identificar la sección
+        const texto = item.innerText.toLowerCase();
+        const container = document.getElementById('task-container');
+        const bannerTitle = document.getElementById('banner-title');
+        const adminControls = document.getElementById('admin-controls');
+
+        // Limpiamos los controles de admin al cambiar de sección para evitar errores
+        if (adminControls) adminControls.innerHTML = "";
+
+        // 3. Switch de Navegación (Single Page Application style)
+        if (texto.includes("inicio")) {
+            // En lugar de reload(), llamamos a cargarAgenda() para que sea instantáneo
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (code) {
+                cargarAgenda(auth.currentUser.uid);
+            } else {
+                mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
+            }
+        } 
+        
+        else if (texto.includes("calendario")) {
+            bannerTitle.innerText = "Calendario Académico";
+            container.innerHTML = `
+                <div class="no-agenda-box">
+                    <img src="https://www.gstatic.com/classroom/empty_states_home.png" style="width: 200px; opacity: 0.6;">
+                    <h2>Próximamente</h2>
+                    <p>Aquí verás tus entregas organizadas por fechas.</p>
+                </div>`;
+        }
+
+        else if (texto.includes("pendientes")) {
+            bannerTitle.innerText = "Tareas Pendientes";
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px; color: #5f6368;">
+                    <p>Filtro activo: Solo tareas con fecha de entrega próxima.</p>
+                    </div>`;
+        }
+
+        else if (texto.includes("cuenta de google")) {
+            const user = auth.currentUser;
+            bannerTitle.innerText = "Información de Perfil";
+            container.innerHTML = `
+                <div class="card" style="max-width: 450px; margin: 20px auto; text-align: center; padding: 30px;">
+                    <div style="position: relative; display: inline-block;">
+                        <img src="${user.photoURL}" style="border-radius: 50%; width: 120px; border: 4px solid #e8f0fe;">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: #34a853; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>
+                    </div>
+                    <h2 style="margin-top: 15px; color: #202124;">${user.displayName}</h2>
+                    <p style="color: #5f6368; margin-bottom: 20px;">${user.email}</p>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    <p style="font-size: 13px; color: #1a73e8; font-weight: 500;">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png" width="16" style="vertical-align: middle; margin-right: 5px;">
+                        Cuenta vinculada con Praxis Cloud
+                    </p>
+                </div>`;
+        }
+        
+     // Cerramos el sidebar automáticamente en móviles tras elegir una opción
+if (window.innerWidth <= 768) {
+    sidebar.classList.remove('active'); // Quitamos 'active' para que se esconda
+    if (overlay) {
+        overlay.style.display = 'none'; // Ocultamos la capa oscura
+    }
+}
+    };
+});function generarCodigoAleatorio(longitud = 6) {
+    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Eliminamos 'I', 'O', '0', '1' para evitar confusiones
+    let resultado = '';
+    for (let i = 0; i < longitud; i++) {
+        resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+    return `PX-${resultado}`; // Prefijo para que sepa que es de Praxis
+}
+// Función global para eliminar una tarea específica
+window.eliminarTarea = async (agendaCode, tareaId) => {
+    if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
+        try {
+            // Referencia exacta a la tarea dentro de la agenda
+            const tareaRef = ref(db, `agendas/${agendaCode}/tareas/${tareaId}`);
+            
+            // En Firebase, poner el valor en null elimina el nodo
+            await set(tareaRef, null);
+            
+            // No hace falta recargar, onValue actualizará la vista automáticamente
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+            alert("No se pudo eliminar la tarea.");
+        }
+    }
+};  
+</script>
+</body>
+</html>

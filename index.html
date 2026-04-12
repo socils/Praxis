@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Iniciar Sesión</title>
+    <style>
+        :root {
+            --google-blue: #1a73e8;
+            --google-gray: #5f6368;
+            --border: #dadce0;
+        }
+
+        body {
+            font-family: 'Roboto', arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-card {
+            width: 400px;
+            padding: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--google-gray);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        p {
+            color: #202124;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #3c4043;
+            transition: background 0.2s;
+        }
+
+        .google-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        .google-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .google-btn img {
+            width: 18px;
+            margin-right: 10px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: var(--google-gray);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="logo">Praxis</div>
+        <h1>Acceder</h1>
+        <p>Utiliza tu cuenta de Google</p>
+
+        <button class="google-btn" id="btn-google">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" alt="Google">
+            Acceder con Google
+        </button>
+
+        <div id="error-msg" style="color: red; font-size: 12px; margin-top: 10px;"></div>
+
+        <div class="footer">
+            <span>Español (Latinoamérica)</span>
+            <div>
+                <span style="margin-left: 10px;">Ayuda</span>
+                <span style="margin-left: 10px;">Privacidad</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+            authDomain: "praxis-79b9a.firebaseapp.com",
+            projectId: "praxis-79b9a",
+            storageBucket: "praxis-79b9a.firebasestorage.app",
+            messagingSenderId: "596083977949",
+            appId: "1:596083977949:web:71064f89a23f8d9738f534"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        const btn = document.getElementById('btn-google');
+        const errorDiv = document.getElementById('error-msg');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = "menu.html";
+            }
+        });
+
+        btn.onclick = async () => {
+            btn.disabled = true;
+            errorDiv.innerText = "";
+            
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                btn.disabled = false;
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorDiv.innerText = "Cerraste la ventana antes de terminar.";
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    errorDiv.innerText = "Solicitud cancelada. Intenta de nuevo.";
+                } else {
+                    errorDiv.innerText = "Error al conectar con Google.";
+                    console.error(error.code);
+                }
+            }
+        };
+    </script>
+</body>
+</html>
