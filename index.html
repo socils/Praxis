@@ -197,6 +197,7 @@
         signInWithPopup, 
         GoogleAuthProvider, 
         onAuthStateChanged, 
+        updateProfile,
         signInWithEmailAndPassword,
         createUserWithEmailAndPassword 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -229,18 +230,15 @@
         isRegisterMode = !isRegisterMode;
         errorDiv.innerText = "";
         
-        if (isRegisterMode) {
-            authTitle.innerText = "Crear cuenta";
-            authSubtitle.innerText = "Regístrate en Praxis";
-            btnMain.innerText = "Crear cuenta ahora";
-            toggleBtn.innerText = "¿Ya tienes cuenta? Inicia sesión";
-        } else {
-            authTitle.innerText = "Acceder";
-            authSubtitle.innerText = "Usa tu cuenta de Praxis";
-            btnMain.innerText = "Iniciar Sesión";
-            toggleBtn.innerText = "¿No tienes cuenta? Hazlo aquí";
-        }
-    };
+       if (isRegisterMode) {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    
+    // ESTO ES LO QUE FALTA: Guarda el nombre para que no sea null
+    await updateProfile(userCredential.user, {
+        displayName: email.split('@')[0], // Usa la parte antes del @ como nombre
+        photoURL: "https://ui-avatars.com/api/?name=Usuario&background=random"
+    });
+
 
     btnMain.onclick = async () => {
         const email = emailInput.value.trim();
