@@ -93,8 +93,7 @@ onAuthStateChanged(auth, (user) => {
     const userInfoDiv = document.getElementById('user-info');
 
     if (user) {
-        // SOLUCIÓN: Si displayName es null, extraemos el nombre del correo electrónico
-        // Si photoURL es null, usamos un avatar genérico de Google
+        // 1. Mostrar los datos del usuario (Tu código actual)
         const nombreDisplay = user.displayName || user.email.split('@')[0];
         const fotoDisplay = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
 
@@ -105,8 +104,12 @@ onAuthStateChanged(auth, (user) => {
             <img src="${fotoDisplay}" alt="User" 
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
+
+        // 2. ¡ESTO ES LO QUE FALTA PARA QUITAR EL "CARGANDO"!
+        cargarAgenda(user.uid);      // Activa la carga de tareas y el banner
+        cargarListaSidebar(user.uid); // Activa la lista de tus clases a la izquierda
+
     } else {
-        // Si no hay usuario, regresamos al login
         window.location.href = "index.html";
     }
 });
@@ -495,7 +498,12 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
             });
         }
     });
-} 
+} ;window.toggleMobileMenu = () => {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('active');
+    overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+};
 </script>
 </body>
 </html>
