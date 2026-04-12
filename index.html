@@ -89,30 +89,47 @@
 </head>
 <body>
 
-    <div class="login-card">
-        <div class="logo">Praxis</div>
-        <h1>Acceder</h1>
-        <p>Utiliza tu cuenta de Google</p>
+   <body style="background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
 
-        <button class="google-btn" id="btn-google">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" alt="Google">
+    <div class="login-card" style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center;">
+        <div class="logo" style="font-size: 28px; font-weight: bold; color: #1a73e8; margin-bottom: 10px;">Praxis</div>
+        <h1 style="font-size: 22px; color: #202124; margin-bottom: 8px;">Acceder</h1>
+        <p style="color: #5f6368; margin-bottom: 25px;">Usa tu cuenta de Praxis</p>
+
+        <div style="text-align: left; margin-bottom: 15px;">
+            <input type="email" id="email" placeholder="Correo electrónico" style="width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; font-size: 14px; outline-color: #1a73e8;">
+            <input type="password" id="password" placeholder="Contraseña" style="width: 100%; padding: 12px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; font-size: 14px; outline-color: #1a73e8; margin-top: 10px;">
+        </div>
+
+        <button id="btn-login" style="width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: background 0.2s;">
+            Iniciar Sesión
+        </button>
+
+        <div style="display: flex; align-items: center; margin: 20px 0; color: #70757a;">
+            <hr style="flex: 1; border: 0; border-top: 1px solid #dadce0;">
+            <span style="padding: 0 10px; font-size: 12px;">O TAMBIÉN</span>
+            <hr style="flex: 1; border: 0; border-top: 1px solid #dadce0;">
+        </div>
+
+        <button class="google-btn" id="btn-google" style="width: 100%; background: white; border: 1px solid #dadce0; padding: 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; color: #3c4043; transition: background 0.2s;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" alt="Google" style="width: 18px;">
             Acceder con Google
         </button>
 
-        <div id="error-msg" style="color: red; font-size: 12px; margin-top: 10px;"></div>
+        <div id="error-msg" style="color: #d93025; font-size: 12px; margin-top: 15px; min-height: 15px;"></div>
 
-        <div class="footer">
+        <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 12px; color: #70757a;">
             <span>Español (Latinoamérica)</span>
             <div>
-                <span style="margin-left: 10px;">Ayuda</span>
-                <span style="margin-left: 10px;">Privacidad</span>
+                <a href="#" style="text-decoration: none; color: #70757a; margin-left: 10px;">Ayuda</a>
+                <a href="#" style="text-decoration: none; color: #70757a; margin-left: 10px;">Privacidad</a>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
@@ -127,35 +144,47 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
         
-        provider.setCustomParameters({ prompt: 'select_account' });
-
-        const btn = document.getElementById('btn-google');
         const errorDiv = document.getElementById('error-msg');
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.href = "menu.html";
-            }
-        });
-
-        btn.onclick = async () => {
-            btn.disabled = true;
+        // --- LÓGICA DE LOGIN CON CORREO ---
+        document.getElementById('btn-login').onclick = async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             errorDiv.innerText = "";
-            
+
+            if(!email || !password) {
+                errorDiv.innerText = "Por favor completa ambos campos.";
+                return;
+            }
+
             try {
-                await signInWithPopup(auth, provider);
+                await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                btn.disabled = false;
-                if (error.code === 'auth/popup-closed-by-user') {
-                    errorDiv.innerText = "Cerraste la ventana antes de terminar.";
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    errorDiv.innerText = "Solicitud cancelada. Intenta de nuevo.";
+                if (error.code === 'auth/invalid-credential') {
+                    errorDiv.innerText = "Correo o contraseña incorrectos.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorDiv.innerText = "El correo no es válido.";
                 } else {
-                    errorDiv.innerText = "Error al conectar con Google.";
-                    console.error(error.code);
+                    errorDiv.innerText = "Error al iniciar sesión.";
                 }
             }
         };
+
+        // --- LÓGICA DE GOOGLE ---
+        document.getElementById('btn-google').onclick = async () => {
+            errorDiv.innerText = "";
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error(error);
+                errorDiv.innerText = "Error al conectar con Google.";
+            }
+        };
+
+        // --- REVISAR SI EL USUARIO YA ESTÁ LOGUEADO ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) window.location.href = "menu.html";
+        });
     </script>
 </body>
 </html>
