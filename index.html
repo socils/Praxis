@@ -178,7 +178,7 @@
         </div>
 
         <button id="btn-login">Iniciar Sesión</button>
-
+<button id="toggle-auth" class="secondary-btn">¿No tienes cuenta? Hazlo aquí</button>
         <div class="separator">
             <hr><span>O TAMBIÉN</span><hr>
         </div>
@@ -199,66 +199,113 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<script type="module">
+    // 1. IMPORTACIONES (Obligatorio para que funcione createUser y signIn)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { 
+        getAuth, 
+        signInWithPopup, 
+        GoogleAuthProvider, 
+        onAuthStateChanged, 
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
-            authDomain: "praxis-79b9a.firebaseapp.com",
-            projectId: "praxis-79b9a",
-            storageBucket: "praxis-79b9a.firebasestorage.app",
-            messagingSenderId: "596083977949",
-            appId: "1:596083977949:web:71064f89a23f8d9738f534"
-        };
+    // 2. CONFIGURACIÓN (Tus credenciales de Praxis)
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9738f534"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+    // 3. INICIALIZACIÓN
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    
+    // Elementos del DOM
+    const btnMain = document.getElementById('btn-main-auth');
+    const toggleBtn = document.getElementById('toggle-auth');
+    const authTitle = document.getElementById('auth-title');
+    const authSubtitle = document.getElementById('auth-subtitle');
+    const errorDiv = document.getElementById('error-msg');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+
+    let isRegisterMode = false;
+
+    // 4. FUNCIÓN PARA CAMBIAR ENTRE LOGIN Y REGISTRO
+    toggleBtn.onclick = (e) => {
+        e.preventDefault();
+        isRegisterMode = !isRegisterMode;
         
-        const errorDiv = document.getElementById('error-msg');
+        if (isRegisterMode) {
+            authTitle.innerText = "Crear cuenta";
+            authSubtitle.innerText = "Regístrate en Praxis";
+            btnMain.innerText = "Crear cuenta ahora";
+            toggleBtn.innerText = "¿Ya tienes cuenta? Inicia sesión";
+        } else {
+            authTitle.innerText = "Acceder";
+            authSubtitle.innerText = "Usa tu cuenta de Praxis";
+            btnMain.innerText = "Iniciar Sesión";
+            toggleBtn.innerText = "¿No tienes cuenta? Hazlo aquí";
+        }
+    };
 
-        // --- LÓGICA DE LOGIN CON CORREO ---
-        document.getElementById('btn-login').onclick = async () => {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            errorDiv.innerText = "";
+    // 5. LÓGICA DE BOTÓN PRINCIPAL (LOGIN O REGISTRO)
+    btnMain.onclick = async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        errorDiv.innerText = "";
 
-            if(!email || !password) {
-                errorDiv.innerText = "Por favor completa ambos campos.";
-                return;
-            }
+        if (!email || !password) {
+            errorDiv.innerText = "Por favor, llena todos los datos.";
+            return;
+        }
 
-            try {
+        try {
+            if (isRegisterMode) {
+                // REGISTRO DE NUEVA CUENTA
+                await createUserWithEmailAndPassword(auth, email, password);
+                console.log("Cuenta creada con éxito");
+            } else {
+                // INICIO DE SESIÓN
                 await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                console.error(error.code);
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                    errorDiv.innerText = "Correo o contraseña incorrectos.";
-                } else if (error.code === 'auth/invalid-email') {
-                    errorDiv.innerText = "El correo no es válido.";
-                } else {
-                    errorDiv.innerText = "Error al iniciar sesión. Inténtalo de nuevo.";
-                }
             }
-        };
-
-        // --- LÓGICA DE GOOGLE ---
-        document.getElementById('btn-google').onclick = async () => {
-            errorDiv.innerText = "";
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    errorDiv.innerText = "Error al conectar con Google.";
-                }
+        } catch (error) {
+            console.error("Error code:", error.code);
+            // Mensajes amigables para el usuario
+            if (error.code === 'auth/email-already-in-use') {
+                errorDiv.innerText = "Este correo ya está registrado.";
+            } else if (error.code === 'auth/weak-password') {
+                errorDiv.innerText = "La contraseña debe tener al menos 6 caracteres.";
+            } else if (error.code === 'auth/invalid-credential') {
+                errorDiv.innerText = "Correo o contraseña incorrectos.";
+            } else {
+                errorDiv.innerText = "Error: " + error.message;
             }
-        };
+        }
+    };
 
-        // --- REVISAR SI EL USUARIO YA ESTÁ LOGUEADO ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) window.location.href = "menu.html";
-        });
-    </script>
+    // 6. GOOGLE AUTH
+    document.getElementById('btn-google').onclick = async () => {
+        errorDiv.innerText = "";
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            if (error.code !== 'auth/popup-closed-by-user') {
+                errorDiv.innerText = "Error al conectar con Google.";
+            }
+        }
+    };
+
+    // 7. OBSERVADOR (Si el usuario entra, mándalo al menu)
+    onAuthStateChanged(auth, (user) => {
+        if (user) window.location.href = "menu.html";
+    });
+</script>
 </body>
 </html>
