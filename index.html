@@ -189,7 +189,23 @@
         btnGoogle.onclick = () => {
             signInWithRedirect(auth, provider);
         };
+    }// ... dentro de tu script
+onAuthStateChanged(auth, (user) => {
+    console.log("Estado de Auth cambiado. ¿Hay usuario?:", user ? "SÍ" : "NO");
+    if (user) {
+        console.log("Intentando redirigir a menu.html...");
+        window.location.assign("menu.html"); // assign es a veces más persistente que href
     }
+});
+
+getRedirectResult(auth)
+    .then((result) => {
+        console.log("Resultado de redirección:", result);
+    })
+    .catch((error) => {
+        console.error("Código de error de Firebase:", error.code);
+        console.error("Mensaje de error:", error.message);
+    });
 </script>
 </body>
 </html>
