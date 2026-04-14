@@ -855,3 +855,44 @@ body {
     display: none;
     margin-bottom: 10px;
 }
+/* Contenedor del logo para posicionar la etiqueta */
+.logo-wrapper {
+    margin-left: 10px;
+}
+
+/* Estilo de la etiqueta Beta */
+.badge-beta {
+    position: absolute;
+    top: -12px;
+    right: -45px;
+    background: linear-gradient(45deg, #1a73e8, #4285f4);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 4px;
+    transform: rotate(15deg); /* Inclinación diagonal */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    border: 1px solid rgba(255,255,255,0.3);
+    pointer-events: none; /* Para que no estorbe al hacer clic */
+}
+
+.badge-beta span {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.badge-beta small {
+    font-size: 7px;
+    text-transform: uppercase;
+    opacity: 0.9;
+    margin-top: 1px;
+}
+
+/* Ajuste para que el logo no se vea cortado si el header es pequeño */
+.header-left {
+    overflow: visible !important;
+}
