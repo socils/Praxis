@@ -117,17 +117,14 @@
     </div>
 
 <script type="module">
-    // 1. Importaciones de Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getAuth, 
-        signInWithRedirect, 
-        getRedirectResult, 
+        signInWithPopup, // Cambiado de Redirect a Popup
         GoogleAuthProvider, 
         onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // 2. Tu configuración
     const firebaseConfig = {
         apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
         authDomain: "praxis-79b9a.firebaseapp.com",
@@ -138,44 +135,33 @@
         appId: "1:596083977949:web:71064f89a23f8d9738f534"
     };
 
-    // 3. Inicialización
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    console.log("🚀 Firebase inicializado correctamente.");
-
-    // 4. Capturar el resultado después del redireccionamiento
-    getRedirectResult(auth)
-        .then((result) => {
-            if (result?.user) {
-                console.log("✅ Login exitoso tras redirección:", result.user.displayName);
-                window.location.href = "menu.html";
-            }
-        })
-        .catch((error) => {
-            console.error("❌ Error en el proceso de redirección:", error.code, error.message);
-        });
-
-    // 5. Escuchar cambios en el estado del usuario (Persistencia)
+    // Persistencia: Si el usuario ya está logueado, mandarlo al menú
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            console.log("👤 Usuario detectado:", user.email);
-            window.location.href = "menu.html";
-        } else {
-            console.log("🔌 No hay sesión activa.");
+            console.log("✅ Sesión activa:", user.email);
+            window.location.assign("menu.html");
         }
     });
 
-    // 6. Acción del botón
     const btnGoogle = document.getElementById('btn-google');
     if (btnGoogle) {
-        btnGoogle.onclick = () => {
-            console.log("Iniciando sesión con Google...");
-            signInWithRedirect(auth, provider);
+        btnGoogle.onclick = async () => {
+            try {
+                console.log("⚡ Abriendo ventana de Google...");
+                const result = await signInWithPopup(auth, provider);
+                if (result.user) {
+                    window.location.assign("menu.html");
+                }
+            } catch (error) {
+                console.error("❌ Error detallado:", error.code);
+                // Si sale 'auth/unauthorized-domain', falta tu IP en Firebase
+                alert("Error de autenticación: " + error.code);
+            }
         };
-    } else {
-        console.error("No se encontró el botón con ID 'btn-google'");
     }
 </script>
 </body>
