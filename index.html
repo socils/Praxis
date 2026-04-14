@@ -118,38 +118,35 @@
 
 <script type="module">
     /**
- * Praxis Error Guardian
- * Monitorea errores en consola y fallos de red para redirigir a error.html
- */
-const iniciarGuardianPraxis = () => {
-    // 1. Capturar errores de ejecución (Sintaxis, variables no definidas, etc.)
-    window.onerror = function(message, source, lineno, colno, error) {
-        console.error("❌ Error Crítico detectado:", message);
-        window.location.href = "error.html";
-        return true; 
-    };
-
-    // 2. Capturar promesas fallidas (Errores de Firebase, carga de datos, etc.)
-    window.onunhandledrejection = function(event) {
-        console.error("❌ Error de Promesa:", event.reason);
-        window.location.href = "error.html";
-    };
-
-    // 3. Capturar errores de carga de archivos (Imágenes rotas o scripts no encontrados)
-    window.addEventListener('error', function(event) {
-        if (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK') {
-            console.error("❌ Error al cargar recurso crítico:", event.target.src || event.target.href);
+     * Praxis Error Guardian
+     */
+    const iniciarGuardianPraxis = () => {
+        window.onerror = (message) => {
+            console.error("❌ Error Crítico:", message);
             window.location.href = "error.html";
-        }
-    }, true);
-};
+            return true; 
+        };
 
-// Ejecución inmediata
-iniciarGuardianPraxis();
+        window.onunhandledrejection = (event) => {
+            console.error("❌ Error de Promesa:", event.reason);
+            window.location.href = "error.html";
+        };
+
+        window.addEventListener('error', (event) => {
+            if (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK') {
+                window.location.href = "error.html";
+            }
+        }, true);
+    };
+
+    iniciarGuardianPraxis();
+
+    // Importaciones necesarias
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getAuth, 
         signInWithRedirect, 
+        getRedirectResult, 
         GoogleAuthProvider, 
         onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -168,14 +165,31 @@ iniciarGuardianPraxis();
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Acceso a pantalla completa (reemplaza la web actual por la de Google)
-    document.getElementById('btn-google').onclick = () => {
-        signInWithRedirect(auth, provider);
-    };
+    // 1. Manejar el resultado del redireccionamiento (Vital para que funcione)
+    getRedirectResult(auth)
+        .then((result) => {
+            if (result?.user) {
+                window.location.href = "menu.html";
+            }
+        })
+        .catch((error) => {
+            console.error("Error en el login:", error);
+        });
 
+    // 2. Observador de estado
     onAuthStateChanged(auth, (user) => {
-        if (user) window.location.href = "menu.html";
+        if (user) {
+            window.location.href = "menu.html";
+        }
     });
+
+    // Evento del botón
+    const btnGoogle = document.getElementById('btn-google');
+    if (btnGoogle) {
+        btnGoogle.onclick = () => {
+            signInWithRedirect(auth, provider);
+        };
+    }
 </script>
 </body>
 </html>
