@@ -789,64 +789,64 @@ function renderizarVacio() {
         overlay.remove();
     };
 })();// --- FUNCIÓN EXPERIMENTAL: PRAXIS FOCUS TIMER ---
+// --- FUNCIÓN EXPERIMENTAL: PRAXIS VOICE READER ---
 (function() {
-    // Solo activable si el usuario presiona "F" + "T" al mismo tiempo
     let keys = {};
     window.addEventListener('keydown', (e) => {
         keys[e.key.toLowerCase()] = true;
-        if (keys['f'] && keys['t']) {
-            toggleFocusMode();
+        // Atajo: Alt + V (Voice)
+        if (e.altKey && keys['v']) {
+            activarLectorExperimental();
         }
     });
     window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
 
-    function toggleFocusMode() {
-        let timerDiv = document.getElementById('praxis-focus-timer');
-        if (timerDiv) {
-            timerDiv.remove();
-            return;
-        }
-
-        timerDiv = document.createElement('div');
-        timerDiv.id = 'praxis-focus-timer';
-        timerDiv.innerHTML = `
-            <div style="font-size: 10px; margin-bottom: 5px; opacity: 0.8;">FOCUS MODE (BETA)</div>
-            <div id="timer-display" style="font-size: 24px; font-weight: bold; font-family: monospace;">25:00</div>
-            <button id="btn-start-timer" style="margin-top: 10px; border: none; background: white; color: #1a73e8; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold;">Iniciar</button>
-        `;
+    function activarLectorExperimental() {
+        // Alerta de función experimental de Alonixz-Group
+        const yaAcepto = localStorage.getItem('praxis_voice_exp');
         
-        // Estilo del widget flotante
-        Object.assign(timerDiv.style, {
-            position: 'fixed', bottom: '20px', right: '20px',
-            background: '#1a73e8', color: 'white', padding: '15px',
-            borderRadius: '16px', zIndex: '9999', textAlign: 'center',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.3)', width: '120px'
-        });
-
-        document.body.appendChild(timerDiv);
-
-        let timeLeft = 25 * 60;
-        let isRunning = false;
-        let interval;
-
-        document.getElementById('btn-start-timer').onclick = function() {
-            if (isRunning) return;
-            isRunning = true;
-            this.innerText = "Estudiando...";
-            interval = setInterval(() => {
-                timeLeft--;
-                let mins = Math.floor(timeLeft / 60);
-                let secs = timeLeft % 60;
-                document.getElementById('timer-display').innerText = 
-                    `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(interval);
-                    alert("¡Tiempo cumplido! Tómate un descanso.");
-                    timerDiv.remove();
+        if (!yaAcepto) {
+            Swal.fire({
+                title: '🧪 Laboratorio Alonixz',
+                text: 'Vas a activar el "Lector de Voz Experimental". Esta función usa la API de síntesis de tu navegador para leer textos. ¿Deseas probarla?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Activar',
+                confirmButtonColor: '#1a73e8'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.setItem('praxis_voice_exp', 'true');
+                    ejecutarLectura();
                 }
-            }, 1000);
-        };
+            });
+        } else {
+            ejecutarLectura();
+        }
+    }
+
+    function ejecutarLectura() {
+        // Intentar leer el texto seleccionado por el usuario, o el banner por defecto
+        const textoSeleccionado = window.getSelection().toString();
+        const textoALeer = textoSeleccionado || "No has seleccionado texto. Leyendo panel principal de Praxis.";
+        
+        const mensaje = new SpeechSynthesisUtterance(textoALeer);
+        mensaje.lang = 'es-LA';
+        mensaje.rate = 1; // Velocidad normal
+
+        // Visualización del estado
+        const status = document.createElement('div');
+        status.innerHTML = `📢 Leyendo en voz alta... <br><small>(Experimental)</small>`;
+        Object.assign(status.style, {
+            position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+            background: '#34a853', color: 'white', padding: '10px 20px', 
+            borderRadius: '20px', zIndex: '10001', boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+            fontSize: '12px', textAlign: 'center'
+        });
+        document.body.appendChild(status);
+
+        window.speechSynthesis.speak(mensaje);
+
+        mensaje.onend = () => status.remove();
     }
 })();
 </script>
