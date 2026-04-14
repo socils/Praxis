@@ -789,64 +789,57 @@ function renderizarVacio() {
         overlay.remove();
     };
 })();// --- FUNCIÓN EXPERIMENTAL: PRAXIS FOCUS TIMER ---
-// --- FUNCIÓN EXPERIMENTAL: PRAXIS VOICE READER ---
+// --- FUNCIÓN EXPERIMENTAL: PRAXIS PERFORMANCE INSPECTOR ---
 (function() {
     let keys = {};
     window.addEventListener('keydown', (e) => {
         keys[e.key.toLowerCase()] = true;
-        // Atajo: Alt + V (Voice)
-        if (e.altKey && keys['v']) {
-            activarLectorExperimental();
+        // Atajo: Shift + P (Performance)
+        if (e.shiftKey && keys['p']) {
+            activarInspectorExperimental();
         }
     });
     window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
 
-    function activarLectorExperimental() {
-        // Alerta de función experimental de Alonixz-Group
-        const yaAcepto = localStorage.getItem('praxis_voice_exp');
+    function activarInspectorExperimental() {
+        const yaAcepto = localStorage.getItem('praxis_perf_exp');
         
+        // Alerta nativa (Para evitar errores de librerías externas)
         if (!yaAcepto) {
-            Swal.fire({
-                title: '🧪 Laboratorio Alonixz',
-                text: 'Vas a activar el "Lector de Voz Experimental". Esta función usa la API de síntesis de tu navegador para leer textos. ¿Deseas probarla?',
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonText: 'Activar',
-                confirmButtonColor: '#1a73e8'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    localStorage.setItem('praxis_voice_exp', 'true');
-                    ejecutarLectura();
-                }
-            });
+            const confirmar = confirm("🧪 [ALONIXZ LABS]\n\nEstás activando el 'Inspector de Rendimiento Experimental'.\nEsta función analizará la carga de Praxis.\n\n¿Deseas continuar?");
+            if (confirmar) {
+                localStorage.setItem('praxis_perf_exp', 'true');
+                mostrarReporte();
+            }
         } else {
-            ejecutarLectura();
+            mostrarReporte();
         }
     }
 
-    function ejecutarLectura() {
-        // Intentar leer el texto seleccionado por el usuario, o el banner por defecto
-        const textoSeleccionado = window.getSelection().toString();
-        const textoALeer = textoSeleccionado || "No has seleccionado texto. Leyendo panel principal de Praxis.";
+    function mostrarReporte() {
+        // Obtenemos datos reales de navegación del navegador
+        const [navigation] = performance.getEntriesByType('navigation');
+        const cargaTotal = (navigation.duration / 1000).toFixed(2);
         
-        const mensaje = new SpeechSynthesisUtterance(textoALeer);
-        mensaje.lang = 'es-LA';
-        mensaje.rate = 1; // Velocidad normal
-
-        // Visualización del estado
-        const status = document.createElement('div');
-        status.innerHTML = `📢 Leyendo en voz alta... <br><small>(Experimental)</small>`;
-        Object.assign(status.style, {
-            position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-            background: '#34a853', color: 'white', padding: '10px 20px', 
-            borderRadius: '20px', zIndex: '10001', boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-            fontSize: '12px', textAlign: 'center'
+        const reporte = document.createElement('div');
+        reporte.id = 'perf-report';
+        reporte.innerHTML = `
+            <div style="background: #202124; color: #34a853; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 12px; border: 1px solid #34a853;">
+                <b style="color: white;">> ALONIXZ_PERF_REPORT:</b><br><br>
+                [ESTADO]: OPTIMIZADO<br>
+                [CARGA_TOTAL]: ${cargaTotal}s<br>
+                [DOM_READY]: ${navigation.domInteractive.toFixed(0)}ms<br>
+                [PROTOCOL]: ${window.location.protocol}<br><br>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; border: 1px solid white; color: white; cursor: pointer; padding: 3px 10px;">Cerrar terminal</button>
+            </div>
+        `;
+        
+        Object.assign(reporte.style, {
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            zIndex: '10002', width: '280px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
         });
-        document.body.appendChild(status);
 
-        window.speechSynthesis.speak(mensaje);
-
-        mensaje.onend = () => status.remove();
+        document.body.appendChild(reporte);
     }
 })();
 </script>
