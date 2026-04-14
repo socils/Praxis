@@ -90,7 +90,7 @@
     const sidebar = document.getElementById('sidebar');
 
 onAuthStateChanged(auth, (user) => {
-    const userInfoDiv = document.getElementById('user-info');
+    const userInfoDiv = document.getElementById('user-info'); 
 
     if (user) {
         // 1. Mostrar los datos del usuario (Tu código actual)
@@ -113,9 +113,14 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = "index.html";
     }
 });
-  function cargarAgenda(currentUserUid) {
+ function cargarAgenda(currentUserUid) {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
+    
+    // Limpieza inmediata al iniciar la función para evitar residuos de otras vistas
+    const banner = document.querySelector('.banner');
+    const oldAdminBtn = document.getElementById('admin-publish-btn');
+    if (oldAdminBtn) oldAdminBtn.remove();
     
     if (code) {
         const agendaRef = ref(db, 'agendas/' + code);
@@ -125,8 +130,10 @@ onAuthStateChanged(auth, (user) => {
             container.innerHTML = "";
             statusMsg.innerHTML = "";
             
-            const oldAdminBtn = document.getElementById('admin-publish-btn');
-            if(oldAdminBtn) oldAdminBtn.remove();
+            // Limpieza interna: Cada vez que Firebase detecta un cambio, 
+            // borramos el botón antes de decidir si lo volvemos a crear.
+            const currentBtn = document.getElementById('admin-publish-btn');
+            if(currentBtn) currentBtn.remove();
 
             if (data) {
                 bannerTitle.innerText = data.nombre || "Agenda sin nombre";
@@ -141,14 +148,15 @@ onAuthStateChanged(auth, (user) => {
                     adminBtn.className = "btn-confirm"; 
                     adminBtn.style.marginTop = "15px";
                     adminBtn.onclick = () => abrirModalTarea(code); 
-                    document.querySelector('.banner').appendChild(adminBtn);
+                    banner.appendChild(adminBtn); // Insertar en el banner limpio
                 }
 
                 if (data.tareas) {
+                    // Convertimos a array y revertimos para ver las más recientes arriba
                     Object.keys(data.tareas).reverse().forEach(id => {
                         const t = data.tareas[id];
-                        
-                        // Si es dueño, creamos el botón de eliminar
+                        if (id === 'inicio') return; // Omitir el marcador de inicio si existe
+
                         const btnEliminar = esDuenio 
                             ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea">🗑️</button>` 
                             : "";
@@ -401,24 +409,28 @@ navItems.forEach(item => {
             }
         } 
         
-        else if (texto.includes("calendario")) {
-            bannerTitle.innerText = "Calendario Académico";
-            container.innerHTML = `
-                <div class="no-agenda-box">
-                    <img src="https://www.gstatic.com/classroom/empty_states_home.png" style="width: 200px; opacity: 0.6;">
-                    <h2>Próximamente</h2>
-                    <p>Aquí verás tus entregas organizadas por fechas.</p>
-                </div>`;
-        }
+       // --- DENTRO DE navItems.forEach ---
 
-        else if (texto.includes("pendientes")) {
-            bannerTitle.innerText = "Tareas Pendientes";
-            container.innerHTML = `
-                <div style="text-align:center; padding:40px; color: #5f6368;">
-                    <p>Filtro activo: Solo tareas con fecha de entrega próxima.</p>
-                    </div>`;
-        }
+else if (texto.includes("calendario")) {
+    bannerTitle.innerText = "Calendario Académico";
+    container.innerHTML = "<p style='text-align:center;'>Organizando fechas...</p>";
+    obtenerTodasLasTareas((todasLasTareas) => {
+        // Ordenar por fecha (asumiendo formato YYYY-MM-DD o similar)
+        todasLasTareas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+        renderizarVistaLista(todasLasTareas, "calendario");
+    });
+}
 
+else if (texto.includes("pendientes")) {
+    bannerTitle.innerText = "Tareas Pendientes";
+    container.innerHTML = "<p style='text-align:center;'>Buscando tareas...</p>";
+    obtenerTodasLasTareas((todasLasTareas) => {
+        // Filtrar tareas cuya fecha sea hoy o futura
+        const hoy = new Date().setHours(0,0,0,0);
+        const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
+        renderizarVistaLista(pendientes, "pendientes");
+    });
+}
         else if (texto.includes("cuenta de google")) {
             const user = auth.currentUser;
             bannerTitle.innerText = "Información de Perfil";
@@ -437,7 +449,101 @@ navItems.forEach(item => {
                     </p>
                 </div>`;
         }
+else if (texto.includes("sincronizar drive")) {
+    bannerTitle.innerText = "Nube de Datos (Cloud Save)";
+    
+    container.innerHTML = `
+        <div class="sync-container" style="background: rgba(26, 115, 232, 0.05); border-radius: 20px; border: 2px dashed #1a73e8;">
+            <div id="sync-icon-area">
+                <span style="font-size: 60px;">💾</span>
+            </div>
+            <h2 id="sync-msg" style="text-transform: uppercase; letter-spacing: 2px;">¿Guardar Agenda?</h2>
+            <p id="sync-sub">Se sobreescribirá el último punto de control en la nube.</p>
+            
+            <div class="loader-bar-container" id="bar-container" style="background: #d1e3fa; height: 20px; border: 2px solid #1a73e8;">
+                <div class="loader-progress" id="sync-bar" style="background: repeating-linear-gradient(45deg, #1a73e8, #1a73e8 10px, #4285f4 10px, #4285f4 20px);"></div>
+            </div>
+
+            <button class="btn-confirm" id="btn-start-sync" style="margin-top:20px; font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+                [ GUARDAR PARTIDA ]
+            </button>
+        </div>
+    `;
+
+    const btnSync = document.getElementById('btn-start-sync');
+    const barContainer = document.getElementById('bar-container');
+    const bar = document.getElementById('sync-bar');
+    const msg = document.getElementById('sync-msg');
+    const sub = document.getElementById('sync-sub');
+
+    btnSync.onclick = () => {
+        btnSync.style.display = "none";
+        barContainer.style.display = "block";
+        msg.innerText = "GUARDANDO DATOS...";
         
+        let progreso = 0;
+        const intervalo = setInterval(() => {
+            progreso += Math.random() * 20; 
+            if (progreso > 100) progreso = 100;
+            
+            bar.style.width = progreso + "%";
+
+            if (progreso >= 100) {
+                clearInterval(intervalo);
+                
+                // Efecto de éxito estilo RPG
+                msg.innerText = "¡AGENDA GUARDADA!";
+                msg.style.color = "#34a853";
+                sub.innerText = "Punto de control actualizado correctamente.";
+                barContainer.style.display = "none";
+                document.getElementById('sync-icon-area').innerHTML = "<span style='font-size:60px;'>✨</span>";
+                
+                // Opcional: El mensaje vuelve a la normalidad después de unos segundos
+                setTimeout(() => {
+                   if(texto.includes("sincronizar drive")) {
+                       msg.style.color = "#202124";
+                       document.getElementById('sync-icon-area').innerHTML = "<span style='font-size:60px;'>💾</span>";
+                   }
+                }, 3000);
+            }
+        }, 500);
+    };
+    // Dentro de navItems.forEach(item => { ... })
+item.onclick = (e) => {
+    if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
+
+    navItems.forEach(nav => nav.classList.remove('active'));
+    item.classList.add('active');
+
+    const texto = item.innerText.toLowerCase();
+    const container = document.getElementById('task-container');
+    const bannerTitle = document.getElementById('banner-title');
+    
+    // --- ESTO SOLUCIONA EL PROBLEMA DEL BOTÓN PEGADO ---
+    // 1. Buscamos cualquier botón de publicación anterior y lo eliminamos
+    const oldAdminBtn = document.getElementById('admin-publish-btn');
+    if (oldAdminBtn) {
+        oldAdminBtn.remove();
+    }
+
+    // 2. Limpiamos el código de acceso y mensajes para que el banner esté vacío
+    document.getElementById('display-code').innerText = "";
+    container.innerHTML = ""; 
+    document.getElementById('status-message').innerHTML = ""; 
+    // --------------------------------------------------
+
+    if (texto.includes("inicio")) {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (code) {
+            cargarAgenda(auth.currentUser.uid);
+        } else {
+            mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
+        }
+    } 
+    // ... resto de tus else if (calendario, pendientes, etc.)
+};
+}
      // Cerramos el sidebar automáticamente en móviles tras elegir una opción
 if (window.innerWidth <= 768) {
     sidebar.classList.remove('active'); // Quitamos 'active' para que se esconda
@@ -504,6 +610,151 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
     sidebar.classList.toggle('active');
     overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
 };
+async function obtenerTodasLasTareas(callback) {
+    const user = auth.currentUser;
+    const misAgendasRef = ref(db, `usuarios/${user.uid}/mis_agendas`);
+    const snapshot = await get(misAgendasRef);
+    const misAgendas = snapshot.val();
+    
+    if (!misAgendas) {
+        renderizarVacio();
+        return;
+    }
+
+    let tareasAcumuladas = [];
+    const promesas = Object.keys(misAgendas).map(async (code) => {
+        const agendaSnap = await get(ref(db, `agendas/${code}`));
+        const agendaData = agendaSnap.val();
+        if (agendaData && agendaData.tareas) {
+            Object.keys(agendaData.tareas).forEach(id => {
+                if(id !== 'inicio') { // Ignorar la tarea de bienvenida
+                    tareasAcumuladas.push({
+                        ...agendaData.tareas[id],
+                        agendaNombre: agendaData.nombre,
+                        agendaId: code
+                    });
+                }
+            });
+        }
+    });
+
+    await Promise.all(promesas);
+    callback(tareasAcumuladas);
+}
+
+function renderizarVistaLista(lista, tipo) {
+    container.innerHTML = "";
+    if (lista.length === 0) {
+        renderizarVacio();
+        return;
+    }
+
+    lista.forEach(t => {
+        container.innerHTML += `
+            <div class="card" onclick="window.location.href='menu.html?code=${t.agendaId}'" style="cursor:pointer;">
+                <div class="card-header">
+                    <div>
+                        <h3 style="font-size:16px;">${t.titulo}</h3>
+                        <small style="color:var(--p-600)">${t.agendaNombre} • ${t.materia}</small>
+                    </div>
+                </div>
+                <div class="card-body"><p>${t.descripcion.substring(0, 100)}...</p></div>
+                <div class="card-footer">
+                    <span class="${tipo === 'pendientes' ? 'tag-warning' : ''}">
+                        📅 Entrega: ${t.fecha}
+                    </span>
+                </div>
+            </div>`;
+    });
+}
+
+function renderizarVacio() {
+    container.innerHTML = `
+        <div class="empty-state">
+            <img src="https://www.gstatic.com/classroom/empty_states_home.png">
+            <h2>No hay tareas aquí</h2>
+            <p>Todo está al día por ahora.</p>
+        </div>`;
+}
+// --- SCRIPT DE ACTUALIZACIÓN PRAXIS (ESTILO EDUSOLVE) ---
+(function() {
+    // 1. Verificar si el usuario ya pidió no ver la actualización
+    if (localStorage.getItem('praxis_update_hidden') === 'true') return;
+
+    // 2. Inyección de Estilos Críticos
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .update-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 5000;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .update-card {
+            background: white; width: 90%; max-width: 500px;
+            border-radius: 16px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center; font-family: sans-serif;
+        }
+        .compare-box {
+            display: flex; gap: 10px; margin: 20px 0;
+        }
+        .side {
+            flex: 1; padding: 15px; border-radius: 10px; font-size: 13px;
+        }
+        .side-old { background: #fce8e6; color: #d93025; border: 1px solid #f5c2c7; }
+        .side-new { background: #e6f4ea; color: #188038; border: 1px solid #badbcc; }
+        .update-footer {
+            margin-top: 20px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .btn-update-ok {
+            background: #1a73e8; color: white; border: none; padding: 12px;
+            border-radius: 8px; cursor: pointer; font-weight: bold;
+        }
+        .no-show-label {
+            font-size: 12px; color: #5f6368; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 3. Creación de la Estructura del Modal
+    const overlay = document.createElement('div');
+    overlay.className = 'update-overlay';
+    overlay.innerHTML = `
+        <div class="update-card">
+            <h2 style="color: #202124; margin: 0;">¡Praxis se ha actualizado!</h2>
+            <p style="color: #5f6368; font-size: 14px;">Hemos mejorado la interfaz para una mejor gestión académica.</p>
+            <img src="actu1.png" style="width: 400px;">
+            <div class="compare-box">
+                <div class="side side-old">
+                    <b>Antes</b><br>Botones pegados y desalineación.
+                </div>
+                <div class="side side-new">
+                    <b>Ahora</b><br>Limpieza automática y diseño fluido.
+                </div>
+            </div>
+
+            <div class="update-footer">
+                <button class="btn-update-ok" id="close-update-btn">Entendido</button>
+                <label class="no-show-label">
+                    <input type="checkbox" id="no-show-check"> No volver a mostrar
+                </label>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // 4. Lógica de Cierre y Persistencia
+    const closeBtn = document.getElementById('close-update-btn');
+    const noShowCheck = document.getElementById('no-show-check');
+
+    closeBtn.onclick = () => {
+        if (noShowCheck.checked) {
+            localStorage.setItem('praxis_update_hidden', 'true');
+        }
+        overlay.remove();
+    };
+})();
 </script>
 </body>
 </html>
