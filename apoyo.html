@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Apoyar el Proyecto</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2819973312491853"
+     crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --google-blue: #1a73e8;
+            --google-green: #34a853;
+            --google-yellow: #fbbc04;
+            --text-dark: #202124;
+            --text-gray: #5f6368;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .support-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--google-blue);
+            margin-bottom: 5px;
+        }
+
+        .badge-beta {
+            font-size: 10px;
+            background: #e8f0fe;
+            color: var(--google-blue);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: var(--text-dark);
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .option-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #dadce0;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .option-card:hover {
+            border-color: var(--google-blue);
+            background-color: #f8faff;
+            transform: translateY(-2px);
+        }
+
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .text-content {
+            text-align: left;
+        }
+
+        .text-content b {
+            display: block;
+            font-size: 15px;
+            color: var(--text-dark);
+        }
+
+        .text-content span {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        /* Estilos específicos para cada opción */
+        .yape { background-color: #fff9eb; border-color: #fbbc04; }
+        .yape .icon-circle { background-color: #fbbc04; color: white; }
+
+        .ads { background-color: #e6f4ea; border-color: #34a853; }
+        .ads .icon-circle { background-color: #34a853; color: white; }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #9aa0a6;
+        }
+
+        .btn-back {
+            margin-top: 20px;
+            display: inline-block;
+            color: var(--google-blue);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="support-card">
+        <div class="logo">Praxis <span class="badge-beta">BETA</span></div>
+        <h1>Mantenlo en línea</h1>
+        <p>
+            Praxis es gratuito y siempre lo será. Tu apoyo ayuda a pagar los servidores de Firebase, las actualizaciones y el futuro <b>dominio propio .com</b>.
+        </p>
+
+        <div class="options-container">
+            <a href="#" class="option-card yape" onclick="mostrarQR()">
+                <div class="icon-circle">💰</div>
+                <div class="text-content">
+                    <b>Apoyo Voluntario (Yape/Plin)</b>
+                    <span>Invítale un café al desarrollador.</span>
+                </div>
+            </a>
+
+            <a href="#" class="option-card ads" onclick="verAnuncio()">
+                <div class="icon-circle">📺</div>
+                <div class="text-content">
+                    <b>Ver un anuncio</b>
+                    <span>Apoya gratis dedicando 30 segundos.</span>
+                </div>
+            </a>
+        </div>
+
+        <a href="menu.html" class="btn-back">← Volver al panel</a>
+
+        <div class="footer-note">
+            Desarrollado con ❤️ por Alonixz-Group
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function mostrarQR() {
+            Swal.fire({
+                title: '¡Muchas gracias!',
+                text: 'Escanea el QR para apoyar a mantener Praxis activo.',
+                imageUrl: 'tu_qr_yape.png', // Sube tu imagen de QR aquí
+                imageWidth: 200,
+                imageHeight: 200,
+                confirmButtonText: 'Listo',
+                confirmButtonColor: '#fbbc04'
+            });
+        }
+
+        function verAnuncio() {
+            Swal.fire({
+                title: 'Cargando anuncio...',
+                text: 'Esta función conectará con el servidor de anuncios en la versión v1.2.',
+                icon: 'info',
+                timer: 3000,
+                showConfirmButton: false,
+                willClose: () => {
+                    Swal.fire('¡Gracias!', 'Has apoyado a Praxis con un anuncio.', 'success');
+                }
+            });
+        }
+    </script>
+</body>
+</html> 
