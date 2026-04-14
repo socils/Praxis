@@ -120,8 +120,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getAuth, 
-        signInWithRedirect, 
-        getRedirectResult, 
+        signInWithPopup, 
         GoogleAuthProvider, 
         onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -140,31 +139,40 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // 1. Manejar el regreso de Google (Esto soluciona el bloqueo de COOP)
-    getRedirectResult(auth)
-        .then((result) => {
-            if (result?.user) {
-                console.log("✅ Autenticado tras redirección");
-                window.location.replace("menu.html");
-            }
-        })
-        .catch((error) => {
-            console.error("Error al volver de Google:", error.code);
-        });
+    // Importante: Forzar a Google a pedir la cuenta siempre (evita errores de sesión trabada)
+    provider.setCustomParameters({ prompt: 'select_account' });
 
-    // 2. Persistencia
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            console.log("✅ Sesión detectada:", user.email);
             window.location.replace("menu.html");
         }
     });
 
     const btnGoogle = document.getElementById('btn-google');
     if (btnGoogle) {
-        btnGoogle.onclick = () => {
-            // El redirect es inmune al error de "Cross-Origin-Opener-Policy"
-            signInWithRedirect(auth, provider);
-        };
+        // Usamos addEventListener en lugar de .onclick para mayor control
+        btnGoogle.addEventListener('click', async (e) => {
+            e.preventDefault(); // Evita que el botón haga cosas raras
+            
+            console.log("⚡ Intentando abrir Popup...");
+            
+            try {
+                const result = await signInWithPopup(auth, provider);
+                if (result.user) {
+                    window.location.replace("menu.html");
+                }
+            } catch (error) {
+                console.error("Error capturado:", error.code);
+                
+                // Si el error es 'auth/cancelled-popup-request', solo hay que intentar de nuevo
+                if (error.code !== 'auth/cancelled-popup-request') {
+                    alert("Error: " + error.code);
+                } else {
+                    console.warn("Se canceló un popup previo. Reintenta ahora.");
+                }
+            }
+        });
     }
 </script>
 </body>
