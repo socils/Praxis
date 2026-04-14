@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Error de Sistema</title>
+    <style>
+        :root {
+            --error-red: #d93025;
+            --google-blue: #1a73e8;
+            --text-dark: #202124;
+            --text-gray: #5f6368;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .error-card {
+            background: white;
+            padding: 48px 40px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #dadce0;
+        }
+
+        .icon-container {
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--google-blue);
+            margin-bottom: 12px;
+            display: block;
+            text-decoration: none;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 500;
+            margin: 0 0 16px 0;
+        }
+
+        p {
+            color: var(--text-gray);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .btn-retry {
+            display: inline-block;
+            background: var(--google-blue);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-retry:hover {
+            background: #1765cc;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+
+        .error-code {
+            margin-top: 40px;
+            font-size: 11px;
+            color: #bdc1c6;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-card">
+        <div class="icon-container">
+            <img src="https://www.gstatic.com/images/icons/material/system/2x/error_outline_red_48dp.png" alt="Error" width="64">
+        </div>
+        
+        <div class="logo">Praxis</div>
+        <img src="error.png" alt="" style="width: 100%;;">
+        <h1>Algo salió mal</h1>
+        
+        <p>
+            No pudimos conectar con los servicios de Praxis. Esto puede deberse a un problema de red o a un error inesperado en la aplicación.
+        </p>
+
+        <a href="index.html" class="btn-retry">Volver a intentar</a>
+
+        <div class="error-code">
+            Error: Runtime Guardian Redirect
+        </div>
+    </div>
+
+</body>
+</html>
