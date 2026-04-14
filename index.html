@@ -8,14 +8,13 @@
     <style>
         :root {
             --google-blue: #1a73e8;
-            --google-gray: #5f6368;
-            --border: #dadce0;
             --text-dark: #202124;
+            --border: #dadce0;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #f8f9fa;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -25,104 +24,35 @@
 
         .login-card {
             background: white;
-            padding: 40px;
+            padding: 48px 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
             text-align: center;
             border: 1px solid var(--border);
         }
 
         .logo {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             color: var(--google-blue);
             margin-bottom: 10px;
+            letter-spacing: -1px;
         }
 
         h1 {
             font-size: 24px;
-            font-weight: 400;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        p#auth-subtitle {
-            color: var(--google-gray);
-            font-size: 16px;
-            margin-bottom: 25px;
-        }
-
-        .input-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        input {
-            width: 100%;
-            padding: 13px;
-            margin-top: 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-            outline: none;
-        }
-
-        input:focus {
-            border: 2px solid var(--google-blue);
-            padding: 12px;
-        }
-
-        #btn-main-auth {
-            width: 100%;
-            background: var(--google-blue);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        #btn-main-auth:hover {
-            background: #1765cc;
-        }
-
-        .secondary-btn {
-            background: none;
-            border: none;
-            color: var(--google-blue);
-            font-size: 14px;
             font-weight: 500;
-            cursor: pointer;
-            margin-top: 15px;
-            padding: 10px;
-            width: 100%;
-            border-radius: 4px;
+            color: var(--text-dark);
+            margin: 0 0 10px 0;
         }
 
-        .secondary-btn:hover {
-            background-color: rgba(26, 115, 232, 0.05);
-            text-decoration: underline;
-        }
-
-        .separator {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-            color: #70757a;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .separator hr {
-            flex: 1;
-            border: 0;
-            border-top: 1px solid var(--border);
+        p {
+            color: #5f6368;
+            font-size: 16px;
+            margin-bottom: 35px;
+            line-height: 1.4;
         }
 
         .google-btn {
@@ -130,28 +60,40 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--border);
             border-radius: 4px;
             background: white;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
             color: #3c4043;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .google-btn:hover {
+            background: #f1f3f4;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+
+        .google-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
         }
 
         #error-msg {
             color: #d93025;
-            font-size: 12px;
-            margin-top: 15px;
-            min-height: 18px;
+            font-size: 13px;
+            margin-top: 20px;
+            min-height: 20px;
         }
 
-        .footer {
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-between;
+        .footer-text {
+            margin-top: 40px;
             font-size: 12px;
-            color: var(--google-gray);
+            color: #70757a;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -159,53 +101,35 @@
 
     <div class="login-card">
         <div class="logo">Praxis</div>
-        <h1 id="auth-title">Acceder</h1>
-        <p id="auth-subtitle">Usa tu cuenta de Praxis</p>
-
-        <div class="input-group">
-            <input type="email" id="email" placeholder="Correo electrónico">
-            <input type="password" id="password" placeholder="Contraseña">
-        </div>
-
-        <button id="btn-main-auth">Iniciar Sesión</button>
-        <button id="toggle-auth" class="secondary-btn">¿No tienes cuenta? Hazlo aquí</button>
-
-        <div class="separator">
-            <hr><span>O TAMBIÉN</span><hr>
-        </div>
+        <h1>Acceder</h1>
+        <p>Usa tu cuenta de Google para continuar en la gestión de Praxis</p>
 
         <button class="google-btn" id="btn-google">
-            <img src="google.png" alt="Google" style="width:18px; margin-right:10px;">
+            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="google-icon" alt="">
             Acceder con Google
         </button>
 
         <div id="error-msg"></div>
 
-        <div class="footer">
-            <span>Español (Latinoamérica)</span>
-            <div>
-                <a href="#" style="text-decoration:none; color:inherit;">Ayuda</a>
-                <a href="#" style="text-decoration:none; color:inherit; margin-left:10px;">Privacidad</a>
-            </div>
+        <div class="footer-text">
+            Para continuar, Google compartirá tu nombre, correo y foto de perfil con la plataforma Praxis.
         </div>
     </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getAuth, 
-        signInWithPopup, 
+        signInWithRedirect, 
         GoogleAuthProvider, 
-        onAuthStateChanged, 
-        updateProfile,
-        signInWithEmailAndPassword,
-        createUserWithEmailAndPassword 
+        onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
         authDomain: "praxis-79b9a.firebaseapp.com",
         projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
         storageBucket: "praxis-79b9a.firebasestorage.app",
         messagingSenderId: "596083977949",
         appId: "1:596083977949:web:71064f89a23f8d9738f534"
@@ -214,89 +138,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
-    
-    const btnMain = document.getElementById('btn-main-auth');
-    const toggleBtn = document.getElementById('toggle-auth');
-    const authTitle = document.getElementById('auth-title');
-    const authSubtitle = document.getElementById('auth-subtitle');
-    const errorDiv = document.getElementById('error-msg');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
 
-    let isRegisterMode = false;
-
-    // 1. FUNCIÓN PARA CAMBIAR TEXTOS (Sin lógica de Firebase aquí)
-    toggleBtn.onclick = (e) => {
-        e.preventDefault();
-        isRegisterMode = !isRegisterMode;
-        errorDiv.innerText = "";
-        
-        if (isRegisterMode) {
-            authTitle.innerText = "Crear cuenta";
-            authSubtitle.innerText = "Regístrate en Praxis";
-            btnMain.innerText = "Crear cuenta ahora";
-            toggleBtn.innerText = "¿Ya tienes cuenta? Inicia sesión";
-        } else {
-            authTitle.innerText = "Acceder";
-            authSubtitle.innerText = "Usa tu cuenta de Praxis";
-            btnMain.innerText = "Iniciar Sesión";
-            toggleBtn.innerText = "¿No tienes cuenta? Hazlo aquí";
-        }
+    // Acceso a pantalla completa (reemplaza la web actual por la de Google)
+    document.getElementById('btn-google').onclick = () => {
+        signInWithRedirect(auth, provider);
     };
 
-    // 2. LÓGICA DE BOTÓN PRINCIPAL (Aquí es donde se crea la cuenta)
-    btnMain.onclick = async () => {
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        errorDiv.innerText = "";
-
-        if (!email || !password) {
-            errorDiv.innerText = "Por favor, llena todos los datos.";
-            return;
-        }
-
-        try {
-            if (isRegisterMode) {
-                // MODO REGISTRO
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // ACTUALIZAR PERFIL: Para que no salga null en el menú
-                await updateProfile(userCredential.user, {
-                    displayName: email.split('@')[0], // Usa la parte antes del @ como nombre
-                    photoURL: "https://ui-avatars.com/api/?name=" + email.split('@')[0] + "&background=random"
-                });
-                console.log("Perfil actualizado y cuenta creada");
-
-            } else {
-                // MODO LOGIN
-                await signInWithEmailAndPassword(auth, email, password);
-            }
-        } catch (error) {
-            console.error("Error:", error.code);
-            if (error.code === 'auth/email-already-in-use') {
-                errorDiv.innerText = "Este correo ya está registrado.";
-            } else if (error.code === 'auth/weak-password') {
-                errorDiv.innerText = "La contraseña debe tener al menos 6 caracteres.";
-            } else if (error.code === 'auth/invalid-credential') {
-                errorDiv.innerText = "Correo o contraseña incorrectos.";
-            } else {
-                errorDiv.innerText = "Error: " + error.message;
-            }
-        }
-    };
-
-    // 3. GOOGLE AUTH
-    document.getElementById('btn-google').onclick = async () => {
-        try {
-            await signInWithPopup(auth, provider);
-        } catch (error) {
-            if (error.code !== 'auth/popup-closed-by-user') {
-                errorDiv.innerText = "Error al conectar con Google.";
-            }
-        }
-    };
-
-    // 4. REDIRECCIÓN AUTOMÁTICA
     onAuthStateChanged(auth, (user) => {
         if (user) window.location.href = "menu.html";
     });
