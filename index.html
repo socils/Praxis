@@ -117,13 +117,10 @@
     </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { 
-        getAuth, 
-        signInWithRedirect, 
-        GoogleAuthProvider, 
-        onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    /**
+ * Praxis Error Guardian
+ * Monitorea errores en consola y fallos de red para redirigir a error.html
+ */
 const iniciarGuardianPraxis = () => {
     // 1. Capturar errores de ejecución (Sintaxis, variables no definidas, etc.)
     window.onerror = function(message, source, lineno, colno, error) {
