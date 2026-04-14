@@ -117,31 +117,7 @@
     </div>
 
 <script type="module">
-    /**
-     * Praxis Error Guardian
-     */
-    const iniciarGuardianPraxis = () => {
-        window.onerror = (message) => {
-            console.error("❌ Error Crítico:", message);
-            window.location.href = "error.html";
-            return true; 
-        };
-
-        window.onunhandledrejection = (event) => {
-            console.error("❌ Error de Promesa:", event.reason);
-            window.location.href = "error.html";
-        };
-
-        window.addEventListener('error', (event) => {
-            if (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK') {
-                window.location.href = "error.html";
-            }
-        }, true);
-    };
-
-    iniciarGuardianPraxis();
-
-    // Importaciones necesarias
+    // 1. Importaciones de Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getAuth, 
@@ -151,6 +127,7 @@
         onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // 2. Tu configuración
     const firebaseConfig = {
         apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
         authDomain: "praxis-79b9a.firebaseapp.com",
@@ -161,51 +138,45 @@
         appId: "1:596083977949:web:71064f89a23f8d9738f534"
     };
 
+    // 3. Inicialización
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // 1. Manejar el resultado del redireccionamiento (Vital para que funcione)
+    console.log("🚀 Firebase inicializado correctamente.");
+
+    // 4. Capturar el resultado después del redireccionamiento
     getRedirectResult(auth)
         .then((result) => {
             if (result?.user) {
+                console.log("✅ Login exitoso tras redirección:", result.user.displayName);
                 window.location.href = "menu.html";
             }
         })
         .catch((error) => {
-            console.error("Error en el login:", error);
+            console.error("❌ Error en el proceso de redirección:", error.code, error.message);
         });
 
-    // 2. Observador de estado
+    // 5. Escuchar cambios en el estado del usuario (Persistencia)
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            console.log("👤 Usuario detectado:", user.email);
             window.location.href = "menu.html";
+        } else {
+            console.log("🔌 No hay sesión activa.");
         }
     });
 
-    // Evento del botón
+    // 6. Acción del botón
     const btnGoogle = document.getElementById('btn-google');
     if (btnGoogle) {
         btnGoogle.onclick = () => {
+            console.log("Iniciando sesión con Google...");
             signInWithRedirect(auth, provider);
         };
-    }// ... dentro de tu script
-onAuthStateChanged(auth, (user) => {
-    console.log("Estado de Auth cambiado. ¿Hay usuario?:", user ? "SÍ" : "NO");
-    if (user) {
-        console.log("Intentando redirigir a menu.html...");
-        window.location.assign("menu.html"); // assign es a veces más persistente que href
+    } else {
+        console.error("No se encontró el botón con ID 'btn-google'");
     }
-});
-
-getRedirectResult(auth)
-    .then((result) => {
-        console.log("Resultado de redirección:", result);
-    })
-    .catch((error) => {
-        console.error("Código de error de Firebase:", error.code);
-        console.error("Mensaje de error:", error.message);
-    });
 </script>
 </body>
 </html>
