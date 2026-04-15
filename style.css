@@ -561,35 +561,41 @@ body {
     display: inline-block;
 }
 
+/* Botón "+" siempre visible y elegante */
 .add-btn {
-    /* Quitamos absolute para que se alinee solo con el flex del banner */
-    position: relative; 
-    
-    background: rgba(255, 255, 255, 0.08); /* Fondo cristal muy sutil */
+    /* Mantenemos el estilo de cristal */
+    background: rgba(255, 255, 255, 0.1); 
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     
-    /* COLOR DEL SÍMBOLO: Blanco puro con brillo */
-    color: #ffffff !important;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    /* EL CAMBIO CLAVE: Color blanco sólido y sombra para que resalte */
+    color: #ffffff !important; 
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Crea un halo de luz tras el + */
     
     width: 55px;
     height: 55px;
     border-radius: 16px;
     font-size: 2.2rem;
-    font-weight: 500;
+    font-weight: 600; /* Un poco más de grosor para que se vea claro */
+    
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    
+    /* Animación suave */
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 5;
+    
+    /* Aseguramos que esté por encima de las capas del banner */
+    position: relative;
+    z-index: 10;
 }
 
+/* Animación al pasar el mouse */
 .add-btn:hover {
     background: #ffffff;
-    color: var(--p-700) !important;
+    color: var(--p-700) !important; /* Cambia a azul fuerte al activarse */
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
