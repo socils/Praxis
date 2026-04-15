@@ -403,10 +403,10 @@ body {
 
 /* --- BANNER DINÁMICO --- */
 .banner {
-    /* Gradiente animado con identidad Alonixz */
-    background: linear-gradient(-45deg, var(--p-600), var(--s-600), #4285f4, #00d2ff);
+    /* Fondo ultra oscuro con flujo de color */
+    background: linear-gradient(-45deg, #0f172a, var(--p-900), #1e1b4b, #020617);
     background-size: 400% 400%;
-    animation: gradientFlow 10s ease infinite;
+    animation: darkGradientFlow 12s ease infinite;
     
     border-radius: var(--radius-lg);
     padding: 3.5rem;
@@ -414,27 +414,33 @@ body {
     margin-bottom: 3rem;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Sombra más profunda y elegante */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }.banner h1 {
-    font-size: 2.8rem; /* Un poco más grande */
+    font-size: 2.6rem;
     font-weight: 800;
     margin-bottom: 1rem;
     line-height: 1.1;
     letter-spacing: -1.5px;
-    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra para resaltar */
+    /* Efecto de degradado en el texto */
+    background: linear-gradient(to bottom, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
 }.banner-shape {
     position: absolute;
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), transparent);
+    /* Usamos el violeta de Alonixz pero muy transparente */
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
     border-radius: 50%;
     z-index: 1;
-    filter: blur(40px);
-    animation: pulseShape 6s ease-in-out infinite alternate;
+    filter: blur(60px);
+    animation: floatNebula 8s ease-in-out infinite alternate;
 }
 
-@keyframes pulseShape {
-    from { transform: scale(1) translate(0, 0); }
-    to { transform: scale(1.2) translate(10px, -10px); }
+@keyframes floatNebula {
+    from { transform: translate(0, 0) scale(1); opacity: 0.5; }
+    to { transform: translate(20px, -20px) scale(1.3); opacity: 0.8; }
 }
 .shape-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
 .shape-2 { width: 200px; height: 200px; bottom: -50px; right: 150px; }
@@ -555,30 +561,46 @@ body {
     display: inline-block;
 }
 
-/* Botón "+" estilizado */
+/* Botón "+" estilizado y siempre visible */
 .add-btn {
-    background: rgba(255, 255, 255, 0.2);
+    /* Fondo un poco más visible (0.1 en lugar de 0.2 para que sea más limpio) */
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: white;
+    
+    /* Borde sutil pero definido */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    
+    /* El color blanco puro para el "+" */
+    color: #ffffff !important; 
+    
     width: 55px;
     height: 55px;
-    border-radius: 16px; /* Estilo moderno no tan redondo */
-    font-size: 2rem;
+    border-radius: 16px;
+    font-size: 2.2rem; /* Aumentamos un poco el tamaño */
+    font-weight: 300; /* Un trazo más fino lo hace ver más elegante */
+    
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    
+    /* Suavizado de bordes del símbolo */
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+    
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    
+    /* Asegura que el símbolo esté por encima de cualquier efecto del banner */
+    position: relative;
+    z-index: 10;
 }
 
 .add-btn:hover {
-    background: white;
-    color: var(--p-600);
+    background: #ffffff;
+    color: var(--p-700) !important; /* Usamos un azul más fuerte al pasar el mouse */
     transform: rotate(90deg) scale(1.1);
-    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
 }
 
 /* Menú desplegable (Estilo Glassmorphism) */
@@ -1023,7 +1045,7 @@ body {
     margin: 0;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     z-index: 2;
-}@keyframes gradientFlow {
+}@keyframes darkGradientFlow {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
