@@ -561,48 +561,38 @@ body {
     display: inline-block;
 }
 
-/* Botón "+" estilizado y siempre visible */
 .add-btn {
-    /* Fondo un poco más visible (0.1 en lugar de 0.2 para que sea más limpio) */
-    background: rgba(255, 255, 255, 0.1);
+    /* Quitamos absolute para que se alinee solo con el flex del banner */
+    position: relative; 
+    
+    background: rgba(255, 255, 255, 0.08); /* Fondo cristal muy sutil */
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     
-    /* Borde sutil pero definido */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    
-    /* El color blanco puro para el "+" */
-    color: #ffffff !important; 
+    /* COLOR DEL SÍMBOLO: Blanco puro con brillo */
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
     
     width: 55px;
     height: 55px;
     border-radius: 16px;
-    font-size: 2.2rem; /* Aumentamos un poco el tamaño */
-    font-weight: 300; /* Un trazo más fino lo hace ver más elegante */
-    
+    font-size: 2.2rem;
+    font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* Suavizado de bordes del símbolo */
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
-    
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    
-    /* Asegura que el símbolo esté por encima de cualquier efecto del banner */
-    position: relative;
-    z-index: 10;
+    z-index: 5;
 }
 
 .add-btn:hover {
     background: #ffffff;
-    color: var(--p-700) !important; /* Usamos un azul más fuerte al pasar el mouse */
+    color: var(--p-700) !important;
     transform: rotate(90deg) scale(1.1);
-    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
-
 /* Menú desplegable (Estilo Glassmorphism) */
 .dropdown-content {
     display: none; /* Se activa con la clase .show en JS */
