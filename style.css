@@ -561,43 +561,37 @@ body {
     display: inline-block;
 }
 
-/* Botón "+" siempre visible y elegante */
+/* Botón "+" para Banner Claro - Siempre visible */
 .add-btn {
-    /* Mantenemos el estilo de cristal */
-    background: rgba(255, 255, 255, 0.1); 
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    /* Fondo oscuro traslúcido para que resalte sobre el banner claro */
+    background: var(--p-600); /* El azul de Alonixz */
+    border: 2px solid white; /* Borde blanco para separarlo del fondo */
     
-    /* EL CAMBIO CLAVE: Color blanco sólido y sombra para que resalte */
-    color: #ffffff !important; 
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Crea un halo de luz tras el + */
+    /* EL SÍMBOLO: Blanco puro para que contraste con su propio fondo azul */
+    color: #ffffff !important;
+    font-weight: 800; /* Más grueso para que sea muy nítido */
     
     width: 55px;
     height: 55px;
     border-radius: 16px;
     font-size: 2.2rem;
-    font-weight: 600; /* Un poco más de grosor para que se vea claro */
-    
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     
-    /* Animación suave */
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Sombra para que "flote" sobre el banner claro */
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
     
-    /* Aseguramos que esté por encima de las capas del banner */
-    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 10;
 }
 
 /* Animación al pasar el mouse */
 .add-btn:hover {
-    background: #ffffff;
-    color: var(--p-700) !important; /* Cambia a azul fuerte al activarse */
+    background: var(--p-800); /* Se oscurece un poco al tocarlo */
     transform: rotate(90deg) scale(1.1);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
 }
 /* Menú desplegable (Estilo Glassmorphism) */
 .dropdown-content {
