@@ -562,26 +562,28 @@ body {
 
 /* Botón "+" estilizado */
 .add-btn {
-    background: var(--n-100);
-    border: none;
-    width: 42px;
-    height: 42px;
-    border-radius: var(--radius-md); /* Usando el radio de 12px definido antes */
-    color: var(--n-700);
-    font-size: 24px;
-    font-weight: 300;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    width: 55px;
+    height: 55px;
+    border-radius: 16px; /* Estilo moderno no tan redondo */
+    font-size: 2rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: var(--duration) var(--ease-out);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .add-btn:hover {
-    background: var(--p-600);
-    color: white;
-    transform: rotate(90deg);
-    box-shadow: var(--shadow-md);
+    background: white;
+    color: var(--p-600);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.4);
 }
 
 /* Menú desplegable (Estilo Glassmorphism) */
@@ -999,4 +1001,35 @@ body {
 
 .btn-header-apoyo:hover .btn-inner {
     background: #f8f9fa;
+}
+/* Transformamos el contenedor en un Banner Pro */
+.content-area {
+    background: linear-gradient(-45deg, var(--p-600), var(--s-600), #4285f4, #00d2ff);
+    background-size: 400% 400%;
+    animation: gradientFlow 10s ease infinite;
+    
+    margin: 20px;
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    position: relative; /* Para que el botón + se ancle aquí */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+/* Ajustamos el h1 para que se vea bien dentro del banner */
+.content-area h1 {
+    color: white !important;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
