@@ -896,3 +896,48 @@ body {
 .header-left {
     overflow: visible !important;
 }
+/* Contenedor principal de la racha */
+#streak-container {
+    cursor: help;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #dadce0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none;
+}
+
+#streak-container:hover {
+    transform: scale(1.05);
+    border-color: #f4b400;
+    box-shadow: 0 2px 8px rgba(244, 180, 0, 0.2);
+}
+
+/* El número de la racha */
+#streak-count {
+    font-weight: 700;
+    color: #3c4043;
+    font-size: 14px;
+    margin-right: 2px;
+}
+
+/* Animación de latido para rachas activas */
+@keyframes pulse-fire {
+    0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
+    50% { transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(244, 180, 0, 0.6)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
+}
+
+/* Clase para aplicar cuando la racha es > 0 */
+.racha-fuego-activa {
+    display: inline-block;
+    animation: pulse-fire 2s infinite ease-in-out;
+}
+
+/* Color especial si la racha es muy alta (+7 días) */
+.racha-legendaria {
+    background: #fff9e6 !important;
+    border-color: #f4b400 !important;
+}
