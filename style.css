@@ -1092,8 +1092,31 @@ body {
     gap: 8px; /* Menos espacio entre cuadros */
 }
 
+/* Estilo del botón de confirmación en el modal */
 .btn-welcome-confirm {
-    margin-top: 1.5rem; /* Menos espacio arriba del botón */
-    position: sticky; /* El botón se queda fijo al final si hay mucho scroll */
-    bottom: 0;
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    
+    /* Fondo con el azul de Alonixz */
+    background: var(--p-600);
+    color: white;
+    
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.btn-welcome-confirm:hover {
+    background: var(--p-700);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+}
+
+.btn-welcome-confirm:active {
+    transform: translateY(0);
 }
