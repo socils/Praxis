@@ -403,44 +403,39 @@ body {
 
 /* --- BANNER DINÁMICO --- */
 .banner {
-    background: linear-gradient(135deg, var(--n-900) 0%, var(--p-900) 100%);
+    /* Gradiente animado con identidad Alonixz */
+    background: linear-gradient(-45deg, var(--p-600), var(--s-600), #4285f4, #00d2ff);
+    background-size: 400% 400%;
+    animation: gradientFlow 10s ease infinite;
+    
     border-radius: var(--radius-lg);
     padding: 3.5rem;
     color: white;
     margin-bottom: 3rem;
     position: relative;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
-}
-
-.banner-content {
-    position: relative;
-    z-index: 2;
-    max-width: 600px;
-}
-
-.banner h1 {
-    font-size: 2.5rem;
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}.banner h1 {
+    font-size: 2.8rem; /* Un poco más grande */
     font-weight: 800;
     margin-bottom: 1rem;
     line-height: 1.1;
-    letter-spacing: -1px;
-}
-
-.banner p {
-    font-size: 1.1rem;
-    opacity: 0.8;
-    margin-bottom: 2rem;
-}
-
-/* Elementos decorativos del banner */
-.banner-shape {
+    letter-spacing: -1.5px;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra para resaltar */
+}.banner-shape {
     position: absolute;
-    background: linear-gradient(45deg, rgba(59, 130, 246, 0.2), transparent);
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), transparent);
     border-radius: 50%;
     z-index: 1;
+    filter: blur(40px);
+    animation: pulseShape 6s ease-in-out infinite alternate;
 }
 
+@keyframes pulseShape {
+    from { transform: scale(1) translate(0, 0); }
+    to { transform: scale(1.2) translate(10px, -10px); }
+}
 .shape-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
 .shape-2 { width: 200px; height: 200px; bottom: -50px; right: 150px; }
 
