@@ -941,59 +941,49 @@ body {
     background: #fff9e6 !important;
     border-color: #f4b400 !important;
 }
-/* Contenedor principal del botón */
+/* Contenedor que recorta la animación para que parezca un borde */
 .btn-header-apoyo {
     position: relative;
-    padding: 2px; /* Espacio para el borde giratorio */
+    padding: 3px; /* Este es el grosor del borde de colores */
     background: transparent;
     border: none;
-    border-radius: 20px;
+    border-radius: 25px;
     cursor: pointer;
-    overflow: hidden;
+    overflow: hidden; /* Corta el gradiente sobrante */
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 12px;
 }
 
-/* El fondo que gira con los colores de Google */
+/* El gradiente que gira (va detrás) */
 .btn-header-apoyo::before {
     content: '';
     position: absolute;
     width: 150%;
-    height: 400%;
+    height: 150%;
     background: conic-gradient(
-        #4285f4, /* Azul */
-        #34a853, /* Verde */
-        #f4b400, /* Amarillo */
-        #ea4335, /* Rojo */
-        #4285f4  /* Cierra el círculo */
+        #4285f4, #34a853, #f4b400, #ea4335, #4285f4
     );
-    animation: rotate 3s linear infinite;
-    z-index: 1;
+    animation: rotate 4s linear infinite;
+    z-index: 0; /* Al fondo */
 }
 
-/* Capa interna para que el botón se vea limpio */
+/* El botón real (va delante) */
 .btn-inner {
     position: relative;
-    background: white;
-    color: #1a73e8;
-    padding: 6px 14px;
-    border-radius: 18px;
-    z-index: 2;
+    z-index: 1; /* Por encima de la animación */
+    background: white; /* Color de fondo del botón */
+    color: #1a73e8; /* Color del texto */
+    padding: 6px 16px;
+    border-radius: 22px;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     width: 100%;
     height: 100%;
-    transition: background 0.3s;
-}
-
-.btn-header-apoyo:hover .btn-inner {
-    background: #f8f9fa;
-    color: #174ea6;
 }
 
 /* Animación de rotación */
@@ -1002,9 +992,8 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Ajuste para móviles */
-@media (max-width: 600px) {
-    .btn-inner span:last-child {
-        display: none;
-    }
+/* Efecto hover */
+.btn-header-apoyo:hover .btn-inner {
+    background: #f8f9fa;
+    color: #174ea6;
 }
