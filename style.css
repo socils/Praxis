@@ -941,23 +941,23 @@ body {
     background: #fff9e6 !important;
     border-color: #f4b400 !important;
 }
-/* CAPA 1: El contenedor (Define el tamaño total y recorta el giro) */
 .btn-header-apoyo {
     position: relative;
-    width: fit-content;
-    padding: 3px; /* Este valor define el GROSOR del borde de colores */
+    padding: 3px; /* Grosor del borde de colores */
     background: transparent;
     border: none;
-    border-radius: 25px; /* Radio exterior */
+    border-radius: 25px;
     cursor: pointer;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 12px;
+    /* Crea un nuevo contexto para que el z-index interno funcione perfecto */
+    isolation: isolate; 
 }
 
-/* Animación de colores (Gira detrás de la capa blanca) */
+/* LA CAPA DE COLORES (FONDO) */
 .btn-header-apoyo::before {
     content: '';
     position: absolute;
@@ -967,23 +967,24 @@ body {
         #4285f4, #34a853, #f4b400, #ea4335, #4285f4
     );
     animation: rotateColors 3s linear infinite;
-    z-index: 1;
+    /* Valor negativo para que se vaya detrás de todo dentro del botón */
+    z-index: -1; 
 }
 
-/* CAPA 2: El fondo blanco (Un poco más pequeño para dejar ver el borde) */
+/* LA CAPA BLANCA + TEXTO (FRENTE) */
 .btn-inner {
     position: relative;
-    z-index: 2; /* Por encima de los colores */
-    background: white; 
+    /* Valor positivo para forzar que esté delante */
+    z-index: 1; 
+    background: white; /* Debe ser sólido, no transparente */
     padding: 6px 16px;
-    border-radius: 22px; /* Un poco menor que el radio exterior (25px - 3px) */
+    border-radius: 22px;
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    /* CAPA 3: El Texto */
     color: #1a73e8; 
     font-size: 14px;
     font-weight: 700;
@@ -991,13 +992,11 @@ body {
     transition: background 0.3s;
 }
 
-/* Animación */
 @keyframes rotateColors {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
 
-/* Hover: Cambia ligeramente el fondo blanco */
 .btn-header-apoyo:hover .btn-inner {
     background: #f8f9fa;
 }
