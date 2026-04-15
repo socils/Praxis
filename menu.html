@@ -875,17 +875,26 @@ function renderizarVacio() {
     }
 
     // Calcular diferencia de días
-    const fechaActual = new Date(hoy);
-    const fechaUltima = new Date(ultima || hoy);
-    const diferenciaDias = Math.floor((fechaActual - fechaUltima) / (1000 * 60 * 60 * 24));
+  // ... dentro de gestionarRachaUsuario(uid) ...
 
-    if (diferenciaDias === 1 || ultima === "") {
-        // Es el día siguiente o primera vez
-        nuevaRacha++;
-    } else if (diferenciaDias > 1) {
-        // Se saltó un día o más, racha a 1
-        nuevaRacha = 1;
+const elContenedor = document.getElementById('streak-container');
+const elNumero = document.getElementById('streak-count');
+const elIcono = elContenedor.querySelector('span:last-child'); // El emoji de fuego
+
+if (nuevaRacha > 0) {
+    elNumero.innerText = nuevaRacha;
+    elIcono.classList.add('racha-fuego-activa');
+    
+    // Si llega a una semana, cambia el estilo a "Legendario"
+    if (nuevaRacha >= 7) {
+        elContenedor.classList.add('racha-legendaria');
+        elNumero.style.color = "#e65100";
     }
+} else {
+    // Si la racha se perdió (es 0), se ve más apagado
+    elContenedor.style.opacity = "0.5";
+    elIcono.innerText = "🌑"; // Luna o racha apagada
+}
 
     // Actualizar Firebase
     await set(rachaRef, {
