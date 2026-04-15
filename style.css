@@ -941,60 +941,63 @@ body {
     background: #fff9e6 !important;
     border-color: #f4b400 !important;
 }
-/* 1. El contenedor del botón */
+/* CAPA 1: El contenedor (Define el tamaño total y recorta el giro) */
 .btn-header-apoyo {
     position: relative;
-    padding: 2px; /* Grosor del borde */
+    width: fit-content;
+    padding: 3px; /* Este valor define el GROSOR del borde de colores */
     background: transparent;
     border: none;
-    border-radius: 20px;
+    border-radius: 25px; /* Radio exterior */
     cursor: pointer;
-    overflow: hidden; /* Mantiene el giro dentro del botón */
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 12px;
 }
 
-/* 2. El fondo que gira (lo hacemos gigante para que no se corte al rotar) */
+/* Animación de colores (Gira detrás de la capa blanca) */
 .btn-header-apoyo::before {
     content: '';
     position: absolute;
-    /* Usamos un ancho y alto mucho mayor para que al girar no se vean los bordes */
-    width: 250%; 
-    height: 500%;
+    width: 200%;
+    height: 400%;
     background: conic-gradient(
         #4285f4, #34a853, #f4b400, #ea4335, #4285f4
     );
-    animation: girarBorde 4s linear infinite;
-    z-index: -1; /* Forzamos que esté detrás de todo */
+    animation: rotateColors 3s linear infinite;
+    z-index: 1;
 }
 
-/* 3. La parte interna (el "corazón" del botón) */
+/* CAPA 2: El fondo blanco (Un poco más pequeño para dejar ver el borde) */
 .btn-inner {
-    background: white; /* Color de fondo sólido para que el texto resalte */
-    color: #1a73e8;
-    padding: 6px 14px;
-    border-radius: 18px; /* Un poco menos que el contenedor para que encaje */
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 700;
+    position: relative;
+    z-index: 2; /* Por encima de los colores */
+    background: white; 
+    padding: 6px 16px;
+    border-radius: 22px; /* Un poco menor que el radio exterior (25px - 3px) */
     width: 100%;
     height: 100%;
-    /* Esto asegura que el texto esté siempre por encima de cualquier animación */
-    position: relative;
-    z-index: 2; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* CAPA 3: El Texto */
+    color: #1a73e8; 
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.3s;
 }
 
-/* 4. La animación corregida */
-@keyframes girarBorde {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Animación */
+@keyframes rotateColors {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-/* 5. Hover para que se sienta interactivo */
+/* Hover: Cambia ligeramente el fondo blanco */
 .btn-header-apoyo:hover .btn-inner {
     background: #f8f9fa;
 }
