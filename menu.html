@@ -123,15 +123,20 @@ iniciarGuardianPraxis();
     const statusMsg = document.getElementById('status-message');
     const sidebar = document.getElementById('sidebar');
 
-onAuthStateChanged(auth, (user) => {
+// Reemplaza o actualiza tu bloque onAuthStateChanged
+onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
 
     if (user) {
-        // 1. Mostrar los datos del usuario (Tu código actual)
         const nombreDisplay = user.displayName || user.email.split('@')[0];
         const fotoDisplay = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
 
+        // Inyectamos el contenedor de la racha (fuego) junto al nombre
         userInfoDiv.innerHTML = `
+            <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
+                <span id="streak-count">0</span>
+                <span style="font-size: 18px; margin-left: 4px;">🔥</span>
+            </div>
             <span style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 500;">
                 ${nombreDisplay}
             </span>
@@ -139,10 +144,11 @@ onAuthStateChanged(auth, (user) => {
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
 
-        // 2. ¡ESTO ES LO QUE FALTA PARA QUITAR EL "CARGANDO"!
-        cargarAgenda(user.uid);      // Activa la carga de tareas y el banner
-        cargarListaSidebar(user.uid); // Activa la lista de tus clases a la izquierda
+        // Lógica de racha
+        gestionarRachaUsuario(user.uid);
 
+        cargarAgenda(user.uid);      
+        cargarListaSidebar(user.uid); 
     } else {
         window.location.href = "index.html";
     }
@@ -852,7 +858,50 @@ function renderizarVacio() {
 
         document.body.appendChild(reporte);
     }
-})();
+})();async function gestionarRachaUsuario(uid) {
+    const rachaRef = ref(db, `usuarios/${uid}/stats`);
+    const snapshot = await get(rachaRef);
+    const stats = snapshot.val() || { racha: 0, ultimaConexion: "" };
+    
+    const hoy = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+    const ultima = stats.ultimaConexion;
+    
+    let nuevaRacha = stats.racha;
+
+    if (ultima === hoy) {
+        // Ya entró hoy, solo mostrar
+        document.getElementById('streak-count').innerText = nuevaRacha;
+        return;
+    }
+
+    // Calcular diferencia de días
+    const fechaActual = new Date(hoy);
+    const fechaUltima = new Date(ultima || hoy);
+    const diferenciaDias = Math.floor((fechaActual - fechaUltima) / (1000 * 60 * 60 * 24));
+
+    if (diferenciaDias === 1 || ultima === "") {
+        // Es el día siguiente o primera vez
+        nuevaRacha++;
+    } else if (diferenciaDias > 1) {
+        // Se saltó un día o más, racha a 1
+        nuevaRacha = 1;
+    }
+
+    // Actualizar Firebase
+    await set(rachaRef, {
+        racha: nuevaRacha,
+        ultimaConexion: hoy
+    });
+
+    // Actualizar Interfaz
+    const elRacha = document.getElementById('streak-count');
+    if (elRacha) elRacha.innerText = nuevaRacha;
+    
+    // Si la racha es alta, podemos cambiar el color del fuego
+    if (nuevaRacha >= 7) {
+        document.getElementById('streak-container').style.color = "#ff5722"; // Fuego más intenso
+    }
+}
 </script>
 </body>
 </html>
