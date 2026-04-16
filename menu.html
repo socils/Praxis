@@ -866,55 +866,75 @@ function renderizarVacio() {
     const rachaRef = ref(db, `usuarios/${uid}/stats`);
     const snapshot = await get(rachaRef);
     const stats = snapshot.val() || { racha: 0, ultimaConexion: "" };
-    
-    const hoy = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
-    const ultima = stats.ultimaConexion;
-    
+
+    const hoyDate = new Date();
+    const hoyStr = hoyDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    const ultimaStr = stats.ultimaConexion;
+
     let nuevaRacha = stats.racha;
 
-    if (ultima === hoy) {
-        // Ya entró hoy, solo mostrar
-        document.getElementById('streak-count').innerText = nuevaRacha;
+    // 1. CASO: PRIMERA VEZ O YA ENTRÓ HOY
+    if (ultimaStr === hoyStr) {
+        actualizarInterfazRacha(nuevaRacha);
         return;
     }
 
-    // Calcular diferencia de días
-  // ... dentro de gestionarRachaUsuario(uid) ...
+    // 2. LÓGICA DE CÁLCULO DE DIFERENCIA
+    if (ultimaStr) {
+        const ultimaDate = new Date(ultimaStr);
+        const diferenciaTiempo = hoyDate - ultimaDate;
+        const diferenciaDias = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
 
-const elContenedor = document.getElementById('streak-container');
-const elNumero = document.getElementById('streak-count');
-const elIcono = elContenedor.querySelector('span:last-child'); // El emoji de fuego
-
-if (nuevaRacha > 0) {
-    elNumero.innerText = nuevaRacha;
-    elIcono.classList.add('racha-fuego-activa');
-    
-    // Si llega a una semana, cambia el estilo a "Legendario"
-    if (nuevaRacha >= 7) {
-        elContenedor.classList.add('racha-legendaria');
-        elNumero.style.color = "#e65100";
+        if (diferenciaDias === 1) {
+            // Entró el día siguiente: ¡Sube la racha!
+            nuevaRacha++;
+        } else if (diferenciaDias > 1) {
+            // Pasó más de un día: Racha reiniciada
+            nuevaRacha = 1;
+        }
+    } else {
+        // Primera conexión histórica
+        nuevaRacha = 1;
     }
-} else {
-    // Si la racha se perdió (es 0), se ve más apagado
-    elContenedor.style.opacity = "0.5";
-    elIcono.innerText = "🌑"; // Luna o racha apagada
-}
 
-    // Actualizar Firebase
-    await set(rachaRef, {
+    // 3. ACTUALIZAR FIREBASE (Alonixz-Cloud)
+    await update(rachaRef, {
         racha: nuevaRacha,
-        ultimaConexion: hoy
+        ultimaConexion: hoyStr
     });
 
-    // Actualizar Interfaz
-    const elRacha = document.getElementById('streak-count');
-    if (elRacha) elRacha.innerText = nuevaRacha;
-    
-    // Si la racha es alta, podemos cambiar el color del fuego
-    if (nuevaRacha >= 7) {
-        document.getElementById('streak-container').style.color = "#ff5722"; // Fuego más intenso
-    }
+    // 4. ACTUALIZAR INTERFAZ
+    actualizarInterfazRacha(nuevaRacha);
 }
+
+// Función auxiliar para mantener el Flat Design limpio
+function actualizarInterfazRacha(racha) {
+    const elContenedor = document.getElementById('streak-container');
+    const elNumero = document.getElementById('streak-count');
+    const elIcono = document.getElementById('streak-icon'); // Usa un ID específico
+
+    if (!elContenedor || !elNumero) return;
+
+    elNumero.innerText = racha;
+
+    if (racha > 0) {
+        elContenedor.style.opacity = "1";
+        elIcono.innerText = "🔥";
+        
+        // Estilo según progreso (Estética Praxis)
+        if (racha >= 7) {
+            elContenedor.classList.add('racha-legendaria');
+            elNumero.style.color = "#ff5722"; // Naranja intenso
+            elIcono.classList.add('racha-fuego-activa');
+        } else {
+            elContenedor.classList.remove('racha-legendaria');
+            elNumero.style.color = "inherit";
+        }
+    } else {
+        elContenedor.style.opacity = "0.5";
+        elIcono.innerText = "🌑";
+    }
+};
 </script>
 </body>
 </html>
