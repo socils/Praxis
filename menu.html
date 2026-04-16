@@ -914,23 +914,7 @@ if (nuevaRacha > 0) {
     if (nuevaRacha >= 7) {
         document.getElementById('streak-container').style.color = "#ff5722"; // Fuego más intenso
     }
-}document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('welcome-modal');
-    const closeBtn = document.getElementById('close-welcome');
-    const currentVersion = "1.2"; // Cambia esto cada vez que hagas un update grande
-
-    // Si la versión guardada es diferente a la actual, mostramos el modal
-    if (localStorage.getItem('praxis_version') !== currentVersion) {
-        setTimeout(() => {
-            modal.classList.add('active');
-        }, 800);
-    }
-
-    closeBtn.addEventListener('click', () => {
-        modal.classList.remove('active');
-        localStorage.setItem('praxis_version', currentVersion);
-    });
-});
+}
 </script>
 </body>
 </html>
