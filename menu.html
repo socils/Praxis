@@ -862,79 +862,62 @@ function renderizarVacio() {
 
         document.body.appendChild(reporte);
     }
-})();async function gestionarRachaUsuario(uid) {
-    const rachaRef = ref(db, `usuarios/${uid}/stats`);
-    const snapshot = await get(rachaRef);
-    const stats = snapshot.val() || { racha: 0, ultimaConexion: "" };
+})();// Asegúrate de importar estas funciones si usas módulos (ESM)
+// import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-database.js";
 
-    const hoyDate = new Date();
-    const hoyStr = hoyDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    const ultimaStr = stats.ultimaConexion;
+async function gestionarRachaUsuario(uid) {
+    // 1. Verificación de seguridad: si no hay base de datos o uid, cancelamos silenciosamente
+    if (!db || !uid) return;
 
-    let nuevaRacha = stats.racha;
-
-    // 1. CASO: PRIMERA VEZ O YA ENTRÓ HOY
-    if (ultimaStr === hoyStr) {
-        actualizarInterfazRacha(nuevaRacha);
-        return;
-    }
-
-    // 2. LÓGICA DE CÁLCULO DE DIFERENCIA
-    if (ultimaStr) {
-        const ultimaDate = new Date(ultimaStr);
-        const diferenciaTiempo = hoyDate - ultimaDate;
-        const diferenciaDias = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
-
-        if (diferenciaDias === 1) {
-            // Entró el día siguiente: ¡Sube la racha!
-            nuevaRacha++;
-        } else if (diferenciaDias > 1) {
-            // Pasó más de un día: Racha reiniciada
-            nuevaRacha = 1;
-        }
-    } else {
-        // Primera conexión histórica
-        nuevaRacha = 1;
-    }
-
-    // 3. ACTUALIZAR FIREBASE (Alonixz-Cloud)
-    await update(rachaRef, {
-        racha: nuevaRacha,
-        ultimaConexion: hoyStr
-    });
-
-    // 4. ACTUALIZAR INTERFAZ
-    actualizarInterfazRacha(nuevaRacha);
-}
-
-// Función auxiliar para mantener el Flat Design limpio
-function actualizarInterfazRacha(racha) {
-    const elContenedor = document.getElementById('streak-container');
-    const elNumero = document.getElementById('streak-count');
-    const elIcono = document.getElementById('streak-icon'); // Usa un ID específico
-
-    if (!elContenedor || !elNumero) return;
-
-    elNumero.innerText = racha;
-
-    if (racha > 0) {
-        elContenedor.style.opacity = "1";
-        elIcono.innerText = "🔥";
+    try {
+        const rachaRef = ref(db, `usuarios/${uid}/stats`);
+        const snapshot = await get(rachaRef);
         
-        // Estilo según progreso (Estética Praxis)
-        if (racha >= 7) {
-            elContenedor.classList.add('racha-legendaria');
-            elNumero.style.color = "#ff5722"; // Naranja intenso
-            elIcono.classList.add('racha-fuego-activa');
-        } else {
-            elContenedor.classList.remove('racha-legendaria');
-            elNumero.style.color = "inherit";
+        // Obtenemos datos o valores por defecto
+        const stats = snapshot.exists() ? snapshot.val() : { racha: 0, ultimaConexion: "" };
+        
+        // Usamos la fecha local de Arequipa/Juliaca (Perú) para evitar desfases
+        const hoy = new Date().toLocaleDateString('en-CA'); 
+        const ultima = stats.ultimaConexion;
+
+        // Si ya registró racha hoy, solo pintamos el número y salimos
+        if (ultima === hoy) {
+            const el = document.getElementById('streak-count');
+            if (el) el.innerText = stats.racha;
+            return;
         }
-    } else {
-        elContenedor.style.opacity = "0.5";
-        elIcono.innerText = "🌑";
+
+        let nuevaRacha = 1; // Por defecto empezamos en 1 si es nuevo
+
+        if (ultima) {
+            const ultimaDate = new Date(ultima + "T00:00:00");
+            const hoyDate = new Date(hoy + "T00:00:00");
+            const diffMilisegundos = hoyDate - ultimaDate;
+            const diffDias = Math.round(diffMilisegundos / (1000 * 60 * 60 * 24));
+
+            if (diffDias === 1) {
+                nuevaRacha = (stats.racha || 0) + 1; // Consecutivo
+            } else {
+                nuevaRacha = 1; // Se pasó el tiempo, reinicia
+            }
+        }
+
+        // Guardar en Alonixz-Cloud (Firebase)
+        // Usamos update para no borrar otros datos que tengas en 'stats'
+        await update(rachaRef, {
+            racha: nuevaRacha,
+            ultimaConexion: hoy
+        });
+
+        // Actualizar la interfaz solo si los elementos existen
+        const elCount = document.getElementById('streak-count');
+        if (elCount) elCount.innerText = nuevaRacha;
+
+    } catch (error) {
+        // El error se queda en consola para ti, pero no activa el Guardian
+        console.warn("Praxis Racha Log:", error.message);
     }
-};
+}
 </script>
 </body>
 </html>
