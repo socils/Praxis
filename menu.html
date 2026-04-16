@@ -74,35 +74,8 @@
         </div>
     </div>
 
-<script type="module">/**
- * Praxis Error Guardian
- * Monitorea errores en consola y fallos de red para redirigir a error.html
- */
-const iniciarGuardianPraxis = () => {
-    // 1. Capturar errores de ejecución (Sintaxis, variables no definidas, etc.)
-    window.onerror = function(message, source, lineno, colno, error) {
-        console.error("❌ Error Crítico detectado:", message);
-        window.location.href = "error.html";
-        return true; 
-    };
+<script type="module">
 
-    // 2. Capturar promesas fallidas (Errores de Firebase, carga de datos, etc.)
-    window.onunhandledrejection = function(event) {
-        console.error("❌ Error de Promesa:", event.reason);
-        window.location.href = "error.html";
-    };
-
-    // 3. Capturar errores de carga de archivos (Imágenes rotas o scripts no encontrados)
-    window.addEventListener('error', function(event) {
-        if (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK') {
-            console.error("❌ Error al cargar recurso crítico:", event.target.src || event.target.href);
-            window.location.href = "error.html";
-        }
-    }, true);
-};
-
-// Ejecución inmediata
-iniciarGuardianPraxis();
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
    import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
