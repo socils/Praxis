@@ -98,14 +98,14 @@ import {
         storageBucket: "praxis-79b9a.firebasestorage.app",
         messagingSenderId: "596083977949",
         appId: "1:596083977949:web:71064f89a23f8d9738f534"
-    };// Colocar dentro del onAuthStateChanged o al inicio del script de Firebase
+    };
 
 let tokenClient;
 let gapiInited = false;
 let gsisInited = false;
 
 const cargarGoogleAPI = () => {
-    // 1. Cargar GAPI (para Drive)
+  
     const scriptGapi = document.createElement('script');
     scriptGapi.src = "https://apis.google.com/js/api.js";
     scriptGapi.onload = () => {
@@ -118,14 +118,14 @@ const cargarGoogleAPI = () => {
     };
     document.head.appendChild(scriptGapi);
 
-    // 2. Cargar GSI (para el Login/Permisos)
+  
     const scriptGsi = document.createElement('script');
     scriptGsi.src = "https://accounts.google.com/gsi/client";
     scriptGsi.onload = () => {
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: '596083977949-bscfdfkeajrnh3ouiqgk4qh7p6fseah5.apps.googleusercontent.com',
             scope: 'https://www.googleapis.com/auth/drive.file',
-            callback: '', // Se define al hacer clic
+            callback: '',
         });
         gsisInited = true;
     };
@@ -142,25 +142,25 @@ cargarGoogleAPI();
     const statusMsg = document.getElementById('status-message');
     const sidebar = document.getElementById('sidebar');
 
-// Reemplaza o actualiza tu bloque onAuthStateChanged
+
 onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
 
     if (user) {
-        // --- VALIDACIÓN DE ADMINISTRADOR (ALONIXZ-GROUP) ---
-        const miCorreoAdmin = "ajuliuszch@gmail.com"; // <--- CAMBIA ESTO POR TU CORREO REAL
+       
+        const miCorreoAdmin = "ajuliuszch@gmail.com";
         
-        // Buscamos el botón de admin en el HTML (asegúrate de que tenga este ID)
+      
         const adminBtn = document.getElementById('admin-link');
         if (user.email === miCorreoAdmin && adminBtn) {
-            adminBtn.style.display = 'flex'; // O 'block', según tu diseño
+            adminBtn.style.display = 'flex';
             console.log("Acceso de Fundador detectado ⚡");
         }
 
         const nombreDisplay = user.displayName || user.email.split('@')[0];
         const fotoDisplay = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
 
-        // Inyectamos el contenedor de la racha (fuego) junto al nombre
+
         userInfoDiv.innerHTML = `
             <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
                 <span id="streak-count">0</span>
@@ -173,7 +173,6 @@ onAuthStateChanged(auth, async (user) => {
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
 
-        // Lógica de racha y carga de datos
         gestionarRachaUsuario(user.uid);
         cargarAgenda(user.uid);      
         cargarListaSidebar(user.uid); 
@@ -184,7 +183,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
     const enMantenimiento = snapshot.val();
-    // Si está activo y no estás en la página de mantenimiento, redirigir
+   
     if (enMantenimiento === true) {
         window.location.href = "mantenimiento.html";
     }
