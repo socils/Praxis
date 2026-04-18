@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidad Integral | Praxis</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --dark: #121212;
+            --text-main: #1f1f1f;
+            --text-muted: #5f6368;
+            --bg-alt: #f8f9fa;
+            --border: #e8eaed;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            background-color: #fff;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Hero Header */
+        .legal-header {
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 120px 8% 60px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .legal-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            letter-spacing: -2px;
+            margin-bottom: 15px;
+        }
+
+        .version-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .doc-section {
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--dark);
+        }
+
+        h2::before {
+            content: "";
+            width: 4px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        p { margin-bottom: 20px; font-size: 1.05rem; color: var(--text-muted); }
+
+        /* Estilo de tablas/listas informativas */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: var(--bg-alt);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .info-card h4 {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* Notificación importante */
+        .notice-box {
+            background-color: #fff3e0;
+            border-left: 5px solid #ff9800;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 40px 0;
+        }
+
+        .notice-box strong { color: #e65100; }
+
+        .footer-legal {
+            background: var(--dark);
+            color: #888;
+            padding: 60px 8%;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        .btn-home {
+            position: fixed;
+            top: 30px;
+            right: 8%;
+            padding: 10px 20px;
+            background: var(--dark);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .btn-home { top: auto; bottom: 20px; right: 50%; transform: translateX(50%); width: 80%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="btn-home">← Volver al Inicio</a>
+
+    <header class="legal-header">
+        <span class="version-tag">Protocolo V3.5 (Cloud)</span>
+        <h1>Políticas y Privacidad</h1>
+        <p>Cómo Alonixz-Group protege tu identidad y tus documentos escolares.</p>
+    </header>
+
+    <div class="container">
+        
+        <section class="doc-section">
+            <h2>1. Alcance del Proyecto</h2>
+            <p><strong>Praxis</strong> es una plataforma educativa de código abierto y uso gratuito gestionada por <strong>Alonixz-Group</strong>. Estas políticas rigen el uso del sitio, la aplicación web y los servicios de almacenamiento en la nube vinculados (Firebase).</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>2. Uso de Google API Services</h2>
+            <p>Praxis interactúa con los servicios de Google mediante protocolos de autenticación seguros (OAuth 2.0). Al utilizar la plataforma, el usuario otorga permisos para:</p>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Identificación</h4>
+                    <p>Acceso al nombre y foto de perfil para personalizar la interfaz y el ranking.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Archivos (Read-only)</h4>
+                    <p>Lectura de archivos PDF y documentos en Drive para su organización en carpetas académicas.</p>
+                </div>
+            </div>
+            <p><strong>Importante:</strong> Praxis no modifica ni elimina archivos originales en tu Google Drive sin una acción explícita del usuario.</p>
+        </section>
+
+        <div class="notice-box">
+            <strong>Declaración de Gratuidad Permanente:</strong> Praxis no contiene pasarelas de pago, suscripciones ni cargos ocultos. El acceso al rango "Platinum" y otras funciones se obtiene exclusivamente mediante mérito académico y uso de la plataforma.
+        </div>
+
+        <section class="doc-section">
+            <h2>3. Almacenamiento en la Nube (Firebase)</h2>
+            <p>Desde la actualización 3.5, los datos de progreso se migran de almacenamiento local a <strong>Firebase Cloud Storage</strong>. Esto incluye:</p>
+            <ul>
+                <li>Registros de tus Puntos de Aprendizaje.</li>
+                <li>Rachas de estudio diarias (streaks).</li>
+                <li>Configuraciones de interfaz personalizadas.</li>
+            </ul>
+            <p>Toda la comunicación entre tu dispositivo (Honor X6a Plus o PC) y el servidor está cifrada mediante certificados SSL/TLS.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>4. Protección de Menores</h2>
+            <p>Dado que Praxis está orientado a estudiantes de secundaria, cumplimos con normativas de protección de datos infantiles. No recolectamos números de teléfono, direcciones físicas ni datos sensibles de salud o financieros.</p>
+        </section>
+
+        <section class="doc-section">
+            <h2>5. Derechos del Usuario (ARCO)</h2>
+            <p>Cualquier estudiante tiene derecho a:</p>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Acceso</h4>
+                    <p>Saber qué datos tenemos guardados en la nube de Alonixz.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Cancelación</h4>
+                    <p>Solicitar la baja definitiva y el borrado de sus registros en Firebase.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="doc-section">
+            <h2>6. Contacto y Transparencia</h2>
+            <p>Para dudas sobre el manejo de datos, el equipo de desarrollo de <strong>Alonixz-Group</strong> está disponible para resolver consultas de estudiantes, padres o directivos del plantel.</p>
+        </section>
+
+    </div>
+
+    <footer class="footer-legal">
+        <p>Praxis es una iniciativa independiente para la mejora del rendimiento académico.</p>
+        <p style="margin-top: 15px; font-size: 0.7rem; color: #555;">© 2026 ALONIXZ-GROUP. TODOS LOS DERECHOS RESERVADOS.</p>
+    </footer>
+
+</body>
+</html>

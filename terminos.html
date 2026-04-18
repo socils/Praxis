@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos de Servicio | Praxis</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --dark: #121212;
+            --text-main: #1f1f1f;
+            --text-muted: #5f6368;
+            --bg-subtle: #f8f9fa;
+            --border: #e8eaed;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            line-height: 1.8;
+            background: #ffffff;
+        }
+
+        /* Hero */
+        .terms-header {
+            padding: 100px 8% 60px;
+            background: radial-gradient(circle at top right, rgba(26,115,232,0.05), transparent);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terms-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            background: #e8f0fe;
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Content Layout */
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 60px 25px;
+        }
+
+        .clause {
+            margin-bottom: 45px;
+        }
+
+        .clause h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            margin-bottom: 18px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .clause h2 span {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
+
+        .clause p, .clause ul {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .clause ul {
+            padding-left: 20px;
+            margin-top: 15px;
+        }
+
+        .clause li { margin-bottom: 10px; }
+
+        /* Banner de Gratuidad */
+        .free-guarantee {
+            background: var(--dark);
+            color: white;
+            padding: 40px;
+            border-radius: 30px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .free-guarantee h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .free-guarantee p { color: #aaa; margin: 0; }
+
+        .free-guarantee::after {
+            content: "FREE";
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 8rem;
+            font-weight: 900;
+            opacity: 0.05;
+        }
+
+        /* Nav Floating */
+        .nav-fixed {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            padding: 12px 25px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .nav-fixed a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            padding: 60px 8%;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .nav-fixed { width: 95%; padding: 10px 20px; }
+            .clause h2 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-fixed">
+        <a href="index.html">← Inicio</a>
+        <span style="font-weight: 900; letter-spacing: 1px;">PRAXIS</span>
+        <a href="privacidad.html">Privacidad</a>
+    </nav>
+
+    <header class="terms-header">
+        <span class="status-badge">Vigente 2026</span>
+        <h1>Términos de Servicio</h1>
+        <p>Reglas de uso para la comunidad de estudiantes de Alonixz-Group.</p>
+    </header>
+
+    <div class="container">
+        
+        <section class="clause">
+            <h2><span>01.</span> Aceptación</h2>
+            <p>Al acceder a Praxis, aceptas estos términos en su totalidad. Esta plataforma ha sido diseñada exclusivamente para fines académicos y de organización personal de estudiantes. El uso indebido para fines ajenos a la educación puede resultar en la suspensión de la cuenta.</p>
+        </section>
+
+        <section class="clause">
+            <h2><span>02.</span> Propiedad Intelectual</h2>
+            <p>Todo el software, diseño, logotipos (incluyendo el logo de <strong>Praxis</strong> y la marca <strong>Alonixz-Group</strong>) y el código fuente son propiedad del equipo de desarrollo liderado por Alonso. Queda prohibida la redistribución o copia del código sin autorización previa.</p>
+        </section>
+
+        <div class="free-guarantee">
+            <h3>Compromiso Alonixz</h3>
+            <p>Praxis es una herramienta gratuita y de libre acceso. No se cobrará por funciones básicas de organización, acceso a rangos o almacenamiento cloud, a menos que exista un cambio futuro en las políticas de infraestructura que sea notificado con antelación.</p>
+        </div>
+
+        <section class="clause">
+            <h2><span>03.</span> Sistema de Puntos y Rangos</h2>
+            <p>El sistema de "Puntos de Aprendizaje" y el estatus "Platinum" son mecanismos de gamificación para motivar el estudio. Praxis se reserva el derecho de:</p>
+            <ul>
+                <li>Reiniciar los puntos si se detecta uso de scripts o hacks para aumentar el puntaje artificialmente.</li>
+                <li>Modificar los requisitos de rango según la dificultad del periodo académico.</li>
+                <li>Eliminar insignias obtenidas mediante errores del sistema (bugs).</li>
+            </ul>
+        </section>
+
+        <section class="clause">
+            <h2><span>04.</span> Uso de Cuentas Institucionales</h2>
+            <p>Dado que la plataforma se vincula con Google Drive, el usuario es responsable de mantener la seguridad de su cuenta. Praxis no se hace responsable por la pérdida de información si el usuario comparte sus credenciales de acceso con terceros.</p>
+        </section>
+
+        <section class="clause">
+            <h2><span>05.</span> Versión 3.5 y Nube</h2>
+            <p>Con la implementación de la sincronización en la nube (Alonixz-Cloud), los datos locales del navegador ahora se respaldan en Firebase. El usuario acepta que este respaldo es necesario para que el sistema de rachas (streaks) funcione en múltiples dispositivos como el Honor X6a Plus y computadoras personales.</p>
+        </section>
+
+        <section class="clause">
+            <h2><span>06.</span> Modificaciones</h2>
+            <p>Alonixz-Group se reserva el derecho de actualizar estos términos en cualquier momento para adaptarlos a nuevas funciones (como la futura integración de herramientas adicionales). La continuación del uso de Praxis implica la aceptación de los nuevos términos.</p>
+        </section>
+<section class="clause" style="border-top: 1px dashed var(--border); padding-top: 40px; margin-top: 60px;">
+            <h2 style="font-size: 1.1rem; color: var(--text-muted);"><span>07.</span> Disposiciones Adicionales</h2>
+            <p style="font-size: 0.85rem; line-height: 1.5;">
+                <strong>Nota sobre el modelo de servicios:</strong> Aunque Praxis se ofrece actualmente como una plataforma de acceso gratuito, Alonixz-Group se reserva el derecho de implementar, en cualquier momento y bajo su sola discreción, un modelo de <strong>microtransacciones</strong> o servicios adicionales de pago. 
+            </p>
+            <p style="font-size: 0.85rem; line-height: 1.5;">
+                Dichas implementaciones podrían estar destinadas a funciones estéticas premium, expansiones de almacenamiento cloud o herramientas avanzadas, con el fin de garantizar la sostenibilidad técnica del proyecto. Cualquier cambio en la estructura de costos será notificado a través de los canales oficiales de la plataforma antes de su entrada en vigor.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>Desarrollado con visión tecnológica en Perú.</p>
+        <p style="margin-top: 10px; font-weight: 700;">© 2026 ALONIXZ-GROUP</p>
+    </footer>
+
+</body>
+</html>

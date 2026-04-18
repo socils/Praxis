@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Praxis | Plataforma Académica Gratuita</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-soft: #e8f0fe;
+            --accent: #34a853;
+            --dark: #121212;
+            --text-main: #1f1f1f;
+            --text-secondary: #5f6368;
+            --white: #ffffff;
+            --border-color: #f1f3f4;
+            --shadow: 0 20px 40px rgba(0,0,0,0.05);
+            --transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            --safe-area: 8%;
+        }
+
+        /* Reset & Fixes */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html { 
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--white);
+            color: var(--text-main);
+            line-height: 1.6;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Fondo Mesh Dinámico */
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: 
+                radial-gradient(at 0% 0%, rgba(26, 115, 232, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(52, 168, 83, 0.04) 0px, transparent 50%);
+        }
+
+        /* Navegación Segura */
+        nav {
+            height: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--safe-area);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+            color: var(--dark);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover { color: var(--primary); }
+
+        .btn-nav {
+            background: var(--dark);
+            color: var(--white) !important;
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        /* Hero Section */
+        header.hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 100px var(--safe-area) 50px;
+        }
+
+        .hero-badge {
+            background: #f1f3f4;
+            color: var(--text-secondary);
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -3px;
+            margin-bottom: 25px;
+            color: var(--dark);
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 4vw, 1.25rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .btn-main {
+            padding: 18px 38px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: var(--transition);
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: 0 10px 20px rgba(26, 115, 232, 0.2);
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+            background: #1557b0;
+            box-shadow: 0 15px 30px rgba(26, 115, 232, 0.3);
+        }
+
+        /* Bento Grid Reparado */
+        .section {
+            padding: 80px var(--safe-area);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .bento-card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 40px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            min-height: 320px;
+        }
+
+        .bento-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: auto;
+        }
+
+        .bento-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .bento-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Banner Gratuito (Política) */
+        .policy-banner {
+            background: var(--dark);
+            color: var(--white);
+            padding: 60px var(--safe-area);
+            border-radius: 40px;
+            margin: 40px var(--safe-area);
+            text-align: center;
+        }
+
+        .policy-banner h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .policy-banner p {
+            color: #999;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Footer Reparado */
+        footer {
+            background: #fafafa;
+            padding: 80px var(--safe-area) 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .footer-col ul li a:hover { color: var(--primary); }
+
+        .footer-bottom {
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.8rem;
+            color: #bdc1c6;
+            letter-spacing: 1px;
+        }
+
+        /* Animaciones */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: 0.8s var(--transition);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Fixes */
+        @media (max-width: 768px) {
+            nav { padding: 0 5%; }
+            .nav-links { display: none; }
+            .hero { padding-top: 120px; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .policy-banner { border-radius: 20px; margin: 20px 5%; }
+            .section { padding: 60px 5%; }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mesh-bg"></div>
+
+    <nav>
+        <a href="#" class="logo-box">
+            <img src="praxis.png" alt="Logo" class="logo-img">
+            <span class="logo-text">PRAXIS</span>
+        </a>
+        <div class="nav-links">
+            <a href="#herramientas">Herramientas</a>
+            <a href="#filosofia">Filosofía</a>
+            <a href="login.html" class="btn-nav">Acceder</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Acceso Total Gratuito
+        </div>
+        <h1>Organiza tu mundo académico.</h1>
+        <p>Praxis es el centro de mando para el estudiante del San Jerónimo. Gestiona Drive, tus tareas y tu progreso sin costo alguno.</p>
+        <a href="login.html" class="btn-main">Empezar ahora</a>
+    </header>
+
+    <section id="herramientas" class="section">
+        <div class="section-header reveal">
+            <h2>Potencia tu estudio.</h2>
+            <p>Herramientas diseñadas para maximizar tu rendimiento escolar.</p>
+        </div>
+
+        <div class="bento-grid">
+            <div class="bento-card reveal">
+                <div class="card-icon">📂</div>
+                <h3>Sincronización Total</h3>
+                <p>Conecta tu Google Drive institucional y organiza todas tus fichas por curso en un solo panel minimalista.</p>
+            </div>
+            <div class="bento-card reveal">
+                <div class="card-icon">🏆</div>
+                <h3>Puntos de Aprendizaje</h3>
+                <p>Cada vez que completas una actividad, ganas puntos. Tu constancia se ve reflejada en tu perfil.</p>
+            </div>
+            <div class="bento-card reveal">
+                <div class="card-icon">💎</div>
+                <h3>Rango Platinum</h3>
+                <p>Alcanza el nivel más alto de la plataforma demostrando tu compromiso con tus estudios cada día.</p>
+            </div>
+            <div class="bento-card reveal">
+                <div class="card-icon">⚡</div>
+                <h3>Optimización Móvil</h3>
+                <p>Acceso ultra rápido desde tu celular. Diseñado para cargar al instante sin importar donde estés.</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="filosofia" class="policy-banner reveal">
+        <h2>Compromiso de Gratuidad</h2>
+        <p>En Alonixz-Group creemos que las herramientas educativas deben ser accesibles. Praxis es gratuito para todos los estudiantes y lo seguirá siendo, garantizando un espacio libre de suscripciones para tu crecimiento.</p>
+    </div>
+
+    <section class="section" style="text-align: center;">
+        <div class="reveal">
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 20px;">Desarrollado por Alonixz Group</h3>
+            <p style="color: var(--text-secondary);">Innovando desde Arequipa y Juliaca para transformar la educación.</p>
+        </div>
+    </section>
+     
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">PRAXIS</div>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Elevando el estándar del desarrollo estudiantil.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Plataforma</h4>
+                <ul>
+                    <li><a href="#">Sincronización</a></li>
+                    <li><a href="#">Rangos</a></li>
+                    <li><a href="#">Móvil</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Proyecto</h4>
+                <ul>
+                    <li><a href="#">Alonixz Cloud</a></li>
+                    <li><a href="#">EduSolve</a></li>
+                    <li><a href="#">V3.5</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="privacidad.html">Privacidad</a></li>
+                    <li><a href="terminos.html">Términos</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 ALONIXZ GROUP &bull; HECHO EN PERÚ
+        </div>
+    </footer>
+
+    <script>
+        // Animación de aparición suave
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        window.addEventListener("load", reveal);
+    </script>
+
+</body>
+</html>
