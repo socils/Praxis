@@ -217,7 +217,43 @@
         @media (max-width: 1100px) {
             .image-side, .sello-colegio { display: none; }
             .content-side { width: 100%; }
-        }
+        }/* --- ESTILOS EXCLUSIVOS PARA MÓVILES (No afectan a PC) --- */
+@media screen and (max-width: 768px) {
+    body {
+        /* Evitamos que el contenido se mueva hacia los lados en móviles */
+        overflow-x: hidden; 
+    }
+
+    .background-overlay {
+        /* En el celular, la captura de pantalla se verá mejor centrada a la izquierda */
+        background-position: 25% center !important;
+        filter: blur(5px) !important;
+        transform: scale(1.2); /* Un poco más de zoom para cubrir bordes */
+    }
+
+    .login-card {
+        width: 85% !important; /* La tarjeta ocupa casi todo el ancho en móviles */
+        padding: 40px 20px !important;
+        max-width: none !important;
+        border-radius: 24px !important;
+    }
+
+    .logo {
+        font-size: 34px !important; /* Nombre un poco más pequeño para pantallas chicas */
+        margin-bottom: 25px !important;
+    }
+
+    .google-btn {
+        padding: 14px !important;
+        font-size: 15px !important;
+    }
+
+    .footer-text {
+        font-size: 11px !important;
+        margin-top: 35px !important;
+        line-height: 1.4;
+    }
+}
     </style>
 </head>
 <body>
