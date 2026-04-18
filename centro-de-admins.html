@@ -276,8 +276,7 @@
         if(el) el.innerText = s.val() ? Object.keys(s.val()).length : 0;
     });
 
-   // ESCUCHADOR PARA LA RUTA: usuarios (en la raíz)
-// ESCUCHADOR DE USUARIOS EN ALONIXZ-CLOUD
+ // ESCUCHADOR DE ALONIXZ-CLOUD BASADO EN UID
 onValue(ref(db, 'usuarios'), (snapshot) => {
     const data = snapshot.val();
     const tbody = document.getElementById('tabla-usuarios-body');
@@ -289,39 +288,44 @@ onValue(ref(db, 'usuarios'), (snapshot) => {
 
         if(tbody) {
             tbody.innerHTML = "";
-            // 'uid' es la llave principal (el ID que mencionas)
-            // 'u' contiene los datos (nombre, racha, etc.)
+            
             userEntries.forEach(([uid, u]) => {
-                
-                const nombre = u.nombre || "Estudiante";
+                // Extraemos la info que el usuario guardó bajo su ID de Authentication
+                const nombre = u.nombre || "Usuario de Praxis";
+                const correo = u.correo || "Sin vincular";
                 const foto = u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+                
+                // Estos son los datos de actividad que mencionas:
                 const racha = u.racha || 0;
                 const puntos = u.puntos || 0;
+                const ultimaActividad = u.ultimaConexion ? new Date(u.ultimaConexion).toLocaleDateString() : "Reciente";
 
                 tbody.innerHTML += `
-                    <tr style="border-bottom: 1px solid var(--border); transition: 0.3s;">
+                    <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 15px; display: flex; align-items: center; gap: 12px;">
-                            <img src="${foto}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-soft);">
+                            <img src="${foto}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #e8f0fe;">
                             <div>
-                                <div style="font-weight: 800; color: var(--text-main); font-size: 14px;">${nombre}</div>
-                                <div style="font-family: 'Courier New', monospace; font-size: 10px; color: var(--accent); letter-spacing: 0.5px;">
-                                    UID: ${uid}
+                                <div style="font-weight: 800; color: #202124; font-size: 14px;">${nombre}</div>
+                                <div style="font-family: monospace; font-size: 10px; color: #1a73e8; background: #e8f0fe; padding: 2px 5px; border-radius: 4px; display: inline-block; margin-top: 4px;">
+                                    ID: ${uid}
                                 </div>
                             </div>
                         </td>
-                        <td style="padding: 15px; font-size: 13px; color: var(--text-dim);">
-                            ${u.correo || '---'}
+                        <td style="padding: 15px;">
+                            <div style="font-size: 13px; color: #5f6368;">${correo}</div>
+                            <div style="font-size: 11px; color: #9aa0a6;">Activo: ${ultimaActividad}</div>
                         </td>
                         <td style="padding: 15px;">
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: 900; color: #f4b400;">${racha} 🔥</span>
-                                <span style="font-size: 11px; color: var(--text-dim);">${puntos} pts</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <span style="font-weight: 900; color: #f4b400; font-size: 16px;">${racha}</span>
+                                <span style="font-size: 18px;">🔥</span>
                             </div>
+                            <div style="font-size: 11px; color: #34a853; font-weight: 700;">${puntos} Puntos</div>
                         </td>
                         <td style="padding: 15px; text-align: right;">
                             <button onclick="borrarUsuario('${uid}')" 
-                                    style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 10px; transition: 0.3s;">
-                                ELIMINAR CUENTA
+                                    style="background: #feeef3; color: #d93025; border: 1px solid #fad2cf; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 10px; transition: 0.2s;">
+                                EXPULSAR
                             </button>
                         </td>
                     </tr>
@@ -330,10 +334,9 @@ onValue(ref(db, 'usuarios'), (snapshot) => {
         }
     } else {
         if(countEl) countEl.innerText = "0";
-        if(tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:50px; color:var(--text-dim);'>No hay registros en la nube.</td></tr>";
+        if(tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:40px;'>Esperando conexión de Alonixz-Cloud...</td></tr>";
     }
 });
-
 // Función de borrado usando el UID exacto
 window.borrarUsuario = async (uid) => {
     if(confirm(`¿Estás seguro de eliminar al usuario con ID: ${uid}?\nEsta acción es irreversible en Alonixz-Cloud.`)) {
