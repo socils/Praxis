@@ -230,90 +230,105 @@
         </div>
     </main>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
-            authDomain: "praxis-79b9a.firebaseapp.com",
-            projectId: "praxis-79b9a",
-            databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
-            storageBucket: "praxis-79b9a.firebasestorage.app"
-        };
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    // IMPORTANTE: Añadir estas dos líneas para Auth
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app); // Inicializar Auth
 
-        // NAVEGACIÓN SPA
-        window.switchTab = (tabId, element) => {
-            document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(`tab-${tabId}`).style.display = 'block';
-            element.classList.add('active');
-            if(tabId === 'database') loadRawData();
-        };
+    // --- VERIFICADOR DE CUENTA ADMIN ---
+    onAuthStateChanged(auth, (user) => {
+        const miCorreoAdmin = "ajuliuszch@gmail.com";
 
-        // REAL-TIME STATS
-        onValue(ref(db, 'agendas'), s => {
-            document.getElementById('count-agendas').innerText = s.val() ? Object.keys(s.val()).length : 0;
-        });
-
-        onValue(ref(db, 'usuarios'), s => {
-            const data = s.val();
-            const count = data ? Object.keys(data).length : 0;
-            document.getElementById('count-users').innerText = count;
-            
-            let total = 0;
-            if(data) {
-                const tbody = document.getElementById('tabla-usuarios-body');
-                tbody.innerHTML = "";
-                Object.entries(data).forEach(([uid, u]) => {
-                    total += (u.racha || 0);
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="display:flex; align-items:center; gap:12px;">
-                                <img src="${u.foto || 'user.png'}" style="width:32px; border-radius:50%;">
-                                <div><b>${u.nombre}</b><br><small style="color:gray">${u.correo}</small></div>
-                            </td>
-                            <td><span style="color:var(--success)">Activo</span></td>
-                            <td>${u.racha || 0} 🔥 | ${u.puntos || 0} ✨</td>
-                            <td><button onclick="borrarUsuario('${uid}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">Expulsar</button></td>
-                        </tr>
-                    `;
-                });
-                document.getElementById('avg-streak').innerText = (total/count || 0).toFixed(1) + "🔥";
-            }
-        });
-
-        // FUNCIONES
-        window.publicarAnuncio = async () => {
-            const msg = document.getElementById('global-announcement').value;
-            if(msg) await set(ref(db, 'config/anuncio_global'), { mensaje: msg, fecha: Date.now() });
-            alert("Enviado a Alonixz Cloud");
-        };
-
-        window.setMantenimiento = async (e) => {
-            if(confirm(e ? "¿Cerrar Praxis?" : "¿Abrir Praxis?")) {
-                await set(ref(db, 'config/mantenimiento_activo'), e);
-            }
-        };
-
-        async function loadRawData() {
-            const s = await get(ref(db, '/'));
-            document.getElementById('raw-json').innerText = JSON.stringify(s.val(), null, 4);
+        if (!user || user.email !== miCorreoAdmin) {
+            // Si no hay usuario o el correo no coincide, expulsar
+            alert("Acceso denegado. Solo el líder de Alonixz-Group puede entrar.");
+            window.location.href = "menu.html";
+        } else {
+            console.log("Bienvenido, Administrador");
+            // Aquí puedes llamar a funciones que solo el admin debe ver
         }
+    });
 
-        window.borrarUsuario = async (id) => {
-            if(confirm("¿Borrar usuario permanentemente?")) await set(ref(db, `usuarios/${id}`), null);
-        };onAuthStateChanged(auth, (user) => {
-    const miCorreoAdmin = "ajuliuszch@gmail.com";
+    // --- TUS FUNCIONES EXISTENTES (Navegación, Stats, etc.) ---
+    window.switchTab = (tabId, element) => {
+        document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(`tab-${tabId}`).style.display = 'block';
+        element.classList.add('active');
+        if(tabId === 'database') loadRawData();
+    };
 
-    if (!user || user.email !== miCorreoAdmin) {
-        alert("Acceso denegado. Solo el líder de Alonixz-Group puede entrar.");
-        window.location.href = "menu.html";
+    onValue(ref(db, 'agendas'), s => {
+        const el = document.getElementById('count-agendas');
+        if(el) el.innerText = s.val() ? Object.keys(s.val()).length : 0;
+    });
+
+    onValue(ref(db, 'usuarios'), s => {
+        const data = s.val();
+        const count = data ? Object.keys(data).length : 0;
+        const countEl = document.getElementById('count-users');
+        if(countEl) countEl.innerText = count;
+        
+        let total = 0;
+        const tbody = document.getElementById('tabla-usuarios-body');
+        if(data && tbody) {
+            tbody.innerHTML = "";
+            Object.entries(data).forEach(([uid, u]) => {
+                total += (u.racha || 0);
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="display:flex; align-items:center; gap:12px;">
+                            <img src="${u.foto || 'user.png'}" style="width:32px; border-radius:50%;">
+                            <div><b>${u.nombre}</b><br><small style="color:gray">${u.correo}</small></div>
+                        </td>
+                        <td><span style="color:var(--success)">Activo</span></td>
+                        <td>${u.racha || 0} 🔥 | ${u.puntos || 0} ✨</td>
+                        <td><button onclick="borrarUsuario('${uid}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">Expulsar</button></td>
+                    </tr>
+                `;
+            });
+            const avgEl = document.getElementById('avg-streak');
+            if(avgEl) avgEl.innerText = (total/count || 0).toFixed(1) + "🔥";
+        }
+    });
+
+    window.publicarAnuncio = async () => {
+        const msg = document.getElementById('global-announcement').value;
+        if(msg) {
+            await set(ref(db, 'config/anuncio_global'), { mensaje: msg, fecha: Date.now() });
+            alert("Enviado a Alonixz Cloud");
+        }
+    };
+
+    window.setMantenimiento = async (e) => {
+        if(confirm(e ? "¿Cerrar Praxis?" : "¿Abrir Praxis?")) {
+            await set(ref(db, 'config/mantenimiento_activo'), e);
+        }
+    };
+
+    async function loadRawData() {
+        const s = await get(ref(db, '/'));
+        const rawEl = document.getElementById('raw-json');
+        if(rawEl) rawEl.innerText = JSON.stringify(s.val(), null, 4);
     }
-});
-    </script>
+
+    window.borrarUsuario = async (id) => {
+        if(confirm("¿Borrar usuario permanentemente?")) await set(ref(db, `usuarios/${id}`), null);
+    };
+
+</script>
 </body>
 </html>
