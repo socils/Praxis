@@ -134,6 +134,34 @@ const cargarGoogleAPI = () => {
 cargarGoogleAPI();
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    // --- Lógica de Anuncios Inteligentes ---
+let fechaAnuncioActual = 0;
+
+onValue(ref(db, 'config/anuncio_global'), (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.mensaje) {
+        fechaAnuncioActual = data.fecha;
+        
+        // Comprobar si es un anuncio nuevo comparando con el almacenamiento local
+        const ultimoLeido = localStorage.getItem('ultimo_anuncio_fecha');
+
+        if (ultimoLeido !== fechaAnuncioActual.toString()) {
+            mostrarModal(data.mensaje);
+        }
+    }
+});
+
+function mostrarModal(mensaje) {
+    document.getElementById('texto-anuncio-modal').innerText = mensaje;
+    document.getElementById('modal-anuncio').style.display = 'flex';
+}
+
+// Hacemos que la función de cerrar sea accesible desde el botón del HTML
+window.cerrarModalAnuncio = () => {
+    document.getElementById('modal-anuncio').style.display = 'none';
+    localStorage.setItem('ultimo_anuncio_fecha', fechaAnuncioActual);
+};
+    
     const auth = getAuth(app);
 
     const displayCode = document.getElementById('display-code');
@@ -1039,6 +1067,20 @@ function escucharChatClase(code) {
         }
     });
 }
-</script>
+</script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
+        <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 10px; color: #1a73e8;">Aviso de Praxis</h2>
+        <p id="texto-anuncio-modal" style="color: #5f6368; line-height: 1.6; margin-bottom: 25px; font-size: 15px;"></p>
+        <button onclick="cerrarModalAnuncio()" style="background: #1a73e8; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s;">Entendido</button>
+    </div>
+</div>
+
+<style>
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
 </body>
 </html>
