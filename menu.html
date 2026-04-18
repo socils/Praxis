@@ -75,6 +75,7 @@
     </div>
 
 <script type="module">
+    
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
@@ -158,15 +159,8 @@ onAuthStateChanged(auth, async (user) => {
             <img src="${fotoDisplay}" alt="User" 
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
-import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
-    const enMantenimiento = snapshot.val();
-    // Si está activo y no estás en la página de mantenimiento, redirigir
-    if (enMantenimiento === true) {
-        window.location.href = "mantenimiento.html";
-    }
-});
+
         // Lógica de racha
         gestionarRachaUsuario(user.uid);
 
@@ -174,6 +168,13 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
         cargarListaSidebar(user.uid); 
     } else {
         window.location.href = "login.html";
+    }
+});
+onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
+    const enMantenimiento = snapshot.val();
+    // Si está activo y no estás en la página de mantenimiento, redirigir
+    if (enMantenimiento === true) {
+        window.location.href = "mantenimiento.html";
     }
 });
 function cargarAgenda(currentUserUid) {
