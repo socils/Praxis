@@ -130,11 +130,10 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "index.html";
     }
 });
- function cargarAgenda(currentUserUid) {
+function cargarAgenda(currentUserUid) {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     
-    // Limpieza inmediata al iniciar la función para evitar residuos de otras vistas
     const banner = document.querySelector('.banner');
     const oldAdminBtn = document.getElementById('admin-publish-btn');
     if (oldAdminBtn) oldAdminBtn.remove();
@@ -147,8 +146,6 @@ onAuthStateChanged(auth, async (user) => {
             container.innerHTML = "";
             statusMsg.innerHTML = "";
             
-            // Limpieza interna: Cada vez que Firebase detecta un cambio, 
-            // borramos el botón antes de decidir si lo volvemos a crear.
             const currentBtn = document.getElementById('admin-publish-btn');
             if(currentBtn) currentBtn.remove();
 
@@ -165,14 +162,37 @@ onAuthStateChanged(auth, async (user) => {
                     adminBtn.className = "btn-confirm"; 
                     adminBtn.style.marginTop = "15px";
                     adminBtn.onclick = () => abrirModalTarea(code); 
-                    banner.appendChild(adminBtn); // Insertar en el banner limpio
+                    banner.appendChild(adminBtn);
                 }
 
+                // --- INICIO SECCIÓN DE CHAT DE CLASE ---
+                const chatContainer = document.createElement('div');
+                chatContainer.className = 'card'; 
+                chatContainer.style.marginBottom = "25px";
+                chatContainer.innerHTML = `
+                    <div class="card-header" style="border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                        <h3 style="margin:0; font-size: 16px; color: var(--p-600);">💬 Tablón de la Clase</h3>
+                    </div>
+                    <div id="lista-mensajes-${code}" style="max-height: 200px; overflow-y: auto; padding: 15px 5px; scroll-behavior: smooth;">
+                        <p style="text-align:center; color: #999; font-size: 13px;">Cargando mensajes...</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <input type="text" id="input-chat-${code}" placeholder="Comparte algo con tu clase..." 
+                               style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; outline: none;">
+                        <button class="btn-confirm" onclick="enviarMensajeClase('${code}')" 
+                                style="border-radius: 50%; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <span>✈️</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(chatContainer);
+                escucharChatClase(code); 
+                // --- FIN SECCIÓN DE CHAT DE CLASE ---
+
                 if (data.tareas) {
-                    // Convertimos a array y revertimos para ver las más recientes arriba
                     Object.keys(data.tareas).reverse().forEach(id => {
                         const t = data.tareas[id];
-                        if (id === 'inicio') return; // Omitir el marcador de inicio si existe
+                        if (id === 'inicio') return;
 
                         const btnEliminar = esDuenio 
                             ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea">🗑️</button>` 
@@ -199,7 +219,7 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
     }
-}
+};
 
 // FUNCIÓN PARA ELIMINAR (Agrégala al final de tu script)
 window.eliminarTarea = async (agendaCode, tareaId) => {
@@ -890,6 +910,56 @@ async function gestionarRachaUsuario(uid) {
         // El error se queda en consola para ti, pero no activa el Guardian
         console.warn("Praxis Racha Log:", error.message);
     }
+}window.enviarMensajeClase = async (code) => {
+    const input = document.getElementById(`input-chat-${code}`);
+    const texto = input.value.trim();
+    const user = auth.currentUser;
+
+    if (!texto || !user) return;
+
+    try {
+        const chatRef = ref(db, `agendas/${code}/chat`);
+        await push(chatRef, {
+            autor: user.displayName || "Usuario",
+            foto: user.photoURL || "",
+            texto: texto,
+            uid: user.uid,
+            timestamp: Date.now()
+        });
+        input.value = "";
+    } catch (e) { console.error("Error en chat:", e); }
+};
+
+function escucharChatClase(code) {
+    const lista = document.getElementById(`lista-mensajes-${code}`);
+    const chatRef = ref(db, `agendas/${code}/chat`);
+
+    onValue(chatRef, (snapshot) => {
+        if (!lista) return;
+        const data = snapshot.val();
+        lista.innerHTML = "";
+
+        if (data) {
+            Object.values(data).forEach(msg => {
+                const esMio = msg.uid === auth.currentUser.uid;
+                lista.innerHTML += `
+                    <div style="display: flex; justify-content: ${esMio ? 'flex-end' : 'flex-start'}; margin-bottom: 12px;">
+                        <div style="display: flex; flex-direction: ${esMio ? 'row-reverse' : 'row'}; gap: 8px; max-width: 85%;">
+                            <img src="${msg.foto}" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #eee;">
+                            <div style="background: ${esMio ? 'var(--p-100)' : '#f1f3f4'}; padding: 8px 12px; border-radius: 12px; border: 1px solid ${esMio ? 'var(--p-200)' : '#e0e0e0'};">
+                                <div style="font-size: 10px; font-weight: bold; color: ${esMio ? 'var(--p-700)' : '#5f6368'}; margin-bottom: 2px;">
+                                    ${esMio ? 'Tú' : msg.autor}
+                                </div>
+                                <div style="font-size: 13px; color: var(--text-dark); line-height: 1.4;">${msg.texto}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            lista.scrollTop = lista.scrollHeight;
+        } else {
+            lista.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>No hay mensajes. ¡Inicia la conversación!</p>";
+        }
+    });
 }
 </script>
 </body>
