@@ -95,7 +95,22 @@ import {
         messagingSenderId: "596083977949",
         appId: "1:596083977949:web:71064f89a23f8d9738f534"
     };
-
+// Función para cargar las librerías necesarias de Google
+const cargarGoogleAPI = () => {
+    const script = document.createElement('script');
+    script.src = "https://apis.google.com/js/api.js";
+    script.onload = () => {
+        gapi.load('client:auth2', async () => {
+            await gapi.client.init({
+                clientId: '596083977949-bscfdfkeajrnh3ouiqgk4qh7p6fseah5.apps.googleusercontent.com', // El que generaste en la consola
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"]
+            });
+        });
+    };
+    document.head.appendChild(script);
+};
+cargarGoogleAPI();
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
@@ -493,54 +508,67 @@ else if (texto.includes("pendientes")) {
                 </div>`;
         }
 else if (texto.includes("sincronizar drive")) {
-    bannerTitle.innerText = "Sincronización con Google Drive";
+    bannerTitle.innerText = "Gestión de Archivos en la Nube";
     
     container.innerHTML = `
-        <div class="sync-container" style="background: white; padding: 40px; border-radius: 20px; border: 1px solid #dadce0; text-align: center; max-width: 500px; margin: 20px auto;">
-            <div id="sync-icon-area" style="margin-bottom: 20px;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" style="width: 80px;">
+        <div class="sync-container" style="background: white; padding: 40px; border-radius: 24px; border: 1px solid #e0e0e0; text-align: center; max-width: 550px; margin: 30px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+            <div id="sync-icon-area" style="margin-bottom: 25px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" style="width: 70px;">
             </div>
-            <h2 id="sync-msg" style="color: #202124;">Vincula tus documentos</h2>
-            <p id="sync-sub" style="color: #5f6368;">Permite que Praxis guarde tus fichas y tareas directamente en una carpeta de tu Drive.</p>
+            <h2 id="sync-msg" style="color: #1a73e8;">Sincronizar con Drive</h2>
+            <p id="sync-sub" style="color: #5f6368;">Víncula Praxis con tu cuenta de Google para organizar tus tareas automáticamente.</p>
             
-            <div id="bar-container" style="display: none; background: #e8f0fe; height: 10px; border-radius: 5px; margin: 20px 0; overflow: hidden;">
-                <div id="sync-bar" style="width: 0%; height: 100%; background: #1a73e8; transition: width 0.3s;"></div>
+            <div id="drive-status" style="margin: 20px 0; display: none; padding: 15px; background: #f8f9fa; border-radius: 12px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>Espacio en la Nube:</span>
+                    <span id="drive-usage">Calculando...</span>
+                </div>
+                <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                    <div id="drive-bar" style="width: 0%; height: 100%; background: #34a853; transition: width 1s;"></div>
+                </div>
             </div>
 
-            <button class="btn-confirm" id="btn-start-sync" style="background: #1a73e8; color: white; border: none; padding: 12px 24px; border-radius: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px;">
+            <button class="btn-confirm" id="btn-auth-drive" style="background: #1a73e8; color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 20px auto; gap: 10px;">
                 <img src="https://www.gstatic.com/images/branding/product/1x/drive_24dp.png" width="20">
-                SINCRONIZAR AHORA
+                ACTIVAR ACCESO REAL
             </button>
         </div>
     `;
 
-    const btnSync = document.getElementById('btn-start-sync');
-    const barContainer = document.getElementById('bar-container');
-    const bar = document.getElementById('sync-bar');
-    const msg = document.getElementById('sync-msg');
-    const sub = document.getElementById('sync-sub');
+    const btnAuth = document.getElementById('btn-auth-drive');
+    
+    btnAuth.onclick = async () => {
+        btnAuth.innerHTML = "Abriendo ventana de Google...";
+        btnAuth.disabled = true;
 
-    btnSync.onclick = () => {
-        btnSync.disabled = true;
-        btnSync.style.opacity = "0.6";
-        barContainer.style.display = "block";
-        msg.innerText = "Conectando con Google Cloud...";
-        
-        let progreso = 0;
-        const intervalo = setInterval(() => {
-            progreso += Math.random() * 15;
-            if (progreso > 100) progreso = 100;
-            bar.style.width = progreso + "%";
+        try {
+            // 1. Iniciar sesión real en Google Drive
+            const googleAuth = gapi.auth2.getAuthInstance();
+            const user = await googleAuth.signIn();
+            
+            if (user) {
+                // 2. Obtener información real del espacio (Quota)
+                const res = await gapi.client.drive.about.get({ fields: 'storageQuota' });
+                const quota = res.result.storageQuota;
+                const porcentaje = Math.round((quota.usage / quota.limit) * 100);
+                const usadoGB = (quota.usage / (1024 ** 3)).toFixed(1);
 
-            if (progreso === 100) {
-                clearInterval(intervalo);
-                msg.innerText = "¡Sincronización Exitosa!";
-                msg.style.color = "#34a853";
-                sub.innerText = "Se ha creado la carpeta 'Praxis_Documentos' en tu Drive.";
-                document.getElementById('sync-icon-area').innerHTML = "<span style='font-size: 80px;'>✅</span>";
-                btnSync.style.display = "none";
+                // 3. Actualizar Interfaz
+                document.getElementById('drive-status').style.display = "block";
+                document.getElementById('drive-usage').innerText = `${usadoGB} GB utilizados`;
+                document.getElementById('drive-bar').style.width = `${porcentaje}%`;
+                
+                document.getElementById('sync-msg').innerText = "✅ Praxis Sincronizado";
+                document.getElementById('sync-msg').style.color = "#34a853";
+                document.getElementById('sync-sub').innerText = "Conexión establecida. Tus archivos se guardarán en tu unidad personal.";
+                btnAuth.style.display = "none";
             }
-        }, 400);
+        } catch (error) {
+            console.error("Error de autenticación:", error);
+            btnAuth.innerHTML = "Reintentar Conexión";
+            btnAuth.disabled = false;
+            alert("No se pudo conectar con Google Drive. Verifica que el ID de cliente sea correcto.");
+        }
     };
 };
     // Dentro de navItems.forEach(item => { ... })
