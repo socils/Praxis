@@ -217,48 +217,12 @@
         @media (max-width: 1100px) {
             .image-side, .sello-colegio { display: none; }
             .content-side { width: 100%; }
-        }/* --- ESTILOS EXCLUSIVOS PARA MÓVILES (No afectan a PC) --- */
-@media screen and (max-width: 768px) {
-    body {
-        /* Evitamos que el contenido se mueva hacia los lados en móviles */
-        overflow-x: hidden; 
-    }
-
-    .background-overlay {
-        /* En el celular, la captura de pantalla se verá mejor centrada a la izquierda */
-        background-position: 25% center !important;
-        filter: blur(5px) !important;
-        transform: scale(1.2); /* Un poco más de zoom para cubrir bordes */
-    }
-
-    .login-card {
-        width: 85% !important; /* La tarjeta ocupa casi todo el ancho en móviles */
-        padding: 40px 20px !important;
-        max-width: none !important;
-        border-radius: 24px !important;
-    }
-
-    .logo {
-        font-size: 34px !important; /* Nombre un poco más pequeño para pantallas chicas */
-        margin-bottom: 25px !important;
-    }
-
-    .google-btn {
-        padding: 14px !important;
-        font-size: 15px !important;
-    }
-
-    .footer-text {
-        font-size: 11px !important;
-        margin-top: 35px !important;
-        line-height: 1.4;
-    }
-}
+        }
     </style>
 </head>
 <body>
 
- <div class="sello-colegio">
+    <div class="sello-colegio">
         <span>Proyecto Realizado por:</span>
         <b>Estudiante de San Jerónimo</b>
         <span style="margin-top: 4px; color: var(--primary); font-size: 9px;">Exclusivo para la comunidad Jeronimiana</span>
@@ -279,56 +243,20 @@
                 <input type="email" id="email-input" placeholder="ejemplo@sanjeronimo.edu.pe">
             </div>
 
-            <button class="btn-main" id="btn-login-email">Entrar con Correo</button>
+   <button class="btn-main" id="btn-login-email">Entrar con Correo</button>
 
-            <div class="divider"><span>O usa tu cuenta de Google</span></div>
+<div class="divider"><span>O usa tu cuenta de Google</span></div>
 
-            <button class="btn-google" id="btn-google">
-                <img src="google.png" width="18">
-                Acceder con Google (Recomendado)
-            </button>
+<button class="btn-google" id="btn-google">
+    <img src="google.png" width="18">
+    Acceder con Google (Recomendado)
+</button>
 
-            <p class="terms-notice">
-                Al iniciar sesión, confirmas que has leído y aceptas nuestros 
-                <a href="terminos.html">Términos de Servicio</a> y nuestra 
-                <a href="privacidad.html">Política de Privacidad</a>.
-            </p>
-        </div>
-    </div>
-
-    <style>
-        /* Estilos para la nota de términos */
-        .terms-notice {
-            margin-top: 25px;
-            font-size: 11px;
-            color: var(--text-secondary, #666);
-            line-height: 1.5;
-            max-width: 320px;
-            text-align: center;
-        }
-
-        .terms-notice a {
-            color: var(--primary, #1a73e8);
-            text-decoration: none;
-            font-weight: 600;
-            transition: opacity 0.2s;
-        }
-
-        .terms-notice a:hover {
-            text-decoration: underline;
-            opacity: 0.8;
-        }
-
-        /* Ajuste para centrar el contenido si es necesario */
-        .hero-login {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .input-group { width: 100%; max-width: 350px; }
-        .btn-main, .btn-google { width: 100%; max-width: 350px; }
-    </style>
+<p class="terms-notice">
+    Al iniciar sesión, confirmas que has leído y aceptas nuestros 
+    <a href="terminos.html">Términos de Servicio</a> y nuestra 
+    <a href="privacidad.html">Política de Privacidad</a>.
+</p>
 
             <div style="margin-top: 40px; text-align: center;">
                 <a href="#info" style="text-decoration: none; color: var(--primary); font-weight: 700; font-size: 14px;">
@@ -371,7 +299,7 @@
         <div class="bg-img"></div>
         <div class="floating-text">
             <span style="background: var(--primary); padding: 5px 15px; border-radius: 50px; font-size: 12px; font-weight: 800; text-transform: uppercase;">Hecho para el San Jerónimo</span>
-            <h2>Praxis BETA</h2>
+            <h2>Praxis V2</h2>
             <p style="font-size: 18px; opacity: 0.9;">Tu agenda escolar, reinventada.</p>
         </div>
     </div>
