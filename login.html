@@ -258,7 +258,7 @@
 </head>
 <body>
 
-    <div class="sello-colegio">
+ <div class="sello-colegio">
         <span>Proyecto Realizado por:</span>
         <b>Estudiante de San Jerónimo</b>
         <span style="margin-top: 4px; color: var(--primary); font-size: 9px;">Exclusivo para la comunidad Jeronimiana</span>
@@ -287,6 +287,48 @@
                 <img src="google.png" width="18">
                 Acceder con Google (Recomendado)
             </button>
+
+            <p class="terms-notice">
+                Al iniciar sesión, confirmas que has leído y aceptas nuestros 
+                <a href="terminos.html">Términos de Servicio</a> y nuestra 
+                <a href="privacidad.html">Política de Privacidad</a>.
+            </p>
+        </div>
+    </div>
+
+    <style>
+        /* Estilos para la nota de términos */
+        .terms-notice {
+            margin-top: 25px;
+            font-size: 11px;
+            color: var(--text-secondary, #666);
+            line-height: 1.5;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .terms-notice a {
+            color: var(--primary, #1a73e8);
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .terms-notice a:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        /* Ajuste para centrar el contenido si es necesario */
+        .hero-login {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .input-group { width: 100%; max-width: 350px; }
+        .btn-main, .btn-google { width: 100%; max-width: 350px; }
+    </style>
 
             <div style="margin-top: 40px; text-align: center;">
                 <a href="#info" style="text-decoration: none; color: var(--primary); font-weight: 700; font-size: 14px;">
