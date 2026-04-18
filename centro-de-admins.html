@@ -276,35 +276,77 @@
         if(el) el.innerText = s.val() ? Object.keys(s.val()).length : 0;
     });
 
-    onValue(ref(db, 'usuarios'), s => {
-        const data = s.val();
-        const count = data ? Object.keys(data).length : 0;
-        const countEl = document.getElementById('count-users');
+   // ESCUCHADOR PARA LA RUTA: usuarios (en la raíz)
+onValue(ref(db, 'usuarios'), (snapshot) => {
+    const data = snapshot.val();
+    const countEl = document.getElementById('count-users');
+    const tbody = document.getElementById('tabla-usuarios-body');
+    const avgEl = document.getElementById('avg-streak');
+
+    if (snapshot.exists()) {
+        const userList = Object.entries(data);
+        const count = userList.length;
+
+        // 1. Actualizar el contador de la tarjeta principal
         if(countEl) countEl.innerText = count;
+
+        let totalRacha = 0;
         
-        let total = 0;
-        const tbody = document.getElementById('tabla-usuarios-body');
-        if(data && tbody) {
+        // 2. Llenar la tabla de administración
+        if(tbody) {
             tbody.innerHTML = "";
-            Object.entries(data).forEach(([uid, u]) => {
-                total += (u.racha || 0);
+            userList.forEach(([uid, u]) => {
+                totalRacha += (u.racha || 0);
+                
+                // Extraemos los datos con valores por defecto
+                const nombre = u.nombre || "Estudiante";
+                const correo = u.correo || "Sin correo";
+                const foto = u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+                const racha = u.racha || 0;
+                const puntos = u.puntos || 0;
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="display:flex; align-items:center; gap:12px;">
-                            <img src="${u.foto || 'user.png'}" style="width:32px; border-radius:50%;">
-                            <div><b>${u.nombre}</b><br><small style="color:gray">${u.correo}</small></div>
+                            <img src="${foto}" style="width:32px; height:32px; border-radius:50%; object-fit: cover; border: 1px solid #eee;">
+                            <div>
+                                <div style="font-weight:700; font-size:14px;">${nombre}</div>
+                                <div style="font-size:11px; color:gray;">${correo}</div>
+                            </div>
                         </td>
-                        <td><span style="color:var(--success)">Activo</span></td>
-                        <td>${u.racha || 0} 🔥 | ${u.puntos || 0} ✨</td>
-                        <td><button onclick="borrarUsuario('${uid}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">Expulsar</button></td>
+                        <td><span style="color:var(--success); font-weight:600;">● Online</span></td>
+                        <td>${racha} 🔥 | ${puntos} ✨</td>
+                        <td>
+                            <button onclick="borrarUsuario('${uid}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold; font-size:12px;">EXPULSAR</button>
+                        </td>
                     </tr>
                 `;
             });
-            const avgEl = document.getElementById('avg-streak');
-            if(avgEl) avgEl.innerText = (total/count || 0).toFixed(1) + "🔥";
         }
-    });
 
+        // 3. Calcular promedio
+        if(avgEl) {
+            const promedio = (totalRacha / count).toFixed(1);
+            avgEl.innerText = `${promedio} 🔥`;
+        }
+
+    } else {
+        if(countEl) countEl.innerText = "0";
+        if(tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:gray; padding:20px;'>No se encontraron datos en la ruta 'usuarios'</td></tr>";
+    }
+});
+
+// Función para expulsar (Ruta raíz)
+window.borrarUsuario = async (id) => {
+    if(confirm("¿Seguro que quieres eliminar a este usuario de Praxis?")) {
+        try {
+            await set(ref(db, `usuarios/${id}`), null);
+            alert("Usuario eliminado de Alonixz-Cloud");
+        } catch (e) {
+            console.error("Error:", e);
+        }
+    }
+};
     window.publicarAnuncio = async () => {
         const msg = document.getElementById('global-announcement').value;
         if(msg) {
