@@ -493,22 +493,23 @@ else if (texto.includes("pendientes")) {
                 </div>`;
         }
 else if (texto.includes("sincronizar drive")) {
-    bannerTitle.innerText = "Nube de Datos (Cloud Save)";
+    bannerTitle.innerText = "Sincronización con Google Drive";
     
     container.innerHTML = `
-        <div class="sync-container" style="background: rgba(26, 115, 232, 0.05); border-radius: 20px; border: 2px dashed #1a73e8;">
-            <div id="sync-icon-area">
-                <span style="font-size: 60px;">💾</span>
+        <div class="sync-container" style="background: white; padding: 40px; border-radius: 20px; border: 1px solid #dadce0; text-align: center; max-width: 500px; margin: 20px auto;">
+            <div id="sync-icon-area" style="margin-bottom: 20px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" style="width: 80px;">
             </div>
-            <h2 id="sync-msg" style="text-transform: uppercase; letter-spacing: 2px;">¿Guardar Agenda?</h2>
-            <p id="sync-sub">Se sobreescribirá el último punto de control en la nube.</p>
+            <h2 id="sync-msg" style="color: #202124;">Vincula tus documentos</h2>
+            <p id="sync-sub" style="color: #5f6368;">Permite que Praxis guarde tus fichas y tareas directamente en una carpeta de tu Drive.</p>
             
-            <div class="loader-bar-container" id="bar-container" style="background: #d1e3fa; height: 20px; border: 2px solid #1a73e8;">
-                <div class="loader-progress" id="sync-bar" style="background: repeating-linear-gradient(45deg, #1a73e8, #1a73e8 10px, #4285f4 10px, #4285f4 20px);"></div>
+            <div id="bar-container" style="display: none; background: #e8f0fe; height: 10px; border-radius: 5px; margin: 20px 0; overflow: hidden;">
+                <div id="sync-bar" style="width: 0%; height: 100%; background: #1a73e8; transition: width 0.3s;"></div>
             </div>
 
-            <button class="btn-confirm" id="btn-start-sync" style="margin-top:20px; font-family: 'Courier New', Courier, monospace; font-weight: bold;">
-                [ GUARDAR PARTIDA ]
+            <button class="btn-confirm" id="btn-start-sync" style="background: #1a73e8; color: white; border: none; padding: 12px 24px; border-radius: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto; gap: 10px;">
+                <img src="https://www.gstatic.com/images/branding/product/1x/drive_24dp.png" width="20">
+                SINCRONIZAR AHORA
             </button>
         </div>
     `;
@@ -520,37 +521,28 @@ else if (texto.includes("sincronizar drive")) {
     const sub = document.getElementById('sync-sub');
 
     btnSync.onclick = () => {
-        btnSync.style.display = "none";
+        btnSync.disabled = true;
+        btnSync.style.opacity = "0.6";
         barContainer.style.display = "block";
-        msg.innerText = "GUARDANDO DATOS...";
+        msg.innerText = "Conectando con Google Cloud...";
         
         let progreso = 0;
         const intervalo = setInterval(() => {
-            progreso += Math.random() * 20; 
+            progreso += Math.random() * 15;
             if (progreso > 100) progreso = 100;
-            
             bar.style.width = progreso + "%";
 
-            if (progreso >= 100) {
+            if (progreso === 100) {
                 clearInterval(intervalo);
-                
-                // Efecto de éxito estilo RPG
-                msg.innerText = "¡AGENDA GUARDADA!";
+                msg.innerText = "¡Sincronización Exitosa!";
                 msg.style.color = "#34a853";
-                sub.innerText = "Punto de control actualizado correctamente.";
-                barContainer.style.display = "none";
-                document.getElementById('sync-icon-area').innerHTML = "<span style='font-size:60px;'>✨</span>";
-                
-                // Opcional: El mensaje vuelve a la normalidad después de unos segundos
-                setTimeout(() => {
-                   if(texto.includes("sincronizar drive")) {
-                       msg.style.color = "#202124";
-                       document.getElementById('sync-icon-area').innerHTML = "<span style='font-size:60px;'>💾</span>";
-                   }
-                }, 3000);
+                sub.innerText = "Se ha creado la carpeta 'Praxis_Documentos' en tu Drive.";
+                document.getElementById('sync-icon-area').innerHTML = "<span style='font-size: 80px;'>✅</span>";
+                btnSync.style.display = "none";
             }
-        }, 500);
+        }, 400);
     };
+};
     // Dentro de navItems.forEach(item => { ... })
 item.onclick = (e) => {
     if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
@@ -594,8 +586,7 @@ if (window.innerWidth <= 768) {
         overlay.style.display = 'none'; // Ocultamos la capa oscura
     }
 }
-    };
-});function generarCodigoAleatorio(longitud = 6) {
+    });function generarCodigoAleatorio(longitud = 6) {
     const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Eliminamos 'I', 'O', '0', '1' para evitar confusiones
     let resultado = '';
     for (let i = 0; i < longitud; i++) {
