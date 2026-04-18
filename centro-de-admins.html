@@ -244,14 +244,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-onAuthStateChanged(auth, (user) => {
-    const miCorreoAdmin = "ajuliuszch@gmail.com";
 
-    if (!user || user.email !== miCorreoAdmin) {
-        alert("Acceso denegado. Solo el líder de Alonixz-Group puede entrar.");
-        window.location.href = "menu.html";
-    }
-});
         // NAVEGACIÓN SPA
         window.switchTab = (tabId, element) => {
             document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
@@ -313,7 +306,14 @@ onAuthStateChanged(auth, (user) => {
 
         window.borrarUsuario = async (id) => {
             if(confirm("¿Borrar usuario permanentemente?")) await set(ref(db, `usuarios/${id}`), null);
-        };
+        };onAuthStateChanged(auth, (user) => {
+    const miCorreoAdmin = "ajuliuszch@gmail.com";
+
+    if (!user || user.email !== miCorreoAdmin) {
+        alert("Acceso denegado. Solo el líder de Alonixz-Group puede entrar.");
+        window.location.href = "menu.html";
+    }
+});
     </script>
 </body>
 </html>
