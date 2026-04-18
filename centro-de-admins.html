@@ -277,65 +277,76 @@
     });
 
    // ESCUCHADOR PARA LA RUTA: usuarios (en la raíz)
+// ESCUCHADOR DE USUARIOS EN ALONIXZ-CLOUD
 onValue(ref(db, 'usuarios'), (snapshot) => {
     const data = snapshot.val();
-    const countEl = document.getElementById('count-users');
     const tbody = document.getElementById('tabla-usuarios-body');
-    const avgEl = document.getElementById('avg-streak');
+    const countEl = document.getElementById('count-users');
 
     if (snapshot.exists()) {
-        const userList = Object.entries(data);
-        const count = userList.length;
+        const userEntries = Object.entries(data);
+        if(countEl) countEl.innerText = userEntries.length;
 
-        // 1. Actualizar el contador de la tarjeta principal
-        if(countEl) countEl.innerText = count;
-
-        let totalRacha = 0;
-        
-        // 2. Llenar la tabla de administración
         if(tbody) {
             tbody.innerHTML = "";
-            userList.forEach(([uid, u]) => {
-                totalRacha += (u.racha || 0);
+            // 'uid' es la llave principal (el ID que mencionas)
+            // 'u' contiene los datos (nombre, racha, etc.)
+            userEntries.forEach(([uid, u]) => {
                 
-                // Extraemos los datos con valores por defecto
                 const nombre = u.nombre || "Estudiante";
-                const correo = u.correo || "Sin correo";
                 const foto = u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
                 const racha = u.racha || 0;
                 const puntos = u.puntos || 0;
 
                 tbody.innerHTML += `
-                    <tr>
-                        <td style="display:flex; align-items:center; gap:12px;">
-                            <img src="${foto}" style="width:32px; height:32px; border-radius:50%; object-fit: cover; border: 1px solid #eee;">
+                    <tr style="border-bottom: 1px solid var(--border); transition: 0.3s;">
+                        <td style="padding: 15px; display: flex; align-items: center; gap: 12px;">
+                            <img src="${foto}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-soft);">
                             <div>
-                                <div style="font-weight:700; font-size:14px;">${nombre}</div>
-                                <div style="font-size:11px; color:gray;">${correo}</div>
+                                <div style="font-weight: 800; color: var(--text-main); font-size: 14px;">${nombre}</div>
+                                <div style="font-family: 'Courier New', monospace; font-size: 10px; color: var(--accent); letter-spacing: 0.5px;">
+                                    UID: ${uid}
+                                </div>
                             </div>
                         </td>
-                        <td><span style="color:var(--success); font-weight:600;">● Online</span></td>
-                        <td>${racha} 🔥 | ${puntos} ✨</td>
-                        <td>
-                            <button onclick="borrarUsuario('${uid}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold; font-size:12px;">EXPULSAR</button>
+                        <td style="padding: 15px; font-size: 13px; color: var(--text-dim);">
+                            ${u.correo || '---'}
+                        </td>
+                        <td style="padding: 15px;">
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: 900; color: #f4b400;">${racha} 🔥</span>
+                                <span style="font-size: 11px; color: var(--text-dim);">${puntos} pts</span>
+                            </div>
+                        </td>
+                        <td style="padding: 15px; text-align: right;">
+                            <button onclick="borrarUsuario('${uid}')" 
+                                    style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-weight: 800; font-size: 10px; transition: 0.3s;">
+                                ELIMINAR CUENTA
+                            </button>
                         </td>
                     </tr>
                 `;
             });
         }
-
-        // 3. Calcular promedio
-        if(avgEl) {
-            const promedio = (totalRacha / count).toFixed(1);
-            avgEl.innerText = `${promedio} 🔥`;
-        }
-
     } else {
         if(countEl) countEl.innerText = "0";
-        if(tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:gray; padding:20px;'>No se encontraron datos en la ruta 'usuarios'</td></tr>";
+        if(tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:50px; color:var(--text-dim);'>No hay registros en la nube.</td></tr>";
     }
 });
 
+// Función de borrado usando el UID exacto
+window.borrarUsuario = async (uid) => {
+    if(confirm(`¿Estás seguro de eliminar al usuario con ID: ${uid}?\nEsta acción es irreversible en Alonixz-Cloud.`)) {
+        try {
+            // Borra directamente el nodo del usuario usando su ID
+            await set(ref(db, `usuarios/${uid}`), null);
+            alert("Usuario eliminado con éxito.");
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+            alert("No se pudo eliminar el usuario.");
+        }
+    }
+};
 // Función para expulsar (Ruta raíz)
 window.borrarUsuario = async (id) => {
     if(confirm("¿Seguro que quieres eliminar a este usuario de Praxis?")) {
