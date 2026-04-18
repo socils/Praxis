@@ -6,8 +6,6 @@
     <title>Mantenimiento | Praxis</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
 
     <style>
@@ -46,21 +44,11 @@
             margin-bottom: 30px;
         }
 
-        .logo-box img {
-            width: 50px;
-            height: auto;
-        }
-
-        .logo-box span {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 1.8rem;
-            letter-spacing: -1px;
-        }
+        .logo-box img { width: 50px; height: auto; }
+        .logo-box span { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.8rem; letter-spacing: -1px; }
 
         .loader {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border: 3px solid var(--border);
             border-top: 3px solid var(--primary);
             border-radius: 50%;
@@ -68,21 +56,10 @@
             animation: spin 1s linear infinite;
         }
 
-        h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            letter-spacing: -1px;
-        }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; margin-bottom: 15px; letter-spacing: -1px; }
+        p { color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; font-size: 1.05rem; }
 
-        p {
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-size: 1.05rem;
-        }
-
-        .badge-alonixz {
+        .badge-status {
             display: inline-block;
             background: #f8f9fa;
             border: 1px solid var(--border);
@@ -90,26 +67,26 @@
             border-radius: 12px;
             font-size: 0.8rem;
             font-weight: 700;
-            color: var(--text-muted);
-        }
-
-        .contact-info {
-            margin-top: 40px;
-            font-size: 0.85rem;
             color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .btn-retry {
+            margin-top: 30px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .btn-retry:hover { opacity: 0.9; transform: scale(1.05); }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -122,21 +99,52 @@
 
         <div class="loader"></div>
 
-        <h1>Estamos mejorando la plataforma</h1>
-        <p>Alonixz-Group está realizando ajustes técnicos en Alonixz-Cloud para brindarte una mejor experiencia académica.</p>
+        <h1>Estamos mejorando</h1>
+        <p>Alonixz-Group está realizando ajustes en la base de datos para asegurar que tus puntos y agendas estén a salvo.</p>
 
-        <div class="badge-alonixz">
-            PROTOCOLO DE ACTUALIZACIÓN V3.5
+        <div class="badge-status" id="status-text">
+            SINCRONIZANDO CON ALONIXZ-CLOUD...
         </div>
 
-        <div style="margin-top: 50px;">
-            <a href="#" class="contact-info">Reportar un error urgente</a>
-        </div>
-        
-        <p style="font-size: 0.7rem; margin-top: 20px; opacity: 0.5;">
-            &copy; 2026 Alonixz-Group &bull; Juliaca - Arequipa
-        </p>
+        <br>
+        <button class="btn-retry" onclick="window.location.reload()">Verificar ahora</button>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+            authDomain: "praxis-79b9a.firebaseapp.com",
+            projectId: "praxis-79b9a",
+            databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+            storageBucket: "praxis-79b9a.firebasestorage.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Escuchar cambios en el modo mantenimiento
+        const maintenanceRef = ref(db, 'config/mantenimiento_activo');
+
+        onValue(maintenanceRef, (snapshot) => {
+            const isMaintenance = snapshot.val();
+
+            // Si detecta que ya NO está el comando (es false o no existe)
+            if (isMaintenance === false || isMaintenance === null) {
+                document.getElementById('status-text').innerText = "¡SISTEMA RESTABLECIDO!";
+                document.getElementById('status-text').style.color = "#34a853";
+                
+                // Redirigir automáticamente después de 1.5 segundos
+                setTimeout(() => {
+                    window.location.href = "menu.html";
+                }, 1500);
+            } else {
+                document.getElementById('status-text').innerText = "MODO MANTENIMIENTO ACTIVO";
+                document.getElementById('status-text').style.color = "#d93025";
+            }
+        });
+    </script>
 </body>
 </html>
