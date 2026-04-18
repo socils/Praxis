@@ -195,7 +195,7 @@ function cargarAgenda(currentUserUid) {
                         if (id === 'inicio') return;
 
                         const btnEliminar = esDuenio 
-                            ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea">🗑️</button>` 
+                            ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea"><img src="papelera-de-reciclaje.png"style="width: 15px;"></button>` 
                             : "";
 
                         container.innerHTML += `
