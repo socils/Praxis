@@ -164,7 +164,7 @@ onAuthStateChanged(auth, async (user) => {
         cargarAgenda(user.uid);      
         cargarListaSidebar(user.uid); 
     } else {
-        window.location.href = "index.html";
+        window.location.href = "login.html";
     }
 });
 function cargarAgenda(currentUserUid) {
