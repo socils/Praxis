@@ -248,7 +248,7 @@
             <div class="divider"><span>O usa tu cuenta de Google</span></div>
 
             <button class="btn-google" id="btn-google">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18">
+                <img src="google.png" width="18">
                 Acceder con Google (Recomendado)
             </button>
 
@@ -321,4 +321,16 @@
             alert("Para una mejor experiencia y obtener tu foto de perfil del colegio automáticamente, usa el botón 'Acceder con Google'.");
         });
 
-        document
+        document.getElementById('btn-google').onclick = async () => {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                if (result.user) window.location.replace("menu.html");
+            } catch (e) { console.error(e); }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) window.location.replace("menu.html");
+        });
+    </script>
+</body>
+</html>
