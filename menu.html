@@ -94,7 +94,16 @@ import {
         storageBucket: "praxis-79b9a.firebasestorage.app",
         messagingSenderId: "596083977949",
         appId: "1:596083977949:web:71064f89a23f8d9738f534"
-    };
+    };// Colocar dentro del onAuthStateChanged o al inicio del script de Firebase
+import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
+    const enMantenimiento = snapshot.val();
+    // Si está activo y no estás en la página de mantenimiento, redirigir
+    if (enMantenimiento === true) {
+        window.location.href = "mantenimiento.html";
+    }
+});
 let tokenClient;
 let gapiInited = false;
 let gsisInited = false;
