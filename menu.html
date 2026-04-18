@@ -95,20 +95,36 @@ import {
         messagingSenderId: "596083977949",
         appId: "1:596083977949:web:71064f89a23f8d9738f534"
     };
-// Función para cargar las librerías necesarias de Google
+let tokenClient;
+let gapiInited = false;
+let gsisInited = false;
+
 const cargarGoogleAPI = () => {
-    const script = document.createElement('script');
-    script.src = "https://apis.google.com/js/api.js";
-    script.onload = () => {
-        gapi.load('client:auth2', async () => {
+    // 1. Cargar GAPI (para Drive)
+    const scriptGapi = document.createElement('script');
+    scriptGapi.src = "https://apis.google.com/js/api.js";
+    scriptGapi.onload = () => {
+        gapi.load('client', async () => {
             await gapi.client.init({
-                clientId: '596083977949-bscfdfkeajrnh3ouiqgk4qh7p6fseah5.apps.googleusercontent.com', // El que generaste en la consola
-                scope: 'https://www.googleapis.com/auth/drive.file',
-                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"]
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
             });
+            gapiInited = true;
         });
     };
-    document.head.appendChild(script);
+    document.head.appendChild(scriptGapi);
+
+    // 2. Cargar GSI (para el Login/Permisos)
+    const scriptGsi = document.createElement('script');
+    scriptGsi.src = "https://accounts.google.com/gsi/client";
+    scriptGsi.onload = () => {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: '596083977949-bscfdfkeajrnh3ouiqgk4qh7p6fseah5.apps.googleusercontent.com',
+            scope: 'https://www.googleapis.com/auth/drive.file',
+            callback: '', // Se define al hacer clic
+        });
+        gsisInited = true;
+    };
+    document.head.appendChild(scriptGsi);
 };
 cargarGoogleAPI();
     const app = initializeApp(firebaseConfig);
@@ -536,41 +552,41 @@ else if (texto.includes("sincronizar drive")) {
     `;
 
     const btnAuth = document.getElementById('btn-auth-drive');
-    
-    btnAuth.onclick = async () => {
-        btnAuth.innerHTML = "Abriendo ventana de Google...";
-        btnAuth.disabled = true;
 
-        try {
-            // 1. Iniciar sesión real en Google Drive
-            const googleAuth = gapi.auth2.getAuthInstance();
-            const user = await googleAuth.signIn();
-            
-            if (user) {
-                // 2. Obtener información real del espacio (Quota)
+    btnAuth.onclick = () => {
+        // Usamos el tokenClient que configuramos con la nueva librería
+        tokenClient.callback = async (resp) => {
+            if (resp.error !== undefined) {
+                btnAuth.innerHTML = "Error al conectar";
+                btnAuth.disabled = false;
+                throw (resp);
+            }
+
+            // Si llegamos aquí, tenemos el Token. Ahora usamos GAPI para ver el espacio real
+            try {
                 const res = await gapi.client.drive.about.get({ fields: 'storageQuota' });
                 const quota = res.result.storageQuota;
                 const porcentaje = Math.round((quota.usage / quota.limit) * 100);
                 const usadoGB = (quota.usage / (1024 ** 3)).toFixed(1);
 
-                // 3. Actualizar Interfaz
+                // Actualizar Interfaz
                 document.getElementById('drive-status').style.display = "block";
                 document.getElementById('drive-usage').innerText = `${usadoGB} GB utilizados`;
                 document.getElementById('drive-bar').style.width = `${porcentaje}%`;
                 
                 document.getElementById('sync-msg').innerText = "✅ Praxis Sincronizado";
                 document.getElementById('sync-msg').style.color = "#34a853";
-                document.getElementById('sync-sub').innerText = "Conexión establecida. Tus archivos se guardarán en tu unidad personal.";
+                document.getElementById('sync-sub').innerText = "Conexión exitosa. Ya puedes guardar tus archivos en la nube.";
                 btnAuth.style.display = "none";
+            } catch (err) {
+                console.error("Error al obtener cuota:", err);
             }
-        } catch (error) {
-            console.error("Error de autenticación:", error);
-            btnAuth.innerHTML = "Reintentar Conexión";
-            btnAuth.disabled = false;
-            alert("No se pudo conectar con Google Drive. Verifica que el ID de cliente sea correcto.");
-        }
+        };
+
+        // Solicitar el token (esto abre la ventana sin errores de COOP)
+        tokenClient.requestAccessToken({prompt: 'consent'});
     };
-};
+}
     // Dentro de navItems.forEach(item => { ... })
 item.onclick = (e) => {
     if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
