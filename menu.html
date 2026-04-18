@@ -48,6 +48,9 @@
             <hr>
             <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>
             <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Sincronizar Drive</div>
+            <a href="centro-de-admins.html" id="admin-link" style="display: none; color: #ff4d4d; font-weight: 800;">
+    🛡️ Panel de Fundador
+</a>
             <hr>
             <div class="nav-item logout" id="btn-logout"><img src="cerrar-sesion.png" alt="" style="width: 20px;"> Salir</div>
         </nav>
@@ -144,6 +147,16 @@ onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
 
     if (user) {
+        // --- VALIDACIÓN DE ADMINISTRADOR (ALONIXZ-GROUP) ---
+        const miCorreoAdmin = "tu-correo@sanjeronimo.edu.pe"; // <--- CAMBIA ESTO POR TU CORREO REAL
+        
+        // Buscamos el botón de admin en el HTML (asegúrate de que tenga este ID)
+        const adminBtn = document.getElementById('admin-link');
+        if (user.email === miCorreoAdmin && adminBtn) {
+            adminBtn.style.display = 'flex'; // O 'block', según tu diseño
+            console.log("Acceso de Fundador detectado ⚡");
+        }
+
         const nombreDisplay = user.displayName || user.email.split('@')[0];
         const fotoDisplay = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
 
@@ -160,12 +173,11 @@ onAuthStateChanged(auth, async (user) => {
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
 
-
-        // Lógica de racha
+        // Lógica de racha y carga de datos
         gestionarRachaUsuario(user.uid);
-
         cargarAgenda(user.uid);      
         cargarListaSidebar(user.uid); 
+        
     } else {
         window.location.href = "login.html";
     }
