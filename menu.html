@@ -175,20 +175,31 @@ onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
 
     if (user) {
-       
+        // 1. LÓGICA DE ADMINISTRADOR
         const miCorreoAdmin = "ajuliuszch@gmail.com";
-        
-      
         const adminBtn = document.getElementById('admin-link');
         if (user.email === miCorreoAdmin && adminBtn) {
             adminBtn.style.display = 'flex';
             console.log("Acceso de Fundador detectado ⚡");
         }
 
+        // 2. PREPARAR DATOS DE IDENTIDAD
         const nombreDisplay = user.displayName || user.email.split('@')[0];
         const fotoDisplay = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
 
+        // 3. SINCRONIZACIÓN CON ALONIXZ-CLOUD (Vital para el Panel de Admin)
+        // Esto crea el "vínculo" que faltaba en tu base de datos
+        const userRef = ref(db, 'usuarios/' + user.uid);
+        
+        // Usamos update en lugar de set para no borrar la racha existente si ya existe
+        update(userRef, {
+            nombre: nombreDisplay,
+            correo: user.email,
+            foto: fotoDisplay,
+            ultimaConexion: Date.now()
+        });
 
+        // 4. RENDERIZAR INTERFAZ
         userInfoDiv.innerHTML = `
             <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
                 <span id="streak-count">0</span>
@@ -201,6 +212,7 @@ onAuthStateChanged(auth, async (user) => {
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
 
+        // 5. CARGAR ACTIVIDAD
         gestionarRachaUsuario(user.uid);
         cargarAgenda(user.uid);      
         cargarListaSidebar(user.uid); 
