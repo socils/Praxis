@@ -1120,3 +1120,34 @@ body {
 .btn-welcome-confirm:active {
     transform: translateY(0);
 }
+.btn-delete {
+    background: #fdf2f2; /* Fondo rojo muy suave */
+    border: none;
+    border-radius: 8px; /* Bordes redondeados sutiles */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.btn-delete img {
+    width: 15px; /* Tamaño exacto que pediste */
+    height: 15px;
+    filter: invert(34%) sepia(85%) saturate(1435%) hue-rotate(338deg) brightness(91%) contrast(98%); 
+    /* El filter de arriba convierte iconos negros a un rojo Google (#d93025) */
+}
+
+/* Efectos de interacción */
+.btn-delete:hover {
+    background: #fce8e6; /* Un rojo un poco más oscuro al pasar el mouse */
+    transform: scale(1.05);
+}
+
+.btn-delete:active {
+    transform: scale(0.95);
+    background: #fadad7;
+}
