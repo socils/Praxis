@@ -532,16 +532,23 @@ else if (texto.includes("sincronizar drive")) {
                 <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" style="width: 70px;">
             </div>
             <h2 id="sync-msg" style="color: #1a73e8;">Sincronizar con Drive</h2>
-            <p id="sync-sub" style="color: #5f6368;">Víncula Praxis con tu cuenta de Google para organizar tus tareas automáticamente.</p>
+            <p id="sync-sub" style="color: #5f6368;">Víncula Praxis para enviar tus tareas directamente a tus profesores.</p>
             
             <div id="drive-status" style="margin: 20px 0; display: none; padding: 15px; background: #f8f9fa; border-radius: 12px; font-size: 13px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span>Espacio en la Nube:</span>
+                    <span>Espacio en tu Unidad:</span>
                     <span id="drive-usage">Calculando...</span>
                 </div>
                 <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
                     <div id="drive-bar" style="width: 0%; height: 100%; background: #34a853; transition: width 1s;"></div>
                 </div>
+            </div>
+
+            <div id="upload-area" style="display: none; border: 2px dashed #1a73e8; padding: 20px; border-radius: 15px; background: #f1f6ff; margin-top: 20px;">
+                <p style="color: #1a73e8; font-weight: bold; margin-bottom: 10px;">📤 Subir Tarea a la Nube</p>
+                <input type="file" id="file-input" style="display: none;">
+                <button onclick="document.getElementById('file-input').click()" style="background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;">Seleccionar Archivo</button>
+                <p id="upload-status" style="font-size: 12px; color: #5f6368; margin-top: 10px;">Formatos aceptados: PDF, DOCX, JPG</p>
             </div>
 
             <button class="btn-confirm" id="btn-auth-drive" style="background: #1a73e8; color: white; border: none; padding: 14px 28px; border-radius: 50px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 20px auto; gap: 10px;">
@@ -552,9 +559,11 @@ else if (texto.includes("sincronizar drive")) {
     `;
 
     const btnAuth = document.getElementById('btn-auth-drive');
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadStatus = document.getElementById('upload-status');
 
     btnAuth.onclick = () => {
-        // Usamos el tokenClient que configuramos con la nueva librería
         tokenClient.callback = async (resp) => {
             if (resp.error !== undefined) {
                 btnAuth.innerHTML = "Error al conectar";
@@ -562,28 +571,54 @@ else if (texto.includes("sincronizar drive")) {
                 throw (resp);
             }
 
-            // Si llegamos aquí, tenemos el Token. Ahora usamos GAPI para ver el espacio real
             try {
                 const res = await gapi.client.drive.about.get({ fields: 'storageQuota' });
                 const quota = res.result.storageQuota;
                 const porcentaje = Math.round((quota.usage / quota.limit) * 100);
                 const usadoGB = (quota.usage / (1024 ** 3)).toFixed(1);
 
-                // Actualizar Interfaz
                 document.getElementById('drive-status').style.display = "block";
                 document.getElementById('drive-usage').innerText = `${usadoGB} GB utilizados`;
                 document.getElementById('drive-bar').style.width = `${porcentaje}%`;
                 
-                document.getElementById('sync-msg').innerText = "✅ Praxis Sincronizado";
+                document.getElementById('sync-msg').innerText = "✅ Praxis Conectado";
                 document.getElementById('sync-msg').style.color = "#34a853";
-                document.getElementById('sync-sub').innerText = "Conexión exitosa. Ya puedes guardar tus archivos en la nube.";
+                document.getElementById('sync-sub').innerText = "Ya puedes subir tus tareas directamente desde aquí.";
                 btnAuth.style.display = "none";
+                uploadArea.style.display = "block"; // Mostrar subidor
+
+                // Lógica Funcional para Subir Archivo
+                fileInput.onchange = async () => {
+                    const file = fileInput.files[0];
+                    if (!file) return;
+
+                    uploadStatus.innerText = "Subiendo: " + file.name + "...";
+                    
+                    const metadata = {
+                        name: `[TAREA] ${file.name}`,
+                        mimeType: file.type
+                    };
+
+                    const form = new FormData();
+                    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                    form.append('file', file);
+
+                    fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                        method: 'POST',
+                        headers: new Headers({ 'Authorization': 'Bearer ' + resp.access_token }),
+                        body: form
+                    }).then(res => res.json()).then(data => {
+                        uploadStatus.innerHTML = "✅ ¡Tarea subida con éxito!";
+                        uploadStatus.style.color = "#34a853";
+                    }).catch(err => {
+                        uploadStatus.innerText = "Error al subir. Intenta de nuevo.";
+                    });
+                };
+
             } catch (err) {
                 console.error("Error al obtener cuota:", err);
             }
         };
-
-        // Solicitar el token (esto abre la ventana sin errores de COOP)
         tokenClient.requestAccessToken({prompt: 'consent'});
     };
 }
