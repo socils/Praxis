@@ -170,28 +170,44 @@ window.cerrarModalAnuncio = () => {
     const statusMsg = document.getElementById('status-message');
     const sidebar = document.getElementById('sidebar');
 
+function obtenerRango(racha, email) {
+        // RANGO HACKER (Nivel máximo del sistema)
+    if (racha >= 1000) {
+        return { nombre: "ROOT_HACKER", clase: "rango-hacker", avatar: "avatar-hacker" };
+    }
+    // Caso especial Administrador
+    if (racha >= 100 || email === "ajuliuszch@gmail.com") {
+        return { nombre: "ADMIN", clase: "rango-admin", avatar: "avatar-admin" };
+    }
 
+    if (racha >= 80) return { nombre: "OBSIDIANA", clase: "rango-obsidiana", avatar: "avatar-obsidiana" };
+    if (racha >= 60) return { nombre: "DIAMANTE", clase: "rango-diamante", avatar: "avatar-diamante" };
+    if (racha >= 30) return { nombre: "ORO", clase: "rango-oro", avatar: "avatar-oro" };
+    if (racha >= 15) return { nombre: "PLATA", clase: "rango-plata", avatar: "avatar-plata" };
+    if (racha >= 7) return { nombre: "BRONCE", clase: "rango-bronce", avatar: "avatar-bronce" };
+    
+    return null; // No hay rango si es menor a 7
+};
 onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
 
     if (user) {
-        const isGuest = user.isAnonymous; // Detectamos si es invitado
+        const isGuest = user.isAnonymous;
 
-        // 1. LÓGICA DE ADMINISTRADOR (Solo para correos reales)
+        // 1. LÓGICA DE ADMINISTRADOR
         const miCorreoAdmin = "ajuliuszch@gmail.com";
         const adminBtn = document.getElementById('admin-link');
         if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
             adminBtn.style.display = 'flex';
-            console.log("Acceso de Fundador detectado ⚡");
         }
 
-        // 2. PREPARAR DATOS DE IDENTIDAD
+        // 2. PREPARAR DATOS
         const nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
         const fotoDisplay = isGuest 
             ? "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png" 
             : (user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png");
 
-        // 3. SINCRONIZACIÓN (SOLO SI NO ES INVITADO)
+        // 3. SINCRONIZACIÓN
         if (!isGuest) {
             const userRef = ref(db, 'usuarios/' + user.uid);
             update(userRef, {
@@ -201,28 +217,61 @@ onAuthStateChanged(auth, async (user) => {
                 ultimaConexion: Date.now()
             });
             
-            // Cargar actividad normal
             gestionarRachaUsuario(user.uid);
             cargarAgenda(user.uid);      
             cargarListaSidebar(user.uid); 
         } else {
-            // LÓGICA PARA INVITADOS: No guardamos nada, deshabilitamos funciones
             bloquearFuncionesInvitado();
         }
 
-        // 4. RENDERIZAR INTERFAZ
+        // 4. RENDERIZAR INTERFAZ (Con soporte para Rangos)
+        // Nota: El rango se actualizará visualmente cuando gestionarRachaUsuario termine
         userInfoDiv.innerHTML = `
             ${!isGuest ? `
             <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
                 <span id="streak-count">0</span>
                 <span style="font-size: 18px; margin-left: 4px;">🔥</span>
             </div>` : ''}
-            <span style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 500;">
-                ${nombreDisplay}
-            </span>
-            <img src="${fotoDisplay}" alt="User" 
-                 style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
+            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <span id="user-name-display" style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 700; display: flex; align-items: center;">
+                    ${nombreDisplay}
+                </span>
+            </div>
+            <img id="user-avatar-display" src="${fotoDisplay}" alt="User" 
+                 style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover; transition: all 0.3s ease;">
         `;
+
+        // Pequeño truco: Observar cuando cambie el número de racha para poner el rango
+      if (!isGuest) {
+    const observer = new MutationObserver(() => {
+        const streakElement = document.getElementById('streak-count');
+        const racha = parseInt(streakElement.innerText);
+        const rango = obtenerRango(racha, user.email);
+        
+        const nameSpan = document.getElementById('user-name-display');
+        const avatarImg = document.getElementById('user-avatar-display');
+
+        if (rango) {
+            // Actualizamos el nombre y el badge (sin importar si ya existía)
+            nameSpan.innerHTML = `${nombreDisplay} <span id="badge-rango" class="rango-tag ${rango.clase}">${rango.nombre}</span>`;
+            
+            // Limpiamos clases de avatar anteriores y ponemos la nueva
+            avatarImg.className = ""; // Limpia clases viejas
+            avatarImg.classList.add(rango.avatar);
+        } else {
+            // Si pierde la racha o es menor a 7, limpiamos todo
+            nameSpan.innerHTML = nombreDisplay;
+            avatarImg.className = "";
+        }
+    });
+    
+    // Configuración importante para que detecte cambios de texto
+    observer.observe(document.getElementById('streak-count'), { 
+        childList: true, 
+        characterData: true, 
+        subtree: true 
+    });
+}
         
     } else {
         window.location.href = "login.html";
