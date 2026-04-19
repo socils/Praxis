@@ -438,24 +438,22 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
         }
     }
 };
-
-// Cambia la definición de la función para que acepte "racha"
 function mostrarEstadoVacio(msg, rachaReal = 0) {
     displayCode.innerText = "SIN AGENDA";
     bannerTitle.innerText = "Bienvenido a Praxis";
     
-    // Usamos rachaReal en lugar de leer el HTML
     const rachaActual = parseInt(rachaReal);
+    const userEmail = auth.currentUser ? auth.currentUser.email : "";
 
     const niveles = [
-        { nombre: "BRONCE", dias: 7, clase: "rango-bronce" },
-        { nombre: "PLATA", dias: 15, clase: "rango-plata" },
-        { nombre: "ORO", dias: 30, clase: "rango-oro" },
-        { nombre: "DIAMANTE", dias: 60, clase: "rango-diamante" },
-        { nombre: "OBSIDIANA", dias: 80, clase: "rango-obsidiana" }
+        { nombre: "BRONCE", dias: 7, clase: "rango-bronce", color: "#cd7f32" },
+        { nombre: "PLATA", dias: 15, clase: "rango-plata", color: "#c0c0c0" },
+        { nombre: "ORO", dias: 30, clase: "rango-oro", color: "#ffd700" },
+        { nombre: "DIAMANTE", dias: 60, clase: "rango-diamante", color: "#b9f2ff" },
+        { nombre: "OBSIDIANA", dias: 80, clase: "rango-obsidiana", color: "#3a0052" }
     ];
 
-    // ... (resto de la lógica de búsqueda de rangoActualIdx igual) ...
+    // Identificar rango actual
     let rangoActualIdx = -1;
     for (let i = niveles.length - 1; i >= 0; i--) {
         if (rachaActual >= niveles[i].dias) {
@@ -464,56 +462,73 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
         }
     }
 
-    let htmlRangos = "";
-    // Lógica de Rango Actual
-    if (rangoActualIdx !== -1) {
-        const actual = niveles[rangoActualIdx];
-        htmlRangos += `
-            <div style="padding: 15px; border-radius: 12px; background: #e6f4ea; border: 2px solid #188038; flex: 1;">
-                <p style="font-size: 10px; color: #188038; margin: 0; font-weight: bold;">RANGO ACTUAL</p>
-                <span class="rango-tag ${actual.clase}" style="font-size: 14px; padding: 5px 12px;">${actual.nombre}</span>
-            </div>`;
-    } else {
-        htmlRangos += `
-            <div style="padding: 15px; border-radius: 12px; background: #f1f3f4; border: 1px dashed #dadce0; flex: 1;">
-                <p style="font-size: 10px; color: #5f6368; margin: 0; font-weight: bold;">RANGO ACTUAL</p>
-                <span style="font-size: 14px; color: #9aa0a6; font-weight: bold;">SIN RANGO</span>
-            </div>`;
-    }
+    let htmlContenido = "";
 
-    // Lógica de Siguiente Rango
-    const siguienteIdx = rangoActualIdx + 1;
-    if (siguienteIdx < niveles.length) {
-        const siguiente = niveles[siguienteIdx];
-        const diasFaltantes = siguiente.dias - rachaActual;
-        htmlRangos += `
-            <div style="padding: 15px; border-radius: 12px; background: #fff; border: 2px solid #f1f3f4; flex: 1; opacity: 0.7;">
-                <p style="font-size: 10px; color: #5f6368; margin: 0; font-weight: bold;">PRÓXIMO NIVEL</p>
-                <span style="font-size: 14px; color: #dadce0; font-weight: bold; filter: blur(2px); user-select: none;">?????</span>
-                <div style="font-size: 11px; color: #1a73e8; margin-top: 5px;">Faltan ${diasFaltantes} días 🔥</div>
+    // LÓGICA PARA RANGOS ESPECIALES (Admin y Hacker)
+    if (userEmail === "ajuliuszch@gmail.com") {
+        // Mensaje para el Administrador
+        htmlContenido = `
+            <div style="padding: 25px; border-radius: 20px; background: #f0f7ff; border: 2px solid #1a73e8; flex: 1;">
+                <h3 style="color: #1a73e8; margin: 0; font-size: 18px;">Hola Administrador</h3>
+                <p style="color: #4285f4; font-size: 13px; margin-top: 5px; font-weight: bold;">Sistema bajo control total.</p>
+                <span class="rango-tag rango-admin" style="margin-top: 10px; display: inline-block;">FUNDADOR</span>
+            </div>`;
+    } else if (rachaActual >= 1000) {
+        // Mensaje para el Hacker
+        htmlContenido = `
+            <div style="padding: 25px; border-radius: 20px; background: #000; border: 2px solid #0f0; flex: 1;">
+                <h3 style="color: #0f0; margin: 0; font-size: 18px; font-family: monospace;">¿Cómo es posible eso?</h3>
+                <p style="color: #0f0; opacity: 0.7; font-size: 12px; margin-top: 5px;">Has vulnerado los límites del tiempo.</p>
+                <span class="rango-tag rango-hacker" style="margin-top: 10px; display: inline-block;">ROOT_HACKER</span>
             </div>`;
     } else {
-        htmlRangos += `
-            <div style="padding: 15px; border-radius: 12px; background: #fff8e1; border: 2px solid #ffc107; flex: 1;">
-                <p style="font-size: 10px; color: #ff8f00; margin: 0; font-weight: bold;">ESTADO</p>
-                <span style="font-size: 14px; color: #ff8f00; font-weight: bold;">NIVEL MÁXIMO</span>
-            </div>`;
+        // LÓGICA DE PROGRESO NORMAL (Bronce a Obsidiana)
+        let htmlActual = "";
+        if (rangoActualIdx !== -1) {
+            const actual = niveles[rangoActualIdx];
+            htmlActual = `
+                <div style="padding: 15px; border-radius: 16px; background: #f8f9fa; border: 1px solid #eee; flex: 1;">
+                    <p style="font-size: 9px; color: #70757a; margin-bottom: 8px; font-weight: 800;">TU NIVEL</p>
+                    <span class="rango-tag ${actual.clase}">${actual.nombre}</span>
+                </div>`;
+        }
+
+        // Si ya es Obsidiana o superior, ya no mostramos "Siguiente"
+        if (rangoActualIdx < niveles.length - 1) {
+            const siguienteIdx = rangoActualIdx + 1;
+            const siguiente = niveles[siguienteIdx];
+            const diasFaltantes = siguiente.dias - rachaActual;
+            const progreso = (rachaActual / siguiente.dias) * 100;
+
+            const htmlSiguiente = `
+                <div style="padding: 15px; border-radius: 16px; background: white; border: 1px dashed #cbd5e0; flex: 1;">
+                    <p style="font-size: 9px; color: #70757a; margin-bottom: 8px; font-weight: 800;">SIGUIENTE</p>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 13px; font-weight: 900; color: ${siguiente.color}; opacity: 0.15; letter-spacing: 2px;">${siguiente.nombre}</span>
+                        <span style="font-size: 11px; color: #1a73e8; font-weight: 800;">-${diasFaltantes} días</span>
+                    </div>
+                    <div style="width: 100%; height: 5px; background: #eee; border-radius: 10px; margin-top: 10px; overflow: hidden;">
+                        <div style="width: ${progreso}%; height: 100%; background: ${siguiente.color}; transition: width 1s;"></div>
+                    </div>
+                </div>`;
+            htmlContenido = htmlActual + htmlSiguiente;
+        } else {
+            // Si es Obsidiana, solo mostramos su tarjeta centrada
+            htmlContenido = htmlActual;
+        }
     }
 
     statusMsg.innerHTML = `
-        <div class="no-agenda-box" style="text-align: center; padding: 20px;">
-            <div style="background: white; padding: 25px; border-radius: 24px; border: 1px solid #eee; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                <h2 style="color: #1a73e8; margin-bottom: 15px;">🔥 Progreso de Alonixz-Cloud</h2>
-                <div style="display: flex; gap: 15px; justify-content: center; align-items: stretch; margin-bottom: 10px;">
-                    ${htmlRangos}
+        <div style="text-align: center; padding: 20px;">
+            <div style="background: white; padding: 30px; border-radius: 32px; border: 1px solid #f1f3f4; margin-bottom: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div style="display: flex; gap: 15px; align-items: stretch; justify-content: center; flex-wrap: wrap;">
+                    ${htmlContenido}
                 </div>
-                <p style="font-size: 12px; color: #5f6368; margin-top: 10px;">Tu racha actual es de <b>${rachaActual}</b> días.</p>
             </div>
-            <img src="nohayagendas.png" style="width: 100%; max-width: 350px; margin-bottom: 20px;">
+            <img src="nohayagendas.png" style="width: 100%; max-width: 300px; margin-bottom: 20px;">
             <h2 style="font-size: 18px; color: #3c4043;">${msg}</h2>
         </div>`;
 }
-
 // BOTÓN DE TRES RAYAS (Sidebar Toggle)
 const btnToggle = document.getElementById('btn-toggle-sidebar');
 const mainContent = document.getElementById('main-content');
