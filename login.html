@@ -324,51 +324,72 @@
         </div>
     </div>
 
-    <script type="module">
-import { 
-    getAuth, 
-    signInWithPopup, 
-    GoogleAuthProvider, 
-    onAuthStateChanged, 
-    signInAnonymously // <--- Nueva
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        // CONFIGURACIÓN ALONIXZ-CLOUD
-        const firebaseConfig = {
-            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
-            authDomain: "praxis-79b9a.firebaseapp.com",
-            projectId: "praxis-79b9a",
-            databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
-            storageBucket: "praxis-79b9a.firebasestorage.app",
-            messagingSenderId: "596083977949",
-            appId: "1:596083977949:web:71064f89a23f8d9751e712"
+ <script type="module">
+    // 1. IMPORTACIONES CORRECTAS (Se añadió initializeApp)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { 
+        getAuth, 
+        signInWithPopup, 
+        GoogleAuthProvider, 
+        onAuthStateChanged, 
+        signInAnonymously 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    // 2. CONFIGURACIÓN ALONIXZ-CLOUD
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9751e712"
+    };
+
+    // 3. INICIALIZACIÓN
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // --- LÓGICA DE BOTONES ---
+
+    // Botón de Email (Solo aviso)
+    const btnEmail = document.getElementById('btn-login-email');
+    if(btnEmail) {
+        btnEmail.onclick = () => {
+            alert("Para una mejor experiencia, usa el botón 'Acceder con Google'.");
         };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        document.getElementById('btn-login-email').addEventListener('click', () => {
-            alert("Para una mejor experiencia y obtener tu foto de perfil del colegio automáticamente, usa el botón 'Acceder con Google'.");
-        });
-
-        document.getElementById('btn-google').onclick = async () => {
-            try {
-                const result = await signInWithPopup(auth, provider);
-                if (result.user) window.location.replace("menu.html");
-            } catch (e) { console.error(e); }
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) window.location.replace("menu.html");
-        });document.getElementById('btn-guest').onclick = async () => {
-    try {
-        const result = await signInAnonymously(auth);
-        if (result.user) window.location.replace("menu.html");
-    } catch (e) {
-        console.error("Error al entrar como invitado:", e);
-        alert("No se pudo iniciar sesión como invitado.");
     }
-};
-    </script>
+
+    // Botón de Google
+    document.getElementById('btn-google').onclick = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            if (result.user) window.location.replace("menu.html");
+        } catch (e) { console.error("Error Google:", e); }
+    };
+
+    // BOTÓN DE INVITADO (Ahora dentro del módulo para que reconozca 'auth')
+    const btnGuest = document.getElementById('btn-guest');
+    if (btnGuest) {
+        btnGuest.onclick = async () => {
+            try {
+                const result = await signInAnonymously(auth);
+                if (result.user) {
+                    console.log("Sesión de invitado iniciada");
+                    window.location.replace("menu.html");
+                }
+            } catch (e) {
+                console.error("Error al entrar como invitado:", e);
+                alert("Asegúrate de haber activado 'Acceso Anónimo' en tu consola de Firebase.");
+            }
+        };
+    }
+
+    // Observador de estado
+    onAuthStateChanged(auth, (user) => {
+        if (user) window.location.replace("menu.html");
+    });
+</script>
 </body>
 </html>
