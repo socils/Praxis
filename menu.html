@@ -243,27 +243,30 @@ onAuthStateChanged(auth, async (user) => {
 
         // Pequeño truco: Observar cuando cambie el número de racha para poner el rango
       if (!isGuest) {
-    const observer = new MutationObserver(() => {
-        const streakElement = document.getElementById('streak-count');
-        const racha = parseInt(streakElement.innerText);
-        const rango = obtenerRango(racha, user.email);
-        
-        const nameSpan = document.getElementById('user-name-display');
-        const avatarImg = document.getElementById('user-avatar-display');
+const observer = new MutationObserver(() => {
+    const streakElement = document.getElementById('streak-count');
+    const racha = parseInt(streakElement.innerText);
+    const rango = obtenerRango(racha, user.email);
+    
+    const nameSpan = document.getElementById('user-name-display');
+    const avatarImg = document.getElementById('user-avatar-display');
 
-        if (rango) {
-            // Actualizamos el nombre y el badge (sin importar si ya existía)
-            nameSpan.innerHTML = `${nombreDisplay} <span id="badge-rango" class="rango-tag ${rango.clase}">${rango.nombre}</span>`;
-            
-            // Limpiamos clases de avatar anteriores y ponemos la nueva
-            avatarImg.className = ""; // Limpia clases viejas
-            avatarImg.classList.add(rango.avatar);
-        } else {
-            // Si pierde la racha o es menor a 7, limpiamos todo
-            nameSpan.innerHTML = nombreDisplay;
-            avatarImg.className = "";
-        }
-    });
+    // --- AÑADE ESTO AQUÍ ---
+    // Si el banner dice "SIN AGENDA", forzamos a que se actualice con la nueva racha
+    if (displayCode.innerText === "SIN AGENDA") {
+        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
+    }
+    // -----------------------
+
+    if (rango) {
+        nameSpan.innerHTML = `${nombreDisplay} <span id="badge-rango" class="rango-tag ${rango.clase}">${rango.nombre}</span>`;
+        avatarImg.className = ""; 
+        avatarImg.classList.add(rango.avatar);
+    } else {
+        nameSpan.innerHTML = nombreDisplay;
+        avatarImg.className = "";
+    }
+});
     
     // Configuración importante para que detecte cambios de texto
     observer.observe(document.getElementById('streak-count'), { 
@@ -436,16 +439,80 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
     }
 };
 
-    function mostrarEstadoVacio(msg) {
-        displayCode.innerText = "SIN AGENDA";
-        bannerTitle.innerText = "Bienvenido a Praxis";
-        statusMsg.innerHTML = `
-            <div class="no-agenda-box">
-                <img src="nohayagendas.png" style="width: 800px;">
-                <h2>${msg}</h2>
-                <p>Usa el botón "+" para unirte o crear una nueva.</p>
+// Cambia la definición de la función para que acepte "racha"
+function mostrarEstadoVacio(msg, rachaReal = 0) {
+    displayCode.innerText = "SIN AGENDA";
+    bannerTitle.innerText = "Bienvenido a Praxis";
+    
+    // Usamos rachaReal en lugar de leer el HTML
+    const rachaActual = parseInt(rachaReal);
+
+    const niveles = [
+        { nombre: "BRONCE", dias: 7, clase: "rango-bronce" },
+        { nombre: "PLATA", dias: 15, clase: "rango-plata" },
+        { nombre: "ORO", dias: 30, clase: "rango-oro" },
+        { nombre: "DIAMANTE", dias: 60, clase: "rango-diamante" },
+        { nombre: "OBSIDIANA", dias: 80, clase: "rango-obsidiana" }
+    ];
+
+    // ... (resto de la lógica de búsqueda de rangoActualIdx igual) ...
+    let rangoActualIdx = -1;
+    for (let i = niveles.length - 1; i >= 0; i--) {
+        if (rachaActual >= niveles[i].dias) {
+            rangoActualIdx = i;
+            break;
+        }
+    }
+
+    let htmlRangos = "";
+    // Lógica de Rango Actual
+    if (rangoActualIdx !== -1) {
+        const actual = niveles[rangoActualIdx];
+        htmlRangos += `
+            <div style="padding: 15px; border-radius: 12px; background: #e6f4ea; border: 2px solid #188038; flex: 1;">
+                <p style="font-size: 10px; color: #188038; margin: 0; font-weight: bold;">RANGO ACTUAL</p>
+                <span class="rango-tag ${actual.clase}" style="font-size: 14px; padding: 5px 12px;">${actual.nombre}</span>
+            </div>`;
+    } else {
+        htmlRangos += `
+            <div style="padding: 15px; border-radius: 12px; background: #f1f3f4; border: 1px dashed #dadce0; flex: 1;">
+                <p style="font-size: 10px; color: #5f6368; margin: 0; font-weight: bold;">RANGO ACTUAL</p>
+                <span style="font-size: 14px; color: #9aa0a6; font-weight: bold;">SIN RANGO</span>
             </div>`;
     }
+
+    // Lógica de Siguiente Rango
+    const siguienteIdx = rangoActualIdx + 1;
+    if (siguienteIdx < niveles.length) {
+        const siguiente = niveles[siguienteIdx];
+        const diasFaltantes = siguiente.dias - rachaActual;
+        htmlRangos += `
+            <div style="padding: 15px; border-radius: 12px; background: #fff; border: 2px solid #f1f3f4; flex: 1; opacity: 0.7;">
+                <p style="font-size: 10px; color: #5f6368; margin: 0; font-weight: bold;">PRÓXIMO NIVEL</p>
+                <span style="font-size: 14px; color: #dadce0; font-weight: bold; filter: blur(2px); user-select: none;">?????</span>
+                <div style="font-size: 11px; color: #1a73e8; margin-top: 5px;">Faltan ${diasFaltantes} días 🔥</div>
+            </div>`;
+    } else {
+        htmlRangos += `
+            <div style="padding: 15px; border-radius: 12px; background: #fff8e1; border: 2px solid #ffc107; flex: 1;">
+                <p style="font-size: 10px; color: #ff8f00; margin: 0; font-weight: bold;">ESTADO</p>
+                <span style="font-size: 14px; color: #ff8f00; font-weight: bold;">NIVEL MÁXIMO</span>
+            </div>`;
+    }
+
+    statusMsg.innerHTML = `
+        <div class="no-agenda-box" style="text-align: center; padding: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 24px; border: 1px solid #eee; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <h2 style="color: #1a73e8; margin-bottom: 15px;">🔥 Progreso de Alonixz-Cloud</h2>
+                <div style="display: flex; gap: 15px; justify-content: center; align-items: stretch; margin-bottom: 10px;">
+                    ${htmlRangos}
+                </div>
+                <p style="font-size: 12px; color: #5f6368; margin-top: 10px;">Tu racha actual es de <b>${rachaActual}</b> días.</p>
+            </div>
+            <img src="nohayagendas.png" style="width: 100%; max-width: 350px; margin-bottom: 20px;">
+            <h2 style="font-size: 18px; color: #3c4043;">${msg}</h2>
+        </div>`;
+}
 
 // BOTÓN DE TRES RAYAS (Sidebar Toggle)
 const btnToggle = document.getElementById('btn-toggle-sidebar');
@@ -793,15 +860,20 @@ item.onclick = (e) => {
     document.getElementById('status-message').innerHTML = ""; 
     // --------------------------------------------------
 
-    if (texto.includes("inicio")) {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        if (code) {
-            cargarAgenda(auth.currentUser.uid);
-        } else {
-            mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
-        }
-    } 
+if (texto.includes("inicio")) {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    
+    // Obtenemos la racha que ya cargó gestionarRachaUsuario
+    const rachaActual = parseInt(document.getElementById('streak-count')?.innerText) || 0;
+
+    if (code) {
+        cargarAgenda(auth.currentUser.uid);
+    } else {
+        // PASAMOS LA RACHA AQUÍ
+        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", rachaActual);
+    }
+}
     // ... resto de tus else if (calendario, pendientes, etc.)
 };
 }
@@ -1132,7 +1204,10 @@ async function gestionarRachaUsuario(uid) {
     } catch (error) {
         // El error se queda en consola para ti, pero no activa el Guardian
         console.warn("Praxis Racha Log:", error.message);
-    }
+    }// Dentro de gestionarRachaUsuario, después de elCount.innerText = nuevaRacha;
+if (displayCode.innerText === "SIN AGENDA") {
+    mostrarEstadoVacio("Ingresa un código para ver tu agenda.", nuevaRacha);
+}
 }window.enviarMensajeClase = async (code) => {
     const input = document.getElementById(`input-chat-${code}`);
     const texto = input.value.trim();
