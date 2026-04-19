@@ -175,52 +175,108 @@ onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
 
     if (user) {
-        // 1. LÓGICA DE ADMINISTRADOR
+        const isGuest = user.isAnonymous; // Detectamos si es invitado
+
+        // 1. LÓGICA DE ADMINISTRADOR (Solo para correos reales)
         const miCorreoAdmin = "ajuliuszch@gmail.com";
         const adminBtn = document.getElementById('admin-link');
-        if (user.email === miCorreoAdmin && adminBtn) {
+        if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
             adminBtn.style.display = 'flex';
             console.log("Acceso de Fundador detectado ⚡");
         }
 
         // 2. PREPARAR DATOS DE IDENTIDAD
-        const nombreDisplay = user.displayName || user.email.split('@')[0];
-        const fotoDisplay = user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+        const nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
+        const fotoDisplay = isGuest 
+            ? "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png" 
+            : (user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png");
 
-        // 3. SINCRONIZACIÓN CON ALONIXZ-CLOUD (Vital para el Panel de Admin)
-        // Esto crea el "vínculo" que faltaba en tu base de datos
-        const userRef = ref(db, 'usuarios/' + user.uid);
-        
-        // Usamos update en lugar de set para no borrar la racha existente si ya existe
-        update(userRef, {
-            nombre: nombreDisplay,
-            correo: user.email,
-            foto: fotoDisplay,
-            ultimaConexion: Date.now()
-        });
+        // 3. SINCRONIZACIÓN (SOLO SI NO ES INVITADO)
+        if (!isGuest) {
+            const userRef = ref(db, 'usuarios/' + user.uid);
+            update(userRef, {
+                nombre: nombreDisplay,
+                correo: user.email,
+                foto: fotoDisplay,
+                ultimaConexion: Date.now()
+            });
+            
+            // Cargar actividad normal
+            gestionarRachaUsuario(user.uid);
+            cargarAgenda(user.uid);      
+            cargarListaSidebar(user.uid); 
+        } else {
+            // LÓGICA PARA INVITADOS: No guardamos nada, deshabilitamos funciones
+            bloquearFuncionesInvitado();
+        }
 
         // 4. RENDERIZAR INTERFAZ
         userInfoDiv.innerHTML = `
+            ${!isGuest ? `
             <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
                 <span id="streak-count">0</span>
                 <span style="font-size: 18px; margin-left: 4px;">🔥</span>
-            </div>
+            </div>` : ''}
             <span style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 500;">
                 ${nombreDisplay}
             </span>
             <img src="${fotoDisplay}" alt="User" 
                  style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dadce0; object-fit: cover;">
         `;
-
-        // 5. CARGAR ACTIVIDAD
-        gestionarRachaUsuario(user.uid);
-        cargarAgenda(user.uid);      
-        cargarListaSidebar(user.uid); 
         
     } else {
         window.location.href = "login.html";
     }
 });
+
+// Función para aplicar restricciones de invitado
+function bloquearFuncionesInvitado() {
+    // 1. Ocultar el botón "+" (Alonixz-Cloud / Agendas)
+    const btnPlus = document.getElementById('btn-plus');
+    if (btnPlus) {
+        btnPlus.style.display = "none"; // Desaparece el botón de crear/unirse
+    }
+
+    // 2. Deshabilitar Drive y Cuenta en el Sidebar
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        const texto = item.innerText.toLowerCase();
+        // Bloqueamos Drive y la info de Cuenta porque requieren Google
+        if (texto.includes("drive") || texto.includes("cuenta")) {
+            item.style.opacity = "0.4";
+            item.style.filter = "grayscale(1)";
+            item.style.cursor = "not-allowed";
+            item.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                alert("❌ Función deshabilitada: El Chat, Drive y la Gestión de Agendas requieren una cuenta de Google vinculada.");
+            };
+        }
+    });
+
+    // 3. Banner de Advertencia (Mensaje de incompatibilidad)
+    const statusMsg = document.getElementById('status-message');
+    if (statusMsg) {
+        statusMsg.innerHTML = `
+            <div style="background: #fee2e2; border: 2px solid #ef4444; color: #b91c1c; padding: 20px; border-radius: 16px; margin-bottom: 25px; text-align: center;">
+                <strong style="font-size: 18px;">⚠️ Modo Invitado Activo</strong>
+                <p style="margin: 10px 0; font-size: 14px;">
+                    Las funciones de <b>Chat</b>, <b>Drive</b> y <b>Alonixz-Cloud</b> no son compatibles con este modo. 
+                    Tus datos no se guardarán.
+                </p>
+                <button onclick="window.location.href='login.html'" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                    Iniciar sesión con Google
+                </button>
+            </div>
+        `;
+    }
+
+    // 4. Limpiar el código de acceso para evitar confusiones
+    const displayCode = document.getElementById('display-code');
+    if (displayCode) displayCode.innerText = "MODO INVITADO";
+};
+
+  
 onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
     const enMantenimiento = snapshot.val();
    
