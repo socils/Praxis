@@ -1150,4 +1150,184 @@ body {
 .btn-delete:active {
     transform: scale(0.95);
     background: #fadad7;
+}/* Estilos de Rangos Alonixz */
+.rango-tag {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 50px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* --- MEJORA DE ETIQUETAS (RANGO-TAG) --- */
+.rango-tag {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Colores con Gradientes Profesionales */
+.rango-bronce { 
+    background: linear-gradient(135deg, #a0522d, #cd7f32); 
+    color: white; 
+    box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4); 
+}
+.rango-plata { 
+    background: linear-gradient(135deg, #bdc3c7, #7f8c8d); 
+    color: white; 
+    box-shadow: 0 2px 8px rgba(127, 140, 141, 0.3); 
+}
+.rango-oro { 
+    background: linear-gradient(135deg, #f1c40f, #f39c12); 
+    color: #5c4301; 
+    box-shadow: 0 2px 10px rgba(243, 156, 18, 0.5); 
+}
+.rango-diamante { 
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5); 
+    color: white; 
+    box-shadow: 0 2px 12px rgba(0, 210, 255, 0.6); 
+    animation: shine 3s infinite;
+}
+.rango-obsidiana { 
+    background: linear-gradient(135deg, #2c3e50, #000000); 
+    color: #e0a3ff; 
+    border: 1px solid #3a0052;
+    animation: pulse-obsidiana 2s infinite; 
+}
+.rango-admin { 
+    background: linear-gradient(135deg, #ed213a, #93291e); 
+    color: white; 
+    border: 1px solid #000;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(237, 33, 58, 0.4);
+}
+
+/* --- MEJORA DE AVATARES (BORDES) --- */
+.user-avatar-base {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    object-fit: cover;
+}
+
+.avatar-bronce { border: 3px solid #cd7f32 !important; }
+.avatar-plata { border: 3px solid #bdc3c7 !important; }
+.avatar-oro { border: 3px solid #f1c40f !important; }
+.avatar-diamante { border: 3px solid #00d2ff !important; box-shadow: 0 0 10px #00d2ff; }
+.avatar-obsidiana { border: 3px solid #3a0052 !important; filter: drop-shadow(0 0 5px #3a0052); }
+/* --- ESTILO ADMIN MEJORADO --- */
+.rango-admin { 
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient-admin 5s ease infinite;
+    color: white; 
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    font-weight: 900;
+    letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(231, 60, 126, 0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Borde de Avatar con Efecto de Respiración */
+.avatar-admin { 
+    border: 3px solid #ed213a !important; 
+    box-shadow: 0 0 15px rgba(237, 33, 58, 0.6);
+    animation: admin-glow 2s ease-in-out infinite alternate;
+    position: relative;
+}
+
+/* --- ANIMACIONES EXCLUSIVAS --- */
+
+/* Gradiente que se mueve solo para el tag */
+@keyframes gradient-admin {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* El avatar "respira" luz roja */
+@keyframes admin-glow {
+    from {
+        box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d;
+        transform: scale(1);
+    }
+    to {
+        box-shadow: 0 0 20px #ff4d4d, 0 0 30px #ff0000;
+        transform: scale(1.05);
+    }
+}
+
+/* --- ANIMACIONES NUEVAS --- */
+@keyframes pulse-obsidiana {
+    0% { box-shadow: 0 0 5px #3a0052; transform: scale(1); }
+    50% { box-shadow: 0 0 20px #3a0052; transform: scale(1.02); }
+    100% { box-shadow: 0 0 5px #3a0052; transform: scale(1); }
+}
+
+@keyframes shine {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+    100% { filter: brightness(1); }
+}
+/* --- RANGO HACKER (SUPREMO 1000+) --- */
+.rango-hacker {
+    background: #000;
+    color: #0f0; /* Verde Matrix */
+    border: 1px solid #0f0;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+    animation: hacker-flicker 1.5s infinite;
+}
+
+/* Efecto de línea de escaneo para la etiqueta */
+.rango-hacker::after {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 255, 0, 0) 0%, rgba(0, 255, 0, 0.2) 50%, rgba(0, 255, 0, 0) 100%);
+    animation: scanline 2s linear infinite;
+}
+
+/* Avatar Hacker: Borde digital */
+.avatar-hacker {
+    border: 3px double #0f0 !important;
+    filter: brightness(1.2) contrast(1.2) sepia(1) hue-rotate(70deg); /* Tinte verde */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5), inset 0 0 10px rgba(0, 255, 0, 0.5);
+    animation: glitch-border 0.2s infinite;
+}
+
+/* --- ANIMACIONES HACKER --- */
+@keyframes scanline {
+    to { top: 100%; }
+}
+
+@keyframes hacker-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+    90% { opacity: 0.9; }
+}
+
+@keyframes glitch-border {
+    0% { transform: translate(0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(-1px, -1px); }
+    60% { transform: translate(1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+    100% { transform: translate(0); }
 }
