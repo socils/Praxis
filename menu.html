@@ -1296,7 +1296,113 @@ function escucharChatClase(code) {
     // 3. ACTUALIZAR NOMBRE + RANGO (Sin que uno borre al otro)
     // Usamos el diseño que ya tienes para que no se pierda la estética
     nameSpan.innerHTML = `${nombreUsuario} <span class="rango-tag ${claseRango}">${nombreRango}</span>`;
-}
+}(function() {
+    if (!document.querySelector('script[src*="dotlottie-wc.js"]')) {
+        const scriptLottie = document.createElement('script');
+        scriptLottie.src = "https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js";
+        scriptLottie.type = "module";
+        document.head.appendChild(scriptLottie);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .tutorial-overlay { position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .tutorial-card { background: white; border-radius: 32px; max-width: 400px; width: 92%; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); animation: tutorialPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .tutorial-progress-bg { height: 6px; background: #f0f0f0; width: 100%; }
+        .tutorial-progress-fill { height: 100%; background: #1a73e8; transition: width 0.5s ease; width: 0%; }
+        .tutorial-content { padding: 30px; text-align: center; }
+        .tutorial-media { height: 250px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .tutorial-title { font-size: 22px; color: #1e3a8a; margin-bottom: 10px; font-weight: 800; }
+        .tutorial-text { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 25px; min-height: 45px; }
+        .tutorial-btn-next { width: 100%; background: #1a73e8; color: white; border: none; padding: 16px; border-radius: 18px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; }
+        .tutorial-btn-next:hover { background: #1557b0; transform: translateY(-2px); }
+        .tutorial-btn-skip { margin-top: 15px; background: none; border: none; color: #cbd5e1; font-size: 12px; cursor: pointer; font-weight: 600; }
+        @keyframes tutorialPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    `;
+    document.head.appendChild(style);
+
+    let step = 0;
+    const content = [
+        {
+            title: "¡Hola, Nuevo Usuario!",
+            text: "Bienvenido a la nueva era de Praxis. Hemos rediseñado todo para que tu productividad no tenga límites.",
+            lottie: "https://lottie.host/4903df2e-d315-4742-9f8e-13f626da8b64/Gb8SQ9b7KU.lottie"
+        },
+        {
+            title: "Tus Agendas",
+            text: "Crear una agenda ahora es más intuitivo. Organiza tus materias y horarios con un solo toque.",
+            lottie: "https://lottie.host/ddf78bf0-d9e6-4163-b56a-7764c3a1e1d1/TukH1cKOEx.lottie"
+        },
+        {
+            title: "Alonixz Cloud",
+            text: "Toda tu información se sincroniza automáticamente con Google Drive. Tus datos, siempre contigo.",
+            lottie: "https://lottie.host/2924be7c-a967-4ba9-ac22-62ab4bb148f0/lVTL4xnbgs.lottie"
+        }
+    ];
+
+    function updateTutorial() {
+        const fill = document.querySelector('.tutorial-progress-fill');
+        const title = document.querySelector('.tutorial-title');
+        const text = document.querySelector('.tutorial-text');
+        const btn = document.querySelector('.tutorial-btn-next');
+        const mediaContainer = document.querySelector('.tutorial-media');
+
+        fill.style.width = ((step + 1) / content.length) * 100 + "%";
+        title.innerText = content[step].title;
+        text.innerText = content[step].text;
+        btn.innerText = step === content.length - 1 ? "¡LISTO PARA EMPEZAR!" : "CONTINUAR";
+        
+        mediaContainer.innerHTML = `
+            <dotlottie-wc 
+                src="${content[step].lottie}" 
+                style="width: 250px; height: 250px" 
+                autoplay 
+                loop>
+            </dotlottie-wc>`;
+    }
+
+    window.startTutorial = function() {
+        if (localStorage.getItem('praxis_tutorial_done')) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'tutorial-overlay';
+        overlay.id = 'tutorial-ui';
+        overlay.innerHTML = `
+            <div class="tutorial-card">
+                <div class="tutorial-progress-bg"><div class="tutorial-progress-fill"></div></div>
+                <div class="tutorial-content">
+                    <div class="tutorial-media"></div>
+                    <div class="tutorial-title"></div>
+                    <div class="tutorial-text"></div>
+                    <button class="tutorial-btn-next">CONTINUAR</button>
+                    <button class="tutorial-btn-skip">SALTAR TUTORIAL</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        overlay.querySelector('.tutorial-btn-next').onclick = () => {
+            if (step < content.length - 1) {
+                step++;
+                updateTutorial();
+            } else {
+                window.closeTutorial();
+            }
+        };
+
+        overlay.querySelector('.tutorial-btn-skip').onclick = window.closeTutorial;
+        updateTutorial();
+    };
+
+    window.closeTutorial = function() {
+        const ui = document.getElementById('tutorial-ui');
+        if (ui) ui.remove();
+        localStorage.setItem('praxis_tutorial_done', 'true');
+    };
+
+    if (document.readyState === 'complete') { window.startTutorial(); } 
+    else { window.addEventListener('load', window.startTutorial); }
+})();
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
