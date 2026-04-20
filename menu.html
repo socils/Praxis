@@ -244,27 +244,22 @@ onAuthStateChanged(auth, async (user) => {
         // Pequeño truco: Observar cuando cambie el número de racha para poner el rango
       if (!isGuest) {
 const observer = new MutationObserver(() => {
-    const streakElement = document.getElementById('streak-count');
-    const racha = parseInt(streakElement.innerText);
-    const rango = obtenerRango(racha, user.email);
-    
-    const nameSpan = document.getElementById('user-name-display');
-    const avatarImg = document.getElementById('user-avatar-display');
+    const rachaElement = document.getElementById('streak-count');
+    if (!rachaElement) return;
 
-    // --- AÑADE ESTO AQUÍ ---
-    // Si el banner dice "SIN AGENDA", forzamos a que se actualice con la nueva racha
-    if (displayCode.innerText === "SIN AGENDA") {
+    const racha = parseInt(rachaElement.innerText) || 0;
+    const nombre = auth.currentUser.displayName || "Usuario";
+    const email = auth.currentUser.email;
+
+    // Obtenemos la info del rango desde tu función obtenerRango
+    const infoRango = obtenerRango(racha, email);
+
+    // Aplicamos el tema global y mantenemos el badge al lado del nombre
+    aplicarTemaYBadge(infoRango, nombre, racha);
+
+    // Si no hay agenda, actualizamos el banner con los mensajes especiales
+    if (document.getElementById('display-code').innerText === "SIN AGENDA") {
         mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
-    }
-    // -----------------------
-
-    if (rango) {
-        nameSpan.innerHTML = `${nombreDisplay} <span id="badge-rango" class="rango-tag ${rango.clase}">${rango.nombre}</span>`;
-        avatarImg.className = ""; 
-        avatarImg.classList.add(rango.avatar);
-    } else {
-        nameSpan.innerHTML = nombreDisplay;
-        avatarImg.className = "";
     }
 });
     
@@ -1273,6 +1268,34 @@ function escucharChatClase(code) {
             lista.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>No hay mensajes. ¡Inicia la conversación!</p>";
         }
     });
+}function aplicarTemaYBadge(infoRango, nombreUsuario, racha) {
+    const cuerpo = document.body;
+    const nameSpan = document.getElementById('user-name-display');
+    const userEmail = auth.currentUser ? auth.currentUser.email : "";
+
+    // 1. Limpiar temas previos
+    cuerpo.classList.remove('tema-diamante', 'tema-obsidiana', 'tema-hacker');
+
+    // 2. Determinar Rango Especial o Normal
+    let nombreRango = infoRango ? infoRango.nombre : "SIN RANGO";
+    let claseRango = infoRango ? infoRango.clase : "";
+
+    if (userEmail === "ajuliuszch@gmail.com") {
+        nombreRango = "FUNDADOR";
+        claseRango = "rango-admin"; // Asegúrate de tener esta clase en tu CSS
+    } else if (racha >= 1000) {
+        nombreRango = "ROOT_HACKER";
+        claseRango = "rango-hacker";
+        cuerpo.classList.add('tema-hacker');
+    } else if (nombreRango === "DIAMANTE") {
+        cuerpo.classList.add('tema-diamante');
+    } else if (nombreRango === "OBSIDIANA") {
+        cuerpo.classList.add('tema-obsidiana');
+    }
+
+    // 3. ACTUALIZAR NOMBRE + RANGO (Sin que uno borre al otro)
+    // Usamos el diseño que ya tienes para que no se pierda la estética
+    nameSpan.innerHTML = `${nombreUsuario} <span class="rango-tag ${claseRango}">${nombreRango}</span>`;
 }
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
