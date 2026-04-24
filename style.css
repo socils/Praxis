@@ -663,9 +663,8 @@ body {
         max-width: none;
     }
 }
-/* --- CORRECCIÓN DE ALINEACIÓN Y VISIBILIDAD DEL MODAL --- */
+/* --- CORRECCIÓN DE ALINEACIÓN Y VISIBILIDAD CON BOTÓN DE ARCHIVO --- */
 
-/* 1. Centrar el modal correctamente en la pantalla */
 .modal {
     display: none;
     position: fixed;
@@ -677,9 +676,9 @@ body {
     z-index: 3000;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(2px); /* Toque moderno */
 }
 
-/* 2. Ajustar el contenedor del formulario para que no se oculte */
 .modal-content {
     background: white;
     padding: 24px;
@@ -691,15 +690,12 @@ body {
     flex-direction: column;
     box-sizing: border-box;
     position: relative;
-    margin-left: auto;
-    margin-right: auto;
+    max-height: 90vh; /* Evita que se salga de la pantalla en celulares */
+    overflow-y: auto;  /* Permite scroll si el contenido es mucho */
 }
 
-/* 3. Estilo para los campos de texto (IDs de tu JS) */
-#t-titulo, 
-#t-materia, 
-#t-desc, 
-#t-fecha {
+/* Campos de texto */
+#t-titulo, #t-materia, #t-desc, #t-fecha {
     width: 100% !important;
     box-sizing: border-box !important;
     padding: 12px !important;
@@ -707,18 +703,49 @@ body {
     border: 1px solid #dadce0;
     border-radius: 8px;
     font-size: 14px;
-    font-family: inherit;
+    font-family: 'Outfit', sans-serif;
 }
 
-/* 4. Asegurar que los botones estén siempre visibles abajo */
+/* --- ESTILO ESPECÍFICO PARA EL ÁREA DE SUBIDA --- */
+.upload-container {
+    border: 2px dashed #dadce0;
+    padding: 15px;
+    border-radius: 12px;
+    margin: 10px 0;
+    text-align: center;
+    background: #f8f9fa;
+    transition: border-color 0.3s;
+}
+
+.upload-container:hover {
+    border-color: #1a73e8;
+    background: #f1f7fe;
+}
+
+#btn-adjuntar {
+    background: #ffffff;
+    border: 1px solid #dadce0;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #1a73e8;
+    font-weight: bold;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Botones inferiores */
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
     margin-top: 20px;
+    padding-bottom: 5px;
 }
 
-/* 5. Botón Publicar (Azul Google) */
 #btn-save-task {
     background-color: #1a73e8;
     color: white;
@@ -727,14 +754,8 @@ body {
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
 }
 
-#btn-save-task:hover {
-    background-color: #1765cc;
-}
-
-/* 6. Botón Cancelar (Gris) */
 .btn-cancel {
     background: #f1f3f4;
     color: #3c4043;
