@@ -93,38 +93,34 @@ window.onerror = function(msg, url, lineNo, columnNo, error) {
     console.warn("Diagnóstico capturado por Alonixz-Guard");
     return false;
 };
+// 1. IMPORTACIONES
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-    getDatabase, 
-    ref, 
-    onValue, 
-    set, 
-    push, 
-    get, 
-    update 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";import { 
-    getStorage, 
-    ref as sRef, 
-    uploadBytesResumable, 
-    getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";const storage = getStorage(app);
-    const firebaseConfig = {
-        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
-        authDomain: "praxis-79b9a.firebaseapp.com",
-        projectId: "praxis-79b9a",
-        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
-        storageBucket: "praxis-79b9a.firebasestorage.app",
-        messagingSenderId: "596083977949",
-        appId: "1:596083977949:web:71064f89a23f8d9738f534"
-    };
+import { getDatabase, ref, onValue, set, push, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+// 2. CONFIGURACIÓN E INICIALIZACIÓN (Esto debe ir junto y antes de usarse)
+const firebaseConfig = {
+    apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+    authDomain: "praxis-79b9a.firebaseapp.com",
+    projectId: "praxis-79b9a",
+    databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+    storageBucket: "praxis-79b9a.firebasestorage.app",
+    messagingSenderId: "596083977949",
+    appId: "1:596083977949:web:71064f89a23f8d9738f534"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
+
 
 let tokenClient;
 let gapiInited = false;
 let gsisInited = false;
 
 const cargarGoogleAPI = () => {
-  
     const scriptGapi = document.createElement('script');
     scriptGapi.src = "https://apis.google.com/js/api.js";
     scriptGapi.onload = () => {
@@ -137,7 +133,6 @@ const cargarGoogleAPI = () => {
     };
     document.head.appendChild(scriptGapi);
 
-  
     const scriptGsi = document.createElement('script');
     scriptGsi.src = "https://accounts.google.com/gsi/client";
     scriptGsi.onload = () => {
@@ -150,20 +145,15 @@ const cargarGoogleAPI = () => {
     };
     document.head.appendChild(scriptGsi);
 };
-cargarGoogleAPI();
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-   
-let fechaAnuncioActual = 0;
 
+cargarGoogleAPI();
+
+let fechaAnuncioActual = 0;
 onValue(ref(db, 'config/anuncio_global'), (snapshot) => {
     const data = snapshot.val();
     if (data && data.mensaje) {
         fechaAnuncioActual = data.fecha;
-        
-       
         const ultimoLeido = localStorage.getItem('ultimo_anuncio_fecha');
-
         if (ultimoLeido !== fechaAnuncioActual.toString()) {
             mostrarModal(data.mensaje);
         }
