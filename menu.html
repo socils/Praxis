@@ -103,7 +103,12 @@ import {
     push, 
     get, 
     update 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";import { 
+    getStorage, 
+    ref as sRef, 
+    uploadBytesResumable, 
+    getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";const storage = getStorage(app);
     const firebaseConfig = {
         apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
         authDomain: "praxis-79b9a.firebaseapp.com",
@@ -664,13 +669,20 @@ document.getElementById('open-create').onclick = (e) => {
     const modal = document.getElementById('action-modal');
     const modalContent = document.querySelector('.modal-content');
 
-   
     modalContent.innerHTML = `
         <h2>Publicar Tarea</h2>
-        <input type="text" id="t-titulo" placeholder="Título (ej: Tarea de Fracciones)" style="width:90%; margin:10px 0; padding:10px;">
-        <input type="text" id="t-materia" placeholder="Materia (ej: Matemática)" style="width:90%; margin:10px 0; padding:10px;">
-        <textarea id="t-desc" placeholder="Descripción" style="width:90%; margin:10px 0; padding:10px; height:80px;"></textarea>
-        <input type="text" id="t-fecha" placeholder="Fecha de entrega" style="width:90%; margin:10px 0; padding:10px;">
+        <input type="text" id="t-titulo" placeholder="Título (ej: Tarea de Fracciones)">
+        <input type="text" id="t-materia" placeholder="Materia (ej: Matemática)">
+        <textarea id="t-desc" placeholder="Descripción"></textarea>
+        <input type="text" id="t-fecha" placeholder="Fecha de entrega">
+        
+        <div class="upload-container">
+            <input type="file" id="file-upload-input" style="display: none;" onchange="subirArchivoTarea()">
+            <button type="button" id="btn-adjuntar" onclick="document.getElementById('file-upload-input').click()">
+                📎 Adjuntar Archivo o Guía
+            </button>
+        </div>
+
         <div class="modal-buttons">
             <button class="btn-cancel" onclick="document.getElementById('action-modal').style.display='none'">Cancelar</button>
             <button class="btn-confirm" id="btn-save-task">Publicar Ahora</button>
@@ -679,7 +691,6 @@ document.getElementById('open-create').onclick = (e) => {
     
     modal.style.display = "flex";
 
-   
     document.getElementById('btn-save-task').onclick = async () => {
         const titulo = document.getElementById('t-titulo').value.trim();
         const materia = document.getElementById('t-materia').value.trim();
@@ -687,25 +698,59 @@ document.getElementById('open-create').onclick = (e) => {
         const fecha = document.getElementById('t-fecha').value.trim();
 
         if (titulo && materia) {
-           
             const tareasRef = ref(db, 'agendas/' + code + '/tareas');
-            
-           
             const nuevaTareaRef = push(tareasRef);
 
             await set(nuevaTareaRef, {
                 titulo: titulo,
                 materia: materia,
                 descripcion: descripcion,
-                fecha: fecha
+                fecha: fecha,
+                fileUrl: window.currentFileUrl || null,
+                fileName: window.currentFileName || null
             });
 
+            window.currentFileUrl = null;
+            window.currentFileName = null;
             modal.style.display = "none";
-           
         } else {
             alert("Por favor completa el título y la materia.");
         }
-    };}
+    };
+}
+
+window.subirArchivoTarea = async () => {
+    const fileInput = document.getElementById('file-upload-input');
+    const file = fileInput.files[0];
+    const btn = document.getElementById('btn-adjuntar');
+
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+        alert("Archivo demasiado grande (máx 10MB)");
+        return;
+    }
+
+    btn.innerText = "Subiendo...";
+    btn.disabled = true;
+
+    try {
+        const storageRef = sRef(storage, 'recursos/' + Date.now() + "_" + file.name);
+        const uploadTask = await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(uploadTask.ref);
+
+        window.currentFileUrl = url;
+        window.currentFileName = file.name;
+
+        btn.innerText = "✅ Archivo Listo";
+        btn.style.color = "#0f9d58";
+        btn.disabled = false;
+    } catch (error) {
+        console.error(error);
+        btn.innerText = "❌ Error al subir";
+        btn.disabled = false;
+    }
+};
 // --- LÓGICA DE NAVEGACIÓN DEL SIDEBAR ---
 
 const navItems = document.querySelectorAll('.nav-item');
@@ -1481,6 +1526,55 @@ function escucharChatClase(code) {
             }, 800);
         }, 600);
     }, 500);
+};
+window.subirArchivoTarea = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const fileInput = document.getElementById('file-upload-input');
+    const file = fileInput.files[0];
+
+    if (!file || !code) return;
+
+   
+    if (file.size > 10 * 1024 * 1024) {
+        alert("El archivo es muy pesado (máximo 10MB)");
+        return;
+    }
+
+    const storageRef = sRef(storage, `recursos/${code}/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    const btn = document.getElementById('btn-adjuntar');
+    btn.innerText = "Subiendo...";
+    btn.disabled = true;
+
+    uploadTask.on('state_changed', null, 
+        (error) => {
+            console.error(error);
+            btn.innerText = "Error";
+            btn.disabled = false;
+        }, 
+        async () => {
+            const url = await getDownloadURL(uploadTask.snapshot.ref);
+            
+          
+            const tareasRef = ref(db, `agendas/${code}/tareas`);
+            const nuevaTareaRef = push(tareasRef);
+            
+            await set(nuevaTareaRef, {
+                titulo: "Nuevo Recurso Compartido",
+                materia: "Archivo",
+                descripcion: `Se ha compartido: ${file.name}`,
+                fecha: new Date().toLocaleDateString(),
+                fileUrl: url, 
+                fileName: file.name
+            });
+
+            btn.innerText = "¡Subido!";
+            btn.disabled = false;
+            setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
+        }
+    );
 };
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
