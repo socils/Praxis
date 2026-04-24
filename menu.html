@@ -82,13 +82,13 @@
     </div>
 
 <script type="module">
-    // --- SISTEMA DE DIAGNÓSTICO ALONIXZ-GROUP ---
+   
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
 
 // Captura errores globales del navegador
 window.onerror = function(msg, url, lineNo, columnNo, error) {
-    idErrorActual = Math.floor(Math.random() * (400 - 300 + 1)) + 300; // Genera códigos tipo 345
+    idErrorActual = Math.floor(Math.random() * (400 - 300 + 1)) + 300;
     logsDeSistema = `[CRITICAL_FAIL] Error ${idErrorActual}: ${msg} | Línea: ${lineNo}`;
     console.warn("Diagnóstico capturado por Alonixz-Guard");
     return false;
@@ -148,7 +148,7 @@ const cargarGoogleAPI = () => {
 cargarGoogleAPI();
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    // --- Lógica de Anuncios Inteligentes ---
+   
 let fechaAnuncioActual = 0;
 
 onValue(ref(db, 'config/anuncio_global'), (snapshot) => {
@@ -156,7 +156,7 @@ onValue(ref(db, 'config/anuncio_global'), (snapshot) => {
     if (data && data.mensaje) {
         fechaAnuncioActual = data.fecha;
         
-        // Comprobar si es un anuncio nuevo comparando con el almacenamiento local
+       
         const ultimoLeido = localStorage.getItem('ultimo_anuncio_fecha');
 
         if (ultimoLeido !== fechaAnuncioActual.toString()) {
@@ -185,11 +185,11 @@ window.cerrarModalAnuncio = () => {
     const sidebar = document.getElementById('sidebar');
 
 function obtenerRango(racha, email) {
-        // RANGO HACKER (Nivel máximo del sistema)
+       
     if (racha >= 1000) {
         return { nombre: "ROOT_HACKER", clase: "rango-hacker", avatar: "avatar-hacker" };
     }
-    // Caso especial Administrador
+   
     if (racha >= 100 || email === "ajuliuszch@gmail.com") {
         return { nombre: "ADMIN", clase: "rango-admin", avatar: "avatar-admin" };
     }
@@ -200,7 +200,7 @@ function obtenerRango(racha, email) {
     if (racha >= 15) return { nombre: "PLATA", clase: "rango-plata", avatar: "avatar-plata" };
     if (racha >= 7) return { nombre: "BRONCE", clase: "rango-bronce", avatar: "avatar-bronce" };
     
-    return null; // No hay rango si es menor a 7
+    return null;
 };
 onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
@@ -208,20 +208,20 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         const isGuest = user.isAnonymous;
 
-        // 1. LÓGICA DE ADMINISTRADOR
+       
         const miCorreoAdmin = "ajuliuszch@gmail.com";
         const adminBtn = document.getElementById('admin-link');
         if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
             adminBtn.style.display = 'flex';
         }
 
-        // 2. PREPARAR DATOS
+       
         const nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
         const fotoDisplay = isGuest 
             ? "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png" 
             : (user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png");
 
-        // 3. SINCRONIZACIÓN
+       
         if (!isGuest) {
             const userRef = ref(db, 'usuarios/' + user.uid);
             update(userRef, {
@@ -238,8 +238,8 @@ onAuthStateChanged(auth, async (user) => {
             bloquearFuncionesInvitado();
         }
 
-        // 4. RENDERIZAR INTERFAZ (Con soporte para Rangos)
-        // Nota: El rango se actualizará visualmente cuando gestionarRachaUsuario termine
+       
+       
         userInfoDiv.innerHTML = `
             ${!isGuest ? `
             <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
@@ -255,7 +255,7 @@ onAuthStateChanged(auth, async (user) => {
                  style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover; transition: all 0.3s ease;">
         `;
 
-        // Pequeño truco: Observar cuando cambie el número de racha para poner el rango
+       
       if (!isGuest) {
 const observer = new MutationObserver(() => {
     const rachaElement = document.getElementById('streak-count');
@@ -265,19 +265,19 @@ const observer = new MutationObserver(() => {
     const nombre = auth.currentUser.displayName || "Usuario";
     const email = auth.currentUser.email;
 
-    // Obtenemos la info del rango desde tu función obtenerRango
+   
     const infoRango = obtenerRango(racha, email);
 
-    // Aplicamos el tema global y mantenemos el badge al lado del nombre
+   
     aplicarTemaYBadge(infoRango, nombre, racha);
 
-    // Si no hay agenda, actualizamos el banner con los mensajes especiales
+   
     if (document.getElementById('display-code').innerText === "SIN AGENDA") {
         mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
     }
 });
     
-    // Configuración importante para que detecte cambios de texto
+   
     observer.observe(document.getElementById('streak-count'), { 
         childList: true, 
         characterData: true, 
@@ -292,17 +292,17 @@ const observer = new MutationObserver(() => {
 
 // Función para aplicar restricciones de invitado
 function bloquearFuncionesInvitado() {
-    // 1. Ocultar el botón "+" (Alonixz-Cloud / Agendas)
+   
     const btnPlus = document.getElementById('btn-plus');
     if (btnPlus) {
-        btnPlus.style.display = "none"; // Desaparece el botón de crear/unirse
+        btnPlus.style.display = "none";
     }
 
-    // 2. Deshabilitar Drive y Cuenta en el Sidebar
+   
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         const texto = item.innerText.toLowerCase();
-        // Bloqueamos Drive y la info de Cuenta porque requieren Google
+       
         if (texto.includes("drive") || texto.includes("cuenta")) {
             item.style.opacity = "0.4";
             item.style.filter = "grayscale(1)";
@@ -315,7 +315,7 @@ function bloquearFuncionesInvitado() {
         }
     });
 
-    // 3. Banner de Advertencia (Mensaje de incompatibilidad)
+   
     const statusMsg = document.getElementById('status-message');
     if (statusMsg) {
         statusMsg.innerHTML = `
@@ -332,7 +332,7 @@ function bloquearFuncionesInvitado() {
         `;
     }
 
-    // 4. Limpiar el código de acceso para evitar confusiones
+   
     const displayCode = document.getElementById('display-code');
     if (displayCode) displayCode.innerText = "MODO INVITADO";
 };
@@ -380,7 +380,7 @@ function cargarAgenda(currentUserUid) {
                     banner.appendChild(adminBtn);
                 }
 
-                // --- INICIO SECCIÓN DE CHAT DE CLASE ---
+               
                 const chatContainer = document.createElement('div');
                 chatContainer.className = 'card'; 
                 chatContainer.style.marginBottom = "25px";
@@ -402,7 +402,7 @@ function cargarAgenda(currentUserUid) {
                 `;
                 container.appendChild(chatContainer);
                 escucharChatClase(code); 
-                // --- FIN SECCIÓN DE CHAT DE CLASE ---
+               
 
                 if (data.tareas) {
                     Object.keys(data.tareas).reverse().forEach(id => {
@@ -441,7 +441,7 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
     if (confirm("¿Seguro que quieres borrar esta tarea?")) {
         try {
             const tareaRef = ref(db, `agendas/${agendaCode}/tareas/${tareaId}`);
-            await set(tareaRef, null); // En Firebase, null elimina el dato
+            await set(tareaRef, null);
         } catch (error) {
             console.error("Error al eliminar:", error);
         }
@@ -462,7 +462,7 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
         { nombre: "OBSIDIANA", dias: 80, clase: "rango-obsidiana", color: "#3a0052" }
     ];
 
-    // Identificar rango actual
+   
     let rangoActualIdx = -1;
     for (let i = niveles.length - 1; i >= 0; i--) {
         if (rachaActual >= niveles[i].dias) {
@@ -473,9 +473,9 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
 
     let htmlContenido = "";
 
-    // LÓGICA PARA RANGOS ESPECIALES (Admin y Hacker)
+   
     if (userEmail === "ajuliuszch@gmail.com") {
-        // Mensaje para el Administrador
+       
         htmlContenido = `
             <div style="padding: 25px; border-radius: 20px; background: #f0f7ff; border: 2px solid #1a73e8; flex: 1;">
                 <h3 style="color: #1a73e8; margin: 0; font-size: 18px;">Hola Administrador</h3>
@@ -483,7 +483,7 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 <span class="rango-tag rango-admin" style="margin-top: 10px; display: inline-block;">FUNDADOR</span>
             </div>`;
     } else if (rachaActual >= 1000) {
-        // Mensaje para el Hacker
+       
         htmlContenido = `
             <div style="padding: 25px; border-radius: 20px; background: #000; border: 2px solid #0f0; flex: 1;">
                 <h3 style="color: #0f0; margin: 0; font-size: 18px; font-family: monospace;">¿Cómo es posible eso?</h3>
@@ -491,7 +491,7 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 <span class="rango-tag rango-hacker" style="margin-top: 10px; display: inline-block;">ROOT_HACKER</span>
             </div>`;
     } else {
-        // LÓGICA DE PROGRESO NORMAL (Bronce a Obsidiana)
+       
         let htmlActual = "";
         if (rangoActualIdx !== -1) {
             const actual = niveles[rangoActualIdx];
@@ -502,7 +502,7 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 </div>`;
         }
 
-        // Si ya es Obsidiana o superior, ya no mostramos "Siguiente"
+       
         if (rangoActualIdx < niveles.length - 1) {
             const siguienteIdx = rangoActualIdx + 1;
             const siguiente = niveles[siguienteIdx];
@@ -522,7 +522,7 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 </div>`;
             htmlContenido = htmlActual + htmlSiguiente;
         } else {
-            // Si es Obsidiana, solo mostramos su tarjeta centrada
+           
             htmlContenido = htmlActual;
         }
     }
@@ -545,11 +545,11 @@ const mainContent = document.getElementById('main-content');
 btnToggle.onclick = () => {
     sidebar.classList.toggle('collapsed');
     
-    // Opcional: Ajustar el margen del contenido principal al colapsar
+   
     if (sidebar.classList.contains('collapsed')) {
         mainContent.style.marginLeft = "0";
     } else {
-        mainContent.style.marginLeft = "250px"; // Ajusta según el ancho de tu sidebar
+        mainContent.style.marginLeft = "250px";
     }
 };
 
@@ -558,7 +558,7 @@ const btnLogout = document.getElementById('btn-logout');
 
 if (btnLogout) {
     btnLogout.addEventListener('click', (e) => {
-        e.preventDefault(); // Evita cualquier comportamiento por defecto
+        e.preventDefault();
         signOut(auth).then(() => {
             window.location.href = "login.html";
         }).catch((error) => {
@@ -612,13 +612,13 @@ document.getElementById('open-create').onclick = (e) => {
     if (currentMode === "create") {
         const codigoSecreto = generarCodigoAleatorio();
         
-        // Referencia 1: La agenda global (donde están las tareas)
+       
         const agendaRef = ref(db, 'agendas/' + codigoSecreto);
-        // Referencia 2: El "llavero" del usuario (para que la vea en su menú)
+       
         const userAgendaRef = ref(db, `usuarios/${user.uid}/mis_agendas/${codigoSecreto}`);
 
         try {
-            // Guardamos la agenda completa
+           
             await set(agendaRef, {
                 nombre: val,
                 owner: user.uid,
@@ -627,7 +627,7 @@ document.getElementById('open-create').onclick = (e) => {
                 }
             });
 
-            // Guardamos el acceso directo en el perfil del usuario
+           
             await set(userAgendaRef, {
                 nombre: val,
                 rol: "creador"
@@ -637,11 +637,11 @@ document.getElementById('open-create').onclick = (e) => {
         } catch (error) { console.error(error); }
 
     } else {
-        // MODO UNIRSE: Buscamos si existe y la añadimos al perfil
+       
         const codigo = val.toUpperCase();
         const agendaRef = ref(db, 'agendas/' + codigo);
 
-        // Usamos "get" para revisar una sola vez
+       
       
         
         const snapshot = await get(agendaRef);
@@ -664,7 +664,7 @@ document.getElementById('open-create').onclick = (e) => {
     const modal = document.getElementById('action-modal');
     const modalContent = document.querySelector('.modal-content');
 
-    // Cambiamos el contenido del modal para el formulario de tareas
+   
     modalContent.innerHTML = `
         <h2>Publicar Tarea</h2>
         <input type="text" id="t-titulo" placeholder="Título (ej: Tarea de Fracciones)" style="width:90%; margin:10px 0; padding:10px;">
@@ -679,7 +679,7 @@ document.getElementById('open-create').onclick = (e) => {
     
     modal.style.display = "flex";
 
-    // Evento para guardar en Firebase
+   
     document.getElementById('btn-save-task').onclick = async () => {
         const titulo = document.getElementById('t-titulo').value.trim();
         const materia = document.getElementById('t-materia').value.trim();
@@ -687,10 +687,10 @@ document.getElementById('open-create').onclick = (e) => {
         const fecha = document.getElementById('t-fecha').value.trim();
 
         if (titulo && materia) {
-            // Referencia a la lista de tareas de esa agenda
+           
             const tareasRef = ref(db, 'agendas/' + code + '/tareas');
             
-            // Creamos una nueva posición con ID único usando push()
+           
             const nuevaTareaRef = push(tareasRef);
 
             await set(nuevaTareaRef, {
@@ -701,7 +701,7 @@ document.getElementById('open-create').onclick = (e) => {
             });
 
             modal.style.display = "none";
-            // No hace falta recargar, onValue actualizará la lista automáticamente
+           
         } else {
             alert("Por favor completa el título y la materia.");
         }
@@ -712,25 +712,25 @@ const navItems = document.querySelectorAll('.nav-item');
 
 navItems.forEach(item => {
     item.onclick = (e) => {
-        // Ignorar el click si es el botón de Cerrar Sesión (ya tiene su propia lógica)
+       
         if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
 
-        // 1. Efecto Visual de Selección
+       
         navItems.forEach(nav => nav.classList.remove('active'));
         item.classList.add('active');
 
-        // 2. Obtener el texto para identificar la sección
+       
         const texto = item.innerText.toLowerCase();
         const container = document.getElementById('task-container');
         const bannerTitle = document.getElementById('banner-title');
         const adminControls = document.getElementById('admin-controls');
 
-        // Limpiamos los controles de admin al cambiar de sección para evitar errores
+       
         if (adminControls) adminControls.innerHTML = "";
 
-        // 3. Switch de Navegación (Single Page Application style)
+       
         if (texto.includes("inicio")) {
-            // En lugar de reload(), llamamos a cargarAgenda() para que sea instantáneo
+           
             const params = new URLSearchParams(window.location.search);
             const code = params.get('code');
             if (code) {
@@ -740,13 +740,13 @@ navItems.forEach(item => {
             }
         } 
         
-       // --- DENTRO DE navItems.forEach ---
+      
 
 else if (texto.includes("calendario")) {
     bannerTitle.innerText = "Calendario Académico";
     container.innerHTML = "<p style='text-align:center;'>Organizando fechas...</p>";
     obtenerTodasLasTareas((todasLasTareas) => {
-        // Ordenar por fecha (asumiendo formato YYYY-MM-DD o similar)
+       
         todasLasTareas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
         renderizarVistaLista(todasLasTareas, "calendario");
     });
@@ -756,7 +756,7 @@ else if (texto.includes("pendientes")) {
     bannerTitle.innerText = "Tareas Pendientes";
     container.innerHTML = "<p style='text-align:center;'>Buscando tareas...</p>";
     obtenerTodasLasTareas((todasLasTareas) => {
-        // Filtrar tareas cuya fecha sea hoy o futura
+       
         const hoy = new Date().setHours(0,0,0,0);
         const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
         renderizarVistaLista(pendientes, "pendientes");
@@ -819,11 +819,11 @@ else if (texto.includes("sincronizar drive")) {
             btnAuth.style.color = "#1967d2";
             driveContent.style.display = "block";
 
-            // FUNCION: Listar archivos PDF recientes del colegio
+           
             const listarArchivos = async (query = "") => {
                 filesList.innerHTML = "<p>Buscando materiales...</p>";
                 
-                // Buscamos solo PDFs y archivos de texto para que sea académico
+               
                 const q = query ? `name contains '${query}' and mimeType != 'application/vnd.google-apps.folder'` : "mimeType = 'application/pdf'";
                 
                 const response = await gapi.client.drive.files.list({
@@ -850,7 +850,7 @@ else if (texto.includes("sincronizar drive")) {
                 }
             };
 
-            listarArchivos(); // Carga inicial
+            listarArchivos();
             
             document.getElementById('btn-search').onclick = () => {
                 const term = document.getElementById('drive-search').value;
@@ -891,12 +891,12 @@ else if (texto.includes("soporte y ayuda")) {
             </div>
 
             <div style="text-align: center; margin-top: 30px; font-family: 'JetBrains Mono'; font-size: 11px; color: #94a3b8;">
-                [ STATUS: ENCRYPTED ] // [ CONNECTION: SECURE ]
+                [ STATUS: ENCRYPTED ]
             </div>
         </div>
     `;
 }
-    // Dentro de navItems.forEach(item => { ... })
+   
 item.onclick = (e) => {
     if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
 
@@ -907,62 +907,62 @@ item.onclick = (e) => {
     const container = document.getElementById('task-container');
     const bannerTitle = document.getElementById('banner-title');
     
-    // --- ESTO SOLUCIONA EL PROBLEMA DEL BOTÓN PEGADO ---
-    // 1. Buscamos cualquier botón de publicación anterior y lo eliminamos
+   
+   
     const oldAdminBtn = document.getElementById('admin-publish-btn');
     if (oldAdminBtn) {
         oldAdminBtn.remove();
     }
 
-    // 2. Limpiamos el código de acceso y mensajes para que el banner esté vacío
+   
     document.getElementById('display-code').innerText = "";
     container.innerHTML = ""; 
     document.getElementById('status-message').innerHTML = ""; 
-    // --------------------------------------------------
+   
 
 if (texto.includes("inicio")) {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     
-    // Obtenemos la racha que ya cargó gestionarRachaUsuario
+   
     const rachaActual = parseInt(document.getElementById('streak-count')?.innerText) || 0;
 
     if (code) {
         cargarAgenda(auth.currentUser.uid);
     } else {
-        // PASAMOS LA RACHA AQUÍ
+       
         mostrarEstadoVacio("Ingresa un código para ver tu agenda.", rachaActual);
     }
 }
-    // ... resto de tus else if (calendario, pendientes, etc.)
+   
 };
 }
-     // Cerramos el sidebar automáticamente en móviles tras elegir una opción
+    
 if (window.innerWidth <= 768) {
-    sidebar.classList.remove('active'); // Quitamos 'active' para que se esconda
+    sidebar.classList.remove('active');
     if (overlay) {
-        overlay.style.display = 'none'; // Ocultamos la capa oscura
+        overlay.style.display = 'none';
     }
 }
     });function generarCodigoAleatorio(longitud = 6) {
-    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Eliminamos 'I', 'O', '0', '1' para evitar confusiones
+    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let resultado = '';
     for (let i = 0; i < longitud; i++) {
         resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
     }
-    return `PX-${resultado}`; // Prefijo para que sepa que es de Praxis
+    return `PX-${resultado}`;
 }
 // Función global para eliminar una tarea específica
 window.eliminarTarea = async (agendaCode, tareaId) => {
     if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
         try {
-            // Referencia exacta a la tarea dentro de la agenda
+           
             const tareaRef = ref(db, `agendas/${agendaCode}/tareas/${tareaId}`);
             
-            // En Firebase, poner el valor en null elimina el nodo
+           
             await set(tareaRef, null);
             
-            // No hace falta recargar, onValue actualizará la vista automáticamente
+           
         } catch (error) {
             console.error("Error al eliminar:", error);
             alert("No se pudo eliminar la tarea.");
@@ -975,12 +975,12 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
     onValue(misAgendasRef, (snapshot) => {
         const agendas = snapshot.val();
         
-        // Buscamos o creamos un contenedor para no borrar el "Inicio", "Calendario", etc.
+       
         let listaDinamica = document.getElementById('lista-agendas-scroll');
         if (!listaDinamica) {
             listaDinamica = document.createElement('div');
             listaDinamica.id = 'lista-agendas-scroll';
-            // Lo insertamos antes del botón de Salir
+           
             sidebar.insertBefore(listaDinamica, document.getElementById('btn-logout').previousElementSibling);
         }
 
@@ -1019,7 +1019,7 @@ async function obtenerTodasLasTareas(callback) {
         const agendaData = agendaSnap.val();
         if (agendaData && agendaData.tareas) {
             Object.keys(agendaData.tareas).forEach(id => {
-                if(id !== 'inicio') { // Ignorar la tarea de bienvenida
+                if(id !== 'inicio') {
                     tareasAcumuladas.push({
                         ...agendaData.tareas[id],
                         agendaNombre: agendaData.nombre,
@@ -1070,10 +1070,10 @@ function renderizarVacio() {
 }
 // --- SCRIPT DE ACTUALIZACIÓN PRAXIS (BETA v1.1) ---
 (function() {
-    // 1. Verificar si el usuario ya pidió no ver la actualización
+   
     if (localStorage.getItem('praxis_update_hidden') === 'true') return;
 
-    // 2. Inyección de Estilos Críticos
+   
     const style = document.createElement('style');
     style.innerHTML = `
         .update-overlay {
@@ -1114,7 +1114,7 @@ function renderizarVacio() {
     `;
     document.head.appendChild(style);
 
-    // 3. Creación de la Estructura del Modal
+   
     const overlay = document.createElement('div');
     overlay.className = 'update-overlay';
     overlay.innerHTML = `
@@ -1148,7 +1148,7 @@ function renderizarVacio() {
     `;
     document.body.appendChild(overlay);
 
-    // 4. Lógica de Cierre y Persistencia
+   
     const closeBtn = document.getElementById('close-update-btn');
     const noShowCheck = document.getElementById('no-show-check');
 
@@ -1163,7 +1163,7 @@ function renderizarVacio() {
     let keys = {};
     window.addEventListener('keydown', (e) => {
         keys[e.key.toLowerCase()] = true;
-        // Atajo: Shift + P (Performance)
+       
         if (e.shiftKey && keys['p']) {
             activarInspectorExperimental();
         }
@@ -1173,7 +1173,7 @@ function renderizarVacio() {
     function activarInspectorExperimental() {
         const yaAcepto = localStorage.getItem('praxis_perf_exp');
         
-        // Alerta nativa (Para evitar errores de librerías externas)
+       
         if (!yaAcepto) {
             const confirmar = confirm("🧪 [ALONIXZ LABS]\n\nEstás activando el 'Inspector de Rendimiento Experimental'.\nEsta función analizará la carga de Praxis.\n\n¿Deseas continuar?");
             if (confirmar) {
@@ -1186,7 +1186,7 @@ function renderizarVacio() {
     }
 
     function mostrarReporte() {
-        // Obtenemos datos reales de navegación del navegador
+       
         const [navigation] = performance.getEntriesByType('navigation');
         const cargaTotal = (navigation.duration / 1000).toFixed(2);
         
@@ -1214,28 +1214,28 @@ function renderizarVacio() {
 // import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-database.js";
 
 async function gestionarRachaUsuario(uid) {
-    // 1. Verificación de seguridad: si no hay base de datos o uid, cancelamos silenciosamente
+   
     if (!db || !uid) return;
 
     try {
         const rachaRef = ref(db, `usuarios/${uid}/stats`);
         const snapshot = await get(rachaRef);
         
-        // Obtenemos datos o valores por defecto
+       
         const stats = snapshot.exists() ? snapshot.val() : { racha: 0, ultimaConexion: "" };
         
-        // Usamos la fecha local de Arequipa/Juliaca (Perú) para evitar desfases
+       
         const hoy = new Date().toLocaleDateString('en-CA'); 
         const ultima = stats.ultimaConexion;
 
-        // Si ya registró racha hoy, solo pintamos el número y salimos
+       
         if (ultima === hoy) {
             const el = document.getElementById('streak-count');
             if (el) el.innerText = stats.racha;
             return;
         }
 
-        let nuevaRacha = 1; // Por defecto empezamos en 1 si es nuevo
+        let nuevaRacha = 1;
 
         if (ultima) {
             const ultimaDate = new Date(ultima + "T00:00:00");
@@ -1244,25 +1244,25 @@ async function gestionarRachaUsuario(uid) {
             const diffDias = Math.round(diffMilisegundos / (1000 * 60 * 60 * 24));
 
             if (diffDias === 1) {
-                nuevaRacha = (stats.racha || 0) + 1; // Consecutivo
+                nuevaRacha = (stats.racha || 0) + 1;
             } else {
-                nuevaRacha = 1; // Se pasó el tiempo, reinicia
+                nuevaRacha = 1;
             }
         }
 
-        // Guardar en Alonixz-Cloud (Firebase)
-        // Usamos update para no borrar otros datos que tengas en 'stats'
+       
+       
         await update(rachaRef, {
             racha: nuevaRacha,
             ultimaConexion: hoy
         });
 
-        // Actualizar la interfaz solo si los elementos existen
+       
         const elCount = document.getElementById('streak-count');
         if (elCount) elCount.innerText = nuevaRacha;
 
     } catch (error) {
-        // El error se queda en consola para ti, pero no activa el Guardian
+       
         console.warn("Praxis Racha Log:", error.message);
     }// Dentro de gestionarRachaUsuario, después de elCount.innerText = nuevaRacha;
 if (displayCode.innerText === "SIN AGENDA") {
@@ -1323,16 +1323,16 @@ function escucharChatClase(code) {
     const nameSpan = document.getElementById('user-name-display');
     const userEmail = auth.currentUser ? auth.currentUser.email : "";
 
-    // 1. Limpiar temas previos
+   
     cuerpo.classList.remove('tema-diamante', 'tema-obsidiana', 'tema-hacker');
 
-    // 2. Determinar Rango Especial o Normal
+   
     let nombreRango = infoRango ? infoRango.nombre : "SIN RANGO";
     let claseRango = infoRango ? infoRango.clase : "";
 
     if (userEmail === "ajuliuszch@gmail.com") {
         nombreRango = "FUNDADOR";
-        claseRango = "rango-admin"; // Asegúrate de tener esta clase en tu CSS
+        claseRango = "rango-admin";
     } else if (racha >= 1000) {
         nombreRango = "ROOT_HACKER";
         claseRango = "rango-hacker";
@@ -1343,8 +1343,8 @@ function escucharChatClase(code) {
         cuerpo.classList.add('tema-obsidiana');
     }
 
-    // 3. ACTUALIZAR NOMBRE + RANGO (Sin que uno borre al otro)
-    // Usamos el diseño que ya tienes para que no se pierda la estética
+   
+   
     nameSpan.innerHTML = `${nombreUsuario} <span class="rango-tag ${claseRango}">${nombreRango}</span>`;
 }(function() {
     if (!document.querySelector('script[src*="dotlottie-wc.js"]')) {
@@ -1463,13 +1463,13 @@ function escucharChatClase(code) {
     btnInvestigar.style.opacity = '0.5';
     btnInvestigar.innerText = "ESCANEANDO...";
 
-    // Simulación de proceso técnico
+   
     setTimeout(() => {
         log.innerHTML += `<br>> Verificando Alonixz-Cloud... OK`;
         setTimeout(() => {
             log.innerHTML += `<br>> Comprobando variables de entorno...`;
             setTimeout(() => {
-                // Muestra el error real capturado
+               
                 log.innerHTML += `<br><br><span style="color: #ef4444;">> REPORTE FINAL: ${logsDeSistema}</span>`;
                 
                 if (idErrorActual !== "000") {
