@@ -1,9 +1,9 @@
-/* --- PRAXIS ULTIMATE CORE & GLOBAL RESET --- */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@import url('https:
  
 :root {
-    /* Main Palette - Alonixz Blue Deep */
+   
     --p-50: #eff6ff;
     --p-100: #dbeafe;
     --p-200: #bfdbfe;
@@ -15,18 +15,18 @@
     --p-800: #1e40af;
     --p-900: #1e3a8a;
 
-    /* Secondary - Electric Violet */
+   
     --s-500: #8b5cf6;
     --s-600: #7c3aed;
     --s-700: #6d28d9;
 
-    /* Semantic Colors */
+   
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
     --info: #0ea5e9;
 
-    /* Neutral Scale */
+   
     --n-0: #ffffff;
     --n-50: #f9fafb;
     --n-100: #f3f4f6;
@@ -39,7 +39,7 @@
     --n-800: #1f2937;
     --n-900: #111827;
 
-    /* Glassmorphism & Elevation */
+   
     --glass: rgba(255, 255, 255, 0.75);
     --glass-border: rgba(255, 255, 255, 0.4);
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
@@ -47,7 +47,7 @@
     --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
     --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
     
-    /* Layout Variables */
+   
     --header-h: 72px;
     --sidebar-w: 280px;
     --sidebar-collapsed-w: 80px;
@@ -56,12 +56,12 @@
     --radius-lg: 20px;
     --radius-xl: 32px;
     
-    /* Animation Timing */
+   
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --duration: 0.3s;
 }
 
-/* Base Reset */
+
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -83,13 +83,13 @@ body {
     line-height: 1.6;
 }
 
-/* Custom Selection */
+
 ::selection {
     background: var(--p-200);
     color: var(--p-900);
 }
 
-/* --- TOP BAR: THE CRYSTAL NAV --- */
+
 .top-bar {
     height: var(--header-h);
     background: var(--glass);
@@ -149,7 +149,7 @@ body {
     background: var(--p-600);
 }
 
-/* Logo Styling */
+
 .logo {
     display: flex;
     align-items: center;
@@ -186,7 +186,7 @@ body {
     -webkit-text-fill-color: var(--p-600);
 }
 
-/* Header Right Area */
+
 .header-right {
     display: flex;
     align-items: center;
@@ -195,7 +195,7 @@ body {
 
 .search-bar {
     position: relative;
-    display: none; /* Hidden on mobile by default */
+    display: none;
 }
 
 @media (min-width: 1024px) {
@@ -308,10 +308,10 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-/* Fin Parte 1 */
-/* --- PARTE 2: NAVEGACIÓN LATERAL Y SISTEMA DE TARJETAS --- */
 
-/* --- SIDEBAR (BARRA LATERAL) --- */
+
+
+
 .sidebar {
     width: var(--sidebar-w);
     height: calc(100vh - var(--header-h));
@@ -389,7 +389,7 @@ body {
     border-radius: 0 4px 4px 0;
 }
 
-/* --- CONTENIDO PRINCIPAL --- */
+
 .content {
     margin-left: var(--sidebar-w);
     padding: 2.5rem;
@@ -401,9 +401,9 @@ body {
     margin-left: var(--sidebar-collapsed-w);
 }
 
-/* --- BANNER DINÁMICO --- */
+
 .banner {
-    /* Fondo ultra oscuro con flujo de color */
+   
     background: linear-gradient(-45deg, #0f172a, var(--p-900), #1e1b4b, #020617);
     background-size: 400% 400%;
     animation: darkGradientFlow 12s ease infinite;
@@ -414,7 +414,7 @@ body {
     margin-bottom: 3rem;
     position: relative;
     overflow: hidden;
-    /* Sombra más profunda y elegante */
+   
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.05);
 }.banner h1 {
@@ -423,14 +423,14 @@ body {
     margin-bottom: 1rem;
     line-height: 1.1;
     letter-spacing: -1.5px;
-    /* Efecto de degradado en el texto */
+   
     background: linear-gradient(to bottom, #ffffff, #94a3b8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
 }.banner-shape {
     position: absolute;
-    /* Usamos el violeta de Alonixz pero muy transparente */
+   
     background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
     border-radius: 50%;
     z-index: 1;
@@ -445,14 +445,14 @@ body {
 .shape-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
 .shape-2 { width: 200px; height: 200px; bottom: -50px; right: 150px; }
 
-/* --- GRID DE TAREAS --- */
+
 .task-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.75rem;
 }
 
-/* --- TARJETA DE TAREA (TASK CARD) --- */
+
 .card {
     background: var(--n-0);
     border: 1px solid var(--n-200);
@@ -547,7 +547,7 @@ body {
     color: var(--danger);
     border-color: var(--danger);
 }
-/* --- ESTILOS PARA HEADER-RIGHT Y DROPDOWN --- */
+
 
 .header-right {
     display: flex;
@@ -555,21 +555,21 @@ body {
     gap: 1.5rem;
 }
 
-/* Contenedor del menú de acción */
+
 .action-menu {
     position: relative;
     display: inline-block;
 }
 
-/* Botón "+" para Banner Claro - Siempre visible */
+
 .add-btn {
-    /* Fondo oscuro traslúcido para que resalte sobre el banner claro */
-    background: var(--p-600); /* El azul de Alonixz */
-    border: 2px solid white; /* Borde blanco para separarlo del fondo */
+   
+    background: var(--p-600);
+    border: 2px solid white;
     
-    /* EL SÍMBOLO: Blanco puro para que contraste con su propio fondo azul */
+   
     color: #ffffff !important;
-    font-weight: 800; /* Más grueso para que sea muy nítido */
+    font-weight: 800;
     
     width: 55px;
     height: 55px;
@@ -580,22 +580,22 @@ body {
     align-items: center;
     justify-content: center;
     
-    /* Sombra para que "flote" sobre el banner claro */
+   
     box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
     
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 10;
 }
 
-/* Animación al pasar el mouse */
+
 .add-btn:hover {
-    background: var(--p-800); /* Se oscurece un poco al tocarlo */
+    background: var(--p-800);
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
 }
-/* Menú desplegable (Estilo Glassmorphism) */
+
 .dropdown-content {
-    display: none; /* Se activa con la clase .show en JS */
+    display: none;
     position: absolute;
     right: 0;
     top: calc(100% + 12px);
@@ -611,12 +611,12 @@ body {
     animation: dropdownFadeIn 0.2s var(--ease-out);
 }
 
-/* Clase para mostrar el menú (manejada por tu script) */
+
 .dropdown-content.show {
     display: block;
 }
 
-/* Enlaces dentro del dropdown */
+
 .dropdown-content a {
     color: var(--n-700);
     padding: 12px 16px;
@@ -635,12 +635,12 @@ body {
     color: var(--p-600);
 }
 
-/* Separador visual opcional */
+
 .dropdown-content a:not(:last-child) {
     margin-bottom: 4px;
 }
 
-/* Animación de entrada */
+
 @keyframes dropdownFadeIn {
     from {
         opacity: 0;
@@ -652,34 +652,34 @@ body {
     }
 }
 
-/* --- OPTIMIZACIÓN MÓVIL PARA EL DROPDOWN --- */
+
 @media (max-width: 768px) {
     .dropdown-content {
         position: fixed;
         top: auto;
-        bottom: 80px; /* Se abre hacia arriba en móvil si el botón está abajo */
+        bottom: 80px;
         right: 20px;
         width: calc(100% - 40px);
         max-width: none;
     }
 }
-/* --- CORRECCIÓN DE ALINEACIÓN Y VISIBILIDAD DEL MODAL --- */
 
-/* 1. Centrar el modal correctamente en la pantalla */
+
+
 .modal {
-    display: none; /* Se activa con JS */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(32, 33, 36, 0.6); /* Fondo oscuro semitransparente */
+    background: rgba(32, 33, 36, 0.6);
     z-index: 3000;
     align-items: center;
     justify-content: center;
 }
 
-/* 2. Ajustar el contenedor del formulario para que no se oculte */
+
 .modal-content {
     background: white;
     padding: 24px;
@@ -689,18 +689,18 @@ body {
     box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
-    box-sizing: border-box; /* Importante para que el padding no desplace el contenido */
+    box-sizing: border-box;
     position: relative;
-    margin-left: auto; /* Asegura centrado si hay barras laterales */
+    margin-left: auto;
     margin-right: auto;
 }
 
-/* 3. Estilo para los campos de texto (IDs de tu JS) */
+
 #t-titulo, 
 #t-materia, 
 #t-desc, 
 #t-fecha {
-    width: 100% !important; /* Forzar ancho completo dentro del modal */
+    width: 100% !important;
     box-sizing: border-box !important;
     padding: 12px !important;
     margin: 8px 0 !important;
@@ -710,7 +710,7 @@ body {
     font-family: inherit;
 }
 
-/* 4. Asegurar que los botones estén siempre visibles abajo */
+
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
@@ -718,7 +718,7 @@ body {
     margin-top: 20px;
 }
 
-/* 5. Botón Publicar (Azul Google) */
+
 #btn-save-task {
     background-color: #1a73e8;
     color: white;
@@ -734,7 +734,7 @@ body {
     background-color: #1765cc;
 }
 
-/* 6. Botón Cancelar (Gris) */
+
 .btn-cancel {
     background: #f1f3f4;
     color: #3c4043;
@@ -742,7 +742,7 @@ body {
     padding: 10px 24px;
     border-radius: 8px;
     cursor: pointer;
-}/* --- ESTILO PARA EL BOTÓN DE TRES RAYAS (MENU) --- */
+}
 #btn-toggle-sidebar {
     background: none;
     border: none;
@@ -768,16 +768,16 @@ body {
     background-color: #e8f0fe;
 }
 
-/* --- ESTILO PARA EL BOTÓN + PUBLICAR TAREAS (BANNER) --- */
+
 #admin-publish-btn {
     display: flex;
     align-items: center;
     gap: 12px;
-    background-color: rgba(255, 255, 255, 0.2); /* Efecto cristal */
+    background-color: rgba(255, 255, 255, 0.2);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 12px 20px;
-    border-radius: 25px; /* Estilo píldora */
+    border-radius: 25px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -793,12 +793,12 @@ body {
 }
 
 #admin-publish-btn img {
-    filter: brightness(0) invert(1); /* Hace que el icono anadir.png sea blanco */
+    filter: brightness(0) invert(1);
     width: 18px;
     height: 18px;
 }
 
-/* Animación para que el botón aparezca suavemente */
+
 @keyframes fadeInBtn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -807,7 +807,7 @@ body {
 #admin-publish-btn {
     animation: fadeInBtn 0.4s ease-out;
 }
-/* --- ESTILOS PARA CALENDARIO Y PENDIENTES --- */
+
 .agenda-group {
     margin-bottom: 2rem;
 }
@@ -833,7 +833,7 @@ body {
     margin-bottom: 1rem;
     opacity: 0.7;
 }
-/* --- ESTILOS DE SINCRONIZACIÓN --- */
+
 .sync-container {
     text-align: center;
     padding: 50px 20px;
@@ -848,7 +848,7 @@ body {
     border-radius: 10px;
     margin: 20px 0;
     overflow: hidden;
-    display: none; /* Se muestra al hacer clic */
+    display: none;
 }
 
 .loader-progress {
@@ -864,12 +864,12 @@ body {
     display: none;
     margin-bottom: 10px;
 }
-/* Contenedor del logo para posicionar la etiqueta */
+
 .logo-wrapper {
     margin-left: 10px;
 }
 
-/* Estilo de la etiqueta Beta */
+
 .badge-beta {
     position: absolute;
     top: -12px;
@@ -878,14 +878,14 @@ body {
     color: white;
     padding: 2px 10px;
     border-radius: 4px;
-    transform: rotate(15deg); /* Inclinación diagonal */
+    transform: rotate(15deg);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
     line-height: 1;
     border: 1px solid rgba(255,255,255,0.3);
-    pointer-events: none; /* Para que no estorbe al hacer clic */
+    pointer-events: none;
 }
 
 .badge-beta span {
@@ -901,11 +901,11 @@ body {
     margin-top: 1px;
 }
 
-/* Ajuste para que el logo no se vea cortado si el header es pequeño */
+
 .header-left {
     overflow: visible !important;
 }
-/* Contenedor principal de la racha */
+
 #streak-container {
     cursor: help;
     display: flex;
@@ -924,7 +924,7 @@ body {
     box-shadow: 0 2px 8px rgba(244, 180, 0, 0.2);
 }
 
-/* El número de la racha */
+
 #streak-count {
     font-weight: 700;
     color: #3c4043;
@@ -932,27 +932,27 @@ body {
     margin-right: 2px;
 }
 
-/* Animación de latido para rachas activas */
+
 @keyframes pulse-fire {
     0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
     50% { transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(244, 180, 0, 0.6)); }
     100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
 }
 
-/* Clase para aplicar cuando la racha es > 0 */
+
 .racha-fuego-activa {
     display: inline-block;
     animation: pulse-fire 2s infinite ease-in-out;
 }
 
-/* Color especial si la racha es muy alta (+7 días) */
+
 .racha-legendaria {
     background: #fff9e6 !important;
     border-color: #f4b400 !important;
 }
 .btn-header-apoyo {
     position: relative;
-    padding: 3px; /* Grosor del borde de colores */
+    padding: 3px;
     background: transparent;
     border: none;
     border-radius: 25px;
@@ -962,11 +962,11 @@ body {
     align-items: center;
     justify-content: center;
     margin-right: 12px;
-    /* Crea un nuevo contexto para que el z-index interno funcione perfecto */
+   
     isolation: isolate; 
 }
 
-/* LA CAPA DE COLORES (FONDO) */
+
 .btn-header-apoyo::before {
     content: '';
     position: absolute;
@@ -976,16 +976,16 @@ body {
         #4285f4, #34a853, #f4b400, #ea4335, #4285f4
     );
     animation: rotateColors 3s linear infinite;
-    /* Valor negativo para que se vaya detrás de todo dentro del botón */
+   
     z-index: -1; 
 }
 
-/* LA CAPA BLANCA + TEXTO (FRENTE) */
+
 .btn-inner {
     position: relative;
-    /* Valor positivo para forzar que esté delante */
+   
     z-index: 1; 
-    background: white; /* Debe ser sólido, no transparente */
+    background: white;
     padding: 6px 16px;
     border-radius: 22px;
     width: 100%;
@@ -1009,7 +1009,7 @@ body {
 .btn-header-apoyo:hover .btn-inner {
     background: #f8f9fa;
 }
-/* Transformamos el contenedor en un Banner Pro */
+
 .content-area {
     background: linear-gradient(-45deg, var(--p-600), var(--s-600), #4285f4, #00d2ff);
     background-size: 400% 400%;
@@ -1018,7 +1018,7 @@ body {
     margin: 20px;
     padding: 40px;
     border-radius: var(--radius-lg);
-    position: relative; /* Para que el botón + se ancle aquí */
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1027,7 +1027,7 @@ body {
     overflow: hidden;
 }
 
-/* Ajustamos el h1 para que se vea bien dentro del banner */
+
 .content-area h1 {
     color: white !important;
     font-size: 2.2rem;
@@ -1040,7 +1040,7 @@ body {
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
-/* --- AJUSTE DE LA VENTANA EMERGENTE --- */
+
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
@@ -1048,10 +1048,10 @@ body {
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(12px);
     display: flex;
-    align-items: center; /* Centra verticalmente */
+    align-items: center;
     justify-content: center;
     z-index: 10000;
-    padding: 20px; /* Margen de seguridad para que no toque los bordes de la pantalla */
+    padding: 20px;
 }
 
 .welcome-card {
@@ -1063,15 +1063,15 @@ body {
     max-width: 500px;
     width: 100%;
     
-    /* EL TRUCO PARA QUE NO SE SALGA: */
-    max-height: 90vh; /* Máximo 90% de la altura de la pantalla */
-    overflow-y: auto; /* Si el contenido es mucho, aparece scroll interno */
+   
+    max-height: 90vh;
+    overflow-y: auto;
     
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative;
 }
 
-/* Personalizar el scroll interno para que sea elegante (Estilo Alonixz) */
+
 .welcome-card::-webkit-scrollbar {
     width: 6px;
 }
@@ -1079,20 +1079,20 @@ body {
     background: var(--p-600);
     border-radius: 10px;
 }.welcome-header h2 {
-    font-size: 1.5rem; /* Un poco más pequeño para ahorrar espacio */
+    font-size: 1.5rem;
     margin-top: 0.5rem;
 }
 
 .update-list li {
-    font-size: 0.85rem; /* Texto más compacto */
+    font-size: 0.85rem;
     padding: 8px 12px;
 }
 
 .guide-grid {
-    gap: 8px; /* Menos espacio entre cuadros */
+    gap: 8px;
 }
 
-/* Estilo del botón de confirmación en el modal */
+
 .btn-welcome-confirm {
     margin-top: 1.5rem;
     width: 100%;
@@ -1100,7 +1100,7 @@ body {
     border-radius: 14px;
     border: none;
     
-    /* Fondo con el azul de Alonixz */
+   
     background: var(--p-600);
     color: white;
     
@@ -1121,9 +1121,9 @@ body {
     transform: translateY(0);
 }
 .btn-delete {
-    background: #fdf2f2; /* Fondo rojo muy suave */
+    background: #fdf2f2;
     border: none;
-    border-radius: 8px; /* Bordes redondeados sutiles */
+    border-radius: 8px;
     width: 32px;
     height: 32px;
     display: flex;
@@ -1135,22 +1135,22 @@ body {
 }
 
 .btn-delete img {
-    width: 15px; /* Tamaño exacto que pediste */
+    width: 15px;
     height: 15px;
     filter: invert(34%) sepia(85%) saturate(1435%) hue-rotate(338deg) brightness(91%) contrast(98%); 
-    /* El filter de arriba convierte iconos negros a un rojo Google (#d93025) */
+   
 }
 
-/* Efectos de interacción */
+
 .btn-delete:hover {
-    background: #fce8e6; /* Un rojo un poco más oscuro al pasar el mouse */
+    background: #fce8e6;
     transform: scale(1.05);
 }
 
 .btn-delete:active {
     transform: scale(0.95);
     background: #fadad7;
-}/* Estilos de Rangos Alonixz */
+}
 .rango-tag {
     font-size: 10px;
     font-weight: 800;
@@ -1162,7 +1162,7 @@ body {
     vertical-align: middle;
 }
 
-/* --- MEJORA DE ETIQUETAS (RANGO-TAG) --- */
+
 .rango-tag {
     font-size: 10px;
     font-weight: 800;
@@ -1176,7 +1176,7 @@ body {
     border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Colores con Gradientes Profesionales */
+
 .rango-bronce { 
     background: linear-gradient(135deg, #a0522d, #cd7f32); 
     color: white; 
@@ -1212,7 +1212,7 @@ body {
     box-shadow: 0 0 15px rgba(237, 33, 58, 0.4);
 }
 
-/* --- MEJORA DE AVATARES (BORDES) --- */
+
 .user-avatar-base {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     object-fit: cover;
@@ -1223,7 +1223,7 @@ body {
 .avatar-oro { border: 3px solid #f1c40f !important; }
 .avatar-diamante { border: 3px solid #00d2ff !important; box-shadow: 0 0 10px #00d2ff; }
 .avatar-obsidiana { border: 3px solid #3a0052 !important; filter: drop-shadow(0 0 5px #3a0052); }
-/* --- ESTILO ADMIN MEJORADO --- */
+
 .rango-admin { 
     background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
     background-size: 400% 400%;
@@ -1236,7 +1236,7 @@ body {
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
-/* Borde de Avatar con Efecto de Respiración */
+
 .avatar-admin { 
     border: 3px solid #ed213a !important; 
     box-shadow: 0 0 15px rgba(237, 33, 58, 0.6);
@@ -1244,16 +1244,16 @@ body {
     position: relative;
 }
 
-/* --- ANIMACIONES EXCLUSIVAS --- */
 
-/* Gradiente que se mueve solo para el tag */
+
+
 @keyframes gradient-admin {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
-/* El avatar "respira" luz roja */
+
 @keyframes admin-glow {
     from {
         box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d;
@@ -1265,7 +1265,7 @@ body {
     }
 }
 
-/* --- ANIMACIONES NUEVAS --- */
+
 @keyframes pulse-obsidiana {
     0% { box-shadow: 0 0 5px #3a0052; transform: scale(1); }
     50% { box-shadow: 0 0 20px #3a0052; transform: scale(1.02); }
@@ -1277,10 +1277,10 @@ body {
     50% { filter: brightness(1.3); }
     100% { filter: brightness(1); }
 }
-/* --- RANGO HACKER (SUPREMO 1000+) --- */
+
 .rango-hacker {
     background: #000;
-    color: #0f0; /* Verde Matrix */
+    color: #0f0;
     border: 1px solid #0f0;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 900;
@@ -1292,7 +1292,7 @@ body {
     animation: hacker-flicker 1.5s infinite;
 }
 
-/* Efecto de línea de escaneo para la etiqueta */
+
 .rango-hacker::after {
     content: "";
     position: absolute;
@@ -1304,15 +1304,15 @@ body {
     animation: scanline 2s linear infinite;
 }
 
-/* Avatar Hacker: Borde digital */
+
 .avatar-hacker {
     border: 3px double #0f0 !important;
-    filter: brightness(1.2) contrast(1.2) sepia(1) hue-rotate(70deg); /* Tinte verde */
+    filter: brightness(1.2) contrast(1.2) sepia(1) hue-rotate(70deg);
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.5), inset 0 0 10px rgba(0, 255, 0, 0.5);
     animation: glitch-border 0.2s infinite;
 }
 
-/* --- ANIMACIONES HACKER --- */
+
 @keyframes scanline {
     to { top: 100%; }
 }
@@ -1331,7 +1331,7 @@ body {
     80% { transform: translate(1px, -1px); }
     100% { transform: translate(0); }
 }
-/* --- EFECTO GLITCH EXCLUSIVO HACKER --- */
+
 body.tema-hacker .logo {
     position: relative;
     display: flex;
@@ -1340,16 +1340,16 @@ body.tema-hacker .logo {
     color: #0f0 !important;
     font-family: 'JetBrains Mono', monospace !important;
     font-weight: 800;
-    /* Vibración principal */
+   
     animation: glitch-vibration 0.2s infinite;
 }
 
-/* Capas de interferencia usando el contenedor */
+
 body.tema-hacker .logo::before,
 body.tema-hacker .logo::after {
-    content: "Praxis"; /* Texto que se duplicará para el efecto */
+    content: "Praxis";
     position: absolute;
-    right: 0; /* Alineado al texto */
+    right: 0;
     top: 0;
     opacity: 0.8;
 }
@@ -1370,13 +1370,13 @@ body.tema-hacker .logo::after {
     clip-path: inset(10% 0 50% 0);
 }
 
-/* Hacer que la imagen también glichee un poco */
+
 body.tema-hacker .logo img {
     filter: sepia(1) hue-rotate(70deg) brightness(1.2) contrast(1.5);
     animation: glitch-vibration 0.1s infinite;
 }
 
-/* Animaciones */
+
 @keyframes glitch-vibration {
     0% { transform: translate(0); }
     25% { transform: translate(-1px, 1px); }
@@ -1390,17 +1390,17 @@ body.tema-hacker .logo img {
     50% { clip-path: inset(40% 0 10% 0); transform: translate(2px, -2px); }
     100% { clip-path: inset(20% 0 60% 0); transform: translate(-1px, 1px); }
 }
-/* --- NUEVO ESTILO PANEL DE ACCIÓN (MODAL) --- */
+
 .modal {
     display: none;
     position: fixed;
-    z-index: 10001; /* Por encima de todo */
+    z-index: 10001;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px); /* Efecto desenfoque fondo */
+    backdrop-filter: blur(8px);
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
@@ -1437,7 +1437,7 @@ body.tema-hacker .logo img {
     margin-bottom: 24px;
 }
 
-/* Input Minimalista */
+
 #modal-input {
     width: 100%;
     padding: 16px 20px;
@@ -1449,7 +1449,7 @@ body.tema-hacker .logo img {
     color: #202124;
     outline: none;
     transition: all 0.2s ease;
-    box-sizing: border-box; /* Importante para el padding */
+    box-sizing: border-box;
 }
 
 #modal-input:focus {
@@ -1458,11 +1458,11 @@ body.tema-hacker .logo img {
     box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
 }
 
-/* Botones con estilo moderno */
+
 .modal-buttons {
     display: flex;
     gap: 12px;
-    flex-direction: column; /* Apilados en móvil se ven mejor */
+    flex-direction: column;
 }
 
 .btn-confirm, .btn-cancel {
@@ -1497,7 +1497,7 @@ body.tema-hacker .logo img {
     color: #202124;
 }
 
-/* Ajuste para desktop */
+
 @media (min-width: 480px) {
     .modal-buttons {
         flex-direction: row;
