@@ -1,6 +1,6 @@
 
 
-@import url('https:
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
  
 :root {
    
@@ -61,7 +61,7 @@
     --duration: 0.3s;
 }
 
-
+/* Base Reset */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -83,13 +83,13 @@ body {
     line-height: 1.6;
 }
 
-
+/* Custom Selection */
 ::selection {
     background: var(--p-200);
     color: var(--p-900);
 }
 
-
+/* --- TOP BAR: THE CRYSTAL NAV --- */
 .top-bar {
     height: var(--header-h);
     background: var(--glass);
@@ -149,7 +149,7 @@ body {
     background: var(--p-600);
 }
 
-
+/* Logo Styling */
 .logo {
     display: flex;
     align-items: center;
@@ -186,7 +186,7 @@ body {
     -webkit-text-fill-color: var(--p-600);
 }
 
-
+/* Header Right Area */
 .header-right {
     display: flex;
     align-items: center;
@@ -308,10 +308,10 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
+/* Fin Parte 1 */
+/* --- PARTE 2: NAVEGACIÓN LATERAL Y SISTEMA DE TARJETAS --- */
 
-
-
-
+/* --- SIDEBAR (BARRA LATERAL) --- */
 .sidebar {
     width: var(--sidebar-w);
     height: calc(100vh - var(--header-h));
@@ -389,7 +389,7 @@ body {
     border-radius: 0 4px 4px 0;
 }
 
-
+/* --- CONTENIDO PRINCIPAL --- */
 .content {
     margin-left: var(--sidebar-w);
     padding: 2.5rem;
@@ -401,7 +401,7 @@ body {
     margin-left: var(--sidebar-collapsed-w);
 }
 
-
+/* --- BANNER DINÁMICO --- */
 .banner {
    
     background: linear-gradient(-45deg, #0f172a, var(--p-900), #1e1b4b, #020617);
@@ -445,14 +445,14 @@ body {
 .shape-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
 .shape-2 { width: 200px; height: 200px; bottom: -50px; right: 150px; }
 
-
+/* --- GRID DE TAREAS --- */
 .task-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.75rem;
 }
 
-
+/* --- TARJETA DE TAREA (TASK CARD) --- */
 .card {
     background: var(--n-0);
     border: 1px solid var(--n-200);
@@ -547,7 +547,7 @@ body {
     color: var(--danger);
     border-color: var(--danger);
 }
-
+/* --- ESTILOS PARA HEADER-RIGHT Y DROPDOWN --- */
 
 .header-right {
     display: flex;
@@ -555,13 +555,13 @@ body {
     gap: 1.5rem;
 }
 
-
+/* Contenedor del menú de acción */
 .action-menu {
     position: relative;
     display: inline-block;
 }
 
-
+/* Botón "+" para Banner Claro - Siempre visible */
 .add-btn {
    
     background: var(--p-600);
@@ -587,13 +587,13 @@ body {
     z-index: 10;
 }
 
-
+/* Animación al pasar el mouse */
 .add-btn:hover {
     background: var(--p-800);
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
 }
-
+/* Menú desplegable (Estilo Glassmorphism) */
 .dropdown-content {
     display: none;
     position: absolute;
@@ -611,12 +611,12 @@ body {
     animation: dropdownFadeIn 0.2s var(--ease-out);
 }
 
-
+/* Clase para mostrar el menú (manejada por tu script) */
 .dropdown-content.show {
     display: block;
 }
 
-
+/* Enlaces dentro del dropdown */
 .dropdown-content a {
     color: var(--n-700);
     padding: 12px 16px;
@@ -635,12 +635,12 @@ body {
     color: var(--p-600);
 }
 
-
+/* Separador visual opcional */
 .dropdown-content a:not(:last-child) {
     margin-bottom: 4px;
 }
 
-
+/* Animación de entrada */
 @keyframes dropdownFadeIn {
     from {
         opacity: 0;
@@ -652,7 +652,7 @@ body {
     }
 }
 
-
+/* --- OPTIMIZACIÓN MÓVIL PARA EL DROPDOWN --- */
 @media (max-width: 768px) {
     .dropdown-content {
         position: fixed;
@@ -663,9 +663,9 @@ body {
         max-width: none;
     }
 }
+/* --- CORRECCIÓN DE ALINEACIÓN Y VISIBILIDAD DEL MODAL --- */
 
-
-
+/* 1. Centrar el modal correctamente en la pantalla */
 .modal {
     display: none;
     position: fixed;
@@ -679,7 +679,7 @@ body {
     justify-content: center;
 }
 
-
+/* 2. Ajustar el contenedor del formulario para que no se oculte */
 .modal-content {
     background: white;
     padding: 24px;
@@ -695,7 +695,7 @@ body {
     margin-right: auto;
 }
 
-
+/* 3. Estilo para los campos de texto (IDs de tu JS) */
 #t-titulo, 
 #t-materia, 
 #t-desc, 
@@ -710,7 +710,7 @@ body {
     font-family: inherit;
 }
 
-
+/* 4. Asegurar que los botones estén siempre visibles abajo */
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
@@ -718,7 +718,7 @@ body {
     margin-top: 20px;
 }
 
-
+/* 5. Botón Publicar (Azul Google) */
 #btn-save-task {
     background-color: #1a73e8;
     color: white;
@@ -734,7 +734,7 @@ body {
     background-color: #1765cc;
 }
 
-
+/* 6. Botón Cancelar (Gris) */
 .btn-cancel {
     background: #f1f3f4;
     color: #3c4043;
@@ -742,7 +742,7 @@ body {
     padding: 10px 24px;
     border-radius: 8px;
     cursor: pointer;
-}
+}/* --- ESTILO PARA EL BOTÓN DE TRES RAYAS (MENU) --- */
 #btn-toggle-sidebar {
     background: none;
     border: none;
@@ -768,7 +768,7 @@ body {
     background-color: #e8f0fe;
 }
 
-
+/* --- ESTILO PARA EL BOTÓN + PUBLICAR TAREAS (BANNER) --- */
 #admin-publish-btn {
     display: flex;
     align-items: center;
@@ -798,7 +798,7 @@ body {
     height: 18px;
 }
 
-
+/* Animación para que el botón aparezca suavemente */
 @keyframes fadeInBtn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -807,7 +807,7 @@ body {
 #admin-publish-btn {
     animation: fadeInBtn 0.4s ease-out;
 }
-
+/* --- ESTILOS PARA CALENDARIO Y PENDIENTES --- */
 .agenda-group {
     margin-bottom: 2rem;
 }
@@ -833,7 +833,7 @@ body {
     margin-bottom: 1rem;
     opacity: 0.7;
 }
-
+/* --- ESTILOS DE SINCRONIZACIÓN --- */
 .sync-container {
     text-align: center;
     padding: 50px 20px;
@@ -864,12 +864,12 @@ body {
     display: none;
     margin-bottom: 10px;
 }
-
+/* Contenedor del logo para posicionar la etiqueta */
 .logo-wrapper {
     margin-left: 10px;
 }
 
-
+/* Estilo de la etiqueta Beta */
 .badge-beta {
     position: absolute;
     top: -12px;
@@ -901,11 +901,11 @@ body {
     margin-top: 1px;
 }
 
-
+/* Ajuste para que el logo no se vea cortado si el header es pequeño */
 .header-left {
     overflow: visible !important;
 }
-
+/* Contenedor principal de la racha */
 #streak-container {
     cursor: help;
     display: flex;
@@ -924,7 +924,7 @@ body {
     box-shadow: 0 2px 8px rgba(244, 180, 0, 0.2);
 }
 
-
+/* El número de la racha */
 #streak-count {
     font-weight: 700;
     color: #3c4043;
@@ -932,20 +932,20 @@ body {
     margin-right: 2px;
 }
 
-
+/* Animación de latido para rachas activas */
 @keyframes pulse-fire {
     0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
     50% { transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(244, 180, 0, 0.6)); }
     100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
 }
 
-
+/* Clase para aplicar cuando la racha es > 0 */
 .racha-fuego-activa {
     display: inline-block;
     animation: pulse-fire 2s infinite ease-in-out;
 }
 
-
+/* Color especial si la racha es muy alta (+7 días) */
 .racha-legendaria {
     background: #fff9e6 !important;
     border-color: #f4b400 !important;
@@ -966,7 +966,7 @@ body {
     isolation: isolate; 
 }
 
-
+/* LA CAPA DE COLORES (FONDO) */
 .btn-header-apoyo::before {
     content: '';
     position: absolute;
@@ -980,7 +980,7 @@ body {
     z-index: -1; 
 }
 
-
+/* LA CAPA BLANCA + TEXTO (FRENTE) */
 .btn-inner {
     position: relative;
    
@@ -1009,7 +1009,7 @@ body {
 .btn-header-apoyo:hover .btn-inner {
     background: #f8f9fa;
 }
-
+/* Transformamos el contenedor en un Banner Pro */
 .content-area {
     background: linear-gradient(-45deg, var(--p-600), var(--s-600), #4285f4, #00d2ff);
     background-size: 400% 400%;
@@ -1027,7 +1027,7 @@ body {
     overflow: hidden;
 }
 
-
+/* Ajustamos el h1 para que se vea bien dentro del banner */
 .content-area h1 {
     color: white !important;
     font-size: 2.2rem;
@@ -1040,7 +1040,7 @@ body {
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
-
+/* --- AJUSTE DE LA VENTANA EMERGENTE --- */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
@@ -1071,7 +1071,7 @@ body {
     position: relative;
 }
 
-
+/* Personalizar el scroll interno para que sea elegante (Estilo Alonixz) */
 .welcome-card::-webkit-scrollbar {
     width: 6px;
 }
@@ -1092,7 +1092,7 @@ body {
     gap: 8px;
 }
 
-
+/* Estilo del botón de confirmación en el modal */
 .btn-welcome-confirm {
     margin-top: 1.5rem;
     width: 100%;
@@ -1141,7 +1141,7 @@ body {
    
 }
 
-
+/* Efectos de interacción */
 .btn-delete:hover {
     background: #fce8e6;
     transform: scale(1.05);
@@ -1150,7 +1150,7 @@ body {
 .btn-delete:active {
     transform: scale(0.95);
     background: #fadad7;
-}
+}/* Estilos de Rangos Alonixz */
 .rango-tag {
     font-size: 10px;
     font-weight: 800;
@@ -1162,7 +1162,7 @@ body {
     vertical-align: middle;
 }
 
-
+/* --- MEJORA DE ETIQUETAS (RANGO-TAG) --- */
 .rango-tag {
     font-size: 10px;
     font-weight: 800;
@@ -1176,7 +1176,7 @@ body {
     border: 1px solid rgba(255,255,255,0.2);
 }
 
-
+/* Colores con Gradientes Profesionales */
 .rango-bronce { 
     background: linear-gradient(135deg, #a0522d, #cd7f32); 
     color: white; 
@@ -1212,7 +1212,7 @@ body {
     box-shadow: 0 0 15px rgba(237, 33, 58, 0.4);
 }
 
-
+/* --- MEJORA DE AVATARES (BORDES) --- */
 .user-avatar-base {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     object-fit: cover;
@@ -1223,7 +1223,7 @@ body {
 .avatar-oro { border: 3px solid #f1c40f !important; }
 .avatar-diamante { border: 3px solid #00d2ff !important; box-shadow: 0 0 10px #00d2ff; }
 .avatar-obsidiana { border: 3px solid #3a0052 !important; filter: drop-shadow(0 0 5px #3a0052); }
-
+/* --- ESTILO ADMIN MEJORADO --- */
 .rango-admin { 
     background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
     background-size: 400% 400%;
@@ -1236,7 +1236,7 @@ body {
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
-
+/* Borde de Avatar con Efecto de Respiración */
 .avatar-admin { 
     border: 3px solid #ed213a !important; 
     box-shadow: 0 0 15px rgba(237, 33, 58, 0.6);
@@ -1244,16 +1244,16 @@ body {
     position: relative;
 }
 
+/* --- ANIMACIONES EXCLUSIVAS --- */
 
-
-
+/* Gradiente que se mueve solo para el tag */
 @keyframes gradient-admin {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
-
+/* El avatar "respira" luz roja */
 @keyframes admin-glow {
     from {
         box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d;
@@ -1265,7 +1265,7 @@ body {
     }
 }
 
-
+/* --- ANIMACIONES NUEVAS --- */
 @keyframes pulse-obsidiana {
     0% { box-shadow: 0 0 5px #3a0052; transform: scale(1); }
     50% { box-shadow: 0 0 20px #3a0052; transform: scale(1.02); }
@@ -1277,7 +1277,7 @@ body {
     50% { filter: brightness(1.3); }
     100% { filter: brightness(1); }
 }
-
+/* --- RANGO HACKER (SUPREMO 1000+) --- */
 .rango-hacker {
     background: #000;
     color: #0f0;
@@ -1292,7 +1292,7 @@ body {
     animation: hacker-flicker 1.5s infinite;
 }
 
-
+/* Efecto de línea de escaneo para la etiqueta */
 .rango-hacker::after {
     content: "";
     position: absolute;
@@ -1304,7 +1304,7 @@ body {
     animation: scanline 2s linear infinite;
 }
 
-
+/* Avatar Hacker: Borde digital */
 .avatar-hacker {
     border: 3px double #0f0 !important;
     filter: brightness(1.2) contrast(1.2) sepia(1) hue-rotate(70deg);
@@ -1312,7 +1312,7 @@ body {
     animation: glitch-border 0.2s infinite;
 }
 
-
+/* --- ANIMACIONES HACKER --- */
 @keyframes scanline {
     to { top: 100%; }
 }
@@ -1331,7 +1331,7 @@ body {
     80% { transform: translate(1px, -1px); }
     100% { transform: translate(0); }
 }
-
+/* --- EFECTO GLITCH EXCLUSIVO HACKER --- */
 body.tema-hacker .logo {
     position: relative;
     display: flex;
@@ -1344,7 +1344,7 @@ body.tema-hacker .logo {
     animation: glitch-vibration 0.2s infinite;
 }
 
-
+/* Capas de interferencia usando el contenedor */
 body.tema-hacker .logo::before,
 body.tema-hacker .logo::after {
     content: "Praxis";
@@ -1370,13 +1370,13 @@ body.tema-hacker .logo::after {
     clip-path: inset(10% 0 50% 0);
 }
 
-
+/* Hacer que la imagen también glichee un poco */
 body.tema-hacker .logo img {
     filter: sepia(1) hue-rotate(70deg) brightness(1.2) contrast(1.5);
     animation: glitch-vibration 0.1s infinite;
 }
 
-
+/* Animaciones */
 @keyframes glitch-vibration {
     0% { transform: translate(0); }
     25% { transform: translate(-1px, 1px); }
@@ -1390,7 +1390,7 @@ body.tema-hacker .logo img {
     50% { clip-path: inset(40% 0 10% 0); transform: translate(2px, -2px); }
     100% { clip-path: inset(20% 0 60% 0); transform: translate(-1px, 1px); }
 }
-
+/* --- NUEVO ESTILO PANEL DE ACCIÓN (MODAL) --- */
 .modal {
     display: none;
     position: fixed;
@@ -1437,7 +1437,7 @@ body.tema-hacker .logo img {
     margin-bottom: 24px;
 }
 
-
+/* Input Minimalista */
 #modal-input {
     width: 100%;
     padding: 16px 20px;
@@ -1458,7 +1458,7 @@ body.tema-hacker .logo img {
     box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
 }
 
-
+/* Botones con estilo moderno */
 .modal-buttons {
     display: flex;
     gap: 12px;
@@ -1497,7 +1497,7 @@ body.tema-hacker .logo img {
     color: #202124;
 }
 
-
+/* Ajuste para desktop */
 @media (min-width: 480px) {
     .modal-buttons {
         flex-direction: row;
