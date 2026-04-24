@@ -325,7 +325,7 @@
     </div>
 
  <script type="module">
-    // 1. IMPORTACIONES CORRECTAS (Se añadió initializeApp)
+   
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { 
         getAuth, 
@@ -335,7 +335,7 @@
         signInAnonymously 
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // 2. CONFIGURACIÓN ALONIXZ-CLOUD
+   
     const firebaseConfig = {
         apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
         authDomain: "praxis-79b9a.firebaseapp.com",
@@ -346,14 +346,14 @@
         appId: "1:596083977949:web:71064f89a23f8d9751e712"
     };
 
-    // 3. INICIALIZACIÓN
+   
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // --- LÓGICA DE BOTONES ---
+   
 
-    // Botón de Email (Solo aviso)
+   
     const btnEmail = document.getElementById('btn-login-email');
     if(btnEmail) {
         btnEmail.onclick = () => {
@@ -361,7 +361,7 @@
         };
     }
 
-    // Botón de Google
+   
     document.getElementById('btn-google').onclick = async () => {
         try {
             const result = await signInWithPopup(auth, provider);
@@ -369,7 +369,7 @@
         } catch (e) { console.error("Error Google:", e); }
     };
 
-    // BOTÓN DE INVITADO (Ahora dentro del módulo para que reconozca 'auth')
+   
     const btnGuest = document.getElementById('btn-guest');
     if (btnGuest) {
         btnGuest.onclick = async () => {
@@ -386,7 +386,7 @@
         };
     }
 
-    // Observador de estado
+   
     onAuthStateChanged(auth, (user) => {
         if (user) window.location.replace("menu.html");
     });
