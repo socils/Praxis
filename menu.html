@@ -1709,6 +1709,7 @@ window.subirArchivoTarea = async () => {
 import { getDatabase, ref, onValue, query, limitToLast, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 
+const db = getDatabase();
 
 const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
     const modal = document.getElementById('modal-consejo');
