@@ -156,17 +156,17 @@ let tokenClient;
 let gapiInited = false;
 let gsisInited = false;
 function navegarA(nuevoTitulo, nuevoEstado) {
-    const banner = document.getElementById('banner-title');
-    const estado = document.getElementById('display-code');
-    const cont = document.getElementById('main-container');
+    const bannerTitle = document.getElementById('banner-title');
+    const displayCode = document.getElementById('display-code');
+    const container = document.getElementById('main-container');
 
-    if (banner) banner.innerText = nuevoTitulo;
-    if (estado) estado.innerText = nuevoEstado;
+    if (bannerTitle) bannerTitle.innerText = nuevoTitulo;
+    if (displayCode) displayCode.innerText = nuevoEstado;
 
-    if (cont) {
-        cont.innerHTML = "";
+    if (container) {
+        container.innerHTML = "";
         window.scrollTo(0, 0);
-        return cont;
+        return container;
     }
     return null;
 }
@@ -1680,84 +1680,7 @@ window.subirArchivoTarea = async () => {
             setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
         }
     );
-};const encuestaRef = query(ref(db, 'encuestas'), limitToLast(1));
-
-onValue(encuestaRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        const id = Object.keys(data)[0];
-        const encuesta = data[id];
-
-        if (sessionStorage.getItem('visto_encuesta') !== id) {
-            const modal = document.getElementById('modal-anuncio');
-            const texto = document.getElementById('texto-anuncio-modal');
-            const tituloModal = modal?.querySelector('h2');
-            const btnEntendido = modal?.querySelector('button');
-
-            if (modal && texto) {
-                if (tituloModal) tituloModal.innerText = "Consulta Estudiantil";
-                if (btnEntendido) btnEntendido.style.display = 'none';
-                
-                let opsHtml = `<p style="margin-bottom:15px; font-weight:600;">${encuesta.pre}</p>`;
-                opsHtml += '<div style="display: flex; flex-direction: column; gap: 8px;">';
-                Object.keys(encuesta.ops).forEach(op => {
-                    opsHtml += `
-                        <button onclick="votarEncuesta('${id}', '${op}')" style="width:100%; padding: 12px; border-radius: 12px; border: 1px solid #1a73e8; background: white; cursor: pointer; font-weight: 700; font-family: 'Outfit'; transition: 0.2s;">
-                            ${op}
-                        </button>`;
-                });
-                opsHtml += '</div>';
-
-                texto.innerHTML = opsHtml;
-                modal.style.display = 'flex';
-                sessionStorage.setItem('visto_encuesta', id);
-            }
-        }
-    }
-});
-
-window.votarEncuesta = (id, opcion) => {
-    const dbRef = ref(db, `encuestas/${id}/ops/${opcion}`);
-    set(dbRef, Date.now()); 
-    
-    const texto = document.getElementById('texto-anuncio-modal');
-    if (texto) {
-        texto.innerHTML = "<div style='color: #16a34a; font-weight: 700; padding: 20px;'>¡Voto registrado!</div>";
-        setTimeout(() => {
-            const modal = document.getElementById('modal-anuncio');
-            if (modal) {
-                modal.style.display = 'none';
-                const btnEntendido = modal.querySelector('button');
-                if (btnEntendido) btnEntendido.style.display = 'block';
-            }
-        }, 1200);
-    }
-};const comunicadoRef = query(ref(db, 'comunicados'), limitToLast(1));
-
-onValue(comunicadoRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        const id = Object.keys(data)[0];
-        const info = data[id];
-
-        if (sessionStorage.getItem('visto_comunicado') !== id) {
-            const modal = document.getElementById('modal-anuncio');
-            const texto = document.getElementById('texto-anuncio-modal');
-            const tituloModal = modal?.querySelector('h2');
-            const iconoModal = modal?.querySelector('div[style*="font-size: 40px"]');
-
-            if (modal && texto) {
-                if (tituloModal) tituloModal.innerText = info.titulo;
-                if (iconoModal) iconoModal.innerText = "📢";
-                
-                texto.innerText = info.msg;
-                modal.style.display = 'flex';
-                
-                sessionStorage.setItem('visto_comunicado', id);
-            }
-        }
-    }
-});
+};
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
@@ -1784,7 +1707,6 @@ onValue(comunicadoRef, (snapshot) => {
 
 <script type="module">
 import { getDatabase, ref, onValue, query, limitToLast, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
 
 
 const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
