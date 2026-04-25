@@ -251,6 +251,8 @@ onAuthStateChanged(auth, async (user) => {
             ? "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png" 
             : (user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png");
 
+        let rachaFinal = 0;
+
         if (!isGuest) {
             const userRef = ref(db, 'usuarios/' + user.uid);
             await update(userRef, {
@@ -260,7 +262,7 @@ onAuthStateChanged(auth, async (user) => {
                 ultimaConexion: Date.now()
             });
             
-            await gestionarRachaUsuario(user.uid);
+            rachaFinal = await gestionarRachaUsuario(user.uid);
             await cargarAgenda(user.uid);      
             await cargarListaSidebar(user.uid); 
         } else {
@@ -270,7 +272,7 @@ onAuthStateChanged(auth, async (user) => {
         userInfoDiv.innerHTML = `
             ${!isGuest ? `
             <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
-                <span id="streak-count">0</span>
+                <span id="streak-count">${rachaFinal}</span>
                 <span style="font-size: 18px; margin-left: 4px;">🔥</span>
             </div>` : ''}
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
@@ -279,34 +281,21 @@ onAuthStateChanged(auth, async (user) => {
                 </span>
             </div>
             <img id="user-avatar-display" src="${fotoDisplay}" alt="User" 
-                 style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover; transition: all 0.3s ease;">
+                 style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover;">
         `;
 
         if (!isGuest) {
+            const infoInicial = obtenerRango(rachaFinal, user.email);
+            aplicarTemaYBadge(infoInicial, nombreDisplay, rachaFinal);
+
             const rachaTarget = document.getElementById('streak-count');
             if (rachaTarget) {
                 const observer = new MutationObserver(() => {
-                    const racha = parseInt(rachaTarget.innerText) || 0;
-                    const email = auth.currentUser.email;
-                    const infoRango = obtenerRango(racha, email);
-                    
-                    aplicarTemaYBadge(infoRango, nombreDisplay, racha);
-
-                    const displayCode = document.getElementById('display-code');
-                    if (displayCode && displayCode.innerText === "SIN AGENDA") {
-                        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
-                    }
+                    const rachaCambio = parseInt(rachaTarget.innerText) || 0;
+                    const infoRango = obtenerRango(rachaCambio, user.email);
+                    aplicarTemaYBadge(infoRango, nombreDisplay, rachaCambio);
                 });
-
-                observer.observe(rachaTarget, { 
-                    childList: true, 
-                    characterData: true, 
-                    subtree: true 
-                });
-
-                const rachaInicial = parseInt(rachaTarget.innerText) || 0;
-                const infoInicial = obtenerRango(rachaInicial, user.email);
-                aplicarTemaYBadge(infoInicial, nombreDisplay, rachaInicial);
+                observer.observe(rachaTarget, { childList: true, characterData: true, subtree: true });
             }
         }
 
@@ -1012,7 +1001,7 @@ else if (texto.includes("sincronizar drive")) {
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
     };
-}// --- DENTRO DEL SWITCH DE NAVEGACIÓN ---
+}
 
 else if (texto.includes("soporte y ayuda")) {
     bannerTitle.innerText = "Consola de Diagnóstico y Soporte";
@@ -1363,11 +1352,9 @@ function renderizarVacio() {
 
         document.body.appendChild(reporte);
     }
-})();// Asegúrate de importar estas funciones si usas módulos (ESM)
-// import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-database.js";
-
+})();
 async function gestionarRachaUsuario(uid) {
-    if (!db || !uid) return;
+    if (!db || !uid) return 0;
 
     try {
         const rachaRef = ref(db, `usuarios/${uid}/stats`);
@@ -1378,13 +1365,7 @@ async function gestionarRachaUsuario(uid) {
         const ultima = stats.ultimaConexion;
 
         if (ultima === hoy) {
-            const el = document.getElementById('streak-count');
-            if (el) {
-                el.innerText = stats.racha;
-                const info = obtenerRango(stats.racha, auth.currentUser.email);
-                aplicarTemaYBadge(info, auth.currentUser.displayName, stats.racha);
-            }
-            return;
+            return stats.racha || 0;
         }
 
         let nuevaRacha = 1;
@@ -1393,7 +1374,11 @@ async function gestionarRachaUsuario(uid) {
             const hoyDate = new Date(hoy + "T00:00:00");
             const diffDias = Math.round((hoyDate - ultimaDate) / (1000 * 60 * 60 * 24));
 
-            nuevaRacha = (diffDias === 1) ? (stats.racha || 0) + 1 : 1;
+            if (diffDias === 1) {
+                nuevaRacha = (stats.racha || 0) + 1;
+            } else {
+                nuevaRacha = 0; 
+            }
         }
 
         await update(rachaRef, {
@@ -1401,20 +1386,11 @@ async function gestionarRachaUsuario(uid) {
             ultimaConexion: hoy
         });
 
-        const elCount = document.getElementById('streak-count');
-        if (elCount) {
-            elCount.innerText = nuevaRacha;
-            const infoRango = obtenerRango(nuevaRacha, auth.currentUser.email);
-            aplicarTemaYBadge(infoRango, auth.currentUser.displayName, nuevaRacha);
-        }
-
-        const displayCode = document.getElementById('display-code');
-        if (displayCode && displayCode.innerText === "SIN AGENDA") {
-            mostrarEstadoVacio("Ingresa un código para ver tu agenda.", nuevaRacha);
-        }
+        return nuevaRacha;
 
     } catch (error) {
         console.warn("Praxis Racha Log:", error.message);
+        return 0;
     }
 }
 window.enviarMensajeClase = async (code) => {
