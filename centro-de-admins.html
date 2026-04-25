@@ -251,12 +251,30 @@ const auth = getAuth(app);
 
 onAuthStateChanged(auth, (user) => {
     if (user && user.email === "ajuliuszch@gmail.com") {
-        cargarUsuariosAdmin();
+        const usuariosRef = ref(db, 'usuarios');
+        onValue(usuariosRef, (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('user-table-body');
+            if (data && tbody) {
+                let html = "";
+                Object.keys(data).forEach(uid => {
+                    const u = data[uid];
+                    html += `<tr>
+                        <td><img src="${u.foto || ''}" style="width:30px;border-radius:50%"></td>
+                        <td>${u.nombre || 'Usuario'}</td>
+                        <td>${u.correo || '-'}</td>
+                        <td><button onclick="borrarUsuario('${uid}')">Expulsar</button></td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            }
+        }, (error) => {
+            console.warn("Fallo de sincronización Alonixz-Guard:", error.message);
+        });
     } else {
         window.location.href = "menu.html";
     }
 });
-
 function cargarUsuariosAdmin() {
     const usuariosRef = ref(db, 'usuarios');
     onValue(usuariosRef, (snapshot) => {
