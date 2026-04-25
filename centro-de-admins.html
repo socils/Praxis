@@ -287,19 +287,32 @@ function cargarUsuariosAdmin() {
     });
 }
 
-    // --- VERIFICADOR DE CUENTA ADMIN ---
-    onAuthStateChanged(auth, (user) => {
-        const miCorreoAdmin = "ajuliuszch@gmail.com";
-
-        if (!user || user.email !== miCorreoAdmin) {
-            // Si no hay usuario o el correo no coincide, expulsar
-            alert("Acceso denegado. Solo el líder de Alonixz-Group puede entrar.");
-            window.location.href = "menu.html";
-        } else {
-            console.log("Bienvenido, Administrador");
-            // Aquí puedes llamar a funciones que solo el admin debe ver
-        }
-    });
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email === "ajuliuszch@gmail.com") {
+        const usuariosRef = ref(db, 'usuarios');
+        onValue(usuariosRef, (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('user-table-body');
+            if (data && tbody) {
+                let html = "";
+                Object.keys(data).forEach(uid => {
+                    const u = data[uid];
+                    html += `<tr>
+                        <td><img src="${u.foto || ''}" style="width:30px;border-radius:50%"></td>
+                        <td>${u.nombre || 'Usuario'}</td>
+                        <td>${u.correo || '-'}</td>
+                        <td><button onclick="borrarUsuario('${uid}')">Expulsar</button></td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            }
+        }, (error) => {
+            console.warn("Fallo de sincronización Alonixz-Guard:", error.message);
+        });
+    } else {
+        window.location.href = "menu.html";
+    }
+});
 
     // --- TUS FUNCIONES EXISTENTES (Navegación, Stats, etc.) ---
     window.switchTab = (tabId, element) => {
