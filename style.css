@@ -1518,9 +1518,31 @@ body.tema-hacker .logo img {
     color: #202124;
 }
 
-/* Ajuste para desktop */
+
 @media (min-width: 480px) {
     .modal-buttons {
         flex-direction: row;
     }
+}
+.rango-tag.rango-aspirante {
+    background: rgba(176, 190, 197, 0.15);
+    color: #78909c;
+    border: 1px solid rgba(176, 190, 197, 0.3);
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.avatar-aspirante {
+    border: 2px solid #b0bec5 !important;
+    box-shadow: 0 0 10px rgba(176, 190, 197, 0.2);
+}
+
+#streak-container.status-aspirante {
+    color: #90a4ae !important;
 }
