@@ -156,17 +156,17 @@ let tokenClient;
 let gapiInited = false;
 let gsisInited = false;
 function navegarA(nuevoTitulo, nuevoEstado) {
-    const bannerTitle = document.getElementById('banner-title');
-    const displayCode = document.getElementById('display-code');
-    const container = document.getElementById('main-container');
+    const banner = document.getElementById('banner-title');
+    const estado = document.getElementById('display-code');
+    const cont = document.getElementById('main-container');
 
-    if (bannerTitle) bannerTitle.innerText = nuevoTitulo;
-    if (displayCode) displayCode.innerText = nuevoEstado;
+    if (banner) banner.innerText = nuevoTitulo;
+    if (estado) estado.innerText = nuevoEstado;
 
-    if (container) {
-        container.innerHTML = "";
+    if (cont) {
+        cont.innerHTML = "";
         window.scrollTo(0, 0);
-        return container;
+        return cont;
     }
     return null;
 }
