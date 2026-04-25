@@ -282,29 +282,36 @@ onAuthStateChanged(auth, async (user) => {
                  style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover; transition: all 0.3s ease;">
         `;
 
-        if (!isGuest) {
-            const rachaTarget = document.getElementById('streak-count');
-            if (rachaTarget) {
-                const observer = new MutationObserver(() => {
-                    const racha = parseInt(rachaTarget.innerText) || 0;
-                    const nombre = auth.currentUser.displayName || "Usuario";
-                    const email = auth.currentUser.email;
-                    const infoRango = obtenerRango(racha, email);
-                    aplicarTemaYBadge(infoRango, nombre, racha);
-
-                    if (document.getElementById('display-code').innerText === "SIN AGENDA") {
-                        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
-                    }
-                });
+     if (!isGuest) {
+    const rachaTarget = document.getElementById('streak-count');
+    if (rachaTarget) {
+        const observer = new MutationObserver(() => {
+            const racha = parseInt(rachaTarget.innerText) || 0;
+            const user = auth.currentUser;
+            
+            if (user) {
+                const nombre = user.displayName || "Usuario";
+                const email = user.email;
+                const infoRango = obtenerRango(racha, email);
                 
-                observer.observe(rachaTarget, { 
-                    childList: true, 
-                    characterData: true, 
-                    subtree: true 
-                });
-            }
-        }
+                // Actualiza el badge al lado del nombre y el tema del body
+                aplicarTemaYBadge(infoRango, nombre, racha);
 
+                // Lógica de agenda vacía
+                const displayCode = document.getElementById('display-code');
+                if (displayCode && displayCode.innerText === "SIN AGENDA") {
+                    mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
+                }
+            }
+        });
+
+        observer.observe(rachaTarget, { 
+            childList: true, 
+            characterData: true, 
+            subtree: true 
+        });
+    }
+}
         if (loader) {
             setTimeout(() => {
                 loader.style.opacity = '0';
@@ -824,19 +831,21 @@ else if (texto.includes("rankings") || texto.includes("top") || texto.includes("
     container.innerHTML = `
         <div id="podium-area" style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 30px; height: 220px; padding-top: 20px;"></div>
         <div id="ranking-list" style="background: #ffffff; border-radius: 28px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-            <p style='text-align:center; padding:20px; color: #5f6368; font-family: "Outfit";'>Sincronizando con Alonixz Cloud...</p>
+            <p style='text-align:center; padding:20px; color: #5f6368;'>Sincronizando con Alonixz Cloud...</p>
         </div>
     `;
 
-    // Lógica Única de Rangos (Mismos que en el Header y Podio)
-    const getRangoEspecial = (racha) => {
-        if (racha >= 1000) return { nombre: "Hacker / Fundador", color: "#00ff41", icon: "🌌", bg: "rgba(0, 255, 65, 0.1)" };
-        if (racha >= 80) return { nombre: "Obsidiana", color: "#4a148c", icon: "🌑", bg: "rgba(74, 20, 140, 0.1)" };
-        if (racha >= 60) return { nombre: "Diamante", color: "#00e5ff", icon: "💎", bg: "rgba(0, 229, 255, 0.1)" };
-        if (racha >= 30) return { nombre: "Oro", color: "#ffab00", icon: "🥇", bg: "rgba(255, 171, 0, 0.1)" };
-        if (racha >= 15) return { nombre: "Plata", color: "#9e9e9e", icon: "🥈", bg: "rgba(158, 158, 158, 0.1)" };
-        if (racha >= 7) return { nombre: "Bronce", color: "#cd7f32", icon: "🥉", bg: "rgba(205, 127, 50, 0.1)" };
-        return { nombre: "Aspirante", color: "#b0bec5", icon: "🌱", bg: "rgba(176, 190, 197, 0.1)" };
+    // Tu función de rangos integrada
+    const obtenerInfoRango = (racha, email) => {
+        if (racha >= 1000) return { nombre: "ROOT_HACKER", clase: "rango-hacker" };
+        if (email === "ajuliuszch@gmail.com") return { nombre: "FUNDADOR", clase: "rango-admin" }; // Ajustado para que diga FUNDADOR si eres tú
+        if (racha >= 100) return { nombre: "ADMIN", clase: "rango-admin" };
+        if (racha >= 80) return { nombre: "OBSIDIANA", clase: "rango-obsidiana" };
+        if (racha >= 60) return { nombre: "DIAMANTE", clase: "rango-diamante" };
+        if (racha >= 30) return { nombre: "ORO", clase: "rango-oro" };
+        if (racha >= 15) return { nombre: "PLATA", clase: "rango-plata" };
+        if (racha >= 7) return { nombre: "BRONCE", clase: "rango-bronce" };
+        return { nombre: "ASPIRANTE", clase: "rango-aspirante" };
     };
 
     const usuariosRef = ref(db, 'usuarios');
@@ -847,22 +856,23 @@ else if (texto.includes("rankings") || texto.includes("top") || texto.includes("
         const arr = Object.keys(data).map(uid => ({
             nombre: data[uid].nombre || "Estudiante",
             foto: data[uid].foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png",
-            racha: (data[uid].stats && data[uid].stats.racha) ? parseInt(data[uid].stats.racha) : 0
+            racha: (data[uid].stats && data[uid].stats.racha) ? parseInt(data[uid].stats.racha) : 0,
+            correo: data[uid].correo || ""
         })).sort((a, b) => b.racha - a.racha);
 
-        // Renderizado del Podio
         const podiumArea = document.getElementById('podium-area');
         const top3 = arr.slice(0, 3);
+        
         if (podiumArea && top3.length > 0) {
             const renderPodiumItem = (user, pos, height, colorBg, border) => {
-                const rango = getRangoEspecial(user?.racha || 0);
+                const info = obtenerInfoRango(user?.racha || 0, user?.correo || "");
                 return `
                 <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
                     <img src="${user?.foto}" style="width: ${pos===1? '75px' : '55px'}; height: ${pos===1? '75px' : '55px'}; border-radius: 50%; border: ${border}; margin-bottom: 8px; object-fit: cover; background: white;">
                     <div style="height: ${height}px; background: ${colorBg}; width: 100%; border-radius: 15px 15px 5px 5px; display: flex; align-items: center; justify-content: center; flex-direction: column; border-bottom: 4px solid rgba(0,0,0,0.05);">
                         <span style="font-size: 10px; font-weight: 900; opacity: 0.6;">#${pos}</span>
-                        <strong style="font-size: 18px; color: #202124;">${user?.racha || 0}</strong>
-                        <span style="font-size: 8px; font-weight: 800; text-transform: uppercase; color: ${rango.color}; margin-top: 4px; letter-spacing: 0.5px;">${rango.nombre}</span>
+                        <strong style="font-size: 18px;">${user?.racha || 0}</strong>
+                        <span class="rango-tag ${info.clase}" style="font-size: 7px; padding: 2px 5px; margin-top: 5px;">${info.nombre}</span>
                     </div>
                 </div>`;
             };
@@ -873,27 +883,24 @@ else if (texto.includes("rankings") || texto.includes("top") || texto.includes("
             `;
         }
 
-        // Renderizado de la Lista (IDs de Usuario con diseño unificado)
         const rankingList = document.getElementById('ranking-list');
         const rest = arr.slice(3, 15);
         if (rankingList) {
             rankingList.innerHTML = rest.map((u, i) => {
-                const rango = getRangoEspecial(u.racha);
+                const info = obtenerInfoRango(u.racha, u.correo);
                 return `
-                <div style="display: flex; align-items: center; padding: 14px; border-bottom: 1px solid #f8f9fa; gap: 12px; transition: background 0.2s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
+                <div style="display: flex; align-items: center; padding: 14px; border-bottom: 1px solid #f8f9fa; gap: 12px;">
                     <span style="font-weight: 900; width: 22px; color: #dadce0; font-size: 13px;">${i + 4}</span>
-                    <img src="${u.foto}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
-                    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
-                        <span style="font-weight: 700; font-size: 14px; color: #202124;">${u.nombre}</span>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="background: ${rango.bg}; color: ${rango.color}; font-size: 9px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">
-                                ${rango.nombre}
-                            </span>
+                    <img src="${u.foto}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: 700; font-size: 14px; color: #202124;">${u.nombre}</span>
+                            <span class="rango-tag ${info.clase}" style="font-size: 9px; padding: 2px 8px;">${info.nombre}</span>
                         </div>
                     </div>
-                    <div style="text-align: right; display: flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 12px; border: 1px solid #f1f3f4; background: #fff;">
+                    <div style="text-align: right; display: flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 12px; border: 1px solid #f1f3f4;">
                         <span style="color: #202124; font-weight: 900; font-size: 14px;">${u.racha}</span>
-                        <span style="font-size: 12px;">${rango.icon}</span>
+                        <span style="font-size: 12px;">🔥</span>
                     </div>
                 </div>`;
             }).join('');
@@ -1362,61 +1369,57 @@ function renderizarVacio() {
 // import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-database.js";
 
 async function gestionarRachaUsuario(uid) {
-   
     if (!db || !uid) return;
 
     try {
         const rachaRef = ref(db, `usuarios/${uid}/stats`);
         const snapshot = await get(rachaRef);
-        
-       
         const stats = snapshot.exists() ? snapshot.val() : { racha: 0, ultimaConexion: "" };
         
-       
         const hoy = new Date().toLocaleDateString('en-CA'); 
         const ultima = stats.ultimaConexion;
 
-       
         if (ultima === hoy) {
             const el = document.getElementById('streak-count');
-            if (el) el.innerText = stats.racha;
+            if (el) {
+                el.innerText = stats.racha;
+                const info = obtenerRango(stats.racha, auth.currentUser.email);
+                aplicarTemaYBadge(info, auth.currentUser.displayName, stats.racha);
+            }
             return;
         }
 
         let nuevaRacha = 1;
-
         if (ultima) {
             const ultimaDate = new Date(ultima + "T00:00:00");
             const hoyDate = new Date(hoy + "T00:00:00");
-            const diffMilisegundos = hoyDate - ultimaDate;
-            const diffDias = Math.round(diffMilisegundos / (1000 * 60 * 60 * 24));
+            const diffDias = Math.round((hoyDate - ultimaDate) / (1000 * 60 * 60 * 24));
 
-            if (diffDias === 1) {
-                nuevaRacha = (stats.racha || 0) + 1;
-            } else {
-                nuevaRacha = 1;
-            }
+            nuevaRacha = (diffDias === 1) ? (stats.racha || 0) + 1 : 1;
         }
 
-       
-       
         await update(rachaRef, {
             racha: nuevaRacha,
             ultimaConexion: hoy
         });
 
-       
         const elCount = document.getElementById('streak-count');
-        if (elCount) elCount.innerText = nuevaRacha;
+        if (elCount) {
+            elCount.innerText = nuevaRacha;
+            const infoRango = obtenerRango(nuevaRacha, auth.currentUser.email);
+            aplicarTemaYBadge(infoRango, auth.currentUser.displayName, nuevaRacha);
+        }
+
+        const displayCode = document.getElementById('display-code');
+        if (displayCode && displayCode.innerText === "SIN AGENDA") {
+            mostrarEstadoVacio("Ingresa un código para ver tu agenda.", nuevaRacha);
+        }
 
     } catch (error) {
-       
         console.warn("Praxis Racha Log:", error.message);
-    }// Dentro de gestionarRachaUsuario, después de elCount.innerText = nuevaRacha;
-if (displayCode.innerText === "SIN AGENDA") {
-    mostrarEstadoVacio("Ingresa un código para ver tu agenda.", nuevaRacha);
+    }
 }
-}window.enviarMensajeClase = async (code) => {
+window.enviarMensajeClase = async (code) => {
     const input = document.getElementById(`input-chat-${code}`);
     const texto = input.value.trim();
     const user = auth.currentUser;
