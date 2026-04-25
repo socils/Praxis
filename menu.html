@@ -813,6 +813,7 @@ navItems.forEach(item => {
 else if (texto.includes("calendario")) {
     bannerTitle.innerText = "Calendario Académico";
     container.innerHTML = ""
+    displayCode.innerText = "CALENDARIO";
     container.innerHTML = "<p style='text-align:center;'>Organizando fechas...</p>";
     obtenerTodasLasTareas((todasLasTareas) => {
        
@@ -823,6 +824,7 @@ else if (texto.includes("calendario")) {
 else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
     bannerTitle.innerText = "Ranking Global Praxis";
     container.innerHTML = ""
+    displayCode.innerText = "RANKINGS";
     container.innerHTML = `
         <div id="podium-area" style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 30px; height: 220px; padding-top: 20px;"></div>
         <div id="ranking-list" style="background: #ffffff; border-radius: 28px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
@@ -905,6 +907,7 @@ else if (texto.includes("rankings") || texto.includes("top") || texto.includes("
 else if (texto.includes("pendientes")) {
     bannerTitle.innerText = "Tareas Pendientes";
     container.innerHTML = ""
+    displayCode.innerText = "PENDIENTES";
     container.innerHTML = "<p style='text-align:center;'>Buscando tareas...</p>";
     obtenerTodasLasTareas((todasLasTareas) => {
        
@@ -935,6 +938,7 @@ else if (texto.includes("pendientes")) {
 else if (texto.includes("sincronizar drive")) {
     bannerTitle.innerText = "Mi Biblioteca Digital";
     container.innerHTML = ""
+    displayCode.innerText = "RECURSOS EN LA NUBE";
     container.innerHTML = `
         <div class="drive-explorer" style="max-width: 800px; margin: 0 auto; padding: 20px;">
             <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
@@ -1016,6 +1020,7 @@ else if (texto.includes("sincronizar drive")) {
 else if (texto.includes("soporte y ayuda")) {
     bannerTitle.innerText = "Consola de Diagnóstico y Soporte";
     container.innerHTML = ""
+    displayCode.innerText = "SOPORTE Y AYUDA";
     container.innerHTML = `
         <div class="diag-container" style="max-width: 800px; margin: 0 auto; animation: slideUp 0.5s ease forwards;">
             
