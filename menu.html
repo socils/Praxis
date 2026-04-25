@@ -282,36 +282,34 @@ onAuthStateChanged(auth, async (user) => {
                  style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover; transition: all 0.3s ease;">
         `;
 
-     if (!isGuest) {
-    const rachaTarget = document.getElementById('streak-count');
-    if (rachaTarget) {
-        const observer = new MutationObserver(() => {
-            const racha = parseInt(rachaTarget.innerText) || 0;
-            const user = auth.currentUser;
-            
-            if (user) {
-                const nombre = user.displayName || "Usuario";
-                const email = user.email;
-                const infoRango = obtenerRango(racha, email);
-                
-                // Actualiza el badge al lado del nombre y el tema del body
-                aplicarTemaYBadge(infoRango, nombre, racha);
+        if (!isGuest) {
+            const rachaTarget = document.getElementById('streak-count');
+            if (rachaTarget) {
+                const observer = new MutationObserver(() => {
+                    const racha = parseInt(rachaTarget.innerText) || 0;
+                    const email = auth.currentUser.email;
+                    const infoRango = obtenerRango(racha, email);
+                    
+                    aplicarTemaYBadge(infoRango, nombreDisplay, racha);
 
-                // Lógica de agenda vacía
-                const displayCode = document.getElementById('display-code');
-                if (displayCode && displayCode.innerText === "SIN AGENDA") {
-                    mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
-                }
+                    const displayCode = document.getElementById('display-code');
+                    if (displayCode && displayCode.innerText === "SIN AGENDA") {
+                        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
+                    }
+                });
+
+                observer.observe(rachaTarget, { 
+                    childList: true, 
+                    characterData: true, 
+                    subtree: true 
+                });
+
+                const rachaInicial = parseInt(rachaTarget.innerText) || 0;
+                const infoInicial = obtenerRango(rachaInicial, user.email);
+                aplicarTemaYBadge(infoInicial, nombreDisplay, rachaInicial);
             }
-        });
+        }
 
-        observer.observe(rachaTarget, { 
-            childList: true, 
-            characterData: true, 
-            subtree: true 
-        });
-    }
-}
         if (loader) {
             setTimeout(() => {
                 loader.style.opacity = '0';
