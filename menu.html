@@ -1680,6 +1680,58 @@ window.subirArchivoTarea = async () => {
             setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
         }
     );
+};const comunicadoRef = query(ref(db, 'comunicados'), limitToLast(1));
+onValue(comunicadoRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        const id = Object.keys(data)[0];
+        const info = data[id];
+        if (sessionStorage.getItem('last_msg') !== id) {
+            const modal = document.getElementById('modal-anuncio');
+            const texto = document.getElementById('texto-anuncio-modal');
+            const tituloModal = modal?.querySelector('h2');
+            if (modal && texto) {
+                if (tituloModal) tituloModal.innerText = info.titulo;
+                texto.innerText = info.msg;
+                modal.style.display = 'flex';
+                sessionStorage.setItem('last_msg', id);
+            }
+        }
+    }
+});
+
+const encuestaRef = query(ref(db, 'encuestas'), limitToLast(1));
+onValue(encuestaRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        const id = Object.keys(data)[0];
+        const encuesta = data[id];
+        const container = document.getElementById('main-container');
+        if (container && !document.getElementById('poll-' + id)) {
+            const card = document.createElement('div');
+            card.id = 'poll-' + id;
+            card.style = "background: #f0f7ff; border: 2px solid #1a73e8; padding: 20px; border-radius: 20px; margin-bottom: 20px; font-family: 'Outfit', sans-serif;";
+            
+            let opsHtml = '';
+            Object.keys(encuesta.ops).forEach(op => {
+                opsHtml += `<button onclick="votar('${id}', '${op}')" style="display:block; width:100%; margin: 8px 0; padding: 12px; border-radius: 12px; border: 1px solid #1a73e8; background: white; cursor: pointer; font-weight: 700; font-family: inherit;">${op}</button>`;
+            });
+
+            card.innerHTML = `
+                <span style="font-size: 11px; font-weight: 900; color: #1a73e8; letter-spacing: 1px;">CONSULTA ESTUDIANTIL</span>
+                <h3 style="margin: 10px 0; color: #1e293b;">${encuesta.pre}</h3>
+                ${opsHtml}
+            `;
+            container.prepend(card);
+        }
+    }
+});
+
+window.votar = (id, opcion) => {
+    const path = `encuestas/${id}/ops/${opcion}`;
+    const dbRef = ref(db, path);
+    set(dbRef, Date.now()); 
+    alert("Voto enviado: " + opcion);
 };
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
