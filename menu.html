@@ -1709,6 +1709,7 @@ window.subirArchivoTarea = async () => {
 import { getDatabase, ref, onValue, query, limitToLast, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 
+
 const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
     const modal = document.getElementById('modal-consejo');
     const t = document.getElementById('titulo-consejo');
@@ -1717,19 +1718,22 @@ const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
     const btnCerrar = document.getElementById('btn-cerrar-consejo');
     const ico = document.getElementById('icon-consejo');
 
+    if (!modal || !t || !c || !optArea) return;
+
     t.innerText = titulo;
-    c.innerText = ops ? "" : msg;
+    c.innerText = msg || "";
     optArea.innerHTML = "";
     ico.innerText = ops ? "📊" : "📢";
 
     if (ops) {
-        c.innerText = msg;
         btnCerrar.style.display = "none";
         Object.keys(ops).forEach(op => {
             const b = document.createElement('button');
             b.innerText = op;
-            b.style = "width:100%; padding:14px; border-radius:15px; border:1px solid #e2e8f0; background:white; cursor:pointer; font-weight:700; font-family:'Outfit'; transition:0.2s;";
-            b.onclick = () => votar(id, op);
+            b.style = "width:100%; padding:14px; border-radius:15px; border:1px solid #e2e8f0; background:white; cursor:pointer; font-weight:700; font-family:'Outfit'; transition:0.2s; margin-bottom:5px;";
+            b.onmouseover = () => b.style.background = "#f8fafc";
+            b.onmouseout = () => b.style.background = "white";
+            b.onclick = () => window.votarConsejo(id, op);
             optArea.appendChild(b);
         });
     } else {
@@ -1739,10 +1743,17 @@ const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
     modal.style.display = 'flex';
 };
 
-window.votar = async (id, op) => {
-    await set(ref(db, `encuestas/${id}/ops/${op}`), Date.now());
-    document.getElementById('area-opciones').innerHTML = "<div style='color:#16a34a; font-weight:800; padding:10px;'>¡Voto registrado!</div>";
-    setTimeout(() => document.getElementById('modal-consejo').style.display = 'none', 1200);
+window.votarConsejo = async (id, op) => {
+    const cleanOp = op.replace(/[.#$[\]]/g, "");
+    await set(ref(db, `encuestas/${id}/ops/${cleanOp}`), Date.now());
+    const optArea = document.getElementById('area-opciones');
+    if (optArea) {
+        optArea.innerHTML = "<div style='color:#16a34a; font-weight:800; padding:10px;'>¡Voto registrado!</div>";
+    }
+    setTimeout(() => {
+        const modal = document.getElementById('modal-consejo');
+        if (modal) modal.style.display = 'none';
+    }, 1200);
 };
 
 onValue(query(ref(db, 'comunicados'), limitToLast(1)), (s) => {
@@ -1761,7 +1772,7 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
     if (d) {
         const id = Object.keys(d)[0];
         if (sessionStorage.getItem('e_seen') !== id) {
-            mostrarConsejo("Encuesta Estudiantil", d[id].pre, d[id].ops, id);
+            mostrarConsejo("Consulta Estudiantil", d[id].pre, d[id].ops, id);
             sessionStorage.setItem('e_seen', id);
         }
     }
