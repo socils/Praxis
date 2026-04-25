@@ -812,19 +812,19 @@ navItems.forEach(item => {
 
 else if (texto.includes("calendario")) {
     bannerTitle.innerText = "Calendario Académico";
-    container.innerHTML = ""
     displayCode.innerText = "CALENDARIO";
     container.innerHTML = "<p style='text-align:center;'>Organizando fechas...</p>";
+    
     obtenerTodasLasTareas((todasLasTareas) => {
-       
+        container.innerHTML = "";
         todasLasTareas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
         renderizarVistaLista(todasLasTareas, "calendario");
     });
 }
 else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
     bannerTitle.innerText = "Ranking Global Praxis";
-    container.innerHTML = ""
     displayCode.innerText = "RANKINGS";
+    
     container.innerHTML = `
         <div id="podium-area" style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 30px; height: 220px; padding-top: 20px;"></div>
         <div id="ranking-list" style="background: #ffffff; border-radius: 28px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
@@ -832,10 +832,9 @@ else if (texto.includes("rankings") || texto.includes("top") || texto.includes("
         </div>
     `;
 
-    // Tu función de rangos integrada
     const obtenerInfoRango = (racha, email) => {
         if (racha >= 1000) return { nombre: "ROOT_HACKER", clase: "rango-hacker" };
-        if (email === "ajuliuszch@gmail.com") return { nombre: "FUNDADOR", clase: "rango-admin" }; // Ajustado para que diga FUNDADOR si eres tú
+        if (email === "ajuliuszch@gmail.com") return { nombre: "FUNDADOR", clase: "rango-admin" };
         if (racha >= 100) return { nombre: "ADMIN", clase: "rango-admin" };
         if (racha >= 80) return { nombre: "OBSIDIANA", clase: "rango-obsidiana" };
         if (racha >= 60) return { nombre: "DIAMANTE", clase: "rango-diamante" };
@@ -906,39 +905,41 @@ else if (texto.includes("rankings") || texto.includes("top") || texto.includes("
 }
 else if (texto.includes("pendientes")) {
     bannerTitle.innerText = "Tareas Pendientes";
-    container.innerHTML = ""
     displayCode.innerText = "PENDIENTES";
     container.innerHTML = "<p style='text-align:center;'>Buscando tareas...</p>";
+    
     obtenerTodasLasTareas((todasLasTareas) => {
-       
+        container.innerHTML = "";
         const hoy = new Date().setHours(0,0,0,0);
         const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
         renderizarVistaLista(pendientes, "pendientes");
     });
 }
-        else if (texto.includes("cuenta de google")) {
-            const user = auth.currentUser;
-            bannerTitle.innerText = "Información de Perfil";
-            container.innerHTML = ""
-            container.innerHTML = `
-                <div class="card" style="max-width: 450px; margin: 20px auto; text-align: center; padding: 30px;">
-                    <div style="position: relative; display: inline-block;">
-                        <img src="${user.photoURL}" style="border-radius: 50%; width: 120px; border: 4px solid #e8f0fe;">
-                        <div style="position: absolute; bottom: 5px; right: 5px; background: #34a853; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>
-                    </div>
-                    <h2 style="margin-top: 15px; color: #202124;">${user.displayName}</h2>
-                    <p style="color: #5f6368; margin-bottom: 20px;">${user.email}</p>
-                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                    <p style="font-size: 13px; color: #1a73e8; font-weight: 500;">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png" width="16" style="vertical-align: middle; margin-right: 5px;">
-                        Cuenta vinculada con Praxis Cloud
-                    </p>
-                </div>`;
-        }
+
+else if (texto.includes("cuenta de google")) {
+    const user = auth.currentUser;
+    bannerTitle.innerText = "Información de Perfil";
+    displayCode.innerText = "PERFIL";
+    
+    container.innerHTML = `
+        <div class="card" style="max-width: 450px; margin: 20px auto; text-align: center; padding: 30px;">
+            <div style="position: relative; display: inline-block;">
+                <img src="${user.photoURL}" style="border-radius: 50%; width: 120px; border: 4px solid #e8f0fe;">
+                <div style="position: absolute; bottom: 5px; right: 5px; background: #34a853; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>
+            </div>
+            <h2 style="margin-top: 15px; color: #202124;">${user.displayName}</h2>
+            <p style="color: #5f6368; margin-bottom: 20px;">${user.email}</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size: 13px; color: #1a73e8; font-weight: 500;">
+                <img src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png" width="16" style="vertical-align: middle; margin-right: 5px;">
+                Cuenta vinculada con Praxis Cloud
+            </p>
+        </div>`;
+}
 else if (texto.includes("sincronizar drive")) {
     bannerTitle.innerText = "Mi Biblioteca Digital";
-    container.innerHTML = ""
-    displayCode.innerText = "RECURSOS EN LA NUBE";
+    displayCode.innerText = "RECURSOS_NUBE";
+    
     container.innerHTML = `
         <div class="drive-explorer" style="max-width: 800px; margin: 0 auto; padding: 20px;">
             <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
@@ -956,9 +957,7 @@ else if (texto.includes("sincronizar drive")) {
                     <input type="text" id="drive-search" placeholder="Buscar fichas, exámenes, tareas..." style="flex: 1; padding: 12px 20px; border-radius: 50px; border: 1px solid #dadce0; outline: none; font-size: 14px;">
                     <button id="btn-search" style="background: #f1f3f4; border: none; padding: 0 20px; border-radius: 50px; cursor: pointer;">🔍</button>
                 </div>
-
-                <div id="files-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
-                    </div>
+                <div id="files-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;"></div>
             </div>
         </div>
     `;
@@ -975,11 +974,9 @@ else if (texto.includes("sincronizar drive")) {
             btnAuth.style.color = "#1967d2";
             driveContent.style.display = "block";
 
-           
             const listarArchivos = async (query = "") => {
-                filesList.innerHTML = "<p>Buscando materiales...</p>";
+                filesList.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>Buscando materiales...</p>";
                 
-               
                 const q = query ? `name contains '${query}' and mimeType != 'application/vnd.google-apps.folder'` : "mimeType = 'application/pdf'";
                 
                 const response = await gapi.client.drive.files.list({
@@ -994,7 +991,7 @@ else if (texto.includes("sincronizar drive")) {
                 if (files && files.length > 0) {
                     files.forEach(file => {
                         filesList.innerHTML += `
-                            <div onclick="window.open('${file.webViewLink}', '_blank')" style="background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; text-align: center; cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='#1a73e8'">
+                            <div onclick="window.open('${file.webViewLink}', '_blank')" style="background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; text-align: center; cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='#1a73e8'" onmouseout="this.style.borderColor='#eee'">
                                 <div style="font-size: 30px; margin-bottom: 10px;">📄</div>
                                 <div style="font-size: 11px; font-weight: bold; color: #3c4043; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
                                 <div style="font-size: 9px; color: #1a73e8; margin-top: 5px;">Abrir Recurso</div>
@@ -1002,7 +999,7 @@ else if (texto.includes("sincronizar drive")) {
                         `;
                     });
                 } else {
-                    filesList.innerHTML = "<p style='font-size: 12px; color: #666;'>No se encontraron materiales.</p>";
+                    filesList.innerHTML = "<p style='font-size: 12px; color: #666; grid-column: 1/-1; text-align:center;'>No se encontraron materiales.</p>";
                 }
             };
 
@@ -1016,14 +1013,12 @@ else if (texto.includes("sincronizar drive")) {
         tokenClient.requestAccessToken({prompt: 'consent'});
     };
 }
-
 else if (texto.includes("soporte y ayuda")) {
     bannerTitle.innerText = "Consola de Diagnóstico y Soporte";
-    container.innerHTML = ""
-    displayCode.innerText = "SOPORTE Y AYUDA";
+    displayCode.innerText = "SOPORTE_SISTEMA";
+    
     container.innerHTML = `
         <div class="diag-container" style="max-width: 800px; margin: 0 auto; animation: slideUp 0.5s ease forwards;">
-            
             <div class="card" style="border-radius: 30px; padding: 40px; text-align: center; border: 1px solid #e2e8f0; background: white;">
                 <div style="background: #f1f5f9; width: 70px; height: 70px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px;">🛠️</div>
                 <h2 style="font-family: 'Outfit', sans-serif; font-size: 26px; margin-bottom: 10px;">Analizador de Sistema</h2>
@@ -1041,13 +1036,11 @@ else if (texto.includes("soporte y ayuda")) {
                     <button onclick="ejecutarAnalisis()" id="btn-investigar" style="background: #1a73e8; color: white; border: none; padding: 18px 40px; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; max-width: 350px; transition: 0.3s;">
                         INVESTIGAR INTEGRIDAD
                     </button>
-                    
-                    <a id="btn-correo-error" style="display: none; background: #fee2e2; color: #ef4444; padding: 15px 30px; border-radius: 15px; text-decoration: none; font-weight: 700; font-size: 14px; border: 1px solid #fecaca; animation: fadeIn 0.5s ease;">
-                        Mandar Reporte (Error ${idErrorActual})
+                    <a id="btn-correo-error" style="display: none; background: #fee2e2; color: #ef4444; padding: 15px 30px; border-radius: 15px; text-decoration: none; font-weight: 700; font-size: 14px; border: 1px solid #fecaca;">
+                        Mandar Reporte
                     </a>
                 </div>
             </div>
-
             <div style="text-align: center; margin-top: 30px; font-family: 'JetBrains Mono'; font-size: 11px; color: #94a3b8;">
                 [ STATUS: ENCRYPTED ]
             </div>
