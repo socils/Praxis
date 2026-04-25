@@ -230,7 +230,14 @@ function obtenerRango(racha, email) {
     if (racha >= 30) return { nombre: "ORO", clase: "rango-oro", avatar: "avatar-oro" };
     if (racha >= 15) return { nombre: "PLATA", clase: "rango-plata", avatar: "avatar-plata" };
     if (racha >= 7) return { nombre: "BRONCE", clase: "rango-bronce", avatar: "avatar-bronce" };
-    
+    if (racha < 7) {
+    return { 
+        nombre: "ASPIRANTE", 
+        clase: "rango-aspirante", 
+        avatar: "avatar-aspirante",
+        color: "#b0bec5" 
+    };
+}
     return null;
 };
 onAuthStateChanged(auth, async (user) => {
