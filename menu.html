@@ -1772,6 +1772,78 @@ onValue(comunicadoRef, (snapshot) => {
         from { opacity: 0; transform: scale(0.8); }
         to { opacity: 1; transform: scale(1); }
     }
-</style>
+</style><div id="modal-consejo" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 32px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div id="icon-consejo" style="font-size: 45px; margin-bottom: 15px;">📢</div>
+        <h2 id="titulo-consejo" style="font-family: 'Outfit', sans-serif; margin-bottom: 8px; color: #1e293b; font-weight: 800;"></h2>
+        <p id="cuerpo-consejo" style="color: #475569; line-height: 1.6; margin-bottom: 25px; font-size: 15px;"></p>
+        <div id="area-opciones" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;"></div>
+        <button id="btn-cerrar-consejo" onclick="document.getElementById('modal-consejo').style.display='none'" style="background: #f1f5f9; color: #64748b; border: none; padding: 12px 30px; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; display: none;">Cerrar</button>
+    </div>
+</div>
+
+<script type="module">
+import { getDatabase, ref, onValue, query, limitToLast, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+
+
+const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
+    const modal = document.getElementById('modal-consejo');
+    const t = document.getElementById('titulo-consejo');
+    const c = document.getElementById('cuerpo-consejo');
+    const optArea = document.getElementById('area-opciones');
+    const btnCerrar = document.getElementById('btn-cerrar-consejo');
+    const ico = document.getElementById('icon-consejo');
+
+    t.innerText = titulo;
+    c.innerText = ops ? "" : msg;
+    optArea.innerHTML = "";
+    ico.innerText = ops ? "📊" : "📢";
+
+    if (ops) {
+        c.innerText = msg;
+        btnCerrar.style.display = "none";
+        Object.keys(ops).forEach(op => {
+            const b = document.createElement('button');
+            b.innerText = op;
+            b.style = "width:100%; padding:14px; border-radius:15px; border:1px solid #e2e8f0; background:white; cursor:pointer; font-weight:700; font-family:'Outfit'; transition:0.2s;";
+            b.onclick = () => votar(id, op);
+            optArea.appendChild(b);
+        });
+    } else {
+        btnCerrar.style.display = "block";
+    }
+
+    modal.style.display = 'flex';
+};
+
+window.votar = async (id, op) => {
+    await set(ref(db, `encuestas/${id}/ops/${op}`), Date.now());
+    document.getElementById('area-opciones').innerHTML = "<div style='color:#16a34a; font-weight:800; padding:10px;'>¡Voto registrado!</div>";
+    setTimeout(() => document.getElementById('modal-consejo').style.display = 'none', 1200);
+};
+
+onValue(query(ref(db, 'comunicados'), limitToLast(1)), (s) => {
+    const d = s.val();
+    if (d) {
+        const id = Object.keys(d)[0];
+        if (sessionStorage.getItem('c_seen') !== id) {
+            mostrarConsejo(d[id].titulo, d[id].msg);
+            sessionStorage.setItem('c_seen', id);
+        }
+    }
+});
+
+onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
+    const d = s.val();
+    if (d) {
+        const id = Object.keys(d)[0];
+        if (sessionStorage.getItem('e_seen') !== id) {
+            mostrarConsejo("Encuesta Estudiantil", d[id].pre, d[id].ops, id);
+            sessionStorage.setItem('e_seen', id);
+        }
+    }
+});
+</script>
 </body>
 </html>
