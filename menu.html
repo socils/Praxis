@@ -155,7 +155,16 @@ const auth = getAuth(app);
 let tokenClient;
 let gapiInited = false;
 let gsisInited = false;
+function navegarA(nuevoTitulo, nuevoEstado) {
+    const bannerTitle = document.getElementById('banner-title');
+    const displayCode = document.getElementById('display-code');
+    const container = document.getElementById('main-container');
 
+    bannerTitle.innerText = nuevoTitulo;
+    displayCode.innerText = nuevoEstado;
+    container.innerHTML = ""; 
+    return container;
+}
 const cargarGoogleAPI = () => {
     const scriptGapi = document.createElement('script');
     scriptGapi.src = "https://apis.google.com/js/api.js";
@@ -812,6 +821,7 @@ navItems.forEach(item => {
 
 else if (texto.includes("calendario")) {
     bannerTitle.innerText = "Calendario Académico";
+    navegarA("Calendario Académico", "VISTA_CALENDARIO");
     displayCode.innerText = "CALENDARIO";
     container.innerHTML = "<p style='text-align:center;'>Organizando fechas...</p>";
     
@@ -824,7 +834,7 @@ else if (texto.includes("calendario")) {
 else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
     bannerTitle.innerText = "Ranking Global Praxis";
     displayCode.innerText = "RANKINGS";
-    
+    navegarA("Ranking Global Praxis", "VISTA_RANKINGS");
     container.innerHTML = `
         <div id="podium-area" style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 30px; height: 220px; padding-top: 20px;"></div>
         <div id="ranking-list" style="background: #ffffff; border-radius: 28px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
@@ -906,6 +916,7 @@ else if (texto.includes("rankings") || texto.includes("top") || texto.includes("
 else if (texto.includes("pendientes")) {
     bannerTitle.innerText = "Tareas Pendientes";
     displayCode.innerText = "PENDIENTES";
+    navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
     container.innerHTML = "<p style='text-align:center;'>Buscando tareas...</p>";
     
     obtenerTodasLasTareas((todasLasTareas) => {
@@ -920,7 +931,7 @@ else if (texto.includes("cuenta de google")) {
     const user = auth.currentUser;
     bannerTitle.innerText = "Información de Perfil";
     displayCode.innerText = "PERFIL";
-    
+    navegarA("Información de Perfil", "VISTA_PERFIL");
     container.innerHTML = `
         <div class="card" style="max-width: 450px; margin: 20px auto; text-align: center; padding: 30px;">
             <div style="position: relative; display: inline-block;">
@@ -939,7 +950,7 @@ else if (texto.includes("cuenta de google")) {
 else if (texto.includes("sincronizar drive")) {
     bannerTitle.innerText = "Mi Biblioteca Digital";
     displayCode.innerText = "RECURSOS_NUBE";
-    
+    navegarA("Mi Biblioteca Digital", "VISTA_DRIVE");
     container.innerHTML = `
         <div class="drive-explorer" style="max-width: 800px; margin: 0 auto; padding: 20px;">
             <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
@@ -1016,7 +1027,7 @@ else if (texto.includes("sincronizar drive")) {
 else if (texto.includes("soporte y ayuda")) {
     bannerTitle.innerText = "Consola de Diagnóstico y Soporte";
     displayCode.innerText = "SOPORTE_SISTEMA";
-    
+    navegarA("Consola de Soporte", "VISTA_SOPORTE");
     container.innerHTML = `
         <div class="diag-container" style="max-width: 800px; margin: 0 auto; animation: slideUp 0.5s ease forwards;">
             <div class="card" style="border-radius: 30px; padding: 40px; text-align: center; border: 1px solid #e2e8f0; background: white;">
