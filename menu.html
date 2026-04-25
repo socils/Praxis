@@ -160,10 +160,15 @@ function navegarA(nuevoTitulo, nuevoEstado) {
     const displayCode = document.getElementById('display-code');
     const container = document.getElementById('main-container');
 
-    bannerTitle.innerText = nuevoTitulo;
-    displayCode.innerText = nuevoEstado;
-    container.innerHTML = ""; 
-    return container;
+    if (bannerTitle) bannerTitle.innerText = nuevoTitulo;
+    if (displayCode) displayCode.innerText = nuevoEstado;
+
+    if (container) {
+        container.innerHTML = "";
+        window.scrollTo(0, 0);
+        return container;
+    }
+    return null;
 }
 const cargarGoogleAPI = () => {
     const scriptGapi = document.createElement('script');
