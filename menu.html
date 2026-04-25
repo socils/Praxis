@@ -80,30 +80,37 @@
             </div>
         </div>
     </div>
-<div id="loader-global" style="display: flex; position: fixed; z-index: 20000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); flex-direction: column; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);">
+<div id="loader-global" style="display: flex; position: fixed; z-index: 20000; left: 0; top: 0; width: 100%; height: 100%; background: #ffffff; flex-direction: column; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
     
-    <div class="loader-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center;">
-        <div class="spinner-outer" style="width: 70px; height: 70px; border: 3px solid transparent; border-top: 3px solid #1a73e8; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-        <div class="spinner-inner" style="position: absolute; width: 40px; height: 40px; border: 3px solid transparent; border-bottom: 3px solid #4285f4; border-radius: 50%; animation: spin-reverse 1.2s linear infinite;"></div>
-        <img src="praxis.png" alt="P" style="position: absolute; width: 25px; height: 25px; animation: pulse 1.5s ease-in-out infinite;">
+    <div class="loader-visual" style="position: relative; display: flex; align-items: center; justify-content: center; width: 120px; height: 120px;">
+        
+        <div style="position: absolute; width: 100%; height: 100%; border: 2px solid #f1f3f4; border-radius: 50%;"></div>
+        <div style="position: absolute; width: 100%; height: 100%; border: 2px solid transparent; border-top-color: #1a73e8; border-radius: 50%; animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;"></div>
+        
+        <div style="position: relative; width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
+            <img src="praxis.png" alt="P" style="width: 50px; height: 50px; object-fit: contain; animation: pulse-logo 2s ease-in-out infinite;">
+        </div>
     </div>
 
-    <div style="text-align: center; margin-top: 30px;">
-        <h2 style="margin: 0; color: #202124; font-weight: 700; letter-spacing: -0.5px; font-size: 22px;">Sincronizando Praxis</h2>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 8px;">
-            <div class="dot" style="width: 6px; height: 6px; background: #1a73e8; border-radius: 50%; animation: dots 1.4s infinite;"></div>
-            <div class="dot" style="width: 6px; height: 6px; background: #1a73e8; border-radius: 50%; animation: dots 1.4s infinite 0.2s;"></div>
-            <div class="dot" style="width: 6px; height: 6px; background: #1a73e8; border-radius: 50%; animation: dots 1.4s infinite 0.4s;"></div>
+    <div style="text-align: center; margin-top: 40px;">
+        <h2 style="margin: 0; color: #1a73e8; font-weight: 700; font-size: 24px; letter-spacing: -0.5px;">Praxis</h2>
+        <p id="loader-text" style="color: #5f6368; font-size: 14px; margin-top: 8px; font-weight: 500;">Iniciando protocolos de seguridad...</p>
+        
+        <div style="width: 140px; height: 4px; background: #f1f3f4; border-radius: 10px; margin: 20px auto; overflow: hidden; position: relative;">
+            <div style="position: absolute; width: 50%; height: 100%; background: #1a73e8; border-radius: 10px; animation: loading-bar 2s infinite ease-in-out;"></div>
         </div>
-        <p style="color: #5f6368; font-size: 13px; font-weight: 500; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px;">Alonixz-Guard Active</p>
+    </div>
+
+    <div style="position: absolute; bottom: 40px; display: flex; align-items: center; gap: 10px; opacity: 0.6;">
+        <div style="width: 8px; height: 8px; background: #34a853; border-radius: 50%;"></div>
+        <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #202124; font-weight: 600;">Alonixz Cloud Active</span>
     </div>
 </div>
 
 <style>
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
-@keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
-@keyframes dots { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+@keyframes pulse-logo { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.92); opacity: 0.8; } }
+@keyframes loading-bar { 0% { left: -50%; } 100% { left: 100%; } }
 </style>
 
 <style>
