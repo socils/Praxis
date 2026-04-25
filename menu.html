@@ -476,7 +476,8 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
     }
 };
 function mostrarEstadoVacio(msg, rachaReal = 0) {
-    displayCode.innerText = "SIN AGENDA";
+    if (displayCode.innerText !== "SIN AGENDA") return;
+
     bannerTitle.innerText = "Bienvenido a Praxis";
     
     const rachaActual = parseInt(rachaReal);
@@ -490,7 +491,6 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
         { nombre: "OBSIDIANA", dias: 80, clase: "rango-obsidiana", color: "#3a0052" }
     ];
 
-   
     let rangoActualIdx = -1;
     for (let i = niveles.length - 1; i >= 0; i--) {
         if (rachaActual >= niveles[i].dias) {
@@ -501,9 +501,7 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
 
     let htmlContenido = "";
 
-   
     if (userEmail === "ajuliuszch@gmail.com") {
-       
         htmlContenido = `
             <div style="padding: 25px; border-radius: 20px; background: #f0f7ff; border: 2px solid #1a73e8; flex: 1;">
                 <h3 style="color: #1a73e8; margin: 0; font-size: 18px;">Hola Administrador</h3>
@@ -511,7 +509,6 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 <span class="rango-tag rango-admin" style="margin-top: 10px; display: inline-block;">FUNDADOR</span>
             </div>`;
     } else if (rachaActual >= 1000) {
-       
         htmlContenido = `
             <div style="padding: 25px; border-radius: 20px; background: #000; border: 2px solid #0f0; flex: 1;">
                 <h3 style="color: #0f0; margin: 0; font-size: 18px; font-family: monospace;">¿Cómo es posible eso?</h3>
@@ -519,7 +516,6 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 <span class="rango-tag rango-hacker" style="margin-top: 10px; display: inline-block;">ROOT_HACKER</span>
             </div>`;
     } else {
-       
         let htmlActual = "";
         if (rangoActualIdx !== -1) {
             const actual = niveles[rangoActualIdx];
@@ -530,7 +526,6 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 </div>`;
         }
 
-       
         if (rangoActualIdx < niveles.length - 1) {
             const siguienteIdx = rangoActualIdx + 1;
             const siguiente = niveles[siguienteIdx];
@@ -550,12 +545,11 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
                 </div>`;
             htmlContenido = htmlActual + htmlSiguiente;
         } else {
-           
             htmlContenido = htmlActual;
         }
     }
 
-    statusMsg.innerHTML = `
+    container.innerHTML = `
         <div style="text-align: center; padding: 20px;">
             <div style="background: white; padding: 30px; border-radius: 32px; border: 1px solid #f1f3f4; margin-bottom: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
                 <div style="display: flex; gap: 15px; align-items: stretch; justify-content: center; flex-wrap: wrap;">
@@ -566,7 +560,6 @@ function mostrarEstadoVacio(msg, rachaReal = 0) {
             <h2 style="font-size: 18px; color: #3c4043;">${msg}</h2>
         </div>`;
 }
-// BOTÓN DE TRES RAYAS (Sidebar Toggle)
 const btnToggle = document.getElementById('btn-toggle-sidebar');
 const mainContent = document.getElementById('main-content');
 
