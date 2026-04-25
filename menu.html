@@ -243,6 +243,7 @@ function obtenerRango(racha, email) {
 onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
     const loader = document.getElementById('loader-global');
+    const displayCode = document.getElementById('display-code');
 
     if (user) {
         const isGuest = user.isAnonymous;
@@ -270,9 +271,15 @@ onAuthStateChanged(auth, async (user) => {
             });
             
             rachaFinal = await gestionarRachaUsuario(user.uid);
+            
+            if (displayCode && (displayCode.innerText === "..." || displayCode.innerText === "")) {
+                displayCode.innerText = "SIN AGENDA";
+            }
+
             await cargarAgenda(user.uid);      
             await cargarListaSidebar(user.uid); 
         } else {
+            if (displayCode) displayCode.innerText = "INVITADO";
             bloquearFuncionesInvitado();
         }
 
@@ -307,10 +314,10 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         if (loader) {
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; }, 500);
-            }, 1000);
+            loader.style.opacity = '0';
+            setTimeout(() => { 
+                loader.style.display = 'none'; 
+            }, 500);
         }
         
     } else {
