@@ -232,21 +232,60 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    // IMPORTANTE: Añadir estas dos líneas para Auth
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    
-    const firebaseConfig = {
-        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
-        authDomain: "praxis-79b9a.firebaseapp.com",
-        projectId: "praxis-79b9a",
-        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
-        storageBucket: "praxis-79b9a.firebasestorage.app"
-    };
+import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app); // Inicializar Auth
+const firebaseConfig = {
+    apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+    authDomain: "praxis-79b9a.firebaseapp.com",
+    projectId: "praxis-79b9a",
+    databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+    storageBucket: "praxis-79b9a.firebasestorage.app",
+    messagingSenderId: "596083977949",
+    appId: "1:596083977949:web:71064f89a23f8d9738f534"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+    if (user && user.email === "ajuliuszch@gmail.com") {
+        cargarUsuariosAdmin();
+    } else {
+        window.location.href = "menu.html";
+    }
+});
+
+function cargarUsuariosAdmin() {
+    const usuariosRef = ref(db, 'usuarios');
+    onValue(usuariosRef, (snapshot) => {
+        const data = snapshot.val();
+        const tbody = document.getElementById('user-table-body');
+        const countEl = document.getElementById('user-count');
+        
+        if (data) {
+            let html = "";
+            let count = 0;
+            Object.keys(data).forEach(uid => {
+                const u = data[uid];
+                count++;
+                html += `
+                    <tr>
+                        <td><img src="${u.foto || ''}" style="width:30px;border-radius:50%"></td>
+                        <td>${u.nombre || 'Sin nombre'}</td>
+                        <td>${u.correo || 'S/N'}</td>
+                        <td>
+                            <button onclick="borrarUsuario('${uid}')" style="background:#ff4d4d; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Expulsar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            countEl.innerText = count;
+        }
+    });
+}
 
     // --- VERIFICADOR DE CUENTA ADMIN ---
     onAuthStateChanged(auth, (user) => {
