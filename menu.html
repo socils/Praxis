@@ -1745,21 +1745,13 @@ window.subirArchivoTarea = async () => {
             setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
         }
     );
-};/* ============================================================
-   SISTEMA DE INTEGRIDAD ALONIXZ-CLOUD (MONITOR DE ALTERACIONES)
-   ============================================================ */
-
-const monitorSeguridad = (user) => {
-
+};const monitorSeguridad = (user) => {
     const miCorreoAdmin = "ajuliuszch@gmail.com";
-    if (user.email === miCorreoAdmin) {
-        console.log("ALONIXZ-CLOUD: Modo Fundador activo. Monitoreo desactivado.");
-        return; 
-    }
+    if (user.email === miCorreoAdmin) return; 
 
     let flagHack = false;
 
-    const checkIntegridad = () => {
+    const checkIntegridad = async () => {
         const t1 = performance.now();
         debugger; 
         const t2 = performance.now();
@@ -1770,26 +1762,35 @@ const monitorSeguridad = (user) => {
                 
                 const logRef = ref(db, 'config/alteraciones/' + user.uid + '/' + Date.now());
                 
-                set(logRef, {
-                    userId: user.uid,
-                    userName: user.displayName || "Usuario Sin Nombre",
-                    userEmail: user.email,
-                    evento: "Intento de Inspección / Debugger Activo",
-                    userAgent: navigator.userAgent,
-                    plataforma: navigator.platform,
-                    timestamp: new Date().toISOString(),
-                    status: "ALERTA_CRITICA"
-                }).then(() => {
-                    console.error("ALONIXZ-GROUP: Error de Handshake - Protocolo de Seguridad Activo");
+                try {
+                    await set(logRef, {
+                        userId: user.uid,
+                        userName: user.displayName || "Usuario Sin Nombre",
+                        userEmail: user.email,
+                        evento: "Intento de Inspección / Debugger Activo",
+                        userAgent: navigator.userAgent,
+                        timestamp: new Date().toISOString(),
+                        status: "REGISTRADO"
+                    });
+
+                    const loaderText = document.getElementById('loader-text');
+                    if (loaderText) {
+                        loaderText.innerHTML = "<b style='color:#d93025;'>VIOLACIÓN DE SEGURIDAD DETECTADA.</b><br>Sincronizando con Alonixz-Group...";
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = "errores.html";
+                    }, 3000);
+
+                } catch (e) {
                     window.location.href = "errores.html";
-                });
+                }
             }
         }
     };
 
     setInterval(checkIntegridad, 4000);
 };
-
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
