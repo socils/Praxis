@@ -124,20 +124,20 @@
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
 
-// Captura errores globales del navegador
+
 window.onerror = function(msg, url, lineNo, columnNo, error) {
     idErrorActual = Math.floor(Math.random() * (400 - 300 + 1)) + 300;
     logsDeSistema = `[CRITICAL_FAIL] Error ${idErrorActual}: ${msg} | Línea: ${lineNo}`;
     console.warn("Diagnóstico capturado por Alonixz-Guard");
     return false;
 };
-// 1. IMPORTACIONES
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, onValue, set, push, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// 2. CONFIGURACIÓN E INICIALIZACIÓN (Esto debe ir junto y antes de usarse)
+
 const firebaseConfig = {
     apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
     authDomain: "praxis-79b9a.firebaseapp.com",
@@ -217,7 +217,7 @@ function mostrarModal(mensaje) {
     document.getElementById('modal-anuncio').style.display = 'flex';
 }
 
-// Hacemos que la función de cerrar sea accesible desde el botón del HTML
+
 window.cerrarModalAnuncio = () => {
     document.getElementById('modal-anuncio').style.display = 'none';
     localStorage.setItem('ultimo_anuncio_fecha', fechaAnuncioActual);
@@ -382,7 +382,8 @@ if (!isGuest) {
         window.location.href = "login.html";
     }
 });
-// Función para aplicar restricciones de invitado
+
+
 function bloquearFuncionesInvitado() {
    
     const btnPlus = document.getElementById('btn-plus');
@@ -528,7 +529,7 @@ function cargarAgenda(currentUserUid) {
     }
 };
 
-// FUNCIÓN PARA ELIMINAR (Agrégala al final de tu script)
+
 window.eliminarTarea = async (agendaCode, tareaId) => {
     if (confirm("¿Seguro que quieres borrar esta tarea?")) {
         try {
@@ -638,7 +639,7 @@ btnToggle.onclick = () => {
     }
 };
 
-// CERRAR SESIÓN
+
 const btnLogout = document.getElementById('btn-logout');
 
 if (btnLogout) {
@@ -831,7 +832,7 @@ window.subirArchivoTarea = async () => {
         btn.disabled = false;
     }
 };
-// --- LÓGICA DE NAVEGACIÓN DEL SIDEBAR ---
+
 
 const navItems = document.querySelectorAll('.nav-item');
 
@@ -1162,7 +1163,7 @@ if (window.innerWidth <= 768) {
     }
     return `PX-${resultado}`;
 }
-// Función global para eliminar una tarea específica
+
 window.eliminarTarea = async (agendaCode, tareaId) => {
     if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
         try {
@@ -1278,7 +1279,7 @@ function renderizarVacio() {
             <p>Todo está al día por ahora.</p>
         </div>`;
 }
-// --- SCRIPT DE ACTUALIZACIÓN PRAXIS (BETA v1.1) ---
+
 (function() {
    
     if (localStorage.getItem('praxis_update_hidden') === 'true') return;
