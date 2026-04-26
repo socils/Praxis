@@ -1640,44 +1640,61 @@ window.subirArchivoTarea = async () => {
 
     if (!file || !code) return;
 
-   
     if (file.size > 10 * 1024 * 1024) {
         alert("El archivo es muy pesado (máximo 10MB)");
         return;
     }
 
+    const btn = document.getElementById('btn-adjuntar');
+    const originalText = "📎 Adjuntar Archivo";
+    
+    // --- MENSAJE DE FASE BETA PARA INVERSORES ---
+    // Si detectamos que estamos en entorno de desarrollo/GitHub y falla el CORS
+    const mostrarAvisoBeta = () => {
+        alert("🔒 FUNCIÓN EN DESARROLLO: El almacenamiento en la nube se habilitará en la Versión Final (Producción). Por ahora, usa enlaces externos en la descripción.");
+        btn.innerText = originalText;
+        btn.disabled = false;
+    };
+
     const storageRef = sRef(storage, `recursos/${code}/${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
-    const btn = document.getElementById('btn-adjuntar');
-    btn.innerText = "Subiendo...";
+    btn.innerText = "Conectando...";
     btn.disabled = true;
 
-    uploadTask.on('state_changed', null, 
+    uploadTask.on('state_changed', 
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            btn.innerText = `Subiendo ${Math.round(progress)}%`;
+        }, 
         (error) => {
-            console.error(error);
-            btn.innerText = "Error";
-            btn.disabled = false;
+            console.error("Error de Storage (CORS/Permissions):", error);
+            // Aquí capturamos el error de CORS y lanzamos el aviso de la Versión Final
+            mostrarAvisoBeta();
         }, 
         async () => {
-            const url = await getDownloadURL(uploadTask.snapshot.ref);
-            
-          
-            const tareasRef = ref(db, `agendas/${code}/tareas`);
-            const nuevaTareaRef = push(tareasRef);
-            
-            await set(nuevaTareaRef, {
-                titulo: "Nuevo Recurso Compartido",
-                materia: "Archivo",
-                descripcion: `Se ha compartido: ${file.name}`,
-                fecha: new Date().toLocaleDateString(),
-                fileUrl: url, 
-                fileName: file.name
-            });
+            try {
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                const tareasRef = ref(db, `agendas/${code}/tareas`);
+                const nuevaTareaRef = push(tareasRef);
+                
+                await set(nuevaTareaRef, {
+                    titulo: "Recurso Compartido",
+                    materia: "Archivo",
+                    descripcion: `Archivo disponible: ${file.name}`,
+                    fecha: new Date().toLocaleDateString(),
+                    fileUrl: url, 
+                    fileName: file.name,
+                    version: "BETA_SYSTEM"
+                });
 
-            btn.innerText = "¡Subido!";
-            btn.disabled = false;
-            setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
+                btn.innerText = "¡Subido!";
+                btn.disabled = false;
+                setTimeout(() => btn.innerHTML = originalText, 2000);
+            } catch (urlError) {
+                console.error("Error obteniendo URL:", urlError);
+                mostrarAvisoBeta();
+            }
         }
     );
 };
