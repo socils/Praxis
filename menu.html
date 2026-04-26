@@ -54,6 +54,8 @@
             <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Sincronizar Drive</div>
             <a href="centro-de-admins.html" id="admin-link" style="display: none; color: #ff4d4d; font-weight: 800;">
     🛡️ Panel de Fundador
+</a><a href="consejo-estudiantil.html" id="consejo-link" style="display: none; color: #ff4d4d; font-weight: 800;">
+    🛡️ Panel del consejo
 </a>
             <hr>
             <div class="nav-item logout" id="btn-logout"><img src="cerrar-sesion.png" alt="" style="width: 20px;"> Salir</div>
@@ -259,14 +261,27 @@ onAuthStateChanged(auth, async (user) => {
     const loader = document.getElementById('loader-global');
     const displayCode = document.getElementById('display-code');
 
-    if (user) {
-        const isGuest = user.isAnonymous;
-        const miCorreoAdmin = "ajuliuszch@gmail.com";
-        const adminBtn = document.getElementById('admin-link');
+   if (user) {
+    const isGuest = user.isAnonymous;
+    const miCorreoAdmin = "ajuliuszch@gmail.com";
+    const STAFF_CONSEJO = [
+        "miembro2@ejemplo.com",
+        "miembro3@ejemplo.com",
+        "miembro4@ejemplo.com",
+        "miembro5@ejemplo.com"
+    ];
 
-        if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
-            adminBtn.style.display = 'flex';
-        }
+    const adminBtn = document.getElementById('admin-link');
+    const consejoBtn = document.getElementById('consejo-link');
+
+    if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
+        adminBtn.style.display = 'flex';
+    }
+
+    if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
+        consejoBtn.style.display = 'flex';
+    }
+}
 
         const nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
         const fotoDisplay = isGuest 
