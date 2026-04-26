@@ -261,27 +261,26 @@ onAuthStateChanged(auth, async (user) => {
     const loader = document.getElementById('loader-global');
     const displayCode = document.getElementById('display-code');
 
-   if (user) {
-    const isGuest = user.isAnonymous;
-    const miCorreoAdmin = "ajuliuszch@gmail.com";
-    const STAFF_CONSEJO = [
-        "miembro2@ejemplo.com",
-        "miembro3@ejemplo.com",
-        "miembro4@ejemplo.com",
-        "miembro5@ejemplo.com"
-    ];
+    if (user) {
+        const isGuest = user.isAnonymous;
+        const miCorreoAdmin = "ajuliuszch@gmail.com";
+        const STAFF_CONSEJO = [
+            "miembro2@ejemplo.com",
+            "miembro3@ejemplo.com",
+            "miembro4@ejemplo.com",
+            "miembro5@ejemplo.com"
+        ];
 
-    const adminBtn = document.getElementById('admin-link');
-    const consejoBtn = document.getElementById('consejo-link');
+        const adminBtn = document.getElementById('admin-link');
+        const consejoBtn = document.getElementById('consejo-link');
 
-    if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
-        adminBtn.style.display = 'flex';
-    }
+        if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
+            adminBtn.style.display = 'flex';
+        }
 
-    if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
-        consejoBtn.style.display = 'flex';
-    }
-}
+        if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
+            consejoBtn.style.display = 'flex';
+        }
 
         const nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
         const fotoDisplay = isGuest 
@@ -353,7 +352,6 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "login.html";
     }
 });
-
 // Función para aplicar restricciones de invitado
 function bloquearFuncionesInvitado() {
    
