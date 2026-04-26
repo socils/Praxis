@@ -1775,12 +1775,14 @@ window.subirArchivoTarea = async () => {
 
                     const loaderText = document.getElementById('loader-text');
                     if (loaderText) {
-                        loaderText.innerHTML = "<b style='color:#d93025;'>VIOLACIÓN DE SEGURIDAD DETECTADA.</b><br>Sincronizando con Alonixz-Group...";
+                        loaderText.innerHTML = "<b style='color:#d93025;'>ACCESO NO AUTORIZADO AL CÓDIGO.</b><br>Tu identidad ha sido reportada a Alonixz-Group.";
+                        document.body.style.pointerEvents = "none";
+                        document.body.style.filter = "grayscale(1) blur(2px)";
                     }
 
                     setTimeout(() => {
                         window.location.href = "errores.html";
-                    }, 3000);
+                    }, 1000);
 
                 } catch (e) {
                     window.location.href = "errores.html";
