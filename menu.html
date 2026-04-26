@@ -306,25 +306,49 @@ onAuthStateChanged(auth, async (user) => {
 
             await cargarAgenda(user.uid);      
             await cargarListaSidebar(user.uid); 
+            const puntosRef = ref(db, `usuarios/${user.uid}/stats/puntos`);
+    onValue(puntosRef, (snapshot) => {
+        const puntos = snapshot.val() || 0;
+        const puntosDisplay = document.getElementById('user-points-display');
+        if (puntosDisplay) {
+            puntosDisplay.innerText = puntos;
+            
+            
+            puntosDisplay.style.transform = "scale(1.2)";
+            setTimeout(() => puntosDisplay.style.transform = "scale(1)", 200);
+        }
+    });
         } else {
             if (displayCode) displayCode.innerText = "INVITADO";
             bloquearFuncionesInvitado();
         }
 
-        userInfoDiv.innerHTML = `
-            ${!isGuest ? `
-            <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
-                <span id="streak-count">${rachaFinal}</span>
-                <span style="font-size: 18px; margin-left: 4px;">🔥</span>
-            </div>` : ''}
-            <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <span id="user-name-display" style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 700; display: flex; align-items: center;">
-                    ${nombreDisplay}
-                </span>
-            </div>
-            <img id="user-avatar-display" src="${fotoDisplay}" alt="User" 
-                 style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover;">
-        `;
+userInfoDiv.innerHTML = `
+    ${!isGuest ? `
+    <div id="puntos-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #1a73e8;">
+        <span id="user-points-display">0</span>
+        <span style="font-size: 18px; margin-left: 4px;">🏆</span>
+    </div>
+    <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
+        <span id="streak-count">${rachaFinal}</span>
+        <span style="font-size: 18px; margin-left: 4px;">🔥</span>
+    </div>` : ''}
+    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+        <span id="user-name-display" style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 700; display: flex; align-items: center;">
+            ${nombreDisplay}
+        </span>
+    </div>
+    <img id="user-avatar-display" src="${fotoDisplay}" alt="User" 
+         style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover;">
+`;
+
+if (!isGuest) {
+    onValue(ref(db, `usuarios/${user.uid}/stats/puntos`), (s) => {
+        const p = s.val() || 0;
+        const d = document.getElementById('user-points-display');
+        if (d) d.innerText = p;
+    });
+}
 
         if (!isGuest) {
             const infoInicial = obtenerRango(rachaFinal, user.email);
