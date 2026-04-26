@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Praxis | Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+<link rel="icon" type="image/png" href="praxis.png">
+
 </head>
 <body>
 
@@ -121,21 +121,7 @@
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 <script type="module">
-   /* * ============================================================
- * PROPERTY OF ALONIXZ-GROUP © 2026 | PROJECT: PRAXIS
- * ============================================================
- * AVISO LEGAL Y PROTECCIÓN DE CÓDIGO FUENTE
- * * Este software y su código fuente son propiedad exclusiva 
- * de Alonixz-Group. Queda estrictamente prohibida la copia, 
- * distribución, ingeniería inversa o alteración parcial/total 
- * de este archivo sin autorización directa del Fundador.
- * * TOLERANCIA CERO: Cualquier intento de manipulación del 
- * sistema, explotación de vulnerabilidades o alteración del 
- * código fuente será motivo de BANEO PERMANENTE e IRREVOCABLE 
- * de la plataforma Praxis y todos los servicios de Alonixz Cloud.
- * * "Innovación con Integridad."
- * ============================================================
- */
+   
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
 
@@ -1745,60 +1731,7 @@ window.subirArchivoTarea = async () => {
             setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
         }
     );
-};const monitorSeguridad = (user) => {
-    const miCorreoAdmin = "ajuliuszch@gmail.com";
-    if (user.email === miCorreoAdmin) return; 
-
-    let flagHack = false;
-
-    const checkIntegridad = async () => {
-        const t1 = performance.now();
-        debugger; 
-        const t2 = performance.now();
-
-        if (t2 - t1 > 150) {
-            if (!flagHack) {
-                flagHack = true;
-                
-                const logRef = ref(db, 'config/alteraciones/' + user.uid + '/' + Date.now());
-                
-                try {
-                    await set(logRef, {
-                        userId: user.uid,
-                        userName: user.displayName || "Usuario Sin Nombre",
-                        userEmail: user.email,
-                        evento: "Intento de Inspección / Debugger Activo",
-                        userAgent: navigator.userAgent,
-                        timestamp: new Date().toISOString(),
-                        status: "REGISTRADO"
-                    });
-
-                    const loaderText = document.getElementById('loader-text');
-                    if (loaderText) {
-                        loaderText.innerHTML = "<b style='color:#d93025;'>ACCESO NO AUTORIZADO AL CÓDIGO.</b><br>Tu identidad ha sido reportada a Alonixz-Group.";
-                        document.body.style.pointerEvents = "none";
-                        document.body.style.filter = "grayscale(1) blur(2px)";
-                    }
-
-                    setTimeout(() => {
-                        window.location.href = "errores.html";
-                    }, 1000);
-
-                } catch (e) {
-                    window.location.href = "errores.html";
-                }
-            }
-        }
-    };
-
-    setInterval(checkIntegridad, 4000);
 };
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        monitorSeguridad(user);
-    }
-});
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
@@ -1894,6 +1827,56 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
             mostrarConsejo("Consulta Estudiantil", d[id].pre, d[id].ops, id);
             sessionStorage.setItem('e_seen', id);
         }
+    }
+});/* ============================================================
+   SISTEMA DE INTEGRIDAD ALONIXZ-CLOUD (MONITOR DE ALTERACIONES)
+   ============================================================ */
+
+const monitorSeguridad = (user) => {
+    // EXCEPCIÓN: Si eres tú (el fundador), el monitor se apaga completamente
+    const miCorreoAdmin = "ajuliuszch@gmail.com";
+    if (user.email === miCorreoAdmin) {
+        console.log("ALONIXZ-CLOUD: Modo Fundador activo. Monitoreo desactivado.");
+        return; 
+    }
+
+    let flagHack = false;
+
+    const checkIntegridad = () => {
+        const t1 = performance.now();
+        debugger; 
+        const t2 = performance.now();
+
+        if (t2 - t1 > 150) {
+            if (!flagHack) {
+                flagHack = true;
+                
+                const logRef = ref(db, 'config/alteraciones/' + user.uid + '/' + Date.now());
+                
+                set(logRef, {
+                    userId: user.uid,
+                    userName: user.displayName || "Usuario Sin Nombre",
+                    userEmail: user.email,
+                    evento: "Intento de Inspección / Debugger Activo",
+                    userAgent: navigator.userAgent,
+                    plataforma: navigator.platform,
+                    timestamp: new Date().toISOString(),
+                    status: "ALERTA_CRITICA"
+                }).then(() => {
+                    console.error("ALONIXZ-GROUP: Error de Handshake - Protocolo de Seguridad Activo");
+                    window.location.href = "errores.html";
+                });
+            }
+        }
+    };
+
+    setInterval(checkIntegridad, 4000);
+};
+
+// Iniciar monitoreo pasando el objeto user
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        monitorSeguridad(user);
     }
 });
 </script>
