@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRAXIS v1.0.0 | LANZAMIENTO</title>
+    <title>PRAXIS v1.0.0 | ESTADO DEL SISTEMA</title>
     <style>
         :root {
             --primary: #0071ff;
             --success: #00ff88;
             --text: #000;
             --accent: #ffeb3b;
+            --danger: #ff3e3e;
             --brutal-shadow: 12px 12px 0px #000;
             --mobile-shadow: 8px 8px 0px #000;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             background-color: var(--primary);
@@ -32,17 +31,12 @@
             padding: 20px;
         }
 
-        /* FONDO DINÁMICO */
         .background-wall {
             position: fixed; 
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 10px;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            display: flex; flex-wrap: wrap;
+            gap: 20px; padding: 10px;
             z-index: 1;
             transform: rotate(-15deg);
             opacity: 0.15;
@@ -50,25 +44,20 @@
             animation: scrollWall 40s linear infinite;
         }
 
-        .background-wall span {
-            font-size: 22px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
+        .background-wall span { font-size: 22px; font-weight: 900; text-transform: uppercase; }
 
         @keyframes scrollWall {
             from { transform: translate(0, 0) rotate(-15deg); }
             to { transform: translate(-400px, -400px) rotate(-15deg); }
         }
 
-        /* CONTENEDOR */
         .container {
             background: #fff;
             border: 6px solid #000;
             padding: 40px 25px;
             box-shadow: var(--brutal-shadow);
             text-align: center;
-            max-width: 450px;
+            max-width: 480px;
             width: 100%;
             z-index: 10;
             position: relative;
@@ -77,9 +66,8 @@
 
         .floating-badge {
             position: absolute;
-            top: -25px;
-            right: -10px;
-            background: var(--success);
+            top: -25px; right: -10px;
+            background: var(--danger);
             border: 4px solid #000;
             padding: 8px 15px;
             font-size: 12px;
@@ -87,6 +75,7 @@
             box-shadow: 6px 6px 0px #000;
             animation: float 3s ease-in-out infinite;
             font-weight: 900;
+            color: #fff;
         }
 
         h1 {
@@ -95,27 +84,25 @@
             margin: 0;
             line-height: 0.8;
             letter-spacing: -4px;
-            filter: drop-shadow(5px 5px 0px var(--success));
+            filter: drop-shadow(5px 5px 0px var(--danger));
         }
 
-        .version-tag {
+        .error-msg {
             background: #000;
-            color: #fff;
-            display: inline-block;
-            padding: 8px 20px;
-            font-size: clamp(14px, 4vw, 18px);
-            margin-top: 15px;
-            border-radius: 4px;
+            color: var(--danger);
+            padding: 15px;
+            font-size: 14px;
+            margin-top: 20px;
             font-weight: 900;
-            transform: skewX(-10deg);
+            text-transform: uppercase;
+            border: 3px solid var(--danger);
         }
 
-        /* CONTADOR */
         #countdown {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin: 30px 0;
+            margin: 25px 0;
         }
 
         .time-box {
@@ -125,22 +112,9 @@
             box-shadow: 5px 5px 0px #000;
         }
 
-        .time-box span {
-            display: block;
-            font-size: clamp(22px, 6vw, 30px);
-            font-weight: 950;
-            line-height: 1;
-        }
+        .time-box span { display: block; font-size: clamp(20px, 5vw, 28px); font-weight: 950; }
+        .time-box label { font-size: 9px; text-transform: uppercase; font-weight: 900; }
 
-        .time-box label {
-            font-size: 9px;
-            text-transform: uppercase;
-            font-weight: 900;
-            margin-top: 5px;
-            display: block;
-        }
-
-        /* BOTONES */
         .btn-beta {
             background: var(--accent);
             color: #000;
@@ -149,7 +123,7 @@
             padding: 18px;
             border: 5px solid #000;
             display: block;
-            font-size: 20px;
+            font-size: 18px;
             text-transform: uppercase;
             box-shadow: 8px 8px 0px #000;
             transition: 0.2s;
@@ -167,36 +141,17 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            font-size: 14px;
+            font-size: 13px;
             text-transform: uppercase;
             box-shadow: 5px 5px 0px #000;
-            transition: 0.2s;
         }
 
-        .btn-help img {
-            width: 24px;
-            height: 24px;
-        }
+        .btn-help img { width: 20px; height: 20px; }
 
-        .btn-beta:hover, .btn-help:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 10px 10px 0px #000;
-        }
+        .btn-beta:hover, .btn-help:hover { transform: translate(-2px, -2px); box-shadow: 10px 10px 0px #000; }
 
-        .btn-beta:active, .btn-help:active {
-            transform: translate(4px, 4px);
-            box-shadow: 2px 2px 0px #000;
-        }
-
-        @keyframes popIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(10deg); }
-            50% { transform: translateY(-12px) rotate(12deg); }
-        }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(10deg); } 50% { transform: translateY(-12px) rotate(12deg); } }
     </style>
 </head>
 <body>
@@ -207,47 +162,48 @@
         <div class="floating-badge">ALONIXZ-GROUP</div>
         <h1>PRAXIS</h1>
         
-        <div class="version-tag">ESTADO: BETA</div>
+        <div class="error-msg">
+            Se hizo de forma inesperada: los cálculos de tiempo fallaron. <br>
+            Dentro de una semana podría estar listo.
+        </div>
         
         <div id="countdown">
-            <div class="time-box"><span id="days">00</span><label>Días</label></div>
+            <div class="time-box"><span id="days">07</span><label>Días</label></div>
             <div class="time-box"><span id="hours">00</span><label>Horas</label></div>
             <div class="time-box"><span id="minutes">00</span><label>Min</label></div>
             <div class="time-box"><span id="seconds">00</span><label>Seg</label></div>
         </div>
 
-        <!-- ACCESO BETA -->
-        <a href="login.html" class="btn-beta">🚀 ACCESO BETA</a>
+        <a href="autorizacion.html" class="btn-beta">🚀 PROBAR ACCESO</a>
 
-        <!-- BOTÓN DE AYUDA / MANUAL -->
         <a href="ayuda.html" class="btn-help">
-            <img src="informacion.png" alt="Help">
+            <img src="informacion.png" alt="Info">
             ¿Cuál es su manual?
         </a>
         
-        <p style="font-size: 10px; margin-top: 25px; font-weight: 900; text-transform: uppercase; background: #000; color: #fff; display: inline-block; padding: 5px 10px;">
-            LANZAMIENTO: 18 MAYO 2026 | 18:00
+        <p style="font-size: 10px; margin-top: 25px; font-weight: 900; text-transform: uppercase; background: var(--danger); color: #fff; display: inline-block; padding: 5px 10px;">
+            NUEVA ESTIMACIÓN: 07 MAYO 2026
         </p>
     </div>
 
     <script>
         const wall = document.getElementById('wall');
-        const text = "PRAXIS ";
         const fragment = document.createDocumentFragment();
         for(let i=0; i<200; i++) {
             const span = document.createElement('span');
-            span.innerText = text;
+            span.innerText = "PRAXIS ";
             fragment.appendChild(span);
         }
         wall.appendChild(fragment);
 
-        const launchDate = new Date("May 18, 2026 18:00:00").getTime();
+        // Nueva fecha: 7 días desde hoy (30 de Abril 2026 -> 7 de Mayo 2026)
+        const launchDate = new Date("May 07, 2026 18:00:00").getTime();
         const timer = setInterval(() => {
             const now = new Date().getTime();
             const diff = launchDate - now;
             if (diff < 0) {
                 clearInterval(timer);
-                document.getElementById("countdown").innerHTML = "¡YA DISPONIBLE!";
+                document.getElementById("countdown").innerHTML = "¡INICIANDO!";
                 return;
             }
             document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
