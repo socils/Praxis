@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrativo | Consejo Estudiantil</title>
+    <title>Panel Administrativo | Praxis Consejo</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
+    <style>.modal {
+    transition: opacity 0.3s ease;
+}
         :root {
             --primary: #1a73e8;
             --bg: #f8fafc;
@@ -53,6 +55,7 @@
             border-radius: 24px;
             border: 1px solid #e2e8f0;
             text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
         .main-btn {
@@ -66,7 +69,7 @@
             cursor: pointer;
             width: 100%;
             margin-bottom: 15px;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -81,7 +84,7 @@
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin: 25px 0 15px 5px;
+            margin: 40px 0 15px 5px;
         }
 
         .item-card {
@@ -91,28 +94,6 @@
             margin-bottom: 15px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-
-        .edu-points-box {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            padding: 25px;
-            border-radius: 28px;
-            margin-top: 40px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        input {
-            padding: 14px;
-            border-radius: 14px;
-            border: 1px solid #e2e8f0;
-            font-family: inherit;
-            outline: none;
         }
 
         .modal {
@@ -134,20 +115,6 @@
             border-radius: 32px;
         }
 
-        .poll-bar-bg {
-            background: #f1f5f9;
-            height: 10px;
-            border-radius: 5px;
-            margin: 8px 0 15px 0;
-            overflow: hidden;
-        }
-
-        .poll-bar-fill {
-            background: var(--primary);
-            height: 100%;
-            transition: width 0.5s ease;
-        }
-
         .badge {
             font-size: 10px;
             padding: 4px 8px;
@@ -155,6 +122,48 @@
             font-weight: 800;
             text-transform: uppercase;
         }
+
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { padding: 15px 20px; font-size: 12px; color: #94a3b8; font-weight: 800; text-align: left; background: #f8fafc; }
+        
+        .id-badge {
+            font-size: 10px;
+            color: #1a73e8;
+            background: #e8f0fe;
+            padding: 2px 6px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 4px;
+            cursor: pointer;
+            font-weight: 700;
+        }.poll-result-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        margin-top: 5px;
+        overflow: hidden;
+    }
+    .poll-progress {
+        height: 100%;
+        background: var(--accent);
+        transition: width 0.5s ease;
+    }
+    .agenda-card {
+        background: #ffffff;
+        border: 2px solid #000; /* Estilo Digital Brutalism */
+        box-shadow: 5px 5px 0px #000;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+    .point-badge {
+        background: #fef08a;
+        color: #854d0e;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 13px;
+    }
     </style>
 </head>
 <body>
@@ -181,450 +190,476 @@
         </div>
     </div>
 
-    <button class="main-btn" onclick="abrirModal('comunicado')" style="background: var(--primary);">
+    <button class="main-btn" onclick="abrirModal('comunicado')">
         <span>➕</span> Publicar Comunicado
     </button>
     <button class="main-btn" onclick="abrirModal('encuesta')" style="background: var(--accent);">
         <span>📈</span> Crear Nueva Encuesta
     </button>
-<div class="praxis-points-box" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 25px; border-radius: 28px; margin-top: 40px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);">
+
+    <!-- Sección de Premiación -->
+    <div class="praxis-points-box" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 25px; border-radius: 28px; margin-top: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+            <span style="font-size: 24px;">🏆</span>
+            <h3 style="margin: 0; font-size: 18px; color: #1e3a8a; font-weight: 800;">Premiación Praxis</h3>
+        </div>
+        <p style="font-size: 13px; color: #1e40af; margin-bottom: 15px;">Otorga puntos de mérito directamente a los IDs del directorio.</p>
+        
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="praxis-uid" placeholder="ID (Pegar aquí)" style="flex: 2; padding: 14px; border-radius: 14px; border: 1px solid #dbeafe; outline: none;">
+            <input type="number" id="praxis-amt" placeholder="Cant." style="flex: 1; padding: 14px; border-radius: 14px; border: 1px solid #dbeafe; outline: none;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="puntosPraxis(true)" style="flex: 1; padding: 15px; border-radius: 16px; border: none; background: #1a73e8; color: white; font-weight: 800; cursor: pointer;">Otorgar</button>
+            <button onclick="puntosPraxis(false)" style="flex: 1; padding: 15px; border-radius: 16px; border: 1px solid #dbeafe; background: white; color: #1e40af; font-weight: 700; cursor: pointer;">Retirar</button>
+        </div>
+    </div><!-- Sección de Gestión de Agendas -->
+<div class="agenda-points-box" style="background: #fdf2f8; border: 1px solid #fbcfe8; padding: 25px; border-radius: 28px; margin-top: 20px; border: 2px solid #000; box-shadow: 6px 6px 0px #000;">
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-        <span style="font-size: 24px;">🏆</span>
-        <h3 style="margin: 0; font-size: 18px; color: #1e3a8a; font-weight: 800;">Premiación Praxis</h3>
+        <span style="font-size: 24px;">📔</span>
+        <h3 style="margin: 0; font-size: 18px; color: #9d174d; font-weight: 800;">Banco de Puntos: Agendas</h3>
     </div>
-    <p style="font-size: 14px; color: #1e40af; margin: 0 0 15px 0;">Sistema oficial del Consejo para otorgar reconocimientos y puntos de mérito.</p>
+    <p style="font-size: 13px; color: #be185d; margin-bottom: 15px;">Gestiona el saldo acumulado de las agendas mediante su código oficial.</p>
     
-    <div class="input-group" style="display: flex; gap: 10px;">
-        <input type="text" id="praxis-uid" placeholder="ID de Usuario (Ej: PX-123)" style="flex: 2; padding: 14px; border-radius: 14px; border: 1px solid #dbeafe; outline: none; font-family: 'Outfit';">
-        <input type="number" id="praxis-amt" placeholder="Cant." style="flex: 1; padding: 14px; border-radius: 14px; border: 1px solid #dbeafe; outline: none; font-family: 'Outfit';">
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="agenda-cod" placeholder="Código (Ej: PX-Z2X2EF)" style="flex: 2; padding: 14px; border-radius: 14px; border: 2px solid #000; outline: none; font-family: 'Outfit', sans-serif; font-weight: 700;">
+        <input type="number" id="agenda-amt" placeholder="Cant." style="flex: 1; padding: 14px; border-radius: 14px; border: 2px solid #000; outline: none; font-weight: 700;">
     </div>
 
     <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button onclick="puntosPraxis(true)" style="flex: 1; padding: 15px; border-radius: 16px; border: none; background: #1a73e8; color: white; font-weight: 800; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);" onmouseover="this.style.background='#1557b0'" onmouseout="this.style.background='#1a73e8'">
-            Otorgar Puntos
-        </button>
-        <button onclick="puntosPraxis(false)" style="flex: 1; padding: 15px; border-radius: 16px; border: 1px solid #dbeafe; background: white; color: #1e40af; font-weight: 700; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-            Retirar
-        </button>
+        <button onclick="puntosAgenda(true)" style="flex: 1; padding: 15px; border-radius: 16px; border: 2px solid #000; background: #ec4899; color: white; font-weight: 800; cursor: pointer; box-shadow: 3px 3px 0px #000;">Cargar</button>
+        <button onclick="puntosAgenda(false)" style="flex: 1; padding: 15px; border-radius: 16px; border: 2px solid #000; background: white; color: #9d174d; font-weight: 700; cursor: pointer; box-shadow: 3px 3px 0px #000;">Debitar</button>
     </div>
 </div>
+
+    <div class="section-title">Directorio de Estudiantes</div>
+    <div style="background: white; border-radius: 28px; border: 1px solid #e2e8f0; overflow: hidden; margin-bottom: 30px;">
+        <div style="padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+            <span style="font-size: 12px; font-weight: 800; color: #64748b;">REGISTRO ALONIXZ-CLOUD</span>
+            <span id="count-users" style="color: var(--primary); font-weight: 800; font-size: 12px;">0 Usuarios</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ESTUDIANTE</th>
+                        <th>ACTIVIDAD</th>
+                        <th style="text-align: right;">PUNTOS</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body">
+                    <tr><td colspan="3" style="text-align:center; padding:30px; color:#94a3b8;">Sincronizando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <div class="section-title">Actividad Reciente</div>
-    <div id="lista-actividad">
-        </div>
+    <div id="lista-actividad"></div>
+    <div class="section-title">Agendas Activas (Sincronizadas)</div>
+    <div id="lista-agendas">
+        <p style="font-size: 12px; color: #94a3b8; padding-left: 5px;">Cargando bancos de puntos...</p>
+    </div>
+
+    <!-- SECCIÓN DE RESULTADOS DE ENCUESTAS -->
+    <div class="section-title">Resultados de Encuestas</div>
+    <div id="resultados-encuestas"></div>
 </div>
 
+<!-- Modales -->
 <div id="modal-editor" class="modal">
     <div class="modal-content">
-        <h2 id="modal-titulo" style="margin-top: 0;"></h2>
-        
+        <h2 id="modal-titulo" style="margin: 0 0 20px 0;"></h2>
         <div id="form-comunicado">
-            <input type="text" id="com-tit" placeholder="Título del comunicado" style="width: 100%; margin-bottom: 10px; box-sizing: border-box;">
-            <textarea id="com-msg" placeholder="Escribe el mensaje aquí..." style="width: 100%; height: 100px; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: inherit; outline: none; box-sizing: border-box;"></textarea>
+            <input type="text" id="com-tit" placeholder="Título" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; box-sizing: border-box;">
+            <textarea id="com-msg" placeholder="Mensaje..." style="width: 100%; height: 100px; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: inherit; box-sizing: border-box;"></textarea>
         </div>
-
         <div id="form-encuesta" style="display: none;">
-            <input type="text" id="enc-pre" placeholder="¿Qué quieres preguntar?" style="width: 100%; margin-bottom: 15px; box-sizing: border-box;">
-            <div id="ops-container">
-                <input type="text" class="op-input" placeholder="Opción 1" style="width: 100%; margin-bottom: 8px; box-sizing: border-box;">
-                <input type="text" class="op-input" placeholder="Opción 2" style="width: 100%; margin-bottom: 8px; box-sizing: border-box;">
-            </div>
-            <button onclick="addOp()" style="background:none; border:1px dashed #cbd5e1; width:100%; padding:10px; border-radius:12px; color:#64748b; cursor:pointer; font-size:13px;">+ Añadir opción</button>
+            <input type="text" id="enc-pre" placeholder="Pregunta" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-sizing: border-box;">
+            <div id="ops-container"></div>
+            <button onclick="addOp()" style="background:none; border:1px dashed #cbd5e1; width:100%; padding:10px; border-radius:12px; color:#64748b; cursor:pointer;">+ Opción</button>
         </div>
-
         <div style="display: flex; gap: 10px; margin-top: 25px;">
-            <button onclick="cerrarModal()" style="flex: 1; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 600;">Cancelar</button>
-            <button onclick="guardar()" style="flex: 2; padding: 14px; border-radius: 16px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: 700;">Publicar Ahora</button>
+            <button onclick="cerrarModal()" style="flex: 1; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">Cerrar</button>
+            <button onclick="guardar()" style="flex: 2; padding: 14px; border-radius: 16px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: 700;">Publicar</button>
         </div>
     </div>
-    
 </div>
-<div class="section-title">Directorio de Estudiantes</div>
-<div style="background: white; border-radius: 28px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 50px;">
-    <div style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
-        <span style="font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Registro de Alonixz-Cloud</span>
-        <span id="count-users" style="background: #1a73e8; color: white; padding: 4px 12px; border-radius: 10px; font-size: 12px; font-weight: 800;">0 Usuarios</span>
-    </div>
-    <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; min-width: 500px;">
-            <thead>
-                <tr style="background: #f8fafc; text-align: left; border-bottom: 1px solid #e2e8f0;">
-                    <th style="padding: 15px 20px; font-size: 12px; color: #94a3b8; font-weight: 800;">ESTUDIANTE</th>
-                    <th style="padding: 15px 20px; font-size: 12px; color: #94a3b8; font-weight: 800;">CONTACTO Y ACTIVIDAD</th>
-                    <th style="padding: 15px 20px; font-size: 12px; color: #94a3b8; font-weight: 800; text-align: right;">PUNTOS PRAXIS</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-usuarios-body">
-                <tr>
-                    <td colspan="3" style="text-align:center; padding:40px; color:#94a3b8;">Conectando con la base de datos...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+
 <script type="module">
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-// IMPORTANTE: Añadir estas dos líneas para la autenticación
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
-    authDomain: "praxis-79b9a.firebaseapp.com",
-    projectId: "praxis-79b9a",
-    databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
-    storageBucket: "praxis-79b9a.firebasestorage.app",
-    messagingSenderId: "596083977949",
-    appId: "1:596083977949:web:71064f89a23f8d9738f534"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9738f534"
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app); // Inicializar Auth
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
 
-// LISTA OFICIAL DEL CONSEJO (5 MIEMBROS)
-const STAFF_CONSEJO = [
-    "ajuliuszch@gmail.com",      // Tú
-    "estudiante2@ejemplo.com",
-    "estudiante3@ejemplo.com",
-    "estudiante4@ejemplo.com",
-    "estudiante5@ejemplo.com"
-];
+    let modoActual = '';
+    const STAFF = ["ajuliuszch@gmail.com"];
 
-onAuthStateChanged(auth, (user) => {
-    if (user && STAFF_CONSEJO.includes(user.email)) {
-        console.log("Acceso concedido:", user.email);
-        // Aquí llamas a tus funciones de carga de datos
-        if (typeof cargarActividad === 'function') cargarActividad();
-        if (typeof cargarDirectorio === 'function') cargarDirectorio();
-    } else {
-        alert("Acceso Restringido: No eres parte del Consejo Estudiantil.");
-        window.location.href = "menu.html";
-    }
-});
-    // Gestión de Modales
+    // Seguridad y Acceso
+    onAuthStateChanged(auth, (user) => {
+        if (user && STAFF.includes(user.email)) {
+            cargarTodo();
+        } else {
+            alert("Acceso Restringido");
+            window.location.href = "menu.html";
+        }
+    });
+
+// Funciones de UI Globales
     window.abrirModal = (tipo) => {
         modoActual = tipo;
         document.getElementById('modal-editor').style.display = 'flex';
         document.getElementById('modal-titulo').innerText = tipo === 'comunicado' ? 'Nuevo Comunicado' : 'Nueva Encuesta';
         document.getElementById('form-comunicado').style.display = tipo === 'comunicado' ? 'block' : 'none';
         document.getElementById('form-encuesta').style.display = tipo === 'encuesta' ? 'block' : 'none';
+        
+        if(tipo === 'encuesta') {
+            document.getElementById('ops-container').innerHTML = '';
+            addOp(); addOp(); // Genera las dos primeras opciones por defecto
+        }
     };
 
-    window.cerrarModal = () => {
-        document.getElementById('modal-editor').style.display = 'none';
-        document.getElementById('ops-container').innerHTML = `
-            <input type="text" class="op-input" placeholder="Opción 1" style="width: 100%; margin-bottom: 8px; box-sizing: border-box;">
-            <input type="text" class="op-input" placeholder="Opción 2" style="width: 100%; margin-bottom: 8px; box-sizing: border-box;">
-        `;
-    };
+    window.cerrarModal = () => document.getElementById('modal-editor').style.display = 'none';
 
     window.addOp = () => {
         const cont = document.getElementById('ops-container');
-        if(cont.children.length < 5) {
-            const i = document.createElement('input');
-            i.className = 'op-input';
-            i.placeholder = `Opción ${cont.children.length + 1}`;
-            i.style = "width: 100%; margin-bottom: 8px; box-sizing: border-box; padding: 14px; border-radius: 14px; border: 1px solid #e2e8f0; font-family: inherit;";
-            cont.appendChild(i);
-        }
+        const i = document.createElement('input');
+        i.className = 'op-input';
+        i.placeholder = `Opción ${cont.children.length + 1}`;
+        i.style = "width: 100%; margin-bottom: 8px; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; box-sizing: border-box;";
+        cont.appendChild(i);
     };
-
-    // Lógica de Guardado
-    window.guardar = async () => {
-        const path = modoActual === 'comunicado' ? 'comunicados' : 'encuestas';
-        const refNodo = push(ref(db, path));
-        let payload = { fecha: new Date().toISOString(), autor: "Consejo Estudiantil" };
+window.guardar = async () => {
+        // Determinamos si es comunicado o encuesta para elegir la ruta raíz[cite: 1]
+        const nodoPrincipal = modoActual === 'comunicado' ? 'comunicados' : 'encuestas';
+        
+        // Generamos una referencia con un UID único para este nuevo registro[cite: 1]
+        const nuevaRef = push(ref(db, nodoPrincipal));
+        
+        let data = { 
+            fecha: new Date().toISOString(), 
+            autor: "Consejo" 
+        };
 
         if(modoActual === 'comunicado') {
-            payload.titulo = document.getElementById('com-tit').value;
-            payload.msg = document.getElementById('com-msg').value;
-            if(!payload.titulo || !payload.msg) return alert("Completa los campos");
+            data.titulo = document.getElementById('com-tit').value;
+            data.msg = document.getElementById('com-msg').value;
+            
+            if(!data.titulo || !data.msg) return alert("Completa todos los campos");
         } else {
-            payload.pre = document.getElementById('enc-pre').value;
-            payload.ops = {};
-            document.querySelectorAll('.op-input').forEach(input => {
-                if(input.value) {
-                    const cleanKey = input.value.replace(/[.#$[\]]/g, "");
-                    payload.ops[cleanKey] = 0;
+            // Estructura para Encuestas
+            data.pre = document.getElementById('enc-pre').value;
+            
+            // Inicializamos el objeto de opciones que será el nodo /ops/
+            const opcionesNodo = {}; 
+            const inputs = document.querySelectorAll('.op-input');
+            let contador = 0;
+
+            inputs.forEach(input => {
+                const nombreOpcion = input.value.trim();
+                if(nombreOpcion !== "") {
+                    // Limpiamos la clave para evitar errores de Firebase[cite: 2]
+                    const claveSegura = nombreOpcion.replace(/[.#$[\]]/g, "");
+                    // Seteamos el valor inicial (votos) en 0[cite: 2]
+                    opcionesNodo[claveSegura] = 0; 
+                    contador++;
                 }
             });
-            if(!payload.pre || Object.keys(payload.ops).length < 2) return alert("Mínimo 2 opciones");
+
+            // Asignamos el objeto al campo 'ops' para crear la sub-ruta encuestas/UID/ops/[cite: 2]
+            data.ops = opcionesNodo;
+
+            if(!data.pre || contador < 2) {
+                return alert("La encuesta requiere pregunta y al menos 2 opciones.");
+            }
         }
-
-        await set(refNodo, payload);
-        cerrarModal();
-        alert("¡Publicado con éxito!");
-    };
-// Función para premiación del Consejo con nombre de usuario
-window.puntosPraxis = async (sumar) => {
-    const uid = document.getElementById('praxis-uid').value.trim();
-    const val = parseInt(document.getElementById('praxis-amt').value);
-
-    if (!uid || isNaN(val)) {
-        return alert("Por favor, ingresa un ID de usuario válido y la cantidad de puntos.");
-    }
-
-    // 1. Primero obtenemos los datos actuales del usuario (Nombre y Puntos)
-    const userRef = ref(db, `usuarios/${uid}`);
-
-    onValue(userRef, async (snap) => {
-        const userData = snap.val();
-        if (!userData) return alert("El usuario no existe en la base de datos.");
-
-        // Extraemos nombre (priorizando perfil) y puntos actuales
-        const nombreUser = userData.perfil?.nombre || userData.nombre || "Estudiante";
-        const puntosActuales = userData.stats?.puntos || 0;
-        const nuevoTotal = sumar ? puntosActuales + val : Math.max(0, puntosActuales - val);
 
         try {
-            // 2. Actualizamos los puntos en la carpeta stats
-            const pRef = ref(db, `usuarios/${uid}/stats/puntos`);
-            await set(pRef, nuevoTotal);
-            
-            // 3. Registramos en el historial usando el NOMBRE del usuario
-            const historialRef = push(ref(db, 'comunicados'));
-            await set(historialRef, {
-                titulo: "🏆 Premiación Praxis",
-                msg: `El Consejo ha ${sumar ? 'otorgado' : 'retirado'} ${val} puntos a ${nombreUser}.`,
-                fecha: new Date().toISOString(),
-                tipo: 'premio'
-            });
-
-            alert(`Éxito: ${nombreUser} ahora tiene ${nuevoTotal} Puntos Praxis.`);
-            
-            // Limpiar campos
-            document.getElementById('praxis-amt').value = "";
-            document.getElementById('praxis-uid').value = "";
-            
+            // Guardamos todo el objeto 'data' en la referencia generada[cite: 1]
+            await set(nuevaRef, data);
+            cerrarModal();
+            console.log("Publicado con éxito en Alonixz-Cloud");
         } catch (error) {
-            console.error(error);
-            alert("Error al actualizar puntos. Verifica los permisos.");
+            console.error("Error en el envío:", error);
+            alert("No se pudo conectar con Firebase");
         }
-    }, { onlyOnce: true });
-};
+    };
+    // Premiación Praxis
+    window.puntosPraxis = async (sumar) => {
+        const uid = document.getElementById('praxis-uid').value.trim();
+        const val = parseInt(document.getElementById('praxis-amt').value);
+        if(!uid || isNaN(val)) return alert("Datos inválidos");
 
-    // Renderizado de Actividad y Resultados
-    onValue(ref(db, 'comunicados'), (s) => { document.getElementById('count-com').innerText = s.exists() ? Object.keys(s.val()).length : 0; cargarLista(); });
-    onValue(ref(db, 'encuestas'), (s) => { document.getElementById('count-enc').innerText = s.exists() ? Object.keys(s.val()).length : 0; cargarLista(); });
-
-    function cargarLista() {
-    const list = document.getElementById('lista-actividad');
-    
-    onValue(ref(db), (snap) => {
-        list.innerHTML = "";
-        const data = snap.val();
-        if (!data) return;
-
-        const items = [];
-        if (data.comunicados) {
-            Object.entries(data.comunicados).forEach(([k, v]) => {
-                items.push({ ...v, id: k, tipo: 'com' });
-            });
-        }
-        if (data.encuestas) {
-            Object.entries(data.encuestas).forEach(([k, v]) => {
-                items.push({ ...v, id: k, tipo: 'enc' });
-            });
-        }
-
-        items.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)).forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'item-card';
+        onValue(ref(db, `usuarios/${uid}`), async (snap) => {
+            const user = snap.val();
+            if(!user) return alert("Usuario no encontrado");
             
-            if (item.tipo === 'com') {
-                card.innerHTML = `
-                    <span class="badge" style="background:#dbeafe; color:#1e40af;">Comunicado</span>
-                    <h4 style="margin:8px 0 4px 0;">${item.titulo}</h4>
-                    <p style="font-size:14px; color:#64748b; margin:0;">${item.msg}</p>
-                `;
-            } else {
-                let total = 0;
-                if (item.ops) {
-                    Object.values(item.ops).forEach(v => {
-                        total += (typeof v === 'number' ? v : 0);
-                    });
-                }
+            const actual = user.stats?.puntos || 0;
+            const nuevo = sumar ? actual + val : Math.max(0, actual - val);
+            const nombre = user.perfil?.nombre || "Estudiante";
+
+            await set(ref(db, `usuarios/${uid}/stats/puntos`), nuevo);
+            await set(push(ref(db, 'comunicados')), {
+                titulo: "🏆 Premiación",
+                msg: `${sumar ? 'Otorgados' : 'Retirados'} ${val} puntos a ${nombre}.`,
+                fecha: new Date().toISOString()
+            });
+            alert("Operación exitosa");
+            document.getElementById('praxis-uid').value = "";
+        }, { onlyOnce: true });
+    };
+// Cargar Directorio de Alonixz-Cloud (Estructura Sincronizada)
+    function cargarDirectorio() {
+        onValue(ref(db, 'usuarios'), (snap) => {
+            const tbody = document.getElementById('tabla-usuarios-body');
+            const countUsers = document.getElementById('count-users');
+            
+            tbody.innerHTML = "";
+            if(!snap.exists()) {
+                if(countUsers) countUsers.innerText = "0 Usuarios";
+                return;
+            }
+            
+            const usersData = snap.val();
+            if(countUsers) countUsers.innerText = `${Object.keys(usersData).length} Usuarios`;
+            
+            Object.entries(usersData).forEach(([uid, u]) => {
+                // Mapeo según la estructura de tu imagen: u.nombre y u.foto
+                const nombre = u.nombre || "Usuario Praxis";
+                const foto = u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
                 
-                let pollHtml = `<h4 style="margin:8px 0 12px 0;">${item.pre}</h4>`;
-                if (item.ops) {
-                    Object.entries(item.ops).forEach(([op, v]) => {
-                        const cant = typeof v === 'number' ? v : 0;
-                        const porc = total > 0 ? Math.round((cant / total) * 100) : 0;
-                        pollHtml += `
-                            <div style="font-size:12px; margin-bottom:10px;">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <span>${op}</span>
-                                    <b>${cant} votos (${porc}%)</b>
+                // Los puntos y racha suelen estar en u.stats o raíz; mantengo respaldo
+                const puntos = u.stats?.puntos || u.puntos || 0;
+                const racha = u.stats?.racha || u.racha || 0;
+                
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 12px 15px; display: flex; align-items: center; gap: 12px;">
+                            <!-- Renderizado de Foto desde la URL de Google -->
+                            <img src="${foto}" alt="${nombre}" 
+                                 style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; background: #f1f5f9;">
+                            
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="font-weight: 800; font-size: 14px; color: #1e293b;">${nombre}</div>
+                                <div class="id-badge" onclick="copyID('${uid}')" 
+                                     style="font-size: 10px; color: #1a73e8; background: #e8f0fe; padding: 2px 6px; border-radius: 6px; display: inline-block; cursor: pointer; width: fit-content; margin-top: 3px; font-weight: 700;">
+                                    ID: ${uid.substring(0, 10)}... 📋
                                 </div>
-                                <div class="poll-bar-bg" style="background:#f1f5f9; height:10px; border-radius:5px; margin-top:5px; overflow:hidden;">
-                                    <div class="poll-bar-fill" style="background:#1a73e8; width:${porc}%; height:100%; transition:width 0.5s;"></div>
+                            </div>
+                        </td>
+                        <td style="padding: 15px; font-size: 12px; color: #64748b; font-weight: 600;">
+                            ${racha} 🔥 <span style="font-size: 10px; opacity: 0.7;">RACHA</span>
+                        </td>
+                        <td style="padding: 15px; text-align: right;">
+                            <span style="background: #f0fdf4; color: #166534; padding: 6px 12px; border-radius: 10px; font-weight: 900; font-size: 13px; border: 1px solid #dcfce7;">
+                                ${puntos} <small style="font-size: 9px;">PTS</small>
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+    }
+
+    function cargarActividad() {
+        onValue(ref(db), (snap) => {
+            const list = document.getElementById('lista-actividad');
+            const data = snap.val();
+            list.innerHTML = "";
+            let items = [];
+            
+            if(data.comunicados) Object.entries(data.comunicados).forEach(([k,v]) => items.push({...v, tipo:'com'}));
+            if(data.encuestas) Object.entries(data.encuestas).forEach(([k,v]) => items.push({...v, tipo:'enc'}));
+            
+            document.getElementById('count-com').innerText = data.comunicados ? Object.keys(data.comunicados).length : 0;
+            document.getElementById('count-enc').innerText = data.encuestas ? Object.keys(data.encuestas).length : 0;
+
+            items.sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                if(item.tipo === 'com') {
+                    card.innerHTML = `<span class="badge" style="background:#dbeafe; color:#1e40af;">Comunicado</span><h4 style="margin:10px 0 5px 0;">${item.titulo}</h4><p style="font-size:13px; color:#64748b;">${item.msg}</p>`;
+                } else {
+                    card.innerHTML = `<span class="badge" style="background:#e0e7ff; color:#3730a3;">Encuesta</span><h4 style="margin:10px 0;">${item.pre}</h4><div style="font-size:12px; color:#64748b;">Resultados visibles en app</div>`;
+                }
+                list.appendChild(card);
+            });
+        });
+    }
+
+    window.copyID = (id) => {
+        document.getElementById('praxis-uid').value = id;
+        navigator.clipboard.writeText(id);
+        alert("ID listo para premiar");
+    };function cargarAgendas() {
+        const agendaRef = ref(db, 'agendas');
+        onValue(agendaRef, (snapshot) => {
+            const container = document.getElementById('lista-agendas');
+            container.innerHTML = "";
+            
+            if (!snapshot.exists()) {
+                container.innerHTML = "<p style='font-size:12px; padding:10px;'>No hay agendas activas.</p>";
+                return;
+            }
+
+            snapshot.forEach((childSnapshot) => {
+                const codigo = childSnapshot.key;
+                const data = childSnapshot.val();
+                
+                const card = document.createElement('div');
+                card.className = 'agenda-card';
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 10px; font-weight: 800; color: #6366f1;">CÓDIGO: ${codigo}</span>
+                            <h4 style="margin: 5px 0 0 0; text-transform: uppercase;">${data.nombre || 'Agenda Sin Nombre'}</h4>
+                        </div>
+                        <div class="point-badge">
+                            ${data.bancoPuntos || 0} PTS
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        });
+    }
+
+    // Función para ver resultados de encuestas en tiempo real
+    function cargarResultadosEncuestas() {
+        const encRef = ref(db, 'encuestas');
+        onValue(encRef, (snapshot) => {
+            const container = document.getElementById('resultados-encuestas');
+            container.innerHTML = "";
+            
+            if (!snapshot.exists()) return;
+
+            snapshot.forEach((childSnapshot) => {
+                const encuesta = childSnapshot.val();
+                const totalVotos = Object.values(encuesta.ops || {}).reduce((a, b) => a + b, 0);
+                
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `<h4 style="margin-top:0;">${encuesta.pre}</h4>`;
+                
+                if (encuesta.ops) {
+                    Object.entries(encuesta.ops).forEach(([opcion, votos]) => {
+                        const porcentaje = totalVotos > 0 ? (votos / totalVotos * 100).toFixed(1) : 0;
+                        card.innerHTML += `
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                                    <span>${opcion}</span>
+                                    <span>${votos} votos (${porcentaje}%)</span>
+                                </div>
+                                <div class="poll-result-bar">
+                                    <div class="poll-progress" style="width: ${porcentaje}%"></div>
                                 </div>
                             </div>
                         `;
                     });
                 }
-                card.innerHTML = `<span class="badge" style="background:#e0e7ff; color:#3730a3;">Encuesta</span>${pollHtml}`;
-            }
-            list.appendChild(card);
-        });
-    }, { onlyOnce: true });
-}// --- FUNCION PARA COPIAR ID AL PORTAPAPELES ---
-window.copyID = (id) => {
-    navigator.clipboard.writeText(id).then(() => {
-        // Efecto visual de copiado
-        const inputDestino = document.getElementById('praxis-uid');
-        if(inputDestino) {
-            inputDestino.value = id;
-            inputDestino.style.borderColor = "#16a34a";
-            setTimeout(() => inputDestino.style.borderColor = "#dbeafe", 1000);
-        }
-        alert("ID " + id + " copiado y listo para premiar.");
-    });
-};
-
-// ESCUCHADOR PARA EL PANEL DEL CONSEJO (VERSIÓN SIN EXPULSIÓN)
-onValue(ref(db, 'usuarios'), (snapshot) => {
-    const data = snapshot.val();
-    const tbody = document.getElementById('tabla-usuarios-body');
-    const countEl = document.getElementById('count-users');
-
-    if (snapshot.exists()) {
-        const userEntries = Object.entries(data);
-        if (countEl) countEl.innerText = userEntries.length;
-
-        if (tbody) {
-            tbody.innerHTML = "";
-            userEntries.forEach(([uid, u]) => {
-                // Buscamos el nombre en la estructura de Alonixz-Cloud
-                const nombre = u.perfil?.nombre || u.nombre || "Estudiante de Praxis";
-                const correo = u.perfil?.correo || u.correo || "Correo no vinculado";
-                const foto = u.perfil?.foto || u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
-                
-                // Datos de puntos y racha (buscando en 'stats' o raíz)
-                const racha = (u.stats?.racha !== undefined) ? u.stats.racha : (u.racha || 0);
-                const puntos = (u.stats?.puntos !== undefined) ? u.stats.puntos : (u.puntos || 0);
-                
-                const ultimaActividad = u.stats?.ultimaConexion || u.ultimaConexion 
-                    ? new Date(u.stats?.ultimaConexion || u.ultimaConexion).toLocaleDateString() 
-                    : "Hoy";
-
-                tbody.innerHTML += `
-                    <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <td style="padding: 15px; display: flex; align-items: center; gap: 12px;">
-                            <img src="${foto}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #e8f0fe;">
-                            <div>
-                                <div style="font-weight: 800; color: #1e293b; font-size: 14px;">${nombre}</div>
-                                <div style="font-family: 'Outfit', sans-serif; font-size: 10px; color: #1a73e8; background: #e8f0fe; padding: 2px 6px; border-radius: 6px; display: inline-block; margin-top: 4px; cursor: pointer; font-weight: 700;" 
-                                     onclick="copyID('${uid}')" title="Clic para premiar">
-                                    ID: ${uid} 📋
-                                </div>
-                            </div>
-                        </td>
-                        <td style="padding: 15px;">
-                            <div style="font-size: 13px; color: #64748b;">${correo}</div>
-                            <div style="font-size: 11px; color: #94a3b8;">Último ingreso: ${ultimaActividad}</div>
-                        </td>
-                        <td style="padding: 15px; text-align: right;">
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                                <div style="display: flex; align-items: center; gap: 4px;">
-                                    <span style="font-weight: 900; color: #f59e0b; font-size: 15px;">${racha}</span>
-                                    <span>🔥</span>
-                                </div>
-                                <div style="background: #f0fdf4; color: #166534; font-weight: 800; font-size: 12px; padding: 4px 8px; border-radius: 8px;">
-                                    ${puntos} Puntos Praxis
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                container.appendChild(card);
             });
-        }
-    } else {
-        if (countEl) countEl.innerText = "0";
-        if (tbody) tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:50px; color:#94a3b8;'>Cargando base de datos de Praxis...</td></tr>";
-    }
-});
-
-// Función para facilitar el copiado al campo de premiación
-window.copyID = (id) => {
-    const input = document.getElementById('praxis-uid'); // ID del campo de premiación
-    if(input) {
-        input.value = id;
-        input.focus();
-        // Efecto visual de copiado
-        input.style.boxShadow = "0 0 0 3px rgba(26, 115, 232, 0.3)";
-        setTimeout(() => input.style.boxShadow = "none", 1000);
-    }
-    navigator.clipboard.writeText(id);
-};
-function cargarActividad() {
-    const list = document.getElementById('lista-actividad');
-    const globalRef = ref(db);
-
-    onValue(globalRef, (snap) => {
-        list.innerHTML = "";
-        const data = snap.val();
-        if (!data) return;
-
-        let items = [];
-        if (data.comunicados) Object.entries(data.comunicados).forEach(([k, v]) => items.push({ ...v, id: k, tipo: 'com' }));
-        if (data.encuestas) Object.entries(data.encuestas).forEach(([k, v]) => items.push({ ...v, id: k, tipo: 'enc' }));
-
-        items.sort((a, b) => new Date(b.fecha || b.f) - new Date(a.fecha || a.f)).forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'item-card';
-            
-            if (item.tipo === 'com') {
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <span class="badge" style="background:#dbeafe; color:#1e40af;">Comunicado</span>
-                        <small style="color:#94a3b8; font-size:10px;">${new Date(item.fecha || item.f).toLocaleDateString()}</small>
-                    </div>
-                    <h4 style="margin:10px 0 5px 0; color:#1e293b;">${item.titulo}</h4>
-                    <p style="font-size:13px; color:#64748b; line-height:1.5;">${item.msg}</p>
-                `;
-            } else {
-                let totalVotos = 0;
-                if (item.ops) Object.values(item.ops).forEach(v => totalVotos += (typeof v === 'number' ? v : 0));
-                
-                let resHtml = `<h4 style="margin:10px 0 15px 0;">${item.pre}</h4>`;
-                if (item.ops) {
-                    Object.entries(item.ops).forEach(([op, v]) => {
-                        const cant = typeof v === 'number' ? v : 0;
-                        const porc = totalVotos > 0 ? Math.round((cant / totalVotos) * 100) : 0;
-                        resHtml += `
-                            <div style="margin-bottom:12px;">
-                                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
-                                    <span style="font-weight:600;">${op}</span>
-                                    <span style="color:#1a73e8;">${cant} votos (${porc}%)</span>
-                                </div>
-                                <div style="background:#f1f5f9; height:8px; border-radius:10px; overflow:hidden;">
-                                    <div style="background:#1a73e8; width:${porc}%; height:100%; border-radius:10px;"></div>
-                                </div>
-                            </div>`;
-                    });
-                }
-                card.innerHTML = `<span class="badge" style="background:#e0e7ff; color:#3730a3;">Encuesta</span>${resHtml}`;
-            }
-            list.appendChild(card);
         });
-    });
-}
+    }
+// Gestión de Banco de Puntos para Agendas
+    window.puntosAgenda = async (sumar) => {
+        const codigo = document.getElementById('agenda-cod').value.trim().toUpperCase();
+        const cantidad = parseInt(document.getElementById('agenda-amt').value);
+        
+        if(!codigo || isNaN(cantidad)) {
+            return alert("Ingresa un código de agenda y una cantidad válida.");
+        }
 
-// Inicializar todo
-cargarDirectorio();
-cargarActividad();
+        const agendaRef = ref(db, `agendas/${codigo}`);
 
-// Función para copiar el ID al hacer clic
-window.copyID = (id) => {
-    navigator.clipboard.writeText(id);
-    alert("ID copiado: " + id);
-    document.getElementById('praxis-uid').value = id; // Lo pega automáticamente en el campo de puntos
-};
+        // Obtenemos el valor actual del bancoPuntos
+        onValue(agendaRef, async (snapshot) => {
+            if(!snapshot.exists()) {
+                alert("La agenda con código " + codigo + " no existe.");
+                return;
+            }
 
-// Ejecutar al cargar
-cargarUsuarios();
-</script>
+            const data = snapshot.val();
+            const saldoActual = data.bancoPuntos || 0;
+            const nuevoSaldo = sumar ? saldoActual + cantidad : Math.max(0, saldoActual - cantidad);
+
+            try {
+                // Actualizamos solo el campo bancoPuntos
+                await set(ref(db, `agendas/${codigo}/bancoPuntos`), nuevoSaldo);
+                
+                // Registro opcional en comunicados para historial
+                await set(push(ref(db, 'comunicados')), {
+                    titulo: "📊 Ajuste de Agenda",
+                    msg: `La agenda ${codigo} ahora tiene ${nuevoSaldo} puntos (Saldo anterior: ${saldoActual}).`,
+                    fecha: new Date().toISOString(),
+                    autor: "Sistema Alonixz"
+                });
+
+                alert(`Saldo actualizado: ${nuevoSaldo} PTS`);
+                document.getElementById('agenda-amt').value = "";
+            } catch (error) {
+                console.error("Error al actualizar agenda:", error);
+                alert("Error de escritura en Firebase.");
+            }
+        }, { onlyOnce: true }); // Crucial para evitar bucles infinitos
+    };
+    // Modificar cargarTodo para incluir las nuevas funciones
+    function cargarTodo() {
+        cargarDirectorio();
+        cargarActividad();
+        cargarAgendas(); // Iniciar monitoreo de agendas
+        cargarResultadosEncuestas(); // Iniciar monitoreo de votos
+    }// Función para cerrar el aviso de seguridad
+    window.cerrarSeguridad = () => {
+        const modal = document.getElementById('modal-seguridad');
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    };
+
+    // Puedes hacer que solo aparezca una vez por sesión
+    window.onload = () => {
+        if (sessionStorage.getItem('avisoVisto')) {
+            document.getElementById('modal-seguridad').style.display = 'none';
+        } else {
+            sessionStorage.setItem('avisoVisto', 'true');
+        }
+    };
+</script><!-- Modal de Advertencia de Seguridad -->
+<div id="modal-seguridad" class="modal" style="display: flex;"> <!-- Se muestra al cargar -->
+    <div class="modal-content" style="border: 3px solid #1a73e8; box-shadow: 10px 10px 0px rgba(26, 115, 232, 0.2);">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="background: #e8f0fe; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 2px solid #1a73e8;">
+                <span style="font-size: 30px; font-weight: 800; color: #1a73e8;">i</span>
+            </div>
+        </div>
+        <h2 style="font-size: 18px; text-align: center; color: #1e293b; margin-bottom: 15px;">Aviso del Creador de la Plataforma</h2>
+        <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: justify;">
+            Estimado <b>Consejo Estudiantil</b>: Se les hace saber que si un estudiante les envía una captura de sus puntos, esta información <b>podría estar modificada</b>. 
+            <br><br>
+            Aunque nuestro sistema cuenta con alta seguridad en la base de datos, la interfaz visual puede ser "maquillada" (modificada) localmente mediante la opción de <i>"Inspeccionar elemento"</i> del navegador.
+            <br><br>
+            <span style="color: #1a73e8; font-weight: 700;">Recomendación:</span> Siempre verifiquen la validez de los puntos directamente desde este panel administrativo antes de otorgar cualquier premio.
+        </p>
+        <button onclick="cerrarSeguridad()" style="width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);">
+            Entendido, verificaré siempre
+        </button>
+    </div>
+</div>
 </body>
 </html>
