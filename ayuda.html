@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Praxis v1.0.0 | Seguridad y Roles</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap');
+
+        :root {
+            --azul-praxis: #1a73e8;
+            --verde-docente: #059669;
+            --purpura-consejo: #7c3aed;
+            --negro: #000000;
+            --blanco: #ffffff;
+            --fondo: #f0f2f5;
+            --brutal-shadow: 10px 10px 0px #000;
+        }
+
+        /* --- ANIMACIONES AVANZADAS --- */
+        @keyframes entrance {
+            0% { opacity: 0; transform: translateY(50px) rotateX(-20deg); }
+            100% { opacity: 1; transform: translateY(0) rotateX(0deg); }
+        }
+
+        @keyframes scanLine {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--fondo);
+            color: var(--negro);
+            margin: 0; padding: 0;
+            line-height: 1.6;
+            perspective: 1000px;
+        }
+
+        header {
+            background: var(--azul-praxis);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom: 8px solid var(--negro);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: -20px auto 100px;
+            padding: 0 20px;
+        }
+
+        /* --- CARDS CON EFECTOS --- */
+        .rank-card {
+            background: var(--blanco);
+            border: 4px solid var(--negro);
+            border-radius: 30px;
+            padding: 45px;
+            margin-bottom: 60px;
+            box-shadow: var(--brutal-shadow);
+            position: relative;
+            overflow: hidden;
+            animation: entrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .rank-card:hover {
+            transform: scale(1.02) rotate(1deg);
+            box-shadow: 15px 15px 0px var(--negro);
+        }
+
+        /* Badge Flotante */
+        .rank-badge {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: var(--negro);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        h2 {
+            font-weight: 900;
+            font-size: clamp(30px, 5vw, 42px);
+            margin: 0 0 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* --- SECCIÓN PROFESOR (SEGURIDAD) --- */
+        .profesor-card {
+            border-color: var(--verde-docente);
+            background: linear-gradient(145deg, #ffffff 0%, #f0fff4 100%);
+        }
+
+        .profesor-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--verde-docente);
+            opacity: 0.3;
+            animation: scanLine 3s linear infinite;
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .security-item {
+            background: white;
+            border: 3px solid var(--negro);
+            padding: 20px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .security-item:hover {
+            background: var(--verde-docente);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .security-item h4 {
+            margin: 0 0 10px 0;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        /* --- LISTAS ANIMADAS --- */
+        ul { list-style: none; padding: 0; }
+        li {
+            padding: 12px 0;
+            border-bottom: 1px dashed #ccc;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            transition: 0.2s;
+        }
+        li:hover { padding-left: 10px; color: var(--azul-praxis); }
+        li::before { content: "⚡"; }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 60px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .launch-date {
+            background: var(--negro);
+            color: var(--blanco);
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 style="font-weight: 900; font-size: clamp(40px, 8vw, 65px); margin: 0; letter-spacing: -3px;">PRAXIS MANUAL</h1>
+    <p style="font-weight: 600; font-size: 18px; letter-spacing: 3px; text-transform: uppercase;">Protocolos de Seguridad y Roles v1.0.0</p>
+</header>
+
+<div class="container">
+
+    <!-- ESTUDIANTE -->
+    <div class="rank-card" style="animation-delay: 0.1s;">
+        <span class="rank-badge" style="background: var(--azul-praxis);">ID: ESTUDIANTE</span>
+        <h2>🎓 Rol: Estudiante</h2>
+        <p style="font-weight: 600;">Tu objetivo es escalar en el ranking y mantener tu constancia académica.</p>
+        
+        <ul>
+            <li><strong>Gestión de Agendas:</strong> Crea agendas personales o únete a la de tu profesor para recibir tareas.</li>
+            <li><strong>Sistema de Racha:</strong> Suma racha diaria. Si faltas un día, el contador vuelve a cero.</li>
+            <li><strong>Economía de Puntos:</strong> Gana puntos por desempeño otorgados por Profesores o el Consejo.</li>
+            <li><strong>Contribución Grupal:</strong> Dona tus puntos a la "Agenda de Clase" para elevar el nivel de tu salón.</li>
+            <li><strong>Recompensas:</strong> Premios especiales para los líderes del ranking de racha y puntos.</li>
+        </ul>
+    </div>
+
+    <!-- PROFESOR (DISEÑO SEGURIDAD) -->
+    <div class="rank-card profesor-card" style="animation-delay: 0.3s;">
+        <span class="rank-badge" style="background: var(--verde-docente);">PROTOCOLO REFORZADO</span>
+        <h2>👨‍🏫 Rol: Profesor</h2>
+        <p>Guía de la clase y administrador del esfuerzo, protegido por sistemas de prevención de manipulación.</p>
+
+        <div class="security-grid">
+            <div class="security-item">
+                <h4>🔑 Código 3-Dígitos</h4>
+                <p style="font-size: 13px; margin: 0;">Obligatorio tras periodos de inactividad para validar transacciones.</p>
+            </div>
+            <div class="security-item">
+                <h4>🚫 Anti-Manipulación</h4>
+                <p style="font-size: 13px; margin: 0;">Protección de puntos y tareas ante descuidos con la sesión abierta.</p>
+            </div>
+            <div class="security-item" style="animation: shake 4s infinite;">
+                <h4>⚠️ Cierre de Sesión</h4>
+                <p style="font-size: 13px; margin: 0;">Obligatorio al terminar para evitar irregularidades administrativas.</p>
+            </div>
+        </div>
+
+        <ul style="margin-top: 30px;">
+            <li><strong>Publicación:</strong> Permiso exclusivo para inyectar tareas en cualquier agenda bajo tu cargo.</li>
+            <li><strong>Gestión de Puntos:</strong> Distribuye puntos según el rendimiento (No se pueden crear de la nada).</li>
+            <li><strong>Acceso Dinámico:</strong> Administración de agendas mediante detección de código en URL.</li>
+        </ul>
+    </div>
+
+    <!-- CONSEJO -->
+    <div class="rank-card" style="border-color: var(--purpura-consejo); animation-delay: 0.5s;">
+        <span class="rank-badge" style="background: var(--purpura-consejo);">REGULADOR GLOBAL</span>
+        <h2>🛡️ Rol: Miembro del Consejo</h2>
+        <p style="font-weight: 600;">Regulador de la economía y la comunicación oficial en la plataforma.</p>
+        
+        <ul>
+            <li><strong>Emisión de Puntos:</strong> Facultad única para crear o eliminar puntos del sistema global.</li>
+            <li><strong>Comunicación Oficial:</strong> Lanzamiento de comunicados y creación de encuestas masivas.</li>
+            <li><strong>Transparencia:</strong> Visualización de puntajes y códigos de acceso de todas las agendas.</li>
+            <li><strong>Supervisión Superior:</strong> Bajo vigilancia directa del Creador para garantizar el juego limpio.</li>
+        </ul>
+    </div>
+
+    <footer>
+        <div class="launch-date">LANZAMIENTO: 18 MAYO 2026</div>
+        <p style="margin-top: 20px; font-size: 12px; opacity: 0.6;">Nota del Lead: Seguridad prioritaria para el despliegue estable.</p>
+    </footer>
+
+</div>
+
+</body>
+</html>
