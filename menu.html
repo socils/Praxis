@@ -57,7 +57,9 @@
     🛡️ Panel de Fundador
 </a><a href="consejo-estudiantil.html" id="consejo-link" style="display: none; color: #ff4d4d; font-weight: 800;">
     🛡️ Panel del consejo
-</a>
+</a><button id="btn-admin-puntos" style="display: none; background: #000; color: white; border: 2px solid #000; padding: 10px; border-radius: 12px; font-weight: 900; cursor: pointer; box-shadow: 4px 4px 0px #0071ff;">
+    👥 VER ALUMNOS Y PUNTOS
+</button>
             <hr>
             <div class="nav-item logout" id="btn-logout"><img src="cerrar-sesion.png" alt="" style="width: 20px;"> Salir</div>
         
@@ -269,6 +271,7 @@ onAuthStateChanged(auth, async (user) => {
     const displayCode = document.getElementById('display-code');
 
     if (user) {
+        verificarApodoEstudiante(user);
         const isGuest = user.isAnonymous;
         const miCorreoAdmin = "ajuliuszch@gmail.com";
         const STAFF_CONSEJO = [
@@ -653,125 +656,155 @@ if (btnLogout) {
         });
     });
 }
+// --- VARIABLES DE NAVEGACIÓN Y UI ---
+// Usamos nombres únicos para evitar el error de "already declared"
+const sidebarNode = document.querySelector('.sidebar');
+const mainNode = document.querySelector('.main-content');
+const btnSidebarToggle = document.getElementById('btn-toggle-sidebar');
 
-    const btnPlus = document.getElementById('btn-plus');
-    const dropdown = document.getElementById('plus-dropdown');
-    const modal = document.getElementById('action-modal');
-    const modalInput = document.getElementById('modal-input');
-    let currentMode = "";
-
-    btnPlus.onclick = (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle('show');
+if (btnSidebarToggle && sidebarNode && mainNode) {
+    btnSidebarToggle.onclick = () => {
+        sidebarNode.classList.toggle('collapsed');
+        mainNode.style.marginLeft = sidebarNode.classList.contains('collapsed') ? "0" : "250px";
     };
+}
 
-    document.getElementById('open-join').onclick = (e) => {
-        e.preventDefault();
-        currentMode = "join";
-        document.getElementById('modal-title').innerText = "Unirse a la agenda";
-        modalInput.placeholder = "Escribe el código existente...";
-        modalInput.value = "";
-        modal.style.display = "flex";
-        dropdown.classList.remove('show');
-    };
+// --- GESTIÓN DE MODAL (UNIRSE / CREAR / TAREAS) ---
+const actionModal = document.getElementById('action-modal');
+const modalInput = document.getElementById('modal-input'); // Solo existe en el HTML base
+let currentMode = "";
+
+// Función para resetear el modal a su estado original (HTML base)
+function restaurarModalBase() {
+    const modalContent = document.querySelector('.modal-content');
+    modalContent.innerHTML = `
+        <h2 id="modal-title">Acción</h2>
+        <input type="text" id="modal-input" placeholder="...">
+        <div class="modal-buttons">
+            <button class="btn-cancel" id="btn-close-modal">Cancelar</button>
+            <button class="btn-confirm" id="btn-action-confirm">Confirmar</button>
+        </div>
+    `;
+    // Re-vincular eventos del modal base
+    document.getElementById('btn-close-modal').onclick = () => actionModal.style.display = "none";
+    vincularEventoConfirmar();
+}
+
+// Eventos de Dropdown
+document.getElementById('btn-plus').onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById('plus-dropdown').classList.toggle('show');
+};
+
+document.getElementById('open-join').onclick = (e) => {
+    e.preventDefault();
+    restaurarModalBase();
+    currentMode = "join";
+    document.getElementById('modal-title').innerText = "Unirse a la agenda";
+    const input = document.getElementById('modal-input');
+    input.placeholder = "Escribe el código existente...";
+    input.value = "";
+    actionModal.style.display = "flex";
+};
 
 document.getElementById('open-create').onclick = (e) => {
     e.preventDefault();
+    restaurarModalBase();
     currentMode = "create";
     document.getElementById('modal-title').innerText = "Crear nueva clase";
-    modalInput.placeholder = "Nombre del aula o materia...";
-    modalInput.value = "";
-    modal.style.display = "flex";
-    dropdown.classList.remove('show');
+    const input = document.getElementById('modal-input');
+    input.placeholder = "Nombre del aula o materia...";
+    input.value = "";
+    actionModal.style.display = "flex";
 };
 
-    document.getElementById('btn-close-modal').onclick = () => {
-        modal.style.display = "none";
-    };
+// --- LÓGICA DE FIREBASE (CREAR / UNIRSE) ---
+function vincularEventoConfirmar() {
+    const btnConfirm = document.getElementById('btn-action-confirm');
+    if (!btnConfirm) return;
 
- document.getElementById('btn-action-confirm').onclick = async () => {
-    const val = modalInput.value.trim();
-    if (!val) return;
+    btnConfirm.onclick = async () => {
+        const val = document.getElementById('modal-input').value.trim();
+        if (!val) return;
+        const user = auth.currentUser;
+        if (!user) return;
 
-    const user = auth.currentUser;
-    if (!user) return;
+        btnConfirm.disabled = true;
 
-    if (currentMode === "create") {
-        const codigoSecreto = generarCodigoAleatorio();
-        
-       
-        const agendaRef = ref(db, 'agendas/' + codigoSecreto);
-       
-        const userAgendaRef = ref(db, `usuarios/${user.uid}/mis_agendas/${codigoSecreto}`);
-
-        try {
-           
-            await set(agendaRef, {
-                nombre: val,
-                owner: user.uid,
-                tareas: {
-                    inicio: { titulo: "Bienvenido", materia: "Sistema", descripcion: "Muro creado", fecha: "Hoy" }
-                }
-            });
-
-           
-            await set(userAgendaRef, {
-                nombre: val,
-                rol: "creador"
-            });
-
-            window.location.href = `menu.html?code=${codigoSecreto}`;
-        } catch (error) { console.error(error); }
-
-    } else {
-       
-        const codigo = val.toUpperCase();
-        const agendaRef = ref(db, 'agendas/' + codigo);
-
-       
-      
-        
-        const snapshot = await get(agendaRef);
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            await set(ref(db, `usuarios/${user.uid}/mis_agendas/${codigo}`), {
-                nombre: data.nombre,
-                rol: "estudiante"
-            });
-            window.location.href = `menu.html?code=${codigo}`;
+        if (currentMode === "create") {
+            const codigoSecreto = generarCodigoAleatorio();
+            try {
+                await Promise.all([
+                    set(ref(db, 'agendas/' + codigoSecreto), {
+                        nombre: val,
+                        creador: user.uid,
+                        tareas: { inicio: { titulo: "Bienvenido", materia: "Sistema", descripcion: "Muro creado", fecha: "Hoy" } }
+                    }),
+                    set(ref(db, `agendas/${codigoSecreto}/miembros/${user.uid}`), {
+                        nombre: user.displayName || "Usuario",
+                        rol: "creador",
+                        unido: Date.now()
+                    }),
+                    set(ref(db, `usuarios/${user.uid}/mis_agendas/${codigoSecreto}`), {
+                        nombre: val,
+                        rol: "creador",
+                     
+                    })
+                ]);
+                window.location.href = `menu.html?code=${codigoSecreto}`;
+            } catch (err) { console.error(err); btnConfirm.disabled = false; }
         } else {
-            alert("Código no encontrado.");
+            const codigo = val.toUpperCase();
+            try {
+                const snap = await get(ref(db, 'agendas/' + codigo));
+                if (snap.exists()) {
+                    const data = snap.val();
+                    await Promise.all([
+                        set(ref(db, `agendas/${codigo}/miembros/${user.uid}`), {
+                            nombre: user.displayName || "Usuario",
+                            rol: "estudiante",
+                            unido: Date.now()
+                        }),
+                        set(ref(db, `usuarios/${user.uid}/mis_agendas/${codigo}`), {
+                            nombre: data.nombre,
+                            rol: "estudiante",
+                            
+                        })
+                    ]);
+                    window.location.href = `menu.html?code=${codigo}`;
+                } else {
+                    alert("Código no encontrado.");
+                    btnConfirm.disabled = false;
+                }
+            } catch (err) { console.error(err); btnConfirm.disabled = false; }
         }
-    }
-};
+    };
+}
 
-    window.onclick = () => {
-        dropdown.classList.remove('show');
-    };function abrirModalTarea(code) {
-    const modal = document.getElementById('action-modal');
+// --- FUNCIÓN DE PUBLICAR TAREAS (ESTILO BRUTALISTA) ---
+window.abrirModalTarea = function(code) {
     const modalContent = document.querySelector('.modal-content');
-
     modalContent.innerHTML = `
-        <h2>Publicar Tarea</h2>
-        <input type="text" id="t-titulo" placeholder="Título (ej: Tarea de Fracciones)">
-        <input type="text" id="t-materia" placeholder="Materia (ej: Matemática)">
-        <textarea id="t-desc" placeholder="Descripción"></textarea>
-        <input type="text" id="t-fecha" placeholder="Fecha de entrega">
+        <h2 style="font-weight:900; text-transform:uppercase;">Publicar Tarea</h2>
+        <input type="text" id="t-titulo" placeholder="Título (ej: Tarea de Fracciones)" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; margin-bottom:10px; box-sizing:border-box;">
+        <input type="text" id="t-materia" placeholder="Materia (ej: Matemática)" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; margin-bottom:10px; box-sizing:border-box;">
+        <textarea id="t-desc" placeholder="Descripción" style="width:100%; height:80px; padding:12px; border:3px solid #000; border-radius:10px; margin-bottom:10px; box-sizing:border-box;"></textarea>
+        <input type="text" id="t-fecha" placeholder="Fecha de entrega" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; margin-bottom:15px; box-sizing:border-box;">
         
-        <div class="upload-container">
+        <div class="upload-container" style="margin-bottom:15px;">
             <input type="file" id="file-upload-input" style="display: none;" onchange="subirArchivoTarea()">
-            <button type="button" id="btn-adjuntar" onclick="document.getElementById('file-upload-input').click()">
+            <button type="button" onclick="document.getElementById('file-upload-input').click()" style="width:100%; padding:10px; background:#f0f0f0; border:2px dashed #000; border-radius:10px; cursor:pointer; font-weight:bold;">
                 📎 Adjuntar Archivo o Guía
             </button>
         </div>
 
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="document.getElementById('action-modal').style.display='none'">Cancelar</button>
-            <button class="btn-confirm" id="btn-save-task">Publicar Ahora</button>
+        <div class="modal-buttons" style="display:flex; gap:10px;">
+            <button onclick="actionModal.style.display='none'" style="flex:1; padding:12px; border:3px solid #000; border-radius:10px; background:#fff; cursor:pointer; font-weight:bold;">Cancelar</button>
+            <button id="btn-save-task" style="flex:1; padding:12px; border:3px solid #000; border-radius:10px; background:#0071ff; color:#fff; cursor:pointer; font-weight:bold; box-shadow: 4px 4px 0px #000;">Publicar Ahora</button>
         </div>
     `;
     
-    modal.style.display = "flex";
+    actionModal.style.display = "flex";
 
     document.getElementById('btn-save-task').onclick = async () => {
         const titulo = document.getElementById('t-titulo').value.trim();
@@ -781,26 +814,21 @@ document.getElementById('open-create').onclick = (e) => {
 
         if (titulo && materia) {
             const tareasRef = ref(db, 'agendas/' + code + '/tareas');
-            const nuevaTareaRef = push(tareasRef);
-
-            await set(nuevaTareaRef, {
-                titulo: titulo,
-                materia: materia,
-                descripcion: descripcion,
-                fecha: fecha,
+            await push(tareasRef, {
+                titulo, materia, descripcion, fecha,
                 fileUrl: window.currentFileUrl || null,
-                fileName: window.currentFileName || null
+                fileName: window.currentFileName || null,
+                timestamp: Date.now()
             });
-
-            window.currentFileUrl = null;
-            window.currentFileName = null;
-            modal.style.display = "none";
+            actionModal.style.display = "none";
         } else {
-            alert("Por favor completa el título y la materia.");
+            alert("Título y Materia son obligatorios.");
         }
     };
-}
+};
 
+// Inicializar el primer vínculo
+vincularEventoConfirmar();
 window.subirArchivoTarea = async () => {
     const fileInput = document.getElementById('file-upload-input');
     const file = fileInput.files[0];
@@ -1669,7 +1697,7 @@ function escucharChatClase(code) {
                 
                 if (idErrorActual !== "000") {
                     btnCorreo.style.display = 'inline-block';
-                    btnCorreo.href = `mailto:tu-correo@gmail.com?subject=Reporte Tecnico Error ${idErrorActual}&body=Detalle del fallo: ${logsDeSistema}`;
+                    btnCorreo.href = `mailto:ajuliuszch@gmail.com?subject=Reporte Tecnico Error ${idErrorActual}&body=Detalle del fallo: ${logsDeSistema}`;
                 }
                 
                 btnInvestigar.innerText = "ANÁLISIS COMPLETADO";
@@ -1731,6 +1759,385 @@ window.subirArchivoTarea = async () => {
             setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
         }
     );
+};async function verificarRegistroCompleto(uid) {
+    try {
+        const statsRef = ref(db, `usuarios/${uid}/stats`);
+        const snapshot = await get(statsRef);
+        const stats = snapshot.val();
+
+        if (!stats || !stats.rango) {
+            mostrarFormularioInicial(uid);
+        } 
+        else if (stats.rango === "profesor-pendiente") {
+            // Verificamos si en esta sesión ya decidió navegar como estudiante
+            if (sessionStorage.getItem('praxis_skip_revision') !== 'true') {
+                mostrarBloqueoProfesor();
+            }
+        }
+    } catch (error) {
+        console.error("Error en validación:", error);
+    }
+}
+
+function mostrarBloqueoProfesor() {
+    // Evitar duplicados
+    if(document.getElementById('bloqueo-profe')) return;
+
+    const bloqueo = document.createElement('div');
+    bloqueo.id = "bloqueo-profe";
+    bloqueo.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); font-family:sans-serif;";
+    
+    bloqueo.innerHTML = `
+        <div style="text-align:center; padding:40px; background:white; border: 3px solid #000; border-radius:25px; box-shadow: 12px 12px 0px #000; max-width:380px; width:90%; animation: popIn 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49);">
+            <div style="font-size:60px; margin-bottom:10px;">🕵️‍♂️</div>
+            <h2 style="margin:0; color:#000; font-size:24px; font-weight:900; text-transform:uppercase;">Cuenta en Revisión</h2>
+            <p style="color:#333; font-size:15px; line-height:1.6; margin:20px 0;">
+                Tu solicitud para ser <b>Profesor</b> está siendo verificada por Alonso. Pronto tendrás acceso a las herramientas de control.
+            </p>
+            
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <button onclick="navegarComoEstudiante()" style="padding:18px; border-radius:12px; border:3px solid #000; background:#0071ff; color:white; font-weight:900; cursor:pointer; font-size:15px; box-shadow: 5px 5px 0px #000;">NAVEGAR COMO ESTUDIANTE</button>
+                <button onclick="location.reload()" style="padding:12px; border-radius:10px; border:2px solid #000; background:white; color:#000; font-weight:bold; cursor:pointer; font-size:13px;">Actualizar Estado</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(bloqueo);
+    
+    // Ocultamos el contenido de la app mientras está el bloqueo
+    const app = document.getElementById('contenido-app');
+    if(app) app.style.display = 'none';
+}
+
+window.navegarComoEstudiante = () => {
+    // Guardamos en la sesión que el usuario decidió saltar el aviso
+    sessionStorage.setItem('praxis_skip_revision', 'true');
+    
+    // Removemos el bloqueo y mostramos la app
+    const bloqueo = document.getElementById('bloqueo-profe');
+    if(bloqueo) bloqueo.remove();
+    
+    const app = document.getElementById('contenido-app');
+    if(app) app.style.display = 'block';
+};
+async function mostrarFormularioInicial(uid) {
+    const user = auth.currentUser;
+    const userRef = ref(db, `usuarios/${uid}`);
+
+    await update(userRef, {
+        nombre_correo: user.displayName || "Usuario de Google",
+        email: user.email
+    });
+
+    const modal = document.createElement('div');
+    modal.id = "modal-registro-praxis";
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(15px); font-family:sans-serif; color:#000;";
+
+    modal.innerHTML = `
+        <div style="background:white; border:5px solid #000; border-radius:30px; box-shadow:15px 15px 0px #0071ff; width:95%; max-width:420px; padding:30px; text-align:center; animation: popIn 0.5s ease; max-height:90vh; overflow-y:auto;">
+            <h2 style="font-weight:900; margin-bottom:5px; text-transform:uppercase; font-size:24px;">Registro Praxis</h2>
+            <p style="font-weight:bold; color:#666; font-size:13px; margin-bottom:20px;">Completa tu perfil para continuar</p>
+            
+            <div style="text-align:left; margin-bottom:15px;">
+                <label style="font-size:10px; font-weight:900; text-transform:uppercase;">¿Cómo quieres que te llamen? (Apodo)</label>
+                <input type="text" id="reg-apodo" placeholder="Tu apodo..." style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; box-sizing:border-box;">
+            </div>
+
+            <p style="font-size:10px; font-weight:900; text-transform:uppercase; text-align:left;">Selecciona tu rol:</p>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <button id="select-estudiante" style="flex:1; padding:12px; border:3px solid #000; border-radius:10px; font-weight:900; cursor:pointer; background:#fff;">🎓 ESTUDIANTE</button>
+                <button id="select-profesor" style="flex:1; padding:12px; border:3px solid #000; border-radius:10px; font-weight:900; cursor:pointer; background:#fff;">👨‍🏫 PROFESOR</button>
+            </div>
+
+            <div id="campos-estudiante" style="display:none; text-align:left; border-top:2px dashed #ccc; padding-top:15px; margin-top:10px;">
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:10px; font-weight:900; text-transform:uppercase;">Grado / Nivel</label>
+                    <select id="reg-grado" style="width:100%; padding:10px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px;">
+                        <optgroup label="Nivel Inicial">
+                            <option value="Inicial-3">Inicial 3 años</option>
+                            <option value="Inicial-4">Inicial 4 años</option>
+                            <option value="Inicial-5">Inicial 5 años</option>
+                        </optgroup>
+                        <optgroup label="Nivel Primaria">
+                            <option value="Primaria-1">1ro Primaria</option>
+                            <option value="Primaria-2">2do Primaria</option>
+                            <option value="Primaria-3">3ro Primaria</option>
+                            <option value="Primaria-4">4to Primaria</option>
+                            <option value="Primaria-5">5to Primaria</option>
+                            <option value="Primaria-6">6to Primaria</option>
+                        </optgroup>
+                        <optgroup label="Nivel Secundaria">
+                            <option value="1ro-Sec">1ro Secundaria</option>
+                            <option value="2do-Sec">2do Secundaria</option>
+                            <option value="3ro-Sec">3ro Secundaria</option>
+                            <option value="4to-Sec">4to Secundaria</option>
+                            <option value="5to-Sec">5to Secundaria</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <div>
+                        <label style="font-size:10px; font-weight:900; text-transform:uppercase;">Sección</label>
+                        <input type="text" id="reg-seccion" placeholder="A, B, C..." maxlength="5" style="width:100%; padding:10px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; text-align:center; box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:10px; font-weight:900; text-transform:uppercase;">Edad</label>
+                        <input type="number" id="reg-edad" placeholder="Edad" style="width:100%; padding:10px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; box-sizing:border-box;">
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-finalizar-registro" 
+                style="width:100%; background:#00ff88; color:#000; border:3px solid #000; padding:15px; border-radius:12px; font-weight:900; cursor:pointer; font-size:16px; box-shadow: 4px 4px 0px #000; display:none;">
+                CONFIRMAR REGISTRO
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    let rolSeleccionado = "";
+    const btnEstudiante = document.getElementById('select-estudiante');
+    const btnProfesor = document.getElementById('select-profesor');
+    const camposEstudiante = document.getElementById('campos-estudiante');
+    const btnFinalizar = document.getElementById('btn-finalizar-registro');
+
+    btnEstudiante.onclick = () => {
+        rolSeleccionado = "Estudiante";
+        btnEstudiante.style.background = "#0071ff"; btnEstudiante.style.color = "#fff";
+        btnProfesor.style.background = "#fff"; btnProfesor.style.color = "#000";
+        camposEstudiante.style.display = "block";
+        btnFinalizar.style.display = "block";
+    };
+
+    btnProfesor.onclick = () => {
+        rolSeleccionado = "profesor-pendiente";
+        btnProfesor.style.background = "#ff4b4b"; btnProfesor.style.color = "#fff";
+        btnEstudiante.style.background = "#fff"; btnEstudiante.style.color = "#000";
+        camposEstudiante.style.display = "none";
+        btnFinalizar.style.display = "block";
+    };
+
+    btnFinalizar.onclick = async () => {
+        const apodo = document.getElementById('reg-apodo').value.trim();
+        if (apodo.length < 3) return alert("El apodo es muy corto.");
+
+        let datosStats = { rango: rolSeleccionado, puntos: 0 };
+
+        if (rolSeleccionado === "Estudiante") {
+            const grado = document.getElementById('reg-grado').value;
+            const seccion = document.getElementById('reg-seccion').value.trim().toUpperCase();
+            const edad = document.getElementById('reg-edad').value;
+
+            if (!seccion || !edad) return alert("Completa todos los campos del estudiante.");
+            
+            datosStats.grado = grado;
+            datosStats.seccion = seccion;
+            datosStats.edad = edad;
+        }
+
+        try {
+            await update(ref(db, `usuarios/${uid}`), {
+                nombre: apodo,
+                stats: datosStats
+            });
+            modal.remove();
+            if (rolSeleccionado === "profesor-pendiente") mostrarBloqueoProfesor();
+            else location.reload();
+        } catch (error) { console.error(error); }
+    };
+}
+// Asegúrate de que el observador esté así:
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        verificarRegistroCompleto(user.uid);
+    }
+});window.administrarPuntosAgenda = async (codigoAgenda) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const agendaRef = ref(db, `agendas/${codigoAgenda}`);
+    const snapAgenda = await get(agendaRef);
+    
+    if (!snapAgenda.exists() || snapAgenda.val().creador !== user.uid) {
+        alert("Acceso denegado: Solo el creador puede gestionar puntos.");
+        return;
+    }
+
+    const modal = document.createElement('div');
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:100000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); font-family:sans-serif;";
+    modal.id = "panel-control-puntos";
+    
+    modal.innerHTML = `
+        <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #000; width:90%; max-width:420px; padding:25px; animation: popIn 0.5s ease;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-weight:900; font-size:18px; text-transform:uppercase;">Puntos Globales</h2>
+                <button onclick="document.getElementById('panel-control-puntos').remove()" style="border:3px solid #000; background:#ff4b4b; color:white; font-weight:bold; cursor:pointer; border-radius:8px; padding:5px 10px;">X</button>
+            </div>
+            <div id="contenedor-alumnos" style="max-height:60vh; overflow-y:auto; padding-right:5px;">
+                <p style="text-align:center; font-weight:bold; color:#666;">Cargando perfiles...</p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    try {
+        const usuariosRef = ref(db, 'usuarios');
+        const snapshot = await get(usuariosRef);
+        const contenedor = document.getElementById('contenedor-alumnos');
+        contenedor.innerHTML = ""; 
+
+        let encontrados = 0;
+        const codigoBuscado = codigoAgenda.trim().toUpperCase();
+
+        snapshot.forEach((userSnap) => {
+            const u = userSnap.val();
+            const uid = userSnap.key;
+
+            if (u.mis_agendas && (u.mis_agendas[codigoBuscado] || u.mis_agendas[codigoAgenda.trim()])) {
+                encontrados++;
+                
+                // CAMBIO: Ahora leemos de u.stats.puntos
+                const puntosGlobales = u.stats?.puntos || 0;
+                const esCreador = (u.mis_agendas[codigoBuscado]?.rol === "creador");
+
+                const card = document.createElement('div');
+                card.style = `display:flex; justify-content:space-between; align-items:center; border:4px solid #000; padding:15px; border-radius:15px; margin-bottom:12px; background:${esCreador ? '#fff3cd' : '#fff'}; box-shadow:6px 6px 0px #000;`;
+                
+                card.innerHTML = `
+                    <div style="text-align:left;">
+                        <div style="font-weight:900; font-size:14px; text-transform:uppercase;">
+                            ${u.nombre || 'Sin Nombre'} ${esCreador ? '⭐' : ''}
+                        </div>
+                        <div style="font-size:11px; color:#555; font-weight:bold;">${u.stats?.grado || '---'} | ${u.stats?.seccion || '---'}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <b id="pts-${uid}" style="background:#000; color:white; padding:8px 15px; border-radius:10px; font-size:16px; min-width:30px; text-align:center; transition: transform 0.2s;">${puntosGlobales}</b>
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <button onclick="modificarPuntosAlumno('${uid}', 10)" style="background:#00ff88; border:2px solid #000; border-radius:6px; font-weight:900; cursor:pointer; padding:2px 8px;">+</button>
+                            <button onclick="modificarPuntosAlumno('${uid}', -10)" style="background:#ff6b6b; border:2px solid #000; border-radius:6px; font-weight:900; cursor:pointer; padding:2px 8px;">-</button>
+                        </div>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            }
+        });
+
+        if (encontrados === 0) {
+            contenedor.innerHTML = `<p style='color:#999; text-align:center; font-weight:bold; padding:20px;'>Nadie en esta agenda.</p>`;
+        }
+
+    } catch (error) {
+        console.error("Error Praxis:", error);
+    }
+};
+
+window.modificarPuntosAlumno = async (uidAlumno, cantidad) => {
+    // CAMBIO: La ruta ahora es directamente en el perfil global del usuario
+    const rutaPuntos = `usuarios/${uidAlumno}/stats/puntos`;
+    const refPuntos = ref(db, rutaPuntos);
+    
+    try {
+        const snap = await get(refPuntos);
+        const puntosActuales = snap.val() || 0;
+        const nuevosPuntos = Math.max(0, puntosActuales + cantidad);
+
+        await set(refPuntos, nuevosPuntos);
+        
+        const el = document.getElementById(`pts-${uidAlumno}`);
+        if (el) {
+            el.innerText = nuevosPuntos;
+            el.style.transform = "scale(1.3)";
+            setTimeout(() => el.style.transform = "scale(1)", 200);
+        }
+    } catch (e) {
+        console.error("Error Puntos:", e);
+    }
+};const inicializarBotonProfesor = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const codigoActivo = params.get('code'); // Detecta PX-XXXXXX de la URL
+    const user = auth.currentUser;
+
+    if (codigoActivo && user) {
+        // Buscamos el rol del usuario en esta agenda específica
+        const rolRef = ref(db, `usuarios/${user.uid}/mis_agendas/${codigoActivo}/rol`);
+        const snapshot = await get(rolRef);
+
+        if (snapshot.exists() && snapshot.val() === "creador") {
+            const btn = document.getElementById('btn-admin-puntos');
+            btn.style.display = "block"; // Solo se muestra si es profesor/creador
+            
+            btn.onclick = () => {
+                administrarPuntosAgenda(codigoActivo);
+            };
+        }
+    }
+};
+
+// Llama a esta función después de que el usuario esté logueado
+auth.onAuthStateChanged((user) => {
+    if (user) inicializarBotonProfesor();
+});const verificarApodoEstudiante = async (user) => {
+    const userRef = ref(db, `usuarios/${user.uid}`);
+    const snapshot = await get(userRef);
+    const data = snapshot.exists() ? snapshot.val() : {};
+
+    // Si no tiene el campo "nombre_correo", significa que es la primera vez
+    // Guardamos su nombre de Google en "nombre_correo" como respaldo
+    if (!data.nombre_correo) {
+        await update(userRef, {
+            nombre_correo: user.displayName || "Usuario sin nombre"
+        });
+    }
+
+    // Si el nombre actual es igual al de Google o está vacío, pedimos el apodo
+    // O si prefieres, simplemente si no existe un campo "apodo_configurado"
+    if (!data.apodo_listo) {
+        mostrarModalApodo(user.uid, data.nombre_correo || user.displayName);
+    }
+};
+
+const mostrarModalApodo = (uid, nombreOriginal) => {
+    const modal = document.createElement('div');
+    modal.id = "modal-apodo";
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(15px);";
+
+    modal.innerHTML = `
+        <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #0071ff; width:90%; max-width:350px; padding:30px; text-align:center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <h2 style="font-weight:900; margin-top:0; text-transform:uppercase; font-size:22px;">¡Bienvenido!</h2>
+            <p style="font-weight:bold; color:#555; font-size:14px;">Para que tus profesores y amigos te reconozcan, elige un apodo:</p>
+            
+            <input type="text" id="nuevo-apodo" placeholder="Ej: Alonso_Dev" 
+                style="width:100%; padding:15px; border:3px solid #000; border-radius:12px; font-weight:bold; font-size:16px; margin-bottom:20px; box-sizing:border-box;">
+            
+            <button id="btn-guardar-apodo" 
+                style="width:100%; background:#00ff88; color:#000; border:3px solid #000; padding:15px; border-radius:12px; font-weight:900; cursor:pointer; font-size:16px; box-shadow: 4px 4px 0px #000;">
+                LISTO, EMPEZAR
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById('btn-guardar-apodo').onclick = async () => {
+        const nuevoNombre = document.getElementById('nuevo-apodo').value.trim();
+        
+        if (nuevoNombre.length >= 3) {
+            try {
+                await update(ref(db, `usuarios/${uid}`), {
+                    nombre: nuevoNombre,
+                    apodo_listo: true
+                });
+                modal.remove();
+                console.log("Apodo actualizado con éxito");
+            } catch (error) {
+                console.error("Error al guardar apodo:", error);
+            }
+        } else {
+            alert("El apodo debe tener al menos 3 letras.");
+        }
+    };
 };
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
