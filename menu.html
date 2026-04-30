@@ -452,8 +452,7 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
     if (enMantenimiento === true) {
         window.location.href = "mantenimiento.html";
     }
-});
-function cargarAgenda(currentUserUid) {
+});function cargarAgenda(currentUserUid) {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
     
@@ -477,42 +476,42 @@ function cargarAgenda(currentUserUid) {
                 displayCode.innerHTML = `Código de acceso: <span style="color:#1a73e8; font-weight:bold;">${code.toUpperCase()}</span>`;
 
                 const esDuenio = data.owner === currentUserUid;
+                const uidActual = auth.currentUser.uid;
 
-                                                                                                             
-const uidActual = auth.currentUser.uid;
+                                                                                      
+                                                                                      
+                const statsRef = ref(db, `usuarios/${uidActual}/stats/rango`);
+                const rolRef = ref(db, `usuarios/${uidActual}/mis_agendas/${code}/rol`);
 
+                Promise.all([get(statsRef), get(rolRef)]).then(([statsSnap, rolSnap]) => {
+                    const rangoGlobal = statsSnap.val();
+                    const rolEnAgenda = rolSnap.val();
 
-const rolRef = ref(db, `usuarios/${uidActual}/mis_agendas/${code}/rol`);
+                                                                                          
+                    if (rolEnAgenda === "creador" || rangoGlobal === "profesor" || rangoGlobal === "Admin") {
+                        
+                        if (document.getElementById('admin-publish-btn')) return;
 
-get(rolRef).then((snapshot) => {
-    const rolEnAgenda = snapshot.val();
-    
-                                                                                                  
-    if (rolEnAgenda === "creador") {
-                                                                                                      
-        if (document.getElementById('admin-publish-btn')) return;
+                        const adminBtn = document.createElement('button');
+                        adminBtn.id = 'admin-publish-btn';
+                        adminBtn.innerHTML = "<img src='anadir.png' width='20px' height='20px' style='margin-right:8px;'> Publicar Nueva Tarea";
+                        adminBtn.className = "btn-confirm"; 
+                        adminBtn.style.marginTop = "15px";
+                        adminBtn.style.display = "flex";
+                        adminBtn.style.alignItems = "center";
+                        adminBtn.style.justifyContent = "center";
+                        
+                        adminBtn.onclick = () => abrirModalTarea(code); 
+                        banner.appendChild(adminBtn);
+                        
+                        console.log(`[Praxis] Acceso permitido: Rango(${rangoGlobal}) / Rol(${rolEnAgenda})`);
+                    }
+                }).catch((error) => {
+                    console.error("Error al validar permisos de docente:", error);
+                });
+                                                                                      
 
-        const adminBtn = document.createElement('button');
-        adminBtn.id = 'admin-publish-btn';
-        adminBtn.innerHTML = "<img src='anadir.png' width='20px' height='20px' style='margin-right:8px;'> Publicar Nueva Tarea";
-        adminBtn.className = "btn-confirm"; 
-        adminBtn.style.marginTop = "15px";
-        adminBtn.style.display = "flex";
-        adminBtn.style.alignItems = "center";
-        adminBtn.style.justifyContent = "center";
-        
-        adminBtn.onclick = () => abrirModalTarea(code); 
-        banner.appendChild(adminBtn);
-        
-        console.log("Acceso de creador detectado: Botón activado.");
-    } else {
-        console.log("Usuario actual no es el creador de esta agenda.");
-    }
-}).catch((error) => {
-    console.error("Error al verificar el rol del dueño:", error);
-});
-
-               
+                                                                                      
                 const chatContainer = document.createElement('div');
                 chatContainer.className = 'card'; 
                 chatContainer.style.marginBottom = "25px";
@@ -534,16 +533,15 @@ get(rolRef).then((snapshot) => {
                 `;
                 container.appendChild(chatContainer);
                 escucharChatClase(code); 
-               
 
                 if (data.tareas) {
                     Object.keys(data.tareas).reverse().forEach(id => {
                         const t = data.tareas[id];
                         if (id === 'inicio') return;
 
-                        const btnEliminar = esDuenio 
-                            ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea"><img src="papelera-de-reciclaje.png"style="width: 15px;"></button>` 
-                            : "";
+                                                                                              
+                                                                                              
+                        const btnEliminar = esDuenio ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea"><img src="papelera-de-reciclaje.png"style="width: 15px;"></button>` : "";
 
                         container.innerHTML += `
                             <div class="card">
@@ -566,7 +564,7 @@ get(rolRef).then((snapshot) => {
     } else {
         mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
     }
-};
+}
 
 
 window.eliminarTarea = async (agendaCode, tareaId) => {
@@ -1088,7 +1086,7 @@ navItems.forEach(item => {
         const btnRacha = document.getElementById('tab-racha');
         const btnPuntos = document.getElementById('tab-puntos');
         
-        // Estilo de botones activos
+                                                    
         btnRacha.style.background = modo === 'racha' ? '#fff' : '#eee';
         btnRacha.style.transform = modo === 'racha' ? 'translateY(-5px)' : 'none';
         
@@ -2074,79 +2072,128 @@ onAuthStateChanged(auth, (user) => {
     const user = auth.currentUser;
     if (!user) return;
 
-    const agendaRef = ref(db, `agendas/${codigoAgenda}`);
-    const snapAgenda = await get(agendaRef);
-    
-    if (!snapAgenda.exists() || snapAgenda.val().creador !== user.uid) {
-        alert("Acceso denegado.");
-        return;
-    }
+    try {
+                                                                                                             
+        const agendaRef = ref(db, `agendas/${codigoAgenda}`);
+        const statsRef = ref(db, `usuarios/${user.uid}/stats/rango`);
 
-                                                                                                                                           
-    const pozoAgenda = snapAgenda.val().bancoPuntos || 0;
+        const [snapAgenda, snapStats] = await Promise.all([
+            get(agendaRef),
+            get(statsRef)
+        ]);
 
-    const modal = document.createElement('div');
-    modal.id = "panel-control-puntos";
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:100000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
-    
-    modal.innerHTML = `
-        <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #000; width:90%; max-width:420px; padding:25px;">
-            <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-weight:900; text-transform:uppercase;">Banco de Clase</h2>
-                <div style="background:#0071ff; color:white; display:inline-block; padding:10px 20px; border-radius:15px; border:3px solid #000; margin-top:10px;">
-                    <span style="font-size:12px; display:block; font-weight:bold;">PUNTOS DISPONIBLES:</span>
-                    <b id="banco-total" style="font-size:24px;">${pozoAgenda}</b>
-                </div>
-            </div>
-            <div id="contenedor-alumnos" style="max-height:40vh; overflow-y:auto;">
-                <!-- Lista de alumnos... -->
-            </div>
-            <button onclick="document.getElementById('panel-control-puntos').remove()" style="width:100%; margin-top:15px; background:#ff4b4b; color:white; border:3px solid #000; padding:10px; font-weight:900; border-radius:12px; cursor:pointer;">CERRAR PANEL</button>
-        </div>
-    `;
-    document.body.appendChild(modal);
-
-                                                                                                                                           
-    const usuariosRef = ref(db, 'usuarios');
-    const snapUsers = await get(usuariosRef);
-    const contenedor = document.getElementById('contenedor-alumnos');
-    contenedor.innerHTML = "";
-
-    snapUsers.forEach((userSnap) => {
-        const u = userSnap.val();
-        const uid = userSnap.key;
-        if (u.mis_agendas && u.mis_agendas[codigoAgenda]) {
-            const card = document.createElement('div');
-            card.style = "display:flex; justify-content:space-between; align-items:center; border:3px solid #000; padding:10px; border-radius:15px; margin-bottom:10px; box-shadow:4px 4px 0px #000;";
-            card.innerHTML = `
-                <div style="font-weight:bold; font-size:13px;">${u.nombre}</div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <b id="pts-${uid}">${u.stats?.puntos || 0}</b>
-                    <button onclick="repartirPuntosAgenda('${codigoAgenda}', '${uid}', 10)" style="background:#00ff88; border:2px solid #000; font-weight:900; cursor:pointer;">+</button>
-                </div>
-            `;
-            contenedor.appendChild(card);
+        if (!snapAgenda.exists()) {
+            alert("La agenda no existe.");
+            return;
         }
-    });
-};                                                                                                                                                    
-window.codigoAgendaActiva = null;
 
-function detectarAgendaDesdeURL() {
-                                                                                                                                           
+        const dataAgenda = snapAgenda.val();
+        const rangoGlobal = (snapStats.val() || "").toLowerCase();                                                                                                      
+
+                                                                                                             
+        const esAutorizado = 
+            dataAgenda.creador === user.uid || 
+            rangoGlobal === "profesor" || 
+            rangoGlobal === "docente" || 
+            rangoGlobal === "admin";
+
+        if (!esAutorizado) {
+            alert("🚫 Acceso denegado: Se requiere rango de Profesor.");
+            console.warn(`[Praxis] Bloqueo: Rango(${rangoGlobal}) no autorizado.`);
+            return;
+        }
+
+                                                                                                             
+        const pozoAgenda = dataAgenda.bancoPuntos || 0;
+
+        const modal = document.createElement('div');
+        modal.id = "panel-control-puntos";
+        modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:100000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
+        
+        modal.innerHTML = `
+            <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #000; width:90%; max-width:420px; padding:25px;">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <h2 style="margin:0; font-weight:900; text-transform:uppercase;">Banco de Clase</h2>
+                    <div style="background:#0071ff; color:white; display:inline-block; padding:10px 20px; border-radius:15px; border:3px solid #000; margin-top:10px;">
+                        <span style="font-size:12px; display:block; font-weight:bold;">PUNTOS DISPONIBLES:</span>
+                        <b id="banco-total" style="font-size:24px;">${pozoAgenda}</b>
+                    </div>
+                </div>
+                <div id="contenedor-alumnos" style="max-height:40vh; overflow-y:auto;">
+                    <p style="text-align:center;">Cargando lista de alumnos...</p>
+                </div>
+                <button onclick="document.getElementById('panel-control-puntos').remove()" style="width:100%; margin-top:15px; background:#ff4b4b; color:white; border:3px solid #000; padding:10px; font-weight:900; border-radius:12px; cursor:pointer;">CERRAR PANEL</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const usuariosRef = ref(db, 'usuarios');
+        const snapUsers = await get(usuariosRef);
+        const contenedor = document.getElementById('contenedor-alumnos');
+        contenedor.innerHTML = "";
+
+        snapUsers.forEach((userSnap) => {
+            const u = userSnap.val();
+            const uid = userSnap.key;
+                                                                                                                 
+            if (u.mis_agendas && u.mis_agendas[codigoAgenda]) {
+                const card = document.createElement('div');
+                card.style = "display:flex; justify-content:space-between; align-items:center; border:3px solid #000; padding:10px; border-radius:15px; margin-bottom:10px; box-shadow:4px 4px 0px #000;";
+                card.innerHTML = `
+                    <div style="font-weight:bold; font-size:13px;">${u.nombre || 'Sin nombre'}</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <b id="pts-${uid}">${u.stats?.puntos || 0}</b>
+                        <button onclick="repartirPuntosAgenda('${codigoAgenda}', '${uid}', 10)" style="background:#00ff88; border:2px solid #000; font-weight:900; cursor:pointer; padding:5px 10px; border-radius:8px;">+10</button>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            }
+        });
+
+    } catch (error) {
+        console.error("Error en administración de puntos:", error);
+        alert("Error crítico al cargar permisos.");
+    }
+};                                                                                                                                                   
+window.codigoAgendaActiva = null;
+async function detectarAgendaDesdeURL() {
     const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');                                                                                                                                        
+    const code = params.get('code');
+    const user = auth.currentUser; 
 
     if (code) {
+                                                                              
         window.codigoAgendaActiva = code.trim().toUpperCase();
         console.log("[Praxis v1.0.0] Agenda detectada:", window.codigoAgendaActiva);
         
-                                                                                                                                               
+                                                                              
         const btnDonar = document.getElementById('contenedor-donar-puntos');
-        if (btnDonar) {
-            btnDonar.style.display = "block";
+        if (btnDonar) btnDonar.style.display = "block";
+
+                                                                              
+        if (user) {
+            try {
+                                                                                      
+                const statsRef = ref(db, `usuarios/${user.uid}/stats/rango`);
+                const snapshot = await get(statsRef);
+                const rango = snapshot.val();
+
+                                                                                      
+                                                                                      
+                if (rango === "Docente" || rango === "Admin") {
+                    const btnAbrirModal = document.querySelector('.btn-creador-solo'); 
+                                                                                          
+                    if (btnAbrirModal) {
+                        btnAbrirModal.style.display = "block";
+                        console.log(`[Acceso Docente] Permisos concedidos para: ${window.codigoAgendaActiva}`);
+                    }
+                }
+            } catch (error) {
+                console.error("Error al validar rango:", error);
+            }
         }
     } else {
-        console.warn("[Praxis] No se encontró código de agenda en la URL.");
+        console.warn("[Praxis] No se encontró código de agenda en la URL.")
     }
 }
 
@@ -2221,21 +2268,42 @@ window.donarPuntosAAgenda = async (codigoAgenda) => {
     }
 };const inicializarBotonProfesor = async () => {
     const params = new URLSearchParams(window.location.search);
-    const codigoActivo = params.get('code');                                                                                               
+    const codigoActivo = params.get('code');                                                                                
     const user = auth.currentUser;
 
     if (codigoActivo && user) {
-                                                                                                      
-        const rolRef = ref(db, `usuarios/${user.uid}/mis_agendas/${codigoActivo}/rol`);
-        const snapshot = await get(rolRef);
+        try {
+            const rolRef = ref(db, `usuarios/${user.uid}/mis_agendas/${codigoActivo}/rol`);
+            const statsRef = ref(db, `usuarios/${user.uid}/stats/rango`);
 
-        if (snapshot.exists() && snapshot.val() === "creador") {
-            const btn = document.getElementById('btn-admin-puntos');
-            btn.style.display = "block";                                                                                               
-            
-            btn.onclick = () => {
-                administrarPuntosAgenda(codigoActivo);
-            };
+            const [rolSnapshot, statsSnapshot] = await Promise.all([
+                get(rolRef),
+                get(statsRef)
+            ]);
+
+            const rolEnAgenda = rolSnapshot.val();
+                                                                                                                 
+            const rangoGlobal = (statsSnapshot.val() || "").toLowerCase(); 
+
+                                                                                                                 
+            const esAutorizado = 
+                rolEnAgenda === "creador" || 
+                rangoGlobal === "profesor" || 
+                rangoGlobal === "docente" || 
+                rangoGlobal === "admin";
+
+            if (esAutorizado) {
+                const btn = document.getElementById('btn-admin-puntos');
+                if (btn) {
+                    btn.style.display = "block";                                                                                
+                    btn.onclick = () => administrarPuntosAgenda(codigoActivo);
+                    console.log(`[Praxis] Acceso concedido. Rango detectado: ${rangoGlobal}`);
+                }
+            } else {
+                console.log(`[Praxis] Permiso denegado. Rango actual: ${rangoGlobal}`);
+            }
+        } catch (error) {
+            console.error("Error al validar permisos:", error);
         }
     }
 };
@@ -2261,9 +2329,9 @@ auth.onAuthStateChanged((user) => {
     if (!data.apodo_listo) {
         mostrarModalApodo(user.uid, data.nombre_correo || user.displayName);
     }
-};// 1. La función mejorada del Modal
+};
 const mostrarModalApodo = (uid, nombreOriginal) => {
-    // Evitar duplicados si ya existe el modal
+                                                
     if (document.getElementById('modal-apodo')) return;
 
     const modal = document.createElement('div');
@@ -2299,7 +2367,7 @@ const mostrarModalApodo = (uid, nombreOriginal) => {
             btn.disabled = true;
 
             try {
-                // Asegúrate que 'db' esté inicializado en tu archivo principal
+                                                            
                 await update(ref(db, `usuarios/${uid}`), {
                     nombre: nuevoNombre,
                     apodo_listo: true
@@ -2318,14 +2386,193 @@ const mostrarModalApodo = (uid, nombreOriginal) => {
         }
     };
 };
+onAuthStateChanged(auth, (user) => {
+    if (user && !user.isAnonymous) {
+        const statsRef = ref(db, `usuarios/${user.uid}/stats`);
+        
+        onValue(statsRef, async (snapshot) => {
+            const stats = snapshot.val();
+            
+                                                        
+            if (stats && stats.rango === "profesor") {
+                
+                                                            
+                if (!stats.pin) {
+                    mostrarBienvenidaProfesor(user.uid);
+                }
+            }
+        });
+    }
+});
 
-// 2. Cómo llamarlo correctamente al iniciar sesión (Ejemplo de integración)
+function iniciarDetectorInactividad() {
+    let tiempoInactividad;
+
+                                                
+                                                
+    const LIMITE_INACTIVIDAD = 180000; 
+
+    const reiniciarTemporizador = () => {
+                                                    
+        clearTimeout(tiempoInactividad);
+        
+                                                    
+        tiempoInactividad = setTimeout(() => {
+            ejecutarAccionInactividad();
+        }, LIMITE_INACTIVIDAD);
+    };
+
+let intentosPin = 0;
+
+const ejecutarAccionInactividad = () => {
+                                                
+    intentosPin = 0;
+    
+                                                
+    const lockOverlay = document.createElement('div');
+    lockOverlay.id = 'lock-screen';
+    lockOverlay.style = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.98); display: flex; align-items: center;
+        justify-content: center; z-index: 10000; backdrop-filter: blur(10px);
+        font-family: sans-serif; color: white;
+    `;
+
+    lockOverlay.innerHTML = `
+        <div style="text-align: center; background: #1e293b; padding: 40px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); max-width: 400px; width: 90%;">
+            <div style="font-size: 40px; margin-bottom: 15px;">🔒</div>
+            <h2 style="margin: 0 0 10px 0;">Sesión Suspendida</h2>
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px;">
+                Has estado inactivo por 3 minutos. Ingresa tu PIN de profesor para continuar.
+            </p>
+            
+            <input type="password" id="unlock-pin" placeholder="Introduce tu PIN" maxlength="6"
+                style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; text-align: center; font-size: 20px; margin-bottom: 15px; outline: none;">
+            
+            <button id="btn-unlock" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                DESBLOQUEAR
+            </button>
+            <p id="pin-error" style="color: #ef4444; font-size: 12px; margin-top: 15px; display: none;"></p>
+        </div>
+    `;
+
+    document.body.appendChild(lockOverlay);
+
+                                                
+    document.getElementById('btn-unlock').onclick = async () => {
+        const inputPin = document.getElementById('unlock-pin').value;
+        const user = auth.currentUser;
+
+        if (!user) return;
+
+                                                    
+        const statsRef = ref(db, `usuarios/${user.uid}/stats`);
+        onValue(statsRef, (snapshot) => {
+            const data = snapshot.val();
+            
+            if (data && data.pin === inputPin) {
+                                                            
+                document.body.removeChild(lockOverlay);
+                console.log("Sesión restaurada.");
+            } else {
+                                                            
+                intentosPin++;
+                const errorMsg = document.getElementById('pin-error');
+                errorMsg.innerText = `PIN incorrecto. Intentos restantes: ${2 - intentosPin}`;
+                errorMsg.style.display = 'block';
+
+                if (intentosPin >= 2) {
+                    alert("Demasiados intentos fallidos. Cerrando sesión por seguridad.");
+                    signOut(auth).then(() => {
+                        location.reload();                                             
+                    });
+                }
+            }
+        }, { onlyOnce: true });
+    };
+};
+
+                                                
+    window.onload = reiniciarTemporizador;
+    document.onmousemove = reiniciarTemporizador;
+    document.onkeydown = reiniciarTemporizador;
+    document.onclick = reiniciarTemporizador;
+    document.onscroll = reiniciarTemporizador;
+    document.ontouchstart = reiniciarTemporizador;
+}
+
+
+iniciarDetectorInactividad();
+
+async function mostrarBienvenidaProfesor(uid) {
+    const overlay = document.createElement('div');
+    overlay.style = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.95); display: flex; align-items: center;
+        justify-content: center; z-index: 9999; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    `;
+
+    overlay.innerHTML = `
+        <div style="background: white; padding: 40px; border-radius: 20px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div style="font-size: 50px; margin-bottom: 10px;">🎓</div>
+            <h2 style="color: #1e293b; margin: 0; font-size: 24px;">¡Felicidades, eres Profesor!</h2>
+            <p style="color: #64748b; margin-top: 10px;">Tu cuenta ha sido promovida al rango de instructor.</p>
+            
+            <div style="text-align: left; background: #f1f5f9; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #3b82f6;">
+                <strong style="color: #1e293b; display: block; margin-bottom: 8px;">¿Por qué configurar un PIN?</strong>
+                <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.6;">
+                    <li><strong>Protección de datos:</strong> Asegura que solo tú puedas publicar o editar contenido académico.</li>
+                    <li><strong>Seguridad de sesión:</strong> Evita cambios accidentales si dejas tu dispositivo desatendido[cite: 5].</li>
+                    <li><strong>Verificación de identidad:</strong> Es necesario para acceder a las funciones avanzadas del panel[cite: 5].</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="password" id="pin-1" placeholder="Crea tu PIN (4-6 dígitos)" maxlength="6"
+                    style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 18px; outline: none;">
+                <input type="password" id="pin-2" placeholder="Confirma tu PIN" maxlength="6"
+                    style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 18px; outline: none;">
+                
+                <button id="btn-activar" style="margin-top: 10px; background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: background 0.3s;">
+                    ACTIVAR MI PANEL DE PROFESOR
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+                                                
+    document.getElementById('btn-activar').onclick = async () => {
+        const p1 = document.getElementById('pin-1').value;
+        const p2 = document.getElementById('pin-2').value;
+
+        if (p1.length < 4 || isNaN(p1)) {
+            alert("El PIN debe tener entre 4 y 6 números.");
+            return;
+        }
+
+        if (p1 !== p2) {
+            alert("Los códigos PIN no coinciden.");
+            return;
+        }
+
+        try {
+            await update(ref(db, `usuarios/${uid}/stats`), { pin: p1 });
+            alert("✅ ¡PIN configurado con éxito!");
+            overlay.remove();
+        } catch (e) {
+            alert("Error al guardar la configuración.");
+        }
+    };
+}
+
 onAuthStateChanged(auth, (user) => {
     if (user) {
         const userRef = ref(db, `usuarios/${user.uid}`);
         onValue(userRef, (snapshot) => {
             const data = snapshot.val();
-            // Si el usuario no tiene marcado 'apodo_listo', mostramos el modal
+        
             if (data && !data.apodo_listo) {
                 mostrarModalApodo(user.uid, data.nombre || user.displayName);
             }
