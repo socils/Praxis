@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRAXIS v1.0.0 | LANZAMIENTO</title>
+    <style>
+        :root {
+            --primary: #0071ff;
+            --success: #00ff88;
+            --text: #000;
+        }
+
+        body {
+            background-color: var(--primary);
+            font-family: 'Arial Black', sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: var(--text);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* FONDO DINÁMICO DE PALABRAS INTERCALADAS */
+        .background-wall {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            padding: 20px;
+            z-index: 1;
+            transform: rotate(-15deg);
+            opacity: 0.2;
+            pointer-events: none;
+            animation: scrollWall 20s linear infinite;
+        }
+
+        .background-wall span {
+            font-size: 30px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .background-wall span:nth-child(even) { color: #fff; }
+        .background-wall span:nth-child(odd) { color: var(--success); }
+
+        @keyframes scrollWall {
+            from { transform: translate(0, 0) rotate(-15deg); }
+            to { transform: translate(-500px, -500px) rotate(-15deg); }
+        }
+
+        /* TARJETA PRINCIPAL */
+        .container {
+            background: #fff;
+            border: 8px solid #000;
+            padding: 50px 30px;
+            box-shadow: 25px 25px 0px #000;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            z-index: 10;
+            position: relative;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        h1 {
+            font-size: 80px;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 0.8;
+            letter-spacing: -6px;
+            filter: drop-shadow(6px 6px 0px var(--success));
+        }
+
+        .version {
+            background: #000;
+            color: #fff;
+            display: inline-block;
+            padding: 5px 20px;
+            font-size: 22px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-weight: 900;
+        }
+
+        /* CONTADOR */
+        #countdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 40px 0;
+        }
+
+        .time-box {
+            background: #f0f0f0;
+            border: 4px solid #000;
+            padding: 15px 5px;
+            box-shadow: 6px 6px 0px #000;
+        }
+
+        .time-box span {
+            display: block;
+            font-size: 32px;
+            font-weight: 950;
+        }
+
+        .time-box label {
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+
+        /* BOTÓN BETA */
+        .btn-beta {
+            background: #ffeb3b;
+            color: #000;
+            text-decoration: none;
+            font-weight: 950;
+            padding: 20px;
+            border: 5px solid #000;
+            display: block;
+            font-size: 20px;
+            text-transform: uppercase;
+            box-shadow: 8px 8px 0px #000;
+            transition: 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn-beta:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0px #000;
+            background: var(--success);
+        }
+
+        /* ANIMACIONES */
+        @keyframes popIn {
+            from { transform: scale(0.5) rotate(10deg); opacity: 0; }
+            to { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Muro de Praxis en el fondo -->
+    <div class="background-wall" id="wall"></div>
+
+    <div class="container">
+        <h1>PRAXIS</h1>
+        <div class="version">VERSION 1.0.0</div>
+        
+        <div id="countdown">
+            <div class="time-box">
+                <span id="days">00</span>
+                <label>Días</label>
+            </div>
+            <div class="time-box">
+                <span id="hours">00</span>
+                <label>Horas</label>
+            </div>
+            <div class="time-box">
+                <span id="minutes">00</span>
+                <label>Min</label>
+            </div>
+            <div class="time-box">
+                <span id="seconds">00</span>
+                <label>Seg</label>
+            </div>
+        </div>
+
+        <a href="login.html" class="btn-beta">🚀 ENTRAR A LA BETA</a>
+        
+        <p style="font-size: 10px; margin-top: 30px; font-weight: 900; text-transform: uppercase;">
+            ESTRENO: 18 DE MAYO | 6:00 PM
+        </p>
+    </div>
+
+    <script>
+        // Generar muro de logos dinámicamente
+        const wall = document.getElementById('wall');
+        for(let i=0; i<400; i++) {
+            const span = document.createElement('span');
+            span.innerText = "PRAXIS";
+            wall.appendChild(span);
+        }
+
+        // Cuenta regresiva: 18 de Mayo 2026, 6:00 PM
+        const launchDate = new Date("May 18, 2026 18:00:00").getTime();
+
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = launchDate - now;
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = d.toString().padStart(2, '0');
+            document.getElementById("hours").innerText = h.toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = m.toString().padStart(2, '0');
+            document.getElementById("seconds").innerText = s.toString().padStart(2, '0');
+        }, 1000);
+    </script>
+</body>
+</html>
