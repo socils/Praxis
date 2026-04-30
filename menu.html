@@ -59,7 +59,15 @@
     🛡️ Panel del consejo
 </a><button id="btn-admin-puntos" style="display: none; background: #000; color: white; border: 2px solid #000; padding: 10px; border-radius: 12px; font-weight: 900; cursor: pointer; box-shadow: 4px 4px 0px #0071ff;">
     👥 VER ALUMNOS Y PUNTOS
-</button>
+</button><!-- Botón de Donación de Puntos -->
+<div id="contenedor-donar-puntos" style="display: none; margin: 10px 0;">
+    <button onclick="donarPuntosAAgenda(codigoAgendaActiva)" 
+            style="background: #ffeb3b; color: #000; border: 4px solid #000; padding: 12px 20px; font-weight: 900; cursor: pointer; border-radius: 12px; box-shadow: 6px 6px 0px #000; font-size: 13px; text-transform: uppercase; transition: 0.2s;"
+            onmouseover="this.style.transform='translate(-2px, -2px)'; this.style.boxShadow='8px 8px 0px #000';"
+            onmouseout="this.style.transform='translate(0, 0)'; this.style.boxShadow='6px 6px 0px #000';">
+        🤝 Donar a la Clase
+    </button>
+</div>
             <hr>
             <div class="nav-item logout" id="btn-logout"><img src="cerrar-sesion.png" alt="" style="width: 20px;"> Salir</div>
         
@@ -137,7 +145,7 @@ window.onerror = function(msg, url, lineNo, columnNo, error) {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, onValue, set, push, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, onValue, set, push, get, update, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 
@@ -994,28 +1002,36 @@ window.subirArchivoTarea = async () => {
 
 
 const navItems = document.querySelectorAll('.nav-item');
-
 navItems.forEach(item => {
     item.onclick = (e) => {
-       
         if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
 
-       
         navItems.forEach(nav => nav.classList.remove('active'));
         item.classList.add('active');
 
-       
         const texto = item.innerText.toLowerCase();
         const container = document.getElementById('task-container');
         const bannerTitle = document.getElementById('banner-title');
+        const displayCode = document.getElementById('display-code');
         const adminControls = document.getElementById('admin-controls');
+        const statusMessage = document.getElementById('status-message');
 
-       
         if (adminControls) adminControls.innerHTML = "";
+        const oldAdminBtn = document.getElementById('admin-publish-btn');
+        if (oldAdminBtn) oldAdminBtn.remove();
 
-       
+        if (container) {
+            container.innerHTML = "";
+            container.style.animation = "none";
+            void container.offsetWidth;
+            container.style.animation = "slideUp 0.4s ease-out forwards";
+        }
+        if (displayCode) displayCode.innerText = "";
+        if (statusMessage) statusMessage.innerHTML = "";
+
         if (texto.includes("inicio")) {
-           
+            bannerTitle.innerText = "Gestión Académica Praxis";
+            displayCode.innerText = "HOME";
             const params = new URLSearchParams(window.location.search);
             const code = params.get('code');
             if (code) {
@@ -1024,297 +1040,248 @@ navItems.forEach(item => {
                 mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
             }
         } 
-        
-      
-
-else if (texto.includes("calendario")) {
-    bannerTitle.innerText = "Calendario Académico";
-    navegarA("Calendario Académico", "VISTA_CALENDARIO");
-    displayCode.innerText = "CALENDARIO";
-    container.innerHTML = "<p style='text-align:center;'>Organizando fechas...</p>";
-    
-    obtenerTodasLasTareas((todasLasTareas) => {
-        container.innerHTML = "";
-        todasLasTareas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-        renderizarVistaLista(todasLasTareas, "calendario");
-    });
-}
-else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
+        else if (texto.includes("calendario")) {
+            bannerTitle.innerText = "Calendario Académico";
+            displayCode.innerText = "CALENDARIO";
+            navegarA("Calendario Académico", "VISTA_CALENDARIO");
+            container.innerHTML = "<div style='display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;'><div class='spinner'></div><p style='font-family:\"JetBrains Mono\";margin-top:15px;'>Sincronizando fechas...</p></div>";
+            
+            obtenerTodasLasTareas((todasLasTareas) => {
+                container.innerHTML = "";
+                todasLasTareas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                renderizarVistaLista(todasLasTareas, "calendario");
+            });
+        }
+        else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
     bannerTitle.innerText = "Ranking Global Praxis";
-    displayCode.innerText = "RANKINGS";
-    navegarA("Ranking Global Praxis", "VISTA_RANKINGS");
+    displayCode.innerText = "RANKING_V3";
+
     container.innerHTML = `
-        <div id="podium-area" style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-bottom: 30px; height: 220px; padding-top: 20px;"></div>
-        <div id="ranking-list" style="background: #ffffff; border-radius: 28px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-            <p style='text-align:center; padding:20px; color: #5f6368;'>Sincronizando con Alonixz Cloud...</p>
-        </div>
-    `;
-
-    const obtenerInfoRango = (racha, email) => {
-        if (racha >= 1000) return { nombre: "ROOT_HACKER", clase: "rango-hacker" };
-        if (email === "ajuliuszch@gmail.com") return { nombre: "FUNDADOR", clase: "rango-admin" };
-        if (racha >= 100) return { nombre: "ADMIN", clase: "rango-admin" };
-        if (racha >= 80) return { nombre: "OBSIDIANA", clase: "rango-obsidiana" };
-        if (racha >= 60) return { nombre: "DIAMANTE", clase: "rango-diamante" };
-        if (racha >= 30) return { nombre: "ORO", clase: "rango-oro" };
-        if (racha >= 15) return { nombre: "PLATA", clase: "rango-plata" };
-        if (racha >= 7) return { nombre: "BRONCE", clase: "rango-bronce" };
-        return { nombre: "ASPIRANTE", clase: "rango-aspirante" };
-    };
-
-    const usuariosRef = ref(db, 'usuarios');
-    onValue(usuariosRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        const arr = Object.keys(data).map(uid => ({
-            nombre: data[uid].nombre || "Estudiante",
-            foto: data[uid].foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png",
-            racha: (data[uid].stats && data[uid].stats.racha) ? parseInt(data[uid].stats.racha) : 0,
-            correo: data[uid].correo || ""
-        })).sort((a, b) => b.racha - a.racha);
-
-        const podiumArea = document.getElementById('podium-area');
-        const top3 = arr.slice(0, 3);
-        
-        if (podiumArea && top3.length > 0) {
-            const renderPodiumItem = (user, pos, height, colorBg, border) => {
-                const info = obtenerInfoRango(user?.racha || 0, user?.correo || "");
-                return `
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                    <img src="${user?.foto}" style="width: ${pos===1? '75px' : '55px'}; height: ${pos===1? '75px' : '55px'}; border-radius: 50%; border: ${border}; margin-bottom: 8px; object-fit: cover; background: white;">
-                    <div style="height: ${height}px; background: ${colorBg}; width: 100%; border-radius: 15px 15px 5px 5px; display: flex; align-items: center; justify-content: center; flex-direction: column; border-bottom: 4px solid rgba(0,0,0,0.05);">
-                        <span style="font-size: 10px; font-weight: 900; opacity: 0.6;">#${pos}</span>
-                        <strong style="font-size: 18px;">${user?.racha || 0}</strong>
-                        <span class="rango-tag ${info.clase}" style="font-size: 7px; padding: 2px 5px; margin-top: 5px;">${info.nombre}</span>
-                    </div>
-                </div>`;
-            };
-            podiumArea.innerHTML = `
-                ${renderPodiumItem(top3[1], 2, 110, "#f5f5f5", "3px solid #9e9e9e")}
-                ${renderPodiumItem(top3[0], 1, 150, "#fff8e1", "4px solid #ffab00")}
-                ${renderPodiumItem(top3[2], 3, 90, "#efebe9", "3px solid #cd7f32")}
-            `;
-        }
-
-        const rankingList = document.getElementById('ranking-list');
-        const rest = arr.slice(3, 15);
-        if (rankingList) {
-            rankingList.innerHTML = rest.map((u, i) => {
-                const info = obtenerInfoRango(u.racha, u.correo);
-                return `
-                <div style="display: flex; align-items: center; padding: 14px; border-bottom: 1px solid #f8f9fa; gap: 12px;">
-                    <span style="font-weight: 900; width: 22px; color: #dadce0; font-size: 13px;">${i + 4}</span>
-                    <img src="${u.foto}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-weight: 700; font-size: 14px; color: #202124;">${u.nombre}</span>
-                            <span class="rango-tag ${info.clase}" style="font-size: 9px; padding: 2px 8px;">${info.nombre}</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right; display: flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 12px; border: 1px solid #f1f3f4;">
-                        <span style="color: #202124; font-weight: 900; font-size: 14px;">${u.racha}</span>
-                        <span style="font-size: 12px;">🔥</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-    });
-}
-else if (texto.includes("pendientes")) {
-    bannerTitle.innerText = "Tareas Pendientes";
-    displayCode.innerText = "PENDIENTES";
-    navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
-    container.innerHTML = "<p style='text-align:center;'>Buscando tareas...</p>";
-    
-    obtenerTodasLasTareas((todasLasTareas) => {
-        container.innerHTML = "";
-        const hoy = new Date().setHours(0,0,0,0);
-        const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
-        renderizarVistaLista(pendientes, "pendientes");
-    });
-}
-
-else if (texto.includes("cuenta de google")) {
-    const user = auth.currentUser;
-    bannerTitle.innerText = "Información de Perfil";
-    displayCode.innerText = "PERFIL";
-    navegarA("Información de Perfil", "VISTA_PERFIL");
-    container.innerHTML = `
-        <div class="card" style="max-width: 450px; margin: 20px auto; text-align: center; padding: 30px;">
-            <div style="position: relative; display: inline-block;">
-                <img src="${user.photoURL}" style="border-radius: 50%; width: 120px; border: 4px solid #e8f0fe;">
-                <div style="position: absolute; bottom: 5px; right: 5px; background: #34a853; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>
-            </div>
-            <h2 style="margin-top: 15px; color: #202124;">${user.displayName}</h2>
-            <p style="color: #5f6368; margin-bottom: 20px;">${user.email}</p>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 13px; color: #1a73e8; font-weight: 500;">
-                <img src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png" width="16" style="vertical-align: middle; margin-right: 5px;">
-                Cuenta vinculada con Praxis Cloud
-            </p>
-        </div>`;
-}
-else if (texto.includes("sincronizar drive")) {
-    bannerTitle.innerText = "Mi Biblioteca Digital";
-    displayCode.innerText = "RECURSOS_NUBE";
-    navegarA("Mi Biblioteca Digital", "VISTA_DRIVE");
-    container.innerHTML = `
-        <div class="drive-explorer" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-            <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h2 style="margin: 0; color: #1a73e8; font-size: 20px;">Recursos en la Nube</h2>
-                    <p style="margin: 5px 0 0 0; color: #5f6368; font-size: 13px;">Explora tus materiales de estudio del San Jerónimo.</p>
-                </div>
-                <button id="btn-auth-drive" style="background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold;">
-                    CONECTAR DRIVE
+        <div style="display: flex; justify-content: space-around; align-items: flex-start; margin-bottom: 40px; gap: 20px; flex-wrap: wrap;">
+            
+            <!-- Botones tipo Card Vertical -->
+            <div style="display: flex; gap: 15px;">
+                <button onclick="cambiarVistaRanking('racha')" id="tab-racha" style="width: 90px; height: 100px; background: #fff; border: 4px solid #000; border-radius: 20px; cursor: pointer; box-shadow: 8px 8px 0px #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;">
+                    <span style="font-size: 20px;">🔥</span>
+                    <span style="font-weight: 900; font-size: 14px; font-family: 'Inter', sans-serif;">RACHA</span>
+                </button>
+                <button onclick="cambiarVistaRanking('puntos')" id="tab-puntos" style="width: 90px; height: 100px; background: #00e5ff; border: 4px solid #000; border-radius: 20px; cursor: pointer; box-shadow: 8px 8px 0px #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;">
+                    <span style="font-size: 20px;">🏆</span>
+                    <span style="font-weight: 900; font-size: 14px; font-family: 'Inter', sans-serif;">PUNTOS</span>
                 </button>
             </div>
 
-            <div id="drive-content" style="display: none;">
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="drive-search" placeholder="Buscar fichas, exámenes, tareas..." style="flex: 1; padding: 12px 20px; border-radius: 50px; border: 1px solid #dadce0; outline: none; font-size: 14px;">
-                    <button id="btn-search" style="background: #f1f3f4; border: none; padding: 0 20px; border-radius: 50px; cursor: pointer;">🔍</button>
-                </div>
-                <div id="files-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;"></div>
-            </div>
+            <!-- Podio de Cartas -->
+            <div id="podium-container" style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 250px;"></div>
+        </div>
+
+        <!-- Tabla de Ranking Ancha -->
+        <div id="table-container" style="background: #fff; border: 4px solid #000; border-radius: 35px; padding: 25px; box-shadow: 12px 12px 0px #000; max-width: 800px; margin: 0 auto;">
+            <div id="ranking-rows"></div>
         </div>
     `;
 
-    const btnAuth = document.getElementById('btn-auth-drive');
-    const driveContent = document.getElementById('drive-content');
-    const filesList = document.getElementById('files-list');
+    let currentMode = 'racha';
 
-    btnAuth.onclick = () => {
-        tokenClient.callback = async (resp) => {
-            if (resp.error) throw resp;
-            btnAuth.innerText = "✅ Sincronizado";
-            btnAuth.style.background = "#e8f0fe";
-            btnAuth.style.color = "#1967d2";
-            driveContent.style.display = "block";
-
-            const listarArchivos = async (query = "") => {
-                filesList.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>Buscando materiales...</p>";
-                
-                const q = query ? `name contains '${query}' and mimeType != 'application/vnd.google-apps.folder'` : "mimeType = 'application/pdf'";
-                
-                const response = await gapi.client.drive.files.list({
-                    q: q,
-                    pageSize: 8,
-                    fields: 'files(id, name, thumbnailLink, webViewLink)'
-                });
-
-                const files = response.result.files;
-                filesList.innerHTML = "";
-                
-                if (files && files.length > 0) {
-                    files.forEach(file => {
-                        filesList.innerHTML += `
-                            <div onclick="window.open('${file.webViewLink}', '_blank')" style="background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; text-align: center; cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='#1a73e8'" onmouseout="this.style.borderColor='#eee'">
-                                <div style="font-size: 30px; margin-bottom: 10px;">📄</div>
-                                <div style="font-size: 11px; font-weight: bold; color: #3c4043; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
-                                <div style="font-size: 9px; color: #1a73e8; margin-top: 5px;">Abrir Recurso</div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    filesList.innerHTML = "<p style='font-size: 12px; color: #666; grid-column: 1/-1; text-align:center;'>No se encontraron materiales.</p>";
-                }
-            };
-
-            listarArchivos();
-            
-            document.getElementById('btn-search').onclick = () => {
-                const term = document.getElementById('drive-search').value;
-                listarArchivos(term);
-            };
-        };
-        tokenClient.requestAccessToken({prompt: 'consent'});
+    window.cambiarVistaRanking = (modo) => {
+        currentMode = modo;
+        const btnRacha = document.getElementById('tab-racha');
+        const btnPuntos = document.getElementById('tab-puntos');
+        
+        // Estilo de botones activos
+        btnRacha.style.background = modo === 'racha' ? '#fff' : '#eee';
+        btnRacha.style.transform = modo === 'racha' ? 'translateY(-5px)' : 'none';
+        
+        btnPuntos.style.background = modo === 'puntos' ? '#00e5ff' : '#eee';
+        btnPuntos.style.transform = modo === 'puntos' ? 'translateY(-5px)' : 'none';
+        
+        renderizarTodo();
     };
-}
-else if (texto.includes("soporte y ayuda")) {
-    bannerTitle.innerText = "Consola de Diagnóstico y Soporte";
-    displayCode.innerText = "SOPORTE_SISTEMA";
-    navegarA("Consola de Soporte", "VISTA_SOPORTE");
-    container.innerHTML = `
-        <div class="diag-container" style="max-width: 800px; margin: 0 auto; animation: slideUp 0.5s ease forwards;">
-            <div class="card" style="border-radius: 30px; padding: 40px; text-align: center; border: 1px solid #e2e8f0; background: white;">
-                <div style="background: #f1f5f9; width: 70px; height: 70px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px;">🛠️</div>
-                <h2 style="font-family: 'Outfit', sans-serif; font-size: 26px; margin-bottom: 10px;">Analizador de Sistema</h2>
-                <p style="color: #64748b; font-size: 15px; margin-bottom: 30px;">Si experimentas comportamientos inesperados, ejecuta el escáner de integridad de <b>Praxis</b>.</p>
 
-                <div id="pantalla-consola" style="display: none; background: #0f172a; color: #38bdf8; padding: 25px; border-radius: 20px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 25px; border: 1px solid #334155; line-height: 1.6;">
-                    <div style="color: #94a3b8; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 10px; display: flex; justify-content: space-between;">
-                        <span>ALONIXZ_RECOVERY_TOOL</span>
-                        <span>v1.0.4</span>
+    const renderizarTodo = () => {
+        const usuariosRef = ref(db, 'usuarios');
+        onValue(usuariosRef, (snapshot) => {
+            const data = snapshot.val();
+            const podium = document.getElementById('podium-container');
+            const rows = document.getElementById('ranking-rows');
+            if (!data || !podium || !rows) return;
+
+            const arr = Object.keys(data).map(uid => ({
+                nombre: data[uid].nombre || "Estudiante",
+                foto: data[uid].foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png",
+                racha: parseInt(data[uid].stats?.racha || 0),
+                puntos: parseInt(data[uid].stats?.puntos || 0)
+            })).sort((a, b) => b[currentMode] - a[currentMode]);
+
+            const color = currentMode === 'racha' ? '#fff' : '#00e5ff';
+            const icon = currentMode === 'racha' ? '🔥' : '🏆';
+
+            const itemPodio = (u, pos, h, isWinner) => `
+                <div style="display: flex; flex-direction: column; align-items: center; position: relative;">
+                    <div style="position: relative; margin-bottom: 10px;">
+                        <img src="${u?.foto}" style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid #000; object-fit: cover; background: #fff;">
+                        <div style="position: absolute; top: -5px; right: -5px; background: #000; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 2px solid #fff; font-size: 14px;">${pos}</div>
                     </div>
-                    <div id="output-log">> Iniciando análisis de punteros...</div>
+                    <div style="width: 110px; height: ${h}px; background: ${isWinner ? '#00e5ff' : '#f0f0f0'}; border: 4px solid #000; border-radius: 20px; box-shadow: 6px 6px 0px #000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <span style="font-size: 24px; font-weight: 900;">${u ? u[currentMode] : 0}</span>
+                        <span style="font-size: 14px;">${icon}</span>
+                    </div>
+                </div>`;
+
+            podium.innerHTML = `
+                ${itemPodio(arr[1], 2, 130, false)}
+                ${itemPodio(arr[0], 1, 160, true)}
+                ${itemPodio(arr[2], 3, 110, false)}
+            `;
+
+            rows.innerHTML = arr.slice(3, 10).map((u, i) => `
+                <div style="display: flex; align-items: center; padding: 15px 0; border-bottom: 2px solid #eee; gap: 20px;">
+                    <span style="font-weight: 900; width: 40px; color: #ccc; font-size: 18px;">#${i + 4}</span>
+                    <img src="${u.foto}" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #000;">
+                    <span style="flex-grow: 1; font-weight: 800; font-size: 18px;">${u.nombre}</span>
+                    <div style="background: #000; color: #fff; padding: 8px 20px; border-radius: 15px; font-weight: 900; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                        ${u[currentMode]} ${icon}
+                    </div>
                 </div>
+            `).join('');
+        });
+    };
 
-                <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-                    <button onclick="ejecutarAnalisis()" id="btn-investigar" style="background: #1a73e8; color: white; border: none; padding: 18px 40px; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; max-width: 350px; transition: 0.3s;">
-                        INVESTIGAR INTEGRIDAD
-                    </button>
-                    <a id="btn-correo-error" style="display: none; background: #fee2e2; color: #ef4444; padding: 15px 30px; border-radius: 15px; text-decoration: none; font-weight: 700; font-size: 14px; border: 1px solid #fecaca;">
-                        Mandar Reporte
-                    </a>
+    renderizarTodo();
+}
+        else if (texto.includes("pendientes")) {
+            bannerTitle.innerText = "Tareas Pendientes";
+            displayCode.innerText = "PENDIENTES";
+            navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
+            container.innerHTML = "<div style='text-align:center; padding:40px;'><div class='spinner'></div><p>Buscando tareas pendientes...</p></div>";
+            
+            obtenerTodasLasTareas((todasLasTareas) => {
+                container.innerHTML = "";
+                const hoy = new Date().setHours(0,0,0,0);
+                const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
+                renderizarVistaLista(pendientes, "pendientes");
+            });
+        }
+        else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
+            const user = auth.currentUser;
+            bannerTitle.innerText = "Información de Perfil";
+            displayCode.innerText = "PERFIL";
+            navegarA("Información de Perfil", "VISTA_PERFIL");
+            container.innerHTML = `
+                <div class="card" style="max-width: 500px; margin: 30px auto; text-align: center; padding: 40px; border: 4px solid #000; border-radius: 30px; box-shadow: 12px 12px 0px #000; background:#fff;">
+                    <div style="position: relative; display: inline-block; margin-bottom: 20px;">
+                        <img src="${user.photoURL}" style="border-radius: 50%; width: 140px; border: 4px solid #000; box-shadow: 6px 6px 0px #000;">
+                        <div style="position: absolute; bottom: 10px; right: 10px; background: #00ff88; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #000;"></div>
+                    </div>
+                    <h2 style="font-size: 28px; font-weight: 900; margin-bottom: 5px;">${user.displayName}</h2>
+                    <p style="font-family: 'JetBrains Mono'; font-size: 14px; color: #555;">${user.email}</p>
+                    <div style="margin: 25px 0; height: 4px; background: #000; border-radius: 2px;"></div>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; background: #f1f3f4; padding: 12px; border-radius: 15px; border: 2px solid #000;">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png" width="20">
+                        <span style="font-weight: 800; font-size: 14px;">CONECTADO A ALONIXZ-GROUP</span>
+                    </div>
+                </div>`;
+        }
+        else if (texto.includes("sincronizar drive") || texto.includes("biblioteca")) {
+            bannerTitle.innerText = "Mi Biblioteca Digital";
+            displayCode.innerText = "RECURSOS_NUBE";
+            navegarA("Mi Biblioteca Digital", "VISTA_DRIVE");
+            container.innerHTML = `
+                <div class="drive-explorer" style="max-width: 900px; margin: 0 auto; padding: 20px;">
+                    <div style="background: #fff; padding: 30px; border-radius: 25px; border: 4px solid #000; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 8px 8px 0px #000;">
+                        <div>
+                            <h2 style="margin: 0; font-weight: 900; font-size: 24px;">Cloud Explorer</h2>
+                            <p style="margin: 5px 0 0 0; color: #555; font-family: 'JetBrains Mono'; font-size: 13px;">Accede a tus recursos académicos en tiempo real.</p>
+                        </div>
+                        <button id="btn-auth-drive" style="background: #1a73e8; color: white; border: 3px solid #000; padding: 12px 25px; border-radius: 15px; cursor: pointer; font-weight: 900; box-shadow: 4px 4px 0px #000; transition: 0.2s;">
+                            SINCRONIZAR
+                        </button>
+                    </div>
+                    <div id="drive-content" style="display: none;">
+                        <div style="display: flex; gap: 12px; margin-bottom: 25px;">
+                            <input type="text" id="drive-search" placeholder="Buscar fichas, tareas, PDFs..." style="flex: 1; padding: 15px 25px; border-radius: 18px; border: 3px solid #000; outline: none; font-size: 15px; font-weight: 600; box-shadow: 4px 4px 0px #000;">
+                            <button id="btn-search" style="background: #00ff88; border: 3px solid #000; padding: 0 25px; border-radius: 18px; cursor: pointer; box-shadow: 4px 4px 0px #000;">🔍</button>
+                        </div>
+                        <div id="files-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;"></div>
+                    </div>
                 </div>
-            </div>
-            <div style="text-align: center; margin-top: 30px; font-family: 'JetBrains Mono'; font-size: 11px; color: #94a3b8;">
-                [ STATUS: ENCRYPTED ]
-            </div>
-        </div>
-    `;
-}
-   
-item.onclick = (e) => {
-    if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
+            `;
+            const btnAuth = document.getElementById('btn-auth-drive');
+            const driveContent = document.getElementById('drive-content');
+            const filesList = document.getElementById('files-list');
 
-    navItems.forEach(nav => nav.classList.remove('active'));
-    item.classList.add('active');
+            btnAuth.onclick = () => {
+                tokenClient.callback = async (resp) => {
+                    if (resp.error) throw resp;
+                    btnAuth.innerText = "SINC_OK";
+                    btnAuth.style.background = "#00ff88";
+                    btnAuth.style.color = "#000";
+                    driveContent.style.display = "block";
+                    const listarArchivos = async (query = "") => {
+                        filesList.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>Escaneando nube...</p>";
+                        const q = query ? `name contains '${query}' and mimeType != 'application/vnd.google-apps.folder'` : "mimeType = 'application/pdf'";
+                        const response = await gapi.client.drive.files.list({ q: q, pageSize: 12, fields: 'files(id, name, thumbnailLink, webViewLink)' });
+                        const files = response.result.files;
+                        filesList.innerHTML = "";
+                        if (files && files.length > 0) {
+                            files.forEach(file => {
+                                filesList.innerHTML += `
+                                    <div onclick="window.open('${file.webViewLink}', '_blank')" style="background: #fff; padding: 20px; border-radius: 20px; border: 3px solid #000; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 4px 4px 0px #000;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                                        <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
+                                        <div style="font-size: 13px; font-weight: 800; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
+                                        <div style="font-size: 10px; color: #1a73e8; margin-top: 8px; font-weight: 900; text-transform:uppercase;">Abrir Recurso</div>
+                                    </div>`;
+                            });
+                        } else {
+                            filesList.innerHTML = "<p style='font-family:\"JetBrains Mono\"; grid-column: 1/-1; text-align:center;'>No se encontraron materiales en el servidor.</p>";
+                        }
+                    };
+                    listarArchivos();
+                    document.getElementById('btn-search').onclick = () => { listarArchivos(document.getElementById('drive-search').value); };
+                };
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            };
+        }
+        else if (texto.includes("soporte y ayuda")) {
+            bannerTitle.innerText = "Consola de Diagnóstico Praxis";
+            displayCode.innerText = "SOPORTE_SISTEMA";
+            navegarA("Consola de Soporte", "VISTA_SOPORTE");
+            container.innerHTML = `
+                <div class="diag-container" style="max-width: 800px; margin: 0 auto;">
+                    <div class="card" style="border-radius: 35px; padding: 50px; text-align: center; border: 4px solid #000; background: white; box-shadow: 12px 12px 0px #000;">
+                        <div style="background: #000; color: #fff; width: 80px; height: 80px; border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 35px; box-shadow: 4px 4px 0px #00ff88;">🛠️</div>
+                        <h2 style="font-weight: 900; font-size: 30px; margin-bottom: 15px;">Analizador de Integridad</h2>
+                        <p style="color: #555; font-size: 16px; margin-bottom: 35px; font-family: 'JetBrains Mono';">Escaneo profundo de Alonixz-Cloud para detectar errores de punteros.</p>
+                        <div id="pantalla-consola" style="display: none; background: #000; color: #00ff88; padding: 30px; border-radius: 20px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 30px; border: 3px solid #333; line-height: 1.8; box-shadow: inset 0 0 10px rgba(0,255,136,0.2);">
+                            <div style="color: #666; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; font-weight: 900;">
+                                <span>ALONIXZ_RECOVERY_CORE</span>
+                                <span>v1.0.4-STABLE</span>
+                            </div>
+                            <div id="output-log">> Iniciando análisis de punteros...</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                            <button onclick="ejecutarAnalisis()" id="btn-investigar" style="background: #000; color: #fff; border: 3px solid #00ff88; padding: 20px 45px; border-radius: 18px; font-weight: 900; cursor: pointer; width: 100%; max-width: 400px; transition: 0.3s; font-family: 'JetBrains Mono';">
+                                INICIAR ESCANEO DE SISTEMA
+                            </button>
+                            <a id="btn-correo-error" style="display: none; background: #ff5252; color: #fff; padding: 18px 35px; border-radius: 18px; text-decoration: none; font-weight: 900; font-size: 15px; border: 3px solid #000; box-shadow: 4px 4px 0px #000;">
+                                REPORTAR FALLO CRÍTICO
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
-    const texto = item.innerText.toLowerCase();
-    const container = document.getElementById('task-container');
-    const bannerTitle = document.getElementById('banner-title');
-    
-   
-   
-    const oldAdminBtn = document.getElementById('admin-publish-btn');
-    if (oldAdminBtn) {
-        oldAdminBtn.remove();
-    }
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar) sidebar.classList.remove('active');
+            if (overlay) overlay.style.display = 'none';
+        }
+    };
+});
 
-   
-    document.getElementById('display-code').innerText = "";
-    container.innerHTML = ""; 
-    document.getElementById('status-message').innerHTML = ""; 
-   
-
-if (texto.includes("inicio")) {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    
-   
-    const rachaActual = parseInt(document.getElementById('streak-count')?.innerText) || 0;
-
-    if (code) {
-        cargarAgenda(auth.currentUser.uid);
-    } else {
-       
-        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", rachaActual);
-    }
-}
-   
-};
-}
-    
-if (window.innerWidth <= 768) {
-    sidebar.classList.remove('active');
-    if (overlay) {
-        overlay.style.display = 'none';
-    }
-}
-    });function generarCodigoAleatorio(longitud = 6) {
+function generarCodigoAleatorio(longitud = 6) {
     const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let resultado = '';
     for (let i = 0; i < longitud; i++) {
@@ -2098,6 +2065,7 @@ window.navegarComoEstudiante = () => {
     };
 }
 
+
 onAuthStateChanged(auth, (user) => {
     if (user) {
         verificarRegistroCompleto(user.uid);
@@ -2110,98 +2078,146 @@ onAuthStateChanged(auth, (user) => {
     const snapAgenda = await get(agendaRef);
     
     if (!snapAgenda.exists() || snapAgenda.val().creador !== user.uid) {
-        alert("Acceso denegado: Solo el creador puede gestionar puntos.");
+        alert("Acceso denegado.");
         return;
     }
 
+                                                                                                                                           
+    const pozoAgenda = snapAgenda.val().bancoPuntos || 0;
+
     const modal = document.createElement('div');
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:100000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); font-family:sans-serif;";
     modal.id = "panel-control-puntos";
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:100000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
     
     modal.innerHTML = `
-        <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #000; width:90%; max-width:420px; padding:25px; animation: popIn 0.5s ease;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-weight:900; font-size:18px; text-transform:uppercase;">Puntos Globales</h2>
-                <button onclick="document.getElementById('panel-control-puntos').remove()" style="border:3px solid #000; background:#ff4b4b; color:white; font-weight:bold; cursor:pointer; border-radius:8px; padding:5px 10px;">X</button>
+        <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #000; width:90%; max-width:420px; padding:25px;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-weight:900; text-transform:uppercase;">Banco de Clase</h2>
+                <div style="background:#0071ff; color:white; display:inline-block; padding:10px 20px; border-radius:15px; border:3px solid #000; margin-top:10px;">
+                    <span style="font-size:12px; display:block; font-weight:bold;">PUNTOS DISPONIBLES:</span>
+                    <b id="banco-total" style="font-size:24px;">${pozoAgenda}</b>
+                </div>
             </div>
-            <div id="contenedor-alumnos" style="max-height:60vh; overflow-y:auto; padding-right:5px;">
-                <p style="text-align:center; font-weight:bold; color:#666;">Cargando perfiles...</p>
+            <div id="contenedor-alumnos" style="max-height:40vh; overflow-y:auto;">
+                <!-- Lista de alumnos... -->
             </div>
+            <button onclick="document.getElementById('panel-control-puntos').remove()" style="width:100%; margin-top:15px; background:#ff4b4b; color:white; border:3px solid #000; padding:10px; font-weight:900; border-radius:12px; cursor:pointer;">CERRAR PANEL</button>
         </div>
     `;
     document.body.appendChild(modal);
 
+                                                                                                                                           
+    const usuariosRef = ref(db, 'usuarios');
+    const snapUsers = await get(usuariosRef);
+    const contenedor = document.getElementById('contenedor-alumnos');
+    contenedor.innerHTML = "";
+
+    snapUsers.forEach((userSnap) => {
+        const u = userSnap.val();
+        const uid = userSnap.key;
+        if (u.mis_agendas && u.mis_agendas[codigoAgenda]) {
+            const card = document.createElement('div');
+            card.style = "display:flex; justify-content:space-between; align-items:center; border:3px solid #000; padding:10px; border-radius:15px; margin-bottom:10px; box-shadow:4px 4px 0px #000;";
+            card.innerHTML = `
+                <div style="font-weight:bold; font-size:13px;">${u.nombre}</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <b id="pts-${uid}">${u.stats?.puntos || 0}</b>
+                    <button onclick="repartirPuntosAgenda('${codigoAgenda}', '${uid}', 10)" style="background:#00ff88; border:2px solid #000; font-weight:900; cursor:pointer;">+</button>
+                </div>
+            `;
+            contenedor.appendChild(card);
+        }
+    });
+};                                                                                                                                                    
+window.codigoAgendaActiva = null;
+
+function detectarAgendaDesdeURL() {
+                                                                                                                                           
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');                                                                                                                                        
+
+    if (code) {
+        window.codigoAgendaActiva = code.trim().toUpperCase();
+        console.log("[Praxis v1.0.0] Agenda detectada:", window.codigoAgendaActiva);
+        
+                                                                                                                                               
+        const btnDonar = document.getElementById('contenedor-donar-puntos');
+        if (btnDonar) {
+            btnDonar.style.display = "block";
+        }
+    } else {
+        console.warn("[Praxis] No se encontró código de agenda en la URL.");
+    }
+}
+
+
+window.addEventListener('DOMContentLoaded', detectarAgendaDesdeURL);
+window.donarPuntosAAgenda = async (codigoAgenda) => {
+    const user = auth.currentUser;
+    const cantidad = parseInt(prompt("¿Cuántos puntos deseas donar al pozo de la clase?"));
+    
+    if (isNaN(cantidad) || cantidad <= 0) return;
+
+    const userRef = ref(db, `usuarios/${user.uid}/stats/puntos`);
+    const agendaRef = ref(db, `agendas/${codigoAgenda}/bancoPuntos`);
+
     try {
-        const usuariosRef = ref(db, 'usuarios');
-        const snapshot = await get(usuariosRef);
-        const contenedor = document.getElementById('contenedor-alumnos');
-        contenedor.innerHTML = ""; 
+        const snapUser = await get(userRef);
+        const misPuntos = snapUser.val() || 0;
 
-        let encontrados = 0;
-        const codigoBuscado = codigoAgenda.trim().toUpperCase();
+        if (misPuntos < cantidad) {
+            alert("No tienes suficientes puntos para donar esa cantidad.");
+            return;
+        }
 
-        snapshot.forEach((userSnap) => {
-            const u = userSnap.val();
-            const uid = userSnap.key;
+                                                                                                                                               
+        await set(userRef, misPuntos - cantidad);
+                                                                                                                                               
+        const snapAgenda = await get(agendaRef);
+        await set(agendaRef, (snapAgenda.val() || 0) + cantidad);
 
-            if (u.mis_agendas && (u.mis_agendas[codigoBuscado] || u.mis_agendas[codigoAgenda.trim()])) {
-                encontrados++;
-                
-                                                                                                              
-                const puntosGlobales = u.stats?.puntos || 0;
-                const esCreador = (u.mis_agendas[codigoBuscado]?.rol === "creador");
+        alert(`🤝 ¡Gracias! Has donado ${cantidad} puntos a la clase.`);
+    } catch (e) { console.error(e); }
+};window.repartirPuntosAgenda = async (codigoAgenda, uidAlumno, cantidad) => {
+    const agendaRef = ref(db, `agendas/${codigoAgenda}/bancoPuntos`);
+    const alumnoRef = ref(db, `usuarios/${uidAlumno}/stats/puntos`);
 
-                const card = document.createElement('div');
-                card.style = `display:flex; justify-content:space-between; align-items:center; border:4px solid #000; padding:15px; border-radius:15px; margin-bottom:12px; background:${esCreador ? '#fff3cd' : '#fff'}; box-shadow:6px 6px 0px #000;`;
-                
-                card.innerHTML = `
-                    <div style="text-align:left;">
-                        <div style="font-weight:900; font-size:14px; text-transform:uppercase;">
-                            ${u.nombre || 'Sin Nombre'} ${esCreador ? '⭐' : ''}
-                        </div>
-                        <div style="font-size:11px; color:#555; font-weight:bold;">${u.stats?.grado || '---'} | ${u.stats?.seccion || '---'}</div>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <b id="pts-${uid}" style="background:#000; color:white; padding:8px 15px; border-radius:10px; font-size:16px; min-width:30px; text-align:center; transition: transform 0.2s;">${puntosGlobales}</b>
-                        <div style="display:flex; flex-direction:column; gap:4px;">
-                            <button onclick="modificarPuntosAlumno('${uid}', 10)" style="background:#00ff88; border:2px solid #000; border-radius:6px; font-weight:900; cursor:pointer; padding:2px 8px;">+</button>
-                            <button onclick="modificarPuntosAlumno('${uid}', -10)" style="background:#ff6b6b; border:2px solid #000; border-radius:6px; font-weight:900; cursor:pointer; padding:2px 8px;">-</button>
-                        </div>
-                    </div>
-                `;
-                contenedor.appendChild(card);
+    try {
+                                                                                                                                               
+        const resultadoBanco = await runTransaction(agendaRef, (puntosActuales) => {
+            const totalBanco = puntosActuales || 0;
+            if (totalBanco < cantidad) {
+                return;                                                                                                                                        
             }
+            return totalBanco - cantidad;
         });
 
-        if (encontrados === 0) {
-            contenedor.innerHTML = `<p style='color:#999; text-align:center; font-weight:bold; padding:20px;'>Nadie en esta agenda.</p>`;
+        if (!resultadoBanco.committed) {
+            alert("⚠️ El banco de la clase no tiene suficientes puntos.");
+            return;
         }
 
-    } catch (error) {
-        console.error("Error Praxis:", error);
-    }
-};
+                                                                                                                                               
+        await runTransaction(alumnoRef, (puntosAlumno) => {
+            return (puntosAlumno || 0) + cantidad;
+        });
 
-window.modificarPuntosAlumno = async (uidAlumno, cantidad) => {
-                                                                                                  
-    const rutaPuntos = `usuarios/${uidAlumno}/stats/puntos`;
-    const refPuntos = ref(db, rutaPuntos);
-    
-    try {
-        const snap = await get(refPuntos);
-        const puntosActuales = snap.val() || 0;
-        const nuevosPuntos = Math.max(0, puntosActuales + cantidad);
+                                                                                                                                               
+        const elBanco = document.getElementById('banco-total');
+        const elAlumno = document.getElementById(`pts-${uidAlumno}`);
 
-        await set(refPuntos, nuevosPuntos);
-        
-        const el = document.getElementById(`pts-${uidAlumno}`);
-        if (el) {
-            el.innerText = nuevosPuntos;
-            el.style.transform = "scale(1.3)";
-            setTimeout(() => el.style.transform = "scale(1)", 200);
+        if (elBanco) elBanco.innerText = (await get(agendaRef)).val() || 0;
+        if (elAlumno) {
+            elAlumno.innerText = (await get(alumnoRef)).val() || 0;
+            elAlumno.style.transform = "scale(1.2)";
+            setTimeout(() => elAlumno.style.transform = "scale(1)", 200);
         }
+
+        console.log(`[Praxis v1.0.0]: Puntos repartidos con éxito.`);
+
     } catch (e) {
-        console.error("Error Puntos:", e);
+        console.error("Error en reparto:", e);
+        alert("Hubo un error al procesar la transacción.");
     }
 };const inicializarBotonProfesor = async () => {
     const params = new URLSearchParams(window.location.search);
@@ -2402,35 +2418,54 @@ function mostrarFelicidades(mensaje) {
         setTimeout(() => bdayModal.remove(), 300);
     };
 }
-</script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
-    <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-        <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
-        <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 10px; color: #1a73e8;">Aviso de Praxis</h2>
-        <p id="texto-anuncio-modal" style="color: #5f6368; line-height: 1.6; margin-bottom: 25px; font-size: 15px;"></p>
-        <button onclick="cerrarModalAnuncio()" style="background: #1a73e8; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s;">Entendido</button>
-    </div>
-</div>
+window.mostrarPuntosBancoGlobal = () => {
+    const params = new URLSearchParams(window.location.search);
+    const codigoAgenda = params.get('code');
 
-<style>
-    @keyframes popIn {
-        from { opacity: 0; transform: scale(0.8); }
-        to { opacity: 1; transform: scale(1); }
-    }
-</style><div id="modal-consejo" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center;">
-    <div style="background: white; padding: 30px; border-radius: 32px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-        <div id="icon-consejo" style="font-size: 45px; margin-bottom: 15px;">📢</div>
-        <h2 id="titulo-consejo" style="font-family: 'Outfit', sans-serif; margin-bottom: 8px; color: #1e293b; font-weight: 800;"></h2>
-        <p id="cuerpo-consejo" style="color: #475569; line-height: 1.6; margin-bottom: 25px; font-size: 15px;"></p>
-        <div id="area-opciones" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;"></div>
-        <button id="btn-cerrar-consejo" onclick="document.getElementById('modal-consejo').style.display='none'" style="background: #f1f5f9; color: #64748b; border: none; padding: 12px 30px; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; display: none;">Cerrar</button>
-    </div>
-</div>
+    if (!codigoAgenda) return;
 
-<script type="module">
-import { getDatabase, ref, onValue, query, limitToLast, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+ 
+    const bancoRef = ref(db, `agendas/${codigoAgenda}/bancoPuntos`);
+
+    onValue(bancoRef, (snapshot) => {
+        const puntos = snapshot.val() || 0;
+        
+       
+        const banner = document.querySelector('.banner');
+        if (!banner) return;
+
+      
+        let cajaPuntos = document.getElementById('visor-puntos-global');
+        
+        if (!cajaPuntos) {
+            cajaPuntos = document.createElement('div');
+            cajaPuntos.id = 'visor-puntos-global';
+           
+            cajaPuntos.style = `
+                background: #00ff88; 
+                color: #000; 
+                border: 4px solid #000; 
+                padding: 10px 20px; 
+                display: inline-block; 
+                margin-top: 15px; 
+                border-radius: 12px; 
+                box-shadow: 6px 6px 0px #000;
+                font-weight: 900;
+                font-family: sans-serif;
+            `;
+            banner.appendChild(cajaPuntos);
+        }
 
 
-const db = getDatabase();
+        cajaPuntos.innerHTML = `⭐ POZO COMÚN: ${puntos} PTS`;
+
+        const title = document.getElementById('banner-title');
+        if (title) title.innerText = "Panel de Control";
+    });
+};
+
+
+
 
 const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
     const modal = document.getElementById('modal-consejo');
@@ -2543,6 +2578,32 @@ const monitorSeguridad = (user) => {
     setInterval(checkIntegridad, 4000);
 };
 
-</script>
+
+document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);
+</script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
+        <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 10px; color: #1a73e8;">Aviso de Praxis</h2>
+        <p id="texto-anuncio-modal" style="color: #5f6368; line-height: 1.6; margin-bottom: 25px; font-size: 15px;"></p>
+        <button onclick="cerrarModalAnuncio()" style="background: #1a73e8; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s;">Entendido</button>
+    </div>
+</div>
+
+<style>
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style><div id="modal-consejo" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 32px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div id="icon-consejo" style="font-size: 45px; margin-bottom: 15px;">📢</div>
+        <h2 id="titulo-consejo" style="font-family: 'Outfit', sans-serif; margin-bottom: 8px; color: #1e293b; font-weight: 800;"></h2>
+        <p id="cuerpo-consejo" style="color: #475569; line-height: 1.6; margin-bottom: 25px; font-size: 15px;"></p>
+        <div id="area-opciones" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;"></div>
+        <button id="btn-cerrar-consejo" onclick="document.getElementById('modal-consejo').style.display='none'" style="background: #f1f5f9; color: #64748b; border: none; padding: 12px 30px; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; display: none;">Cerrar</button>
+    </div>
+</div>
+
+
 </body>
 </html>
