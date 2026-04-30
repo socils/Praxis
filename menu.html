@@ -2261,49 +2261,77 @@ auth.onAuthStateChanged((user) => {
     if (!data.apodo_listo) {
         mostrarModalApodo(user.uid, data.nombre_correo || user.displayName);
     }
-};
-
+};// 1. La función mejorada del Modal
 const mostrarModalApodo = (uid, nombreOriginal) => {
+    // Evitar duplicados si ya existe el modal
+    if (document.getElementById('modal-apodo')) return;
+
     const modal = document.createElement('div');
     modal.id = "modal-apodo";
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(15px);";
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); padding:20px;";
 
     modal.innerHTML = `
-        <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #0071ff; width:90%; max-width:350px; padding:30px; text-align:center; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-            <h2 style="font-weight:900; margin-top:0; text-transform:uppercase; font-size:22px;">¡Bienvenido!</h2>
-            <p style="font-weight:bold; color:#555; font-size:14px;">Para que tus profesores y amigos te reconozcan, elige un apodo:</p>
+        <div style="background:white; border:4px solid #000; border-radius:30px; box-shadow:12px 12px 0px #0071ff; width:100%; max-width:380px; padding:35px; text-align:center; position:relative;">
+            <div style="background:#0071ff; color:white; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; border:4px solid #000; font-size:25px;">✨</div>
+            <h2 style="font-weight:950; margin:0 0 10px 0; text-transform:uppercase; font-size:24px; font-family:'Inter',sans-serif;">Tu Apodo</h2>
+            <p style="font-weight:bold; color:#666; font-size:14px; margin-bottom:25px;">Personaliza cómo te verán en el Ranking y por tus profesores.</p>
             
-            <input type="text" id="nuevo-apodo" placeholder="Ej: Alonso_Dev" 
-                style="width:100%; padding:15px; border:3px solid #000; border-radius:12px; font-weight:bold; font-size:16px; margin-bottom:20px; box-sizing:border-box;">
+            <input type="text" id="nuevo-apodo" value="${nombreOriginal || ''}" placeholder="Ej: Alonso_Pro" 
+                style="width:100%; padding:18px; border:4px solid #000; border-radius:15px; font-weight:900; font-size:18px; margin-bottom:25px; box-sizing:border-box; text-align:center; outline:none;">
             
             <button id="btn-guardar-apodo" 
-                style="width:100%; background:#00ff88; color:#000; border:3px solid #000; padding:15px; border-radius:12px; font-weight:900; cursor:pointer; font-size:16px; box-shadow: 4px 4px 0px #000;">
-                LISTO, EMPEZAR
+                style="width:100%; background:#00ff88; color:#000; border:4px solid #000; padding:18px; border-radius:15px; font-weight:950; cursor:pointer; font-size:16px; box-shadow: 6px 6px 0px #000; transition: 0.2s;">
+                GUARDAR Y CONTINUAR
             </button>
         </div>
     `;
 
     document.body.appendChild(modal);
 
-    document.getElementById('btn-guardar-apodo').onclick = async () => {
-        const nuevoNombre = document.getElementById('nuevo-apodo').value.trim();
+    const input = document.getElementById('nuevo-apodo');
+    const btn = document.getElementById('btn-guardar-apodo');
+
+    btn.onclick = async () => {
+        const nuevoNombre = input.value.trim();
         
-        if (nuevoNombre.length >= 3) {
+        if (nuevoNombre.length >= 3 && nuevoNombre.length <= 20) {
+            btn.innerText = "GUARDANDO...";
+            btn.disabled = true;
+
             try {
+                // Asegúrate que 'db' esté inicializado en tu archivo principal
                 await update(ref(db, `usuarios/${uid}`), {
                     nombre: nuevoNombre,
                     apodo_listo: true
                 });
+                
                 modal.remove();
-                console.log("Apodo actualizado con éxito");
+                console.log("Perfil actualizado correctamente");
             } catch (error) {
-                console.error("Error al guardar apodo:", error);
+                console.error("Error Firebase:", error);
+                alert("Error al conectar con la base de datos.");
+                btn.disabled = false;
+                btn.innerText = "REINTENTAR";
             }
         } else {
-            alert("El apodo debe tener al menos 3 letras.");
+            alert("El apodo debe tener entre 3 y 20 caracteres.");
         }
     };
 };
+
+// 2. Cómo llamarlo correctamente al iniciar sesión (Ejemplo de integración)
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        const userRef = ref(db, `usuarios/${user.uid}`);
+        onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            // Si el usuario no tiene marcado 'apodo_listo', mostramos el modal
+            if (data && !data.apodo_listo) {
+                mostrarModalApodo(user.uid, data.nombre || user.displayName);
+            }
+        });
+    }
+});
 async function verificarCumpleaños(uid) {
     const userRef = ref(db, `usuarios/${uid}/stats`);
     
