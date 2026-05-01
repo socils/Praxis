@@ -1,18 +1,4 @@
-/* * ============================================================
- * PROPERTY OF ALONIXZ-GROUP © 2026 | PROJECT: PRAXIS
- * ============================================================
- * AVISO LEGAL Y PROTECCIÓN DE CÓDIGO FUENTE
- * * Este software y su código fuente son propiedad exclusiva 
- * de Alonixz-Group. Queda estrictamente prohibida la copia, 
- * distribución, ingeniería inversa o alteración parcial/total 
- * de este archivo sin autorización directa del Fundador.
- * * TOLERANCIA CERO: Cualquier intento de manipulación del 
- * sistema, explotación de vulnerabilidades o alteración del 
- * código fuente será motivo de BANEO PERMANENTE e IRREVOCABLE 
- * de la plataforma Praxis y todos los servicios de Alonixz Cloud.
- * * "Innovación con Integridad."
- * ============================================================
- */
+
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
  
@@ -1532,31 +1518,145 @@ body.tema-hacker .logo img {
     color: #202124;
 }
 
-
+/* Ajuste para desktop */
 @media (min-width: 480px) {
     .modal-buttons {
         flex-direction: row;
     }
+}/* --- ESTILO RANGO PROFESOR --- */
+
+.rango-profesor {
+    background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+    color: white !important;
+    font-weight: 800 !important;
+    padding: 5px 15px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.2px !important;
+    box-shadow: 0 4px 12px rgba(245, 124, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    display: inline-block !important;
 }
-.rango-tag.rango-aspirante {
-    background: rgba(176, 190, 197, 0.15);
-    color: #78909c;
-    border: 1px solid rgba(176, 190, 197, 0.3);
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 0.5px;
+
+.avatar-profesor {
+    border: 3px solid #ff9800 !important;
+    box-shadow: 0 0 15px rgba(255, 152, 0, 0.6) !important;
+    animation: pulse-profesor 2.5s infinite ease-in-out !important;
+}
+
+@keyframes pulse-profesor {
+    0% { box-shadow: 0 0 5px rgba(255, 152, 0, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(255, 152, 0, 0.7); }
+    100% { box-shadow: 0 0 5px rgba(255, 152, 0, 0.4); }
+}/* --- ALONIXZ MOBILE OPTIMIZATION LAYER --- */
+@media (max-width: 768px) {
+    :root {
+        --header-h: 60px; /* Header más compacto */
+        --sidebar-w: 100%; /* Sidebar ocupa todo el ancho al abrirse */
+    }
+
+    /* Ocultar elementos que saturan la vista en móvil */
+    .search-bar, .user-info, .code-pill {
+        display: none !important;
+    }
+
+    /* Contenido principal sin márgenes laterales */
+    .content {
+        margin-left: 0 !important;
+        padding: 1.25rem;
+        padding-top: 1rem;
+    }
+
+    /* Banner más pequeño para ahorrar espacio vertical */
+    .banner {
+        padding: 2rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: var(--radius-md);
+    }
+
+    .banner h1 {
+        font-size: 1.8rem;
+        letter-spacing: -1px;
+    }
+
+    /* Grid de una sola columna para tareas */
+    .task-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* Sidebar modo "Drawer" (Cajón lateral) */
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 20px 0 50px rgba(0,0,0,0.2);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    /* Botón flotante para acciones rápidas (Estilo Material Design) */
+    .add-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        box-shadow: var(--shadow-xl);
+    }
+}.admin-button {
+    text-decoration: none;
+    color: #000;
+    background: #ff4d4d; /* Rojo vibrante */
+    border: 3px solid #000;
+    padding: 10px 20px;
     display: inline-flex;
     align-items: center;
+    gap: 12px;
+    box-shadow: 5px 5px 0px #000; /* Sombra sólida */
+    transition: all 0.1s active;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
 }
 
-.avatar-aspirante {
-    border: 2px solid #b0bec5 !important;
-    box-shadow: 0 0 10px rgba(176, 190, 197, 0.2);
+.admin-button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0px #000;
+    background: #ff6666;
 }
 
-#streak-container.status-aspirante {
-    color: #90a4ae !important;
+.admin-button:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px #000;
+}
+
+.admin-icon {
+    font-size: 24px;
+    background: #fff;
+    border: 2px solid #000;
+    padding: 5px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-label {
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.admin-title {
+    font-size: 14px;
+    font-weight: 800;
 }
