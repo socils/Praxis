@@ -2935,7 +2935,7 @@ const monitorSeguridad = (user) => {
 const database = getDatabase(app);
 
 
-// --- INYECCIÓN DE ESTILOS (Brutalismo Praxis) ---
+
 const styles = `
 .streak-modal-overlay {
     position: fixed;
@@ -3022,8 +3022,6 @@ const styles = `
 const styleSheet = document.createElement("style");
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
-
-// --- INYECCIÓN DEL HTML ---
 const modalHTML = `
     <div id="streak-overlay" class="streak-modal-overlay">
         <div class="streak-card">
@@ -3042,61 +3040,73 @@ document.getElementById('close-streak').onclick = () => {
     document.getElementById('streak-overlay').classList.remove('show-modal');
 };
 
-// --- LÓGICA DE LA RACHA ---
+let ultimaRachaRegistrada = null;
 function iniciarDetectorRacha(uid) {
     const video = document.getElementById('streak-video');
     const overlay = document.getElementById('streak-overlay');
     const label = document.getElementById('streak-label');
-    
     const rachaRef = ref(database, `usuarios/${uid}/stats/racha`);
 
-    // Tu archivo de video
     video.src = "hailuo-2_3_Para_lograr_que_una_IA_de_video_como_Leonardo.ai_Runway_o_LottieFiles_genere_los-0.mp4";
+    video.muted = true;                                                                           
+    video.setAttribute('playsinline', ''); 
 
     onValue(rachaRef, (snapshot) => {
         const racha = snapshot.val();
         if (racha === null) return;
 
+        if (ultimaRachaRegistrada !== null && racha === ultimaRachaRegistrada) return;
+
+        ultimaRachaRegistrada = racha;
         overlay.classList.add('show-modal');
-        video.ontimeupdate = null; 
+        
+                                                                                  
+        video.ontimeupdate = null;
+        video.onended = null;
+        video.style.display = "block";
 
         if (racha === 1) {
             label.innerText = "¡RACHA INICIADA! 🔥";
             video.currentTime = 0;
-            video.play();
+            video.play().catch(e => console.log("Error en play:", e));
+            
             video.ontimeupdate = () => {
-                if (video.currentTime >= 2) video.currentTime = 3; 
-                if (video.currentTime >= 4) video.currentTime = 3; 
+                                                                                          
+                if (video.currentTime >= 2 && video.currentTime < 3) {
+                    video.currentTime = 3;
+                }
+                                                                                          
+                if (video.currentTime >= 3.9) {
+                    video.currentTime = 3;
+                }
             };
         } 
         else if (racha > 1) {
             label.innerText = `¡RACHA DE ${racha} DÍAS! ⚡`;
             video.currentTime = 3;
-            video.play();
+            video.play().catch(e => console.log("Error en play:", e));
+            
             video.ontimeupdate = () => {
-                if (video.currentTime >= 4) video.currentTime = 3;
+                                                                                          
+                if (video.currentTime >= 3.9) {
+                    video.currentTime = 3;
+                }
             };
-        } else if (racha === 0) {
-    label.innerText = "RACHA PERDIDA ❄️";
-    
-    // 1. Configuramos el inicio
-    video.currentTime = 4;
-    video.style.display = "block"; // Aseguramos que sea visible
-    video.play();
-
-    // 2. Quitamos cualquier rastro del ontimeupdate anterior para evitar conflictos
-    video.ontimeupdate = null; 
-
-    // 3. Usamos el evento 'ended' que es mucho más limpio para detectar el final
-    video.onended = () => {
-        video.style.display = "none"; // Oculta el video al terminar
-        console.log("Video de racha perdida finalizado y ocultado.");
-    };
-}
+        } 
+        else if (racha === 0) {
+            label.innerText = "RACHA PERDIDA ❄️";
+            video.currentTime = 4;
+            video.play().catch(e => console.log("Error en play:", e));
+            
+            video.onended = () => {
+                video.style.display = "none";
+                                                                                          
+                                                                                          
+            };
+        }
     });
 }
 
-// --- EJECUCIÓN ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
         iniciarDetectorRacha(user.uid);
