@@ -916,7 +916,14 @@ window.abrirModalTarea = function(code) {
         </div>
     `;
      actionModal.style.display = "flex";
-                                                   
+      document.getElementById('btn-cancelar-tarea').onclick = () => {
+   
+    actionModal.style.display = "none";
+  
+    document.querySelectorAll('#action-modal input, #action-modal textarea').forEach(el => el.value = "");
+    
+    console.log("Publicación de tarea cancelada.");
+};                                             
 document.getElementById('btn-save-task').onclick = async () => {
     const titulo = document.getElementById('t-titulo').value.trim();
     const materia = document.getElementById('t-materia').value.trim();
