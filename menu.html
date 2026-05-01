@@ -59,12 +59,27 @@
 </div>
 <hr>
             <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>
-            <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Sincronizar Drive</div>
-            <a href="centro-de-admins.html" id="admin-link" style="display: none; color: #ff4d4d; font-weight: 800;">
-    🛡️ Panel de Fundador
-</a><a href="consejo-estudiantil.html" id="consejo-link" style="display: none; color: #ff4d4d; font-weight: 800;">
-    🛡️ Panel del consejo
-</a><button id="btn-admin-puntos" style="display: none; background: #000; color: white; border: 2px solid #000; padding: 10px; border-radius: 12px; font-weight: 900; cursor: pointer; box-shadow: 4px 4px 0px #0071ff;">
+            <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Ver espacio de Praxis</div>
+           <!-- Contenedor para los accesos administrativos -->
+<div id="admin-container" style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap;">
+    
+    <a href="centro-de-admins.html" id="admin-link" class="admin-button" style="display: none;">
+        <span class="admin-icon">🛡️</span>
+        <div class="admin-text">
+            <span class="admin-label">SISTEMA</span>
+            <span class="admin-title">Panel de Fundador</span>
+        </div>
+    </a>
+
+    <a href="consejo-estudiantil.html" id="consejo-link" class="admin-button" style="display: none;">
+        <span class="admin-icon">🎓</span>
+        <div class="admin-text">
+            <span class="admin-label">GESTIÓN</span>
+            <span class="admin-title">Panel del Consejo</span>
+        </div>
+    </a>
+
+</div><button id="btn-admin-puntos" style="display: none; background: #000; color: white; border: 2px solid #000; padding: 10px; border-radius: 12px; font-weight: 900; cursor: pointer; box-shadow: 4px 4px 0px #0071ff;">
     👥 VER ALUMNOS Y PUNTOS
 </button><!-- Botón de Donación de Puntos -->
 <div id="contenedor-donar-puntos" style="display: none; margin: 10px 0;">
@@ -355,11 +370,11 @@ userInfoDiv.innerHTML = `
     ${!isGuest ? `
     <div id="puntos-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #1a73e8;">
         <span id="user-points-display">0</span>
-        <span style="font-size: 18px; margin-left: 4px;">🏆</span>
+        <span style="font-size: 18px; margin-left: 4px;"><img src="dolar.png" alt="Puntos" style="width: 25px;"></span>
     </div>
     <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
         <span id="streak-count">${rachaFinal}</span>
-        <span style="font-size: 18px; margin-left: 4px;">🔥</span>
+        <span style="font-size: 18px; margin-left: 4px;"><img src="fuego.png" alt="Racha" style="width: 25px;"></span>
     </div>` : ''}
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
         <span id="user-name-display" style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 700; display: flex; align-items: center;">
@@ -549,19 +564,28 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
                                                                                               
                                                                                               
                         const btnEliminar = esDuenio ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea"><img src="papelera-de-reciclaje.png"style="width: 15px;"></button>` : "";
-
+const linkAdjunto = t.fileUrl ? `
+    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ddd;">
+        <a href="${t.fileUrl}" target="_blank" 
+           style="display: inline-flex; align-items: center; gap: 8px; background: #f1f3f4; color: #1a73e8; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 12px; border: 2px solid #000; box-shadow: 3px 3px 0px #000;">
+            <span>🔗 Ver Recurso (${t.tipo || 'Enlace'})</span>
+        </a>
+    </div>` : "";
                         container.innerHTML += `
-                            <div class="card">
-                                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <div>
-                                        <h3>${t.titulo}</h3>
-                                        <span>${t.materia}</span>
-                                    </div>
-                                    ${btnEliminar}
-                                </div>
-                                <div class="card-body"><p>${t.descripcion}</p></div>
-                                <div class="card-footer"><span>Entrega: ${t.fecha}</span></div>
-                            </div>`;
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h3>${t.titulo}</h3>
+                <span>${t.materia}</span>
+            </div>
+            ${btnEliminar}
+        </div>
+        <div class="card-body">
+            <p>${t.descripcion}</p>
+            ${linkAdjunto} <!-- Aquí se inserta el link -->
+        </div>
+        <div class="card-footer"><span>Entrega: ${t.fecha}</span></div>
+    </div>`;
                     });
                 }
             } else {
@@ -841,15 +865,12 @@ async function checkTeacherPermissions(agendaCode) {
         console.error("Error al validar permisos de agenda:", error);
     }
 }
-
 window.abrirModalTarea = function(code) {
-                                                                                                  
     window.currentFileUrl = null;
     window.currentFileName = null;
+    let modoRecurso = "url";                                                   
 
     const modalContent = document.querySelector('.modal-content');
-    
-                                                                                                  
     modalContent.style.textAlign = "center";
     modalContent.style.padding = "10px";
 
@@ -872,96 +893,86 @@ window.abrirModalTarea = function(code) {
                 </div>
             </div>
 
-            <label style="font-size:10px; font-weight:900; text-transform:uppercase; color:#555;">Instrucciones para los estudiantes</label>
-            <textarea id="t-desc" placeholder="Escribe aquí los pasos a seguir..." style="width:100%; height:90px; padding:12px; border:3px solid #000; border-radius:10px; margin-top:5px; margin-bottom:15px; box-sizing:border-box; font-family:sans-serif; font-weight:500; resize:none;"></textarea>
+            <label style="font-size:10px; font-weight:900; text-transform:uppercase; color:#555;">Instrucciones</label>
+            <textarea id="t-desc" placeholder="Escribe aquí los pasos a seguir..." style="width:100%; height:70px; padding:12px; border:3px solid #000; border-radius:10px; margin-top:5px; margin-bottom:15px; box-sizing:border-box; font-family:sans-serif; font-weight:500; resize:none;"></textarea>
             
-            <div class="upload-container">
-                <input type="file" id="file-upload-input" style="display: none;" onchange="actualizarEstadoArchivo()">
-                <button type="button" id="btn-adjuntar" onclick="document.getElementById('file-upload-input').click()" 
-                    style="width:100%; padding:12px; background:#fff; border:3px dashed #000; border-radius:10px; cursor:pointer; font-weight:900; text-transform:uppercase; font-size:12px; transition:0.2s;"
-                    onmouseover="this.style.background='#eef6ff'" onmouseout="this.style.background='#fff'">
-                    📎 Adjuntar Guía o PDF
-                </button>
-                <p id="file-status" style="font-size:11px; font-weight:bold; margin-top:8px; color:#0071ff; text-align:center; min-height:15px;"></p>
+            <!-- Selector de Recurso -->
+            <label style="font-size:10px; font-weight:900; text-transform:uppercase; color:#555; display:block; margin-bottom:5px;">Adjuntar Recurso</label>
+            <div style="background:#fff; border:3px solid #000; border-radius:10px; padding:10px;">
+                <div id="container-url">
+                    <input type="text" id="t-url" placeholder="Pegar link de YouTube o Classroom..." 
+                        style="width:100%; padding:10px; border:2px solid #eee; border-radius:8px; font-size:13px; outline:none; font-weight:600;">
+                </div>
             </div>
         </div>
 
         <div class="modal-buttons" style="display:flex; gap:12px; margin-top:25px;">
-            <button id="btn-cancelar-tarea" style="flex:1; padding:16px; border:3px solid #000; border-radius:15px; background:#fff; cursor:pointer; font-weight:900; text-transform:uppercase; transition:0.2s;" 
-                onmouseover="this.style.background='#ffdbdb'" onmouseout="this.style.background='#fff'">
+            <button id="btn-cancelar-tarea" style="flex:1; padding:16px; border:3px solid #000; border-radius:15px; background:#fff; cursor:pointer; font-weight:900; text-transform:uppercase; transition:0.2s;">
                 CANCELAR
             </button>
-            <button id="btn-save-task" style="flex:1.5; padding:16px; border:3px solid #000; border-radius:15px; background:#00ff88; color:#000; cursor:pointer; font-weight:900; text-transform:uppercase; box-shadow: 5px 5px 0px #000; transition:0.2s;"
-                onmouseover="this.style.transform='translate(-2px, -2px)'; this.style.boxShadow='7px 7px 0px #000';" onmouseout="this.style.transform='none'; this.style.boxShadow='5px 5px 0px #000';">
+            <button id="btn-save-task" style="flex:1.5; padding:16px; border:3px solid #000; border-radius:15px; background:#00ff88; color:#000; cursor:pointer; font-weight:900; text-transform:uppercase; box-shadow: 5px 5px 0px #000; transition:0.2s;">
                 PUBLICAR AHORA
             </button>
         </div>
     `;
-    
-    actionModal.style.display = "flex";
+     actionModal.style.display = "flex";
+                                                   
+document.getElementById('btn-save-task').onclick = async () => {
+    const titulo = document.getElementById('t-titulo').value.trim();
+    const materia = document.getElementById('t-materia').value.trim();
+    const descripcion = document.getElementById('t-desc').value.trim();
+    const fecha = document.getElementById('t-fecha').value.trim();
+    const urlInput = document.getElementById('t-url').value.trim();
 
-                                                                                                  
-    document.getElementById('btn-cancelar-tarea').onclick = () => {
-                                                                                                      
-        document.getElementById('t-titulo').value = "";
-        document.getElementById('t-materia').value = "";
-        document.getElementById('t-desc').value = "";
-        document.getElementById('t-fecha').value = "";
-        
-                                                                                                      
-        window.currentFileUrl = null;
-        window.currentFileName = null;
-        
-                                                                                                      
-        actionModal.style.display = 'none';
-    };
-
-                                                                                                  
-    document.getElementById('btn-save-task').onclick = async () => {
-        const titulo = document.getElementById('t-titulo').value.trim();
-        const materia = document.getElementById('t-materia').value.trim();
-        const descripcion = document.getElementById('t-desc').value.trim();
-        const fecha = document.getElementById('t-fecha').value.trim();
-
-        if (titulo && materia) {
-            const btnSave = document.getElementById('btn-save-task');
-            const btnCancel = document.getElementById('btn-cancelar-tarea');
-            
-            btnSave.disabled = true;
-            btnCancel.disabled = true;
-            btnSave.innerText = "ENVIANDO...";
-            btnSave.style.background = "#ccc";
-
-            try {
-                const tareasRef = ref(db, 'agendas/' + code + '/tareas');
-                await push(tareasRef, {
-                    titulo, 
-                    materia, 
-                    descripcion, 
-                    fecha,
-                    fileUrl: window.currentFileUrl || null,
-                    fileName: window.currentFileName || null,
-                    autor: auth.currentUser.displayName || "Profesor",
-                    timestamp: Date.now()
-                });
-                
-                actionModal.style.display = "none";
-                                                                                                              
-            } catch (error) {
-                console.error("Error Praxis:", error);
-                alert("Fallo en la conexión con la base de datos.");
-                btnSave.disabled = false;
-                btnCancel.disabled = false;
-                btnSave.innerText = "PUBLICAR AHORA";
-                btnSave.style.background = "#00ff88";
-            }
-        } else {
-            alert("⚠️ El título y la materia son necesarios para organizar la agenda.");
+                                                      
+    const corregirURL = (url) => {
+        if (!url) return "";
+        if (!/^https?:\/\//i.test(url)) {
+            return "https://" + url;
         }
+        return url;
     };
-};
 
+    const finalUrl = corregirURL(urlInput);
 
+    if (titulo && materia) {
+        const btnSave = document.getElementById('btn-save-task');
+        btnSave.disabled = true;
+        btnSave.innerText = "ENVIANDO...";
+
+                                                          
+        let tipoRecurso = "Enlace Externo";
+        if (finalUrl.includes("youtube.com") || finalUrl.includes("youtu.be")) tipoRecurso = "YouTube";
+        else if (finalUrl.includes("classroom.google.com")) tipoRecurso = "Classroom";
+        else if (finalUrl.includes("drive.google.com")) tipoRecurso = "Google Drive";
+
+        try {
+            const tareasRef = ref(db, 'agendas/' + code + '/tareas');
+            await push(tareasRef, {
+                titulo, 
+                materia, 
+                descripcion, 
+                fecha,
+                fileUrl: finalUrl || null,                                                   
+                tipo: tipoRecurso, 
+                autor: auth.currentUser.displayName || "Profesor",
+                timestamp: Date.now()
+            });
+            
+            actionModal.style.display = "none";
+                                                              
+            document.querySelectorAll('#action-modal input, #action-modal textarea').forEach(el => el.value = "");
+        } catch (error) {
+            console.error("Error Praxis:", error);
+            alert("Fallo en la conexión.");
+            btnSave.disabled = false;
+            btnSave.innerText = "PUBLICAR AHORA";
+        }
+    } else {
+        alert("⚠️ El título y la materia son necesarios.");
+    }
+}
+}
 window.actualizarEstadoArchivo = function() {
     const input = document.getElementById('file-upload-input');
     const status = document.getElementById('file-status');
@@ -1067,11 +1078,11 @@ navItems.forEach(item => {
             <!-- Botones tipo Card Vertical -->
             <div style="display: flex; gap: 15px;">
                 <button onclick="cambiarVistaRanking('racha')" id="tab-racha" style="width: 90px; height: 100px; background: #fff; border: 4px solid #000; border-radius: 20px; cursor: pointer; box-shadow: 8px 8px 0px #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;">
-                    <span style="font-size: 20px;">🔥</span>
+                    <span style="font-size: 20px;"><img src="fuego.png" alt="Racha" style="width:25px;"></span>
                     <span style="font-weight: 900; font-size: 14px; font-family: 'Inter', sans-serif;">RACHA</span>
                 </button>
                 <button onclick="cambiarVistaRanking('puntos')" id="tab-puntos" style="width: 90px; height: 100px; background: #00e5ff; border: 4px solid #000; border-radius: 20px; cursor: pointer; box-shadow: 8px 8px 0px #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;">
-                    <span style="font-size: 20px;">🏆</span>
+                    <span style="font-size: 20px;"><img src="dolar.png" alt="Puntos" style="width: 25px;"></span>
                     <span style="font-weight: 900; font-size: 14px; font-family: 'Inter', sans-serif;">PUNTOS</span>
                 </button>
             </div>
@@ -1119,7 +1130,7 @@ navItems.forEach(item => {
             })).sort((a, b) => b[currentMode] - a[currentMode]);
 
             const color = currentMode === 'racha' ? '#fff' : '#00e5ff';
-            const icon = currentMode === 'racha' ? '🔥' : '🏆';
+            const icon = currentMode === 'racha' ? '<img src="fuego.png" alt="Racha" style="width: 25px;">' : '<img src="dolar.png" alt="Puntos" style="width: 25px;">';
 
             const itemPodio = (u, pos, h, isWinner) => `
                 <div style="display: flex; flex-direction: column; align-items: center; position: relative;">
@@ -1187,66 +1198,84 @@ navItems.forEach(item => {
                     </div>
                 </div>`;
         }
-        else if (texto.includes("sincronizar drive") || texto.includes("biblioteca")) {
-            bannerTitle.innerText = "Mi Biblioteca Digital";
-            displayCode.innerText = "RECURSOS_NUBE";
-            navegarA("Mi Biblioteca Digital", "VISTA_DRIVE");
-            container.innerHTML = `
-                <div class="drive-explorer" style="max-width: 900px; margin: 0 auto; padding: 20px;">
-                    <div style="background: #fff; padding: 30px; border-radius: 25px; border: 4px solid #000; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 8px 8px 0px #000;">
-                        <div>
-                            <h2 style="margin: 0; font-weight: 900; font-size: 24px;">Cloud Explorer</h2>
-                            <p style="margin: 5px 0 0 0; color: #555; font-family: 'JetBrains Mono'; font-size: 13px;">Accede a tus recursos académicos en tiempo real.</p>
-                        </div>
-                        <button id="btn-auth-drive" style="background: #1a73e8; color: white; border: 3px solid #000; padding: 12px 25px; border-radius: 15px; cursor: pointer; font-weight: 900; box-shadow: 4px 4px 0px #000; transition: 0.2s;">
-                            SINCRONIZAR
-                        </button>
-                    </div>
-                    <div id="drive-content" style="display: none;">
-                        <div style="display: flex; gap: 12px; margin-bottom: 25px;">
-                            <input type="text" id="drive-search" placeholder="Buscar fichas, tareas, PDFs..." style="flex: 1; padding: 15px 25px; border-radius: 18px; border: 3px solid #000; outline: none; font-size: 15px; font-weight: 600; box-shadow: 4px 4px 0px #000;">
-                            <button id="btn-search" style="background: #00ff88; border: 3px solid #000; padding: 0 25px; border-radius: 18px; cursor: pointer; box-shadow: 4px 4px 0px #000;">🔍</button>
-                        </div>
-                        <div id="files-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;"></div>
-                    </div>
-                </div>
-            `;
-            const btnAuth = document.getElementById('btn-auth-drive');
-            const driveContent = document.getElementById('drive-content');
-            const filesList = document.getElementById('files-list');
+       else if (texto.includes("espacio de praxis") || texto.includes("praxis space")) {
+    bannerTitle.innerText = "Monitor de Praxis Core";
+    displayCode.innerText = "DB_LIVE_STORAGE";
+    navegarA("Espacio Praxis", "VISTA_DATABASE");
 
-            btnAuth.onclick = () => {
-                tokenClient.callback = async (resp) => {
-                    if (resp.error) throw resp;
-                    btnAuth.innerText = "SINC_OK";
-                    btnAuth.style.background = "#00ff88";
-                    btnAuth.style.color = "#000";
-                    driveContent.style.display = "block";
-                    const listarArchivos = async (query = "") => {
-                        filesList.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>Escaneando nube...</p>";
-                        const q = query ? `name contains '${query}' and mimeType != 'application/vnd.google-apps.folder'` : "mimeType = 'application/pdf'";
-                        const response = await gapi.client.drive.files.list({ q: q, pageSize: 12, fields: 'files(id, name, thumbnailLink, webViewLink)' });
-                        const files = response.result.files;
-                        filesList.innerHTML = "";
-                        if (files && files.length > 0) {
-                            files.forEach(file => {
-                                filesList.innerHTML += `
-                                    <div onclick="window.open('${file.webViewLink}', '_blank')" style="background: #fff; padding: 20px; border-radius: 20px; border: 3px solid #000; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 4px 4px 0px #000;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                                        <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
-                                        <div style="font-size: 13px; font-weight: 800; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
-                                        <div style="font-size: 10px; color: #1a73e8; margin-top: 8px; font-weight: 900; text-transform:uppercase;">Abrir Recurso</div>
-                                    </div>`;
-                            });
-                        } else {
-                            filesList.innerHTML = "<p style='font-family:\"JetBrains Mono\"; grid-column: 1/-1; text-align:center;'>No se encontraron materiales en el servidor.</p>";
-                        }
-                    };
-                    listarArchivos();
-                    document.getElementById('btn-search').onclick = () => { listarArchivos(document.getElementById('drive-search').value); };
-                };
-                tokenClient.requestAccessToken({prompt: 'consent'});
-            };
-        }
+    container.innerHTML = `
+        <div class="praxis-explorer" style="max-width: 900px; margin: 0 auto; padding: 20px;">
+            <div style="background: #fff; padding: 30px; border: 4px solid #000; margin-bottom: 25px; box-shadow: 8px 8px 0px #000;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div>
+                        <h2 style="margin: 0; font-weight: 900; font-size: 22px; text-transform: uppercase;">Almacenamiento Real</h2>
+                        <p style="margin: 5px 0 0 0; color: #555; font-family: 'JetBrains Mono'; font-size: 12px;">Sincronizado con Firebase Console</p>
+                    </div>
+                    <div id="db-percentage" style="font-size: 28px; font-weight: 900; font-family: 'JetBrains Mono';">0.0%</div>
+                </div>
+                
+                <!-- Barra Brutalista -->
+                <div style="width: 100%; height: 30px; border: 4px solid #000; background: #eee; overflow: hidden; position: relative;">
+                    <div id="db-progress-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 1s ease-in-out;"></div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: 800; font-size: 11px;">
+                    <span id="db-size-label">0.00 KB ACTUAL</span>
+                    <span style="background: #000; color: #fff; padding: 0 5px;">LIM: 100 KB</span>
+                </div>
+            </div>
+
+            <div id="db-data-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                <!-- Aquí se cargan los nodos -->
+            </div>
+        </div>
+    `;
+
+    const dataGrid = document.getElementById('db-data-grid');
+    const progressBar = document.getElementById('db-progress-bar');
+    const percentageLabel = document.getElementById('db-percentage');
+    const sizeLabel = document.getElementById('db-size-label');
+    
+    const dbInstance = getDatabase(); 
+
+    const monitorearEspacioReal = () => {
+                                                          
+        const dbRef = ref(dbInstance, '/'); 
+        
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            
+            if (data) {
+                                                                  
+                const bytes = new Blob([JSON.stringify(data)]).size;
+                const kbActual = (bytes / 1024).toFixed(2);
+                
+                                                                  
+                const visualLimit = 100; 
+                const percent = Math.min((kbActual / visualLimit) * 100, 100).toFixed(1);
+
+                                                                  
+                progressBar.style.width = `${percent}%`;
+                percentageLabel.innerText = `${percent}%`;
+                sizeLabel.innerText = `${kbActual} KB ACTUAL`;
+
+                                                                  
+                dataGrid.innerHTML = "";
+                                                                  
+                Object.keys(data).forEach(key => {
+                    dataGrid.innerHTML += `
+                        <div style="background: #fff; padding: 15px; border: 3px solid #000; box-shadow: 4px 4px 0px #000;">
+                            <div style="font-weight: 900; text-transform: uppercase; font-size: 14px; border-bottom: 2px solid #eee; pb: 5px; mb: 10px;">Nodo: ${key}</div>
+                            <div style="font-family: monospace; font-size: 11px; color: #444;">Explorando sub-estructuras...</div>
+                        </div>
+                    `;
+                });
+            }
+        });
+    };
+
+    monitorearEspacioReal();
+}
         else if (texto.includes("soporte y ayuda")) {
             bannerTitle.innerText = "Consola de Diagnóstico Praxis";
             displayCode.innerText = "SOPORTE_SISTEMA";
@@ -1510,7 +1539,12 @@ function renderizarVacio() {
             activarInspectorExperimental();
         }
     });
-    window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+                                                     
+window.addEventListener('keyup', (e) => {
+    if (e.key) {
+        keys[e.key.toLowerCase()] = false;
+    }
+});
 
     function activarInspectorExperimental() {
         const yaAcepto = localStorage.getItem('praxis_perf_exp');
@@ -1806,61 +1840,74 @@ function escucharChatClase(code) {
             }, 800);
         }, 600);
     }, 500);
-};
-window.subirArchivoTarea = async () => {
-    alert("🚀 FUNCIÓN EN DESARROLLO: El cargado de archivos estará disponible en la Versión Final (Producción). Por ahora, utiliza enlaces externos en la descripción de la tarea.");
-    
-    const descInput = document.getElementById('tarea-descripcion');
-    if (descInput) {
-        descInput.focus();
-    }
-    
-    return;
-
+};window.vincularRecursoExterno = async () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
-    const fileInput = document.getElementById('file-upload-input');
-    const file = fileInput.files[0];
+    
+                                                      
+    const url = prompt("🔗 Ingrese el enlace del recurso (YouTube, Classroom o Web):");
+    
+    if (!url || !code) return;
 
-    if (!file || !code) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-        alert("El archivo es muy pesado (máximo 10MB)");
+                                                      
+    if (!url.startsWith("http")) {
+        alert("⚠️ Por favor, ingrese una URL válida (ej: https://...)");
         return;
     }
 
-    const storageRef = sRef(storage, `recursos/${code}/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
     const btn = document.getElementById('btn-adjuntar');
-    btn.innerText = "Subiendo...";
+    btn.innerText = "Procesando...";
     btn.disabled = true;
 
-    uploadTask.on('state_changed', null, 
-        (error) => {
-            console.error(error);
-            btn.innerText = "Error";
-            btn.disabled = false;
-        }, 
-        async () => {
-            const url = await getDownloadURL(uploadTask.snapshot.ref);
-            const tareasRef = ref(db, `agendas/${code}/tareas`);
-            const nuevaTareaRef = push(tareasRef);
-            
-            await set(nuevaTareaRef, {
-                titulo: "Nuevo Recurso Compartido",
-                materia: "Archivo",
-                descripcion: `Se ha compartido: ${file.name}`,
-                fecha: new Date().toLocaleDateString(),
-                fileUrl: url, 
-                fileName: file.name
-            });
+                                                      
+    let tipoIcono = "🔗";
+    let plataforma = "Enlace Web";
+    let colorFondo = "#000";                                                   
 
-            btn.innerText = "¡Subido!";
-            btn.disabled = false;
-            setTimeout(() => btn.innerHTML = "📎 Adjuntar Archivo", 2000);
-        }
-    );
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+        tipoIcono = "📺";
+        plataforma = "Vídeo de YouTube";
+        colorFondo = "#ff0000";                                                   
+    } else if (url.includes("classroom.google.com")) {
+        tipoIcono = "🏫";
+        plataforma = "Google Classroom";
+        colorFondo = "#107c10";                                                   
+    } else if (url.includes("drive.google.com")) {
+        tipoIcono = "📁";
+        plataforma = "Google Drive";
+        colorFondo = "#1a73e8";                                                   
+    }
+
+    try {
+                                                          
+        const tareasRef = ref(db, `agendas/${code}/tareas`);
+        const nuevaTareaRef = push(tareasRef);
+        
+        await set(nuevaTareaRef, {
+            titulo: plataforma,
+            materia: "Recurso Digital",
+            descripcion: `Material compartido por el docente vía ${plataforma}.`,
+            fecha: new Date().toLocaleDateString(),
+            fileUrl: url, 
+            tipo: plataforma,
+            estilo: colorFondo
+        });
+
+                                                          
+        btn.innerText = "¡Vinculado!";
+        btn.style.background = "#00ff88";
+        btn.disabled = false;
+        
+        setTimeout(() => {
+            btn.innerHTML = "📎 Adjuntar Recurso";
+            btn.style.background = "";                                                   
+        }, 2000);
+
+    } catch (error) {
+        console.error("Error al vincular:", error);
+        btn.innerText = "Error";
+        btn.disabled = false;
+    }
 };async function verificarRegistroCompleto(uid) {
     try {
         const statsRef = ref(db, `usuarios/${uid}/stats`);
@@ -2445,23 +2492,42 @@ const ejecutarAccionInactividad = () => {
         font-family: sans-serif; color: white;
     `;
 
-    lockOverlay.innerHTML = `
-        <div style="text-align: center; background: #1e293b; padding: 40px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); max-width: 400px; width: 90%;">
-            <div style="font-size: 40px; margin-bottom: 15px;">🔒</div>
-            <h2 style="margin: 0 0 10px 0;">Sesión Suspendida</h2>
-            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px;">
-                Has estado inactivo por 3 minutos. Ingresa tu PIN de profesor para continuar.
-            </p>
-            
-            <input type="password" id="unlock-pin" placeholder="Introduce tu PIN" maxlength="6"
-                style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; text-align: center; font-size: 20px; margin-bottom: 15px; outline: none;">
-            
-            <button id="btn-unlock" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                DESBLOQUEAR
-            </button>
-            <p id="pin-error" style="color: #ef4444; font-size: 12px; margin-top: 15px; display: none;"></p>
+   lockOverlay.innerHTML = `
+    <div style="text-align: center; background: #ffffff; padding: 40px; border: 4px solid #000; box-shadow: 12px 12px 0px #000; max-width: 420px; width: 95%; position: relative; font-family: 'Inter', sans-serif;">
+        <!-- Identificador de Estamento -->
+        <div style="position: absolute; top: -15px; right: 20px; background: #1a73e8; color: #fff; padding: 4px 15px; font-weight: 900; font-size: 11px; border: 2px solid #000; text-transform: uppercase; letter-spacing: 1px;">
+            Acceso Docente
         </div>
-    `;
+
+        <div style="margin-bottom: 20px;">
+            <span style="font-size: 50px;">👨‍🏫</span>
+        </div>
+        
+        <h2 style="margin: 0 0 10px 0; text-transform: uppercase; font-weight: 900; font-size: 22px; color: #000;">Seguridad de Sesión</h2>
+        
+        <p style="color: #444; font-size: 14px; margin-bottom: 30px; font-weight: 500; line-height: 1.5;">
+            Por motivos de seguridad, la consola de <span style="font-weight: 800;">Praxis</span> se ha bloqueado tras 3 minutos de inactividad.
+        </p>
+        
+        <div style="text-align: left; margin-bottom: 5px;">
+            <label style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: #1a73e8; margin-left: 2px;">Pin de Verificación</label>
+        </div>
+        <input type="password" id="unlock-pin" placeholder="000000" maxlength="6"
+            style="width: 100%; padding: 15px; border: 3px solid #000; background: #f8fafc; color: #000; text-align: center; font-size: 32px; margin-bottom: 20px; outline: none; font-family: 'JetBrains Mono', monospace; font-weight: 900; letter-spacing: 5px;">
+        
+        <button id="btn-unlock" style="width: 100%; background: #1a73e8; color: #fff; border: 3px solid #000; padding: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 14px; box-shadow: 6px 6px 0px #000; transition: transform 0.1s;">
+            Confirmar Identidad
+        </button>
+        
+        <p id="pin-error" style="background: #fee2e2; color: #dc2626; padding: 10px; font-size: 12px; margin-top: 20px; display: none; font-weight: 700; border: 2px solid #dc2626;"></p>
+        
+        <div style="margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+            <div style="width: 30px; height: 2px; background: #eee;"></div>
+            <div style="font-size: 9px; color: #999; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Praxis Secure Terminal</div>
+            <div style="width: 30px; height: 2px; background: #eee;"></div>
+        </div>
+    </div>
+`;
 
     document.body.appendChild(lockOverlay);
 
@@ -2859,7 +2925,176 @@ const monitorSeguridad = (user) => {
 
     setInterval(checkIntegridad, 4000);
 };
+const database = getDatabase(app);
 
+
+// --- INYECCIÓN DE ESTILOS (Brutalismo Praxis) ---
+const styles = `
+.streak-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.1); /* Menos opacidad para ver el dashboard al fondo */
+    backdrop-filter: blur(8px); /* Efecto cristal moderno que resalta el modal */
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999; 
+    visibility: hidden; opacity: 0;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transición con rebote */
+}
+
+.streak-card {
+    background: #FFDE03; /* Amarillo Neo-brutalista vibrante */
+    border: 6px solid #000;
+    padding: 30px;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    /* Sombra brutalista más profunda y definida */
+    box-shadow: 16px 16px 0px #000;
+    position: relative;
+    transform: rotate(-1deg); /* Ligera inclinación para romper la simetría */
+}
+
+.streak-card video {
+    width: 100%;
+    background: #000;
+    border: 4px solid #000;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.2);
+    display: block;
+}
+
+.streak-card h2 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 2.5rem; /* Más grande para impacto */
+    margin: 25px 0 10px 0;
+    text-transform: uppercase;
+    line-height: 0.9;
+    letter-spacing: -2px;
+    color: #000;
+    -webkit-text-stroke: 1px #000; /* Borde de texto opcional para más agresividad */
+}
+
+/* Etiqueta de racha (el label que mencionaste) */
+.streak-label {
+    display: inline-block;
+    background: #000;
+    color: #fff;
+    padding: 8px 15px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    transform: skewX(-10deg); /* Efecto de velocidad/dinamismo */
+}
+
+/* Botón de cierre o continuar brutalista */
+.streak-btn {
+    margin-top: 25px;
+    width: 100%;
+    padding: 15px;
+    background: #fff;
+    border: 4px solid #000;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 6px 6px 0px #000;
+    transition: 0.1s;
+}
+
+.streak-btn:active {
+    box-shadow: 0px 0px 0px #000;
+    transform: translate(6px, 6px);
+}
+
+.show-modal { 
+    visibility: visible; 
+    opacity: 1; 
+}
+`;
+
+const styleSheet = document.createElement("style");
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
+
+// --- INYECCIÓN DEL HTML ---
+const modalHTML = `
+    <div id="streak-overlay" class="streak-modal-overlay">
+        <div class="streak-card">
+            <video id="streak-video" muted playsinline></video>
+            <h2 id="streak-label">RACHA</h2>
+            <button id="close-streak" 
+                    style="background:#fff; border:3px solid #000; padding:10px 25px; font-weight:900; cursor:pointer; text-transform:uppercase;">
+                ENTENDIDO
+            </button>
+        </div>
+    </div>
+`;
+document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+document.getElementById('close-streak').onclick = () => {
+    document.getElementById('streak-overlay').classList.remove('show-modal');
+};
+
+// --- LÓGICA DE LA RACHA ---
+function iniciarDetectorRacha(uid) {
+    const video = document.getElementById('streak-video');
+    const overlay = document.getElementById('streak-overlay');
+    const label = document.getElementById('streak-label');
+    
+    const rachaRef = ref(database, `usuarios/${uid}/stats/racha`);
+
+    // Tu archivo de video
+    video.src = "hailuo-2_3_Para_lograr_que_una_IA_de_video_como_Leonardo.ai_Runway_o_LottieFiles_genere_los-0.mp4";
+
+    onValue(rachaRef, (snapshot) => {
+        const racha = snapshot.val();
+        if (racha === null) return;
+
+        overlay.classList.add('show-modal');
+        video.ontimeupdate = null; 
+
+        if (racha === 1) {
+            label.innerText = "¡RACHA INICIADA! 🔥";
+            video.currentTime = 0;
+            video.play();
+            video.ontimeupdate = () => {
+                if (video.currentTime >= 2) video.currentTime = 3; 
+                if (video.currentTime >= 4) video.currentTime = 3; 
+            };
+        } 
+        else if (racha > 1) {
+            label.innerText = `¡RACHA DE ${racha} DÍAS! ⚡`;
+            video.currentTime = 3;
+            video.play();
+            video.ontimeupdate = () => {
+                if (video.currentTime >= 4) video.currentTime = 3;
+            };
+        } else if (racha === 0) {
+    label.innerText = "RACHA PERDIDA ❄️";
+    
+    // 1. Configuramos el inicio
+    video.currentTime = 4;
+    video.style.display = "block"; // Aseguramos que sea visible
+    video.play();
+
+    // 2. Quitamos cualquier rastro del ontimeupdate anterior para evitar conflictos
+    video.ontimeupdate = null; 
+
+    // 3. Usamos el evento 'ended' que es mucho más limpio para detectar el final
+    video.onended = () => {
+        video.style.display = "none"; // Oculta el video al terminar
+        console.log("Video de racha perdida finalizado y ocultado.");
+    };
+}
+    });
+}
+
+// --- EJECUCIÓN ---
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        iniciarDetectorRacha(user.uid);
+    }
+});
 
 document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
