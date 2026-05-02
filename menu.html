@@ -1650,63 +1650,7 @@ function renderizarVacio() {
         overlay.remove();
     };
 })();
-(function() {
-    let keys = {};
-    window.addEventListener('keydown', (e) => {
-        keys[e.key.toLowerCase()] = true;
-       
-        if (e.shiftKey && keys['p']) {
-            activarInspectorExperimental();
-        }
-    });
-                                                     
-window.addEventListener('keyup', (e) => {
-    if (e.key) {
-        keys[e.key.toLowerCase()] = false;
-    }
-});
 
-    function activarInspectorExperimental() {
-        const yaAcepto = localStorage.getItem('praxis_perf_exp');
-        
-       
-        if (!yaAcepto) {
-            const confirmar = confirm("🧪 [ALONIXZ LABS]\n\nEstás activando el 'Inspector de Rendimiento Experimental'.\nEsta función analizará la carga de Praxis.\n\n¿Deseas continuar?");
-            if (confirmar) {
-                localStorage.setItem('praxis_perf_exp', 'true');
-                mostrarReporte();
-            }
-        } else {
-            mostrarReporte();
-        }
-    }
-
-    function mostrarReporte() {
-       
-        const [navigation] = performance.getEntriesByType('navigation');
-        const cargaTotal = (navigation.duration / 1000).toFixed(2);
-        
-        const reporte = document.createElement('div');
-        reporte.id = 'perf-report';
-        reporte.innerHTML = `
-            <div style="background: #202124; color: #34a853; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 12px; border: 1px solid #34a853;">
-                <b style="color: white;">> ALONIXZ_PERF_REPORT:</b><br><br>
-                [ESTADO]: OPTIMIZADO<br>
-                [CARGA_TOTAL]: ${cargaTotal}s<br>
-                [DOM_READY]: ${navigation.domInteractive.toFixed(0)}ms<br>
-                [PROTOCOL]: ${window.location.protocol}<br><br>
-                <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; border: 1px solid white; color: white; cursor: pointer; padding: 3px 10px;">Cerrar terminal</button>
-            </div>
-        `;
-        
-        Object.assign(reporte.style, {
-            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            zIndex: '10002', width: '280px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-        });
-
-        document.body.appendChild(reporte);
-    }
-})();
 async function gestionarRachaUsuario(uid) {
     if (!db || !uid) return 0;
 
