@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Explorador de Registros</title>
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --accent: #34a853;
+            --folder: #fbbc05;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: 1px solid #333;
+        }
+
+        body {
+            background: var(--bg);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', monospace;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Ventana Emergente Login */
+        #auth-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid var(--accent);
+            text-align: center;
+            box-shadow: 0 0 30px rgba(52, 168, 83, 0.3);
+        }
+
+        .google-btn {
+            background: white;
+            color: #757575;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        /* Explorador */
+        .header { padding: 20px; border-bottom: var(--border); background: #141414; }
+        .path-bar { padding: 10px 20px; background: #1a1a1a; display: flex; gap: 10px; align-items: center; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .node {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+
+        .node:hover {
+            background: var(--glass);
+            border-color: var(--accent);
+        }
+
+        .icon { font-size: 45px; margin-bottom: 8px; }
+        .name { font-size: 13px; font-weight: 500; color: #bbb; }
+        
+        .btn-back {
+            background: var(--accent);
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Modal de Acceso -->
+    <div id="auth-modal">
+        <div class="modal-content">
+            <h2 style="margin:0; color: white;">ALONIXZ CLOUD</h2>
+            <p>Se requiere autenticación para acceder a los registros.</p>
+            <button class="google-btn" id="login-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+                Acceder con Google
+            </button>
+        </div>
+    </div>
+
+    <div class="header">
+        <b style="color:var(--accent)">> PRAXIS_REGISTROS_FS</b>
+    </div>
+
+    <div class="path-bar">
+        <button id="back-btn" class="btn-back" style="display:none">ATRÁS</button>
+        <span id="current-path" style="font-family:monospace">root/</span>
+    </div>
+
+    <div id="explorer" class="grid"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+    apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+    authDomain: "praxis-79b9a.firebaseapp.com",
+    projectId: "praxis-79b9a",
+    databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+    storageBucket: "praxis-79b9a.firebasestorage.app",
+    messagingSenderId: "596083977949",
+    appId: "1:596083977949:web:71064f89a23f8d9738f534"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+
+        let rawUsers = [];
+        let navStack = []; // ['Docentes'] o ['Secundaria', '3ro']
+
+        // Gestión de Auth
+        document.getElementById('login-btn').onclick = () => signInWithPopup(auth, provider);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('auth-modal').style.display = 'none';
+                loadData();
+            } else {
+                document.getElementById('auth-modal').style.display = 'flex';
+            }
+        });
+
+        async function loadData() {
+            const snapshot = await get(ref(db, 'usuarios'));
+            if (snapshot.exists()) {
+                rawUsers = Object.values(snapshot.val()).map(u => {
+                    const gradoData = u.stats?.grado?.split('-') || ["Otros", "Otros"];
+                    return {
+                        nombreDisplay: u.apodo || u.nombre || "Usuario Desconocido",
+                        rango: u.stats?.rango || "Estudiante",
+                        grado: gradoData[0],
+                        nivel: gradoData[1],
+                        seccion: u.stats?.seccion || "S/S",
+                        puntos: u.stats?.puntos || 0
+                    };
+                });
+                renderExplorer();
+            }
+        }
+
+        function renderExplorer() {
+            const explorer = document.getElementById('explorer');
+            const pathTxt = document.getElementById('current-path');
+            const backBtn = document.getElementById('back-btn');
+            explorer.innerHTML = '';
+            
+            pathTxt.innerText = "root/" + navStack.join('/');
+            backBtn.style.display = navStack.length > 0 ? 'block' : 'none';
+
+            // Carpeta Especial: Docentes
+            if (navStack.length === 0) {
+                createNode('Docentes', '👨‍🏫', 'folder', () => navigate('Docentes'));
+                const niveles = [...new Set(rawUsers.filter(u => u.rango !== 'profesor').map(u => u.nivel))];
+                niveles.forEach(n => createNode(n, '📂', 'folder', () => navigate(n)));
+            } 
+            else if (navStack[0] === 'Docentes') {
+                rawUsers.filter(u => u.rango === 'profesor').forEach(p => {
+                    createNode(p.nombreDisplay, '🎓', 'item', () => alert(`Profesor: ${p.nombreDisplay}`));
+                });
+            }
+            else {
+                // Lógica de navegación de alumnos (Nivel -> Grado -> Sección -> Usuario)
+                let filtered = rawUsers.filter(u => u.rango !== 'profesor');
+                if (navStack[0]) filtered = filtered.filter(u => u.nivel === navStack[0]);
+                if (navStack[1]) filtered = filtered.filter(u => u.grado === navStack[1]);
+                if (navStack[2]) filtered = filtered.filter(u => u.seccion === navStack[2]);
+
+                if (navStack.length === 1) {
+                    const grados = [...new Set(filtered.map(u => u.grado))];
+                    grados.forEach(g => createNode(g, '📂', 'folder', () => navigate(g)));
+                } else if (navStack.length === 2) {
+                    const secciones = [...new Set(filtered.map(u => u.seccion))];
+                    secciones.forEach(s => createNode('Sección ' + s, '📂', 'folder', () => navigate(s)));
+                } else {
+                    filtered.forEach(u => createNode(u.nombreDisplay, '👤', 'item', () => {
+                        alert(`${u.nombreDisplay}\n${u.rango}\nPuntos: ${u.puntos}`);
+                    }));
+                }
+            }
+        }
+
+        function createNode(name, icon, type, action) {
+            const div = document.createElement('div');
+            div.className = 'node';
+            div.innerHTML = `<div class="icon">${icon}</div><div class="name">${name}</div>`;
+            div.onclick = action;
+            document.getElementById('explorer').appendChild(div);
+        }
+
+        function navigate(folder) {
+            navStack.push(folder);
+            renderExplorer();
+        }
+
+        document.getElementById('back-btn').onclick = () => {
+            navStack.pop();
+            renderExplorer();
+        };
+    </script>
+</body>
+</html>
