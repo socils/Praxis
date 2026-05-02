@@ -2525,117 +2525,96 @@ onAuthStateChanged(auth, (user) => {
 
 function iniciarDetectorInactividad() {
     let tiempoInactividad;
-
-                                                
-                                                
-    const LIMITE_INACTIVIDAD = 180000; 
+    let intentosPin = 0; // DECLARACIÓN GLOBAL: Soluciona el Error 367
+    const LIMITE_INACTIVIDAD = 120000; // 3 Minutos
 
     const reiniciarTemporizador = () => {
-                                                    
-        clearTimeout(tiempoInactividad);
         
-                                                    
+        if (localStorage.getItem('praxis_locked') === 'true') return;
+
+        clearTimeout(tiempoInactividad);
         tiempoInactividad = setTimeout(() => {
             ejecutarAccionInactividad();
         }, LIMITE_INACTIVIDAD);
     };
 
-let intentosPin = 0;
-
-const ejecutarAccionInactividad = () => {
-                                                
-    intentosPin = 0;
-    
-                                                
-    const lockOverlay = document.createElement('div');
-    lockOverlay.id = 'lock-screen';
-    lockOverlay.style = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(15, 23, 42, 0.98); display: flex; align-items: center;
-        justify-content: center; z-index: 10000; backdrop-filter: blur(10px);
-        font-family: sans-serif; color: white;
-    `;
-
-   lockOverlay.innerHTML = `
-    <div style="text-align: center; background: #ffffff; padding: 40px; border: 4px solid #000; box-shadow: 12px 12px 0px #000; max-width: 420px; width: 95%; position: relative; font-family: 'Inter', sans-serif;">
-                                                                                             
-        <div style="position: absolute; top: -15px; right: 20px; background: #1a73e8; color: #fff; padding: 4px 15px; font-weight: 900; font-size: 11px; border: 2px solid #000; text-transform: uppercase; letter-spacing: 1px;">
-            Acceso Docente
-        </div>
-
-        <div style="margin-bottom: 20px;">
-            <span style="font-size: 50px;">👨‍🏫</span>
-        </div>
+    const ejecutarAccionInactividad = () => {
+  
+        if (document.getElementById('lock-screen')) return;
         
-        <h2 style="margin: 0 0 10px 0; text-transform: uppercase; font-weight: 900; font-size: 22px; color: #000;">Seguridad de Sesión</h2>
-        
-        <p style="color: #444; font-size: 14px; margin-bottom: 30px; font-weight: 500; line-height: 1.5;">
-            Por motivos de seguridad, la consola de <span style="font-weight: 800;">Praxis</span> se ha bloqueado tras 3 minutos de inactividad.
-        </p>
-        
-        <div style="text-align: left; margin-bottom: 5px;">
-            <label style="font-size: 10px; font-weight: 900; text-transform: uppercase; color: #1a73e8; margin-left: 2px;">Pin de Verificación</label>
-        </div>
-        <input type="password" id="unlock-pin" placeholder="000000" maxlength="6"
-            style="width: 100%; padding: 15px; border: 3px solid #000; background: #f8fafc; color: #000; text-align: center; font-size: 32px; margin-bottom: 20px; outline: none; font-family: 'JetBrains Mono', monospace; font-weight: 900; letter-spacing: 5px;">
-        
-        <button id="btn-unlock" style="width: 100%; background: #1a73e8; color: #fff; border: 3px solid #000; padding: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 14px; box-shadow: 6px 6px 0px #000; transition: transform 0.1s;">
-            Confirmar Identidad
-        </button>
-        
-        <p id="pin-error" style="background: #fee2e2; color: #dc2626; padding: 10px; font-size: 12px; margin-top: 20px; display: none; font-weight: 700; border: 2px solid #dc2626;"></p>
-        
-        <div style="margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
-            <div style="width: 30px; height: 2px; background: #eee;"></div>
-            <div style="font-size: 9px; color: #999; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Praxis Secure Terminal</div>
-            <div style="width: 30px; height: 2px; background: #eee;"></div>
-        </div>
-    </div>
-`;
+        localStorage.setItem('praxis_locked', 'true');
+        intentosPin = 0; 
 
-    document.body.appendChild(lockOverlay);
+        const lockOverlay = document.createElement('div');
+        lockOverlay.id = 'lock-screen';
+        lockOverlay.style = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.98); display: flex; align-items: center;
+            justify-content: center; z-index: 100000; backdrop-filter: blur(20px);
+            font-family: 'JetBrains Mono', monospace;
+        `;
 
-                                                
-    document.getElementById('btn-unlock').onclick = async () => {
-        const inputPin = document.getElementById('unlock-pin').value;
-        const user = auth.currentUser;
+        lockOverlay.innerHTML = `
+            <div style="text-align: center; background: #ffffff; padding: 40px; border: 5px solid #000; box-shadow: 20px 20px 0px #1a73e8; max-width: 400px; width: 90%; position: relative;">
+                <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: #1a73e8; color: #fff; padding: 5px 20px; font-weight: 900; font-size: 12px; border: 3px solid #000; letter-spacing: 2px;">
+                    TERMINAL_LOCKED
+                </div>
+                <div style="margin-bottom: 25px; font-size: 60px;">🔐</div>
+                <h2 style="margin: 0 0 10px 0; text-transform: uppercase; font-weight: 900; font-size: 22px; color: #000;">Seguridad Praxis</h2>
+                <p style="color: #444; font-size: 13px; margin-bottom: 30px; font-weight: 600;">Sesión de <b>Alonixz-Cloud</b> suspendida por inactividad.</p>
+                
+                <input type="password" id="unlock-pin" placeholder="••••••" maxlength="6"
+                    style="width: 100%; padding: 15px; border: 4px solid #000; background: #f0f0f0; color: #000; text-align: center; font-size: 35px; margin-bottom: 20px; outline: none; font-weight: 900; letter-spacing: 8px; box-sizing: border-box;">
+                
+                <button id="btn-unlock" style="width: 100%; background: #000; color: #34a853; border: none; padding: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 15px; box-shadow: 6px 6px 0px #34a853; transition: 0.1s;">
+                    ACCEDER A LA CONSOLA
+                </button>
+                <p id="pin-error" style="background: #000; color: #ff4444; padding: 12px; font-size: 11px; margin-top: 20px; display: none; font-weight: 800; border-left: 5px solid #ff4444; text-align: left;"></p>
+            </div>
+        `;
 
-        if (!user) return;
+        document.body.appendChild(lockOverlay);
 
-                                                    
-        const statsRef = ref(db, `usuarios/${user.uid}/stats`);
-        onValue(statsRef, (snapshot) => {
-            const data = snapshot.val();
-            
-            if (data && data.pin === inputPin) {
-                                                            
-                document.body.removeChild(lockOverlay);
-                console.log("Sesión restaurada.");
-            } else {
-                                                            
-                intentosPin++;
-                const errorMsg = document.getElementById('pin-error');
-                errorMsg.innerText = `PIN incorrecto. Intentos restantes: ${2 - intentosPin}`;
-                errorMsg.style.display = 'block';
+        document.getElementById('btn-unlock').onclick = async () => {
+            const inputPin = document.getElementById('unlock-pin').value;
+            const user = auth.currentUser;
 
-                if (intentosPin >= 2) {
-                    alert("Demasiados intentos fallidos. Cerrando sesión por seguridad.");
-                    signOut(auth).then(() => {
-                        location.reload();                                             
-                    });
+            if (!user) return;
+
+            const statsRef = ref(db, `usuarios/${user.uid}/stats`);
+            onValue(statsRef, (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data && data.pin === inputPin) {
+                    localStorage.removeItem('praxis_locked');
+                    const overlay = document.getElementById('lock-screen');
+                    if (overlay) document.body.removeChild(overlay);
+                    reiniciarTemporizador();
+                } else {
+                    intentosPin++;
+                    const errorMsg = document.getElementById('pin-error');
+                    errorMsg.innerText = `> ACCESO DENEGADO. INTENTOS RESTANTES: ${3 - intentosPin}`;
+                    errorMsg.style.display = 'block';
+
+                    if (intentosPin >= 3) {
+                        localStorage.removeItem('praxis_locked');
+                        signOut(auth).then(() => location.reload());
+                    }
                 }
-            }
-        }, { onlyOnce: true });
+            }, { onlyOnce: true });
+        };
     };
-};
 
-                                                
+   
+    if (localStorage.getItem('praxis_locked') === 'true') {
+        ejecutarAccionInactividad();
+    }
+
+    // Eventos de Actividad
     window.onload = reiniciarTemporizador;
-    document.onmousemove = reiniciarTemporizador;
-    document.onkeydown = reiniciarTemporizador;
-    document.onclick = reiniciarTemporizador;
-    document.onscroll = reiniciarTemporizador;
-    document.ontouchstart = reiniciarTemporizador;
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+        document.addEventListener(evt, reiniciarTemporizador);
+    });
 }
 
 
