@@ -430,8 +430,10 @@ function bloquearFuncionesInvitado() {
     }
 
    
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
+  const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item => {
+    
+    if (item && item.innerText) {
         const texto = item.innerText.toLowerCase();
        
         if (texto.includes("drive") || texto.includes("cuenta")) {
@@ -444,7 +446,8 @@ function bloquearFuncionesInvitado() {
                 alert("❌ Función deshabilitada: El Chat, Drive y la Gestión de Agendas requieren una cuenta de Google vinculada.");
             };
         }
-    });
+    }
+});
 
    
     const statusMsg = document.getElementById('status-message');
