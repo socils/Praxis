@@ -60,7 +60,7 @@
 <hr>
             <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>
             <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Ver espacio de Praxis</div>
-           <!-- Contenedor para los accesos administrativos -->
+          <div class="nav-item"><img src="configuraciones.png" alt="" style="width: 20px;"> Configuraciones</div>
 <div id="admin-container" style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap;">
     
     <a href="centro-de-admins.html" id="admin-link" class="admin-button" style="display: none;">
@@ -151,7 +151,8 @@
 
 <style>
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
+</style><!-- Cargador de librería para exportar la ID Card -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
    
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
@@ -1171,6 +1172,107 @@ navItems.forEach(item => {
     };
 
     renderizarTodo();
+}else if (texto.includes("configuraciones") || texto.includes("ajustes")) {
+    bannerTitle.innerText = "Configuraciones de Praxis";
+    displayCode.innerText = "SETTINGS";
+    navegarA("Configuraciones", "VISTA_CONFIG");
+
+    const uid = auth.currentUser.uid;
+    // Nueva API de QR más estable y rápida
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(uid)}`;
+
+    get(ref(db, `usuarios/${uid}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            const esProfesor = data.stats?.rango === "profesor";
+            const puntosTotales = data.stats?.puntos || 0;
+            const nivelActual = Math.floor(puntosTotales / 100) + 1;
+            
+            container.innerHTML = `
+    <div style="max-width: 850px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 40px;">
+        
+        <!-- SECCIÓN SUPERIOR: PANEL DE CONTROL -->
+        <div style="border: 4px solid #000; background: #fff; box-shadow: 10px 10px 0px #000; padding: 25px;">
+            <h2 style="margin: 0 0 20px 0; font-weight: 950; text-transform: uppercase; font-size: 22px; border-bottom: 4px solid #000; padding-bottom: 5px;">⚙️ GESTIÓN DE CUENTA</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="config-card-mini" onclick="actualizarDatoProtegido('apodo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fdfdfd;">
+                    <span style="display: block; font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">Apodo del Usuario</span>
+                    <code style="font-weight: 800; font-size: 18px; color: #000;">${data.apodo || '---'}</code>
+                </div>
+
+                <div class="config-card-mini" onclick="actualizarDatoProtegido('nombre_correo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fdfdfd;">
+                    <span style="display: block; font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">Correo de Identidad</span>
+                    <code style="font-weight: 800; font-size: 18px; color: #000;">${data.nombre_correo || '---'}</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN INFERIOR: IDENTIDAD DIGITAL PRAXIS -->
+        <div id="id-card-praxis" style="border: 6px solid #000; background: #fff; box-shadow: 20px 20px 0px #00ff88; display: flex; flex-direction: column; overflow: hidden; position: relative; min-height: 300px;">
+            
+            <div style="background: #000; color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 950; font-size: 14px; letter-spacing: 4px;">PRAXIS_CORE // ID_CARD</span>
+                <span style="font-weight: 900; font-size: 11px; opacity: 0.8;">AUTH: 2026_V2</span>
+            </div>
+
+            <div style="display: flex; flex-direction: row; padding: 40px; gap: 35px; align-items: center; background: #fff;">
+                
+                <!-- Avatar -->
+                <div style="position: relative; flex-shrink: 0;">
+                    <div style="width: 160px; height: 160px; border: 5px solid #000; background: #eee; overflow: hidden; box-shadow: 10px 10px 0px #0071ff;">
+                        <img src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
+                    </div>
+                </div>
+
+                <!-- Detalles -->
+                <div style="flex-grow: 1;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                        <h1 style="margin: 0; font-size: 38px; font-weight: 950; text-transform: uppercase; color: #000; letter-spacing: -2px; line-height: 0.85;">
+                            ${data.apodo || 'USUARIO'}
+                        </h1>
+                        ${data.verificado === true ? `
+                            <div style="background: #0071ff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid #000; box-shadow: 3px 3px 0px #000;">
+                                <img src="mapas-y-banderas.png" style="width: 18px; height: 18px; object-fit: contain;" crossorigin="anonymous">
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 800; color: #000; margin-bottom: 25px; border-left: 4px solid #00ff88; padding-left: 15px;">
+                        <span style="color: #666;">RANK:</span> ${data.stats?.rango || 'ESTUDIANTE'}<br>
+                        <span style="color: #666;">UID:</span> <span style="color: #0071ff;">${uid}</span>
+                    </div>
+
+                    <div style="display: flex; gap: 20px;">
+                        <div style="border: 4px solid #000; padding: 12px 20px; background: #fff;">
+                            <span style="display: block; font-size: 9px; font-weight: 900; color: #888;">PUNTOS ACTUALIZADOS</span>
+                            <span style="font-size: 24px; font-weight: 950;">${puntosTotales}</span>
+                        </div>
+                        <div style="border: 4px solid #000; padding: 12px 20px; background: #00ff88; box-shadow: 6px 6px 0px #000;">
+                            <span style="display: block; font-size: 9px; font-weight: 900; color: #000;">NIVEL</span>
+                            <span style="font-size: 24px; font-weight: 950;">${nivelActual}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR AREA REFORZADA -->
+                <div style="flex-shrink: 0; text-align: center; background: #fff; padding: 15px; border: 4px solid #000; box-shadow: 8px 8px 0px #eee; width: 140px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <img src="${qrUrl}" 
+                         style="width: 110px; height: 110px; display: block; background: #fff;" 
+                         crossorigin="anonymous"
+                         onload="console.log('QR cargado correctamente')"
+                         onerror="this.src='https://via.placeholder.com/110?text=QR+ERROR'">
+                    <div style="margin-top: 10px; font-size: 9px; font-weight: 900; letter-spacing: 1px; border-top: 2px solid #000; padding-top: 5px; width: 100%;">VALIDATE_ID</div>
+                </div>
+            </div>
+
+            <button onclick="descargarTarjeta()" style="border: none; border-top: 6px solid #000; background: #ffff00; color: #000; padding: 22px; font-weight: 950; cursor: pointer; text-transform: uppercase; font-size: 16px; letter-spacing: 3px;">
+                💾 EXPORTAR IDENTIDAD PRAXIS (.PNG)
+            </button>
+        </div>
+    </div>`;
+        }
+    });
 }
         else if (texto.includes("pendientes")) {
             bannerTitle.innerText = "Tareas Pendientes";
@@ -2201,7 +2303,7 @@ onAuthStateChanged(auth, (user) => {
                 const card = document.createElement('div');
                 card.style = "display:flex; justify-content:space-between; align-items:center; border:3px solid #000; padding:10px; border-radius:15px; margin-bottom:10px; box-shadow:4px 4px 0px #000;";
                 card.innerHTML = `
-                    <div style="font-weight:bold; font-size:13px;">${u.nombre || 'Sin nombre'}</div>
+                    <div style="font-weight:bold; font-size:13px;">${u.apodo || 'Sin apodo registrado'}</div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <b id="pts-${uid}">${u.stats?.puntos || 0}</b>
                         <button onclick="repartirPuntosAgenda('${codigoAgenda}', '${uid}', 10)" style="background:#00ff88; border:2px solid #000; font-weight:900; cursor:pointer; padding:5px 10px; border-radius:8px;">+10</button>
@@ -2430,7 +2532,7 @@ const mostrarModalApodo = (uid, nombreOriginal) => {
             try {
                                                             
                 await update(ref(db, `usuarios/${uid}`), {
-                    nombre: nuevoNombre,
+                    apodo: nuevoNombre,
                     apodo_listo: true
                 });
                 
@@ -3111,8 +3213,111 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         iniciarDetectorRacha(user.uid);
     }
-});
+});window.actualizarDatoProtegido = async function(campo) {
+    const uid = auth.currentUser.uid;
+    const userRef = ref(db, `usuarios/${uid}`);
+    const snapshot = await get(userRef);
+    const data = snapshot.val();
+    
+    // Si es profesor, pedir PIN
+    if (data.stats?.rango === "profesor") {
+        const pinIngresado = prompt("🔒 ACCESO RESTRINGIDO: Ingresa tu PIN de profesor para continuar:");
+        if (pinIngresado !== data.stats?.pin) {
+            alert("❌ PIN Incorrecto. Acción cancelada por Alonixz-Guard.");
+            return;
+        }
+    }
 
+    // Proceso de actualización normal tras validar PIN (o si es alumno)
+    const nuevoValor = prompt(`Ingresa el nuevo ${campo.replace('_', ' ')}:`);
+    if (nuevoValor && nuevoValor.trim() !== "") {
+        try {
+            await update(userRef, {
+                [campo]: nuevoValor.trim(),
+                apodo_listo: true // Aseguramos que no salga el modal inicial
+            });
+            
+            // Sincronizar con el perfil de Auth para el Header
+            if (campo === 'nombre') {
+                await updateProfile(auth.currentUser, { displayName: nuevoValor.trim() });
+            }
+
+            alert("✅ Cambios aplicados con éxito.");
+            manejarNavegacion("configuraciones");
+        } catch (error) {
+            alert("❌ Error al guardar en Alonixz-Database.");
+        }
+    }
+};
+window.actualizarPin = async function() {
+    const uid = auth.currentUser.uid;
+    const statsRef = ref(db, `usuarios/${uid}/stats`);
+
+    try {
+        // 1. Obtenemos los datos actuales para validar el PIN viejo
+        const snapshot = await get(statsRef);
+        if (!snapshot.exists()) {
+            alert("❌ No se encontraron datos de usuario.");
+            return;
+        }
+
+        const data = snapshot.val();
+        
+        // 2. Capa de seguridad: Pedir el PIN actual
+        const pinActual = prompt("🔒 Para cambiar tu PIN, ingresa tu PIN ACTUAL:");
+        
+        if (pinActual !== data.pin) {
+            alert("❌ PIN Incorrecto. No tienes permiso para esta acción.");
+            return;
+        }
+
+        // 3. Si el PIN es correcto, pedir el nuevo
+        const nuevoPin = prompt("✨ Ingresa tu NUEVO PIN (4 dígitos):");
+        
+        if (nuevoPin && nuevoPin.length === 4 && !isNaN(nuevoPin)) {
+            await update(statsRef, {
+                pin: nuevoPin
+            });
+            alert("🔑 PIN actualizado correctamente en Alonixz-Database.");
+        } else {
+            alert("⚠️ El nuevo PIN debe ser de exactamente 4 números.");
+        }
+
+    } catch (error) {
+        console.error("Error de seguridad:", error);
+        alert("❌ Error al conectar con el servidor.");
+    }
+};window.descargarTarjeta = function() {
+    const cardElement = document.getElementById("id-card-praxis");
+    // Seleccionamos el botón específico dentro de la tarjeta
+    const btnDescargar = cardElement.querySelector("button");
+    
+    if (!cardElement) return;
+
+    // 1. Ocultamos el botón para que no salga en la foto
+    btnDescargar.style.display = "none";
+
+    html2canvas(cardElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff"
+    }).then(canvas => {
+        // 2. Volvemos a mostrar el botón inmediatamente
+        btnDescargar.style.display = "block";
+
+        const link = document.createElement("a");
+        link.download = `ID_PRAXIS_${auth.currentUser.uid.substring(0, 8)}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        
+        console.log("✅ Identidad exportada sin el botón.");
+    }).catch(err => {
+        // En caso de error, también nos aseguramos de mostrar el botón
+        btnDescargar.style.display = "block";
+        console.error("Error:", err);
+    });
+};
 document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
