@@ -212,7 +212,60 @@
     <a href="lector.html" class="btn-scanner-link">
         <span>📷 Abrir Lector QR</span>
     </a>
-</div>
+</div><!-- Botón de Acceso a Registros -->
+<a href="registro.html" class="btn-brutalista">
+    <span class="btn-text">EXPLORADOR DE REGISTROS</span>
+    <span class="btn-icon">📂</span>
+</a>
+
+<style>
+    .btn-brutalista {
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        background-color: #34a853; /* Verde Praxis */
+        color: #000;
+        text-decoration: none;
+        font-family: 'Courier New', monospace;
+        font-weight: 900;
+        font-size: 18px;
+        padding: 15px 30px;
+        border: 4px solid #000;
+        box-shadow: 8px 8px 0px #000;
+        transition: all 0.1s;
+        position: relative;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    /* Efecto al pasar el mouse */
+    .btn-brutalista:hover {
+        background-color: #fbbc05; /* Cambio a amarillo para resaltar */
+        box-shadow: 4px 4px 0px #000;
+        transform: translate(2px, 2px);
+    }
+
+    /* Efecto al hacer clic */
+    .btn-brutalista:active {
+        box-shadow: 0px 0px 0px #000;
+        transform: translate(8px, 8px);
+    }
+
+    .btn-icon {
+        font-size: 24px;
+        filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
+    }
+
+    /* Estilo para pantallas pequeñas */
+    @media (max-width: 480px) {
+        .btn-brutalista {
+            font-size: 14px;
+            padding: 10px 20px;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
     <div class="stats-grid">
         <div class="stat-card">
             <div style="font-size: 24px;">📣</div>
