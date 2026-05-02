@@ -81,7 +81,7 @@
 
 </div><button id="btn-admin-puntos" style="display: none; background: #000; color: white; border: 2px solid #000; padding: 10px; border-radius: 12px; font-weight: 900; cursor: pointer; box-shadow: 4px 4px 0px #0071ff;">
     👥 VER ALUMNOS Y PUNTOS
-</button><!-- Botón de Donación de Puntos -->
+</button>                                                                                     
 <div id="contenedor-donar-puntos" style="display: none; margin: 10px 0;">
     <button onclick="donarPuntosAAgenda(codigoAgendaActiva)" 
             style="background: #ffeb3b; color: #000; border: 4px solid #000; padding: 12px 20px; font-weight: 900; cursor: pointer; border-radius: 12px; box-shadow: 6px 6px 0px #000; font-size: 13px; text-transform: uppercase; transition: 0.2s;"
@@ -151,7 +151,7 @@
 
 <style>
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style><!-- Cargador de librería para exportar la ID Card -->
+</style>                                                                                     
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
    
@@ -583,7 +583,7 @@ const linkAdjunto = t.fileUrl ? `
         </div>
         <div class="card-body">
             <p>${t.descripcion}</p>
-            ${linkAdjunto} <!-- Aquí se inserta el link -->
+            ${linkAdjunto}                                                                                      
         </div>
         <div class="card-footer"><span>Entrega: ${t.fecha}</span></div>
     </div>`;
@@ -897,7 +897,7 @@ window.abrirModalTarea = function(code) {
             <label style="font-size:10px; font-weight:900; text-transform:uppercase; color:#555;">Instrucciones</label>
             <textarea id="t-desc" placeholder="Escribe aquí los pasos a seguir..." style="width:100%; height:70px; padding:12px; border:3px solid #000; border-radius:10px; margin-top:5px; margin-bottom:15px; box-sizing:border-box; font-family:sans-serif; font-weight:500; resize:none;"></textarea>
             
-            <!-- Selector de Recurso -->
+                                                                                                 
             <label style="font-size:10px; font-weight:900; text-transform:uppercase; color:#555; display:block; margin-bottom:5px;">Adjuntar Recurso</label>
             <div style="background:#fff; border:3px solid #000; border-radius:10px; padding:10px;">
                 <div id="container-url">
@@ -1083,7 +1083,7 @@ navItems.forEach(item => {
     container.innerHTML = `
         <div style="display: flex; justify-content: space-around; align-items: flex-start; margin-bottom: 40px; gap: 20px; flex-wrap: wrap;">
             
-            <!-- Botones tipo Card Vertical -->
+                                                                                                 
             <div style="display: flex; gap: 15px;">
                 <button onclick="cambiarVistaRanking('racha')" id="tab-racha" style="width: 90px; height: 100px; background: #fff; border: 4px solid #000; border-radius: 20px; cursor: pointer; box-shadow: 8px 8px 0px #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;">
                     <span style="font-size: 20px;"><img src="fuego.png" alt="Racha" style="width:25px;"></span>
@@ -1095,11 +1095,11 @@ navItems.forEach(item => {
                 </button>
             </div>
 
-            <!-- Podio de Cartas -->
+                                                                                                 
             <div id="podium-container" style="display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 250px;"></div>
         </div>
 
-        <!-- Tabla de Ranking Ancha -->
+                                                                                             
         <div id="table-container" style="background: #fff; border: 4px solid #000; border-radius: 35px; padding: 25px; box-shadow: 12px 12px 0px #000; max-width: 800px; margin: 0 auto;">
             <div id="ranking-rows"></div>
         </div>
@@ -1178,20 +1178,19 @@ navItems.forEach(item => {
     navegarA("Configuraciones", "VISTA_CONFIG");
 
     const uid = auth.currentUser.uid;
-    // Nueva API de QR más estable y rápida
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(uid)}`;
 
     get(ref(db, `usuarios/${uid}`)).then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
-            const esProfesor = data.stats?.rango === "profesor";
+            const esProfesor = data.stats?.rango === "profesor";                                                           
             const puntosTotales = data.stats?.puntos || 0;
             const nivelActual = Math.floor(puntosTotales / 100) + 1;
             
             container.innerHTML = `
     <div style="max-width: 850px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 40px;">
         
-        <!-- SECCIÓN SUPERIOR: PANEL DE CONTROL -->
+                                                                                             
         <div style="border: 4px solid #000; background: #fff; box-shadow: 10px 10px 0px #000; padding: 25px;">
             <h2 style="margin: 0 0 20px 0; font-weight: 950; text-transform: uppercase; font-size: 22px; border-bottom: 4px solid #000; padding-bottom: 5px;">⚙️ GESTIÓN DE CUENTA</h2>
             
@@ -1205,27 +1204,38 @@ navItems.forEach(item => {
                     <span style="display: block; font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">Correo de Identidad</span>
                     <code style="font-weight: 800; font-size: 18px; color: #000;">${data.nombre_correo || '---'}</code>
                 </div>
+
+                                                                                                     
+                ${esProfesor ? `
+                <div class="config-card-mini" onclick="actualizarDatoProtegido('pin')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fff5f5; grid-column: span 2; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="display: block; font-size: 10px; font-weight: 900; color: #ff3131; text-transform: uppercase;">PIN de Autorización (Docente)</span>
+                        <code style="font-weight: 800; font-size: 18px; color: #000;">****</code>
+                    </div>
+                    <span style="font-size: 20px;">🔒</span>
+                </div>
+                ` : ''}
             </div>
         </div>
 
-        <!-- SECCIÓN INFERIOR: IDENTIDAD DIGITAL PRAXIS -->
+                                                                                             
         <div id="id-card-praxis" style="border: 6px solid #000; background: #fff; box-shadow: 20px 20px 0px #00ff88; display: flex; flex-direction: column; overflow: hidden; position: relative; min-height: 300px;">
             
             <div style="background: #000; color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 950; font-size: 14px; letter-spacing: 4px;">PRAXIS_CORE // ID_CARD</span>
+                <span style="font-weight: 950; font-size: 14px; letter-spacing: 4px;">PRAXIS_CORE                                                           
                 <span style="font-weight: 900; font-size: 11px; opacity: 0.8;">AUTH: 2026_V2</span>
             </div>
 
             <div style="display: flex; flex-direction: row; padding: 40px; gap: 35px; align-items: center; background: #fff;">
                 
-                <!-- Avatar -->
+                                                                                                     
                 <div style="position: relative; flex-shrink: 0;">
                     <div style="width: 160px; height: 160px; border: 5px solid #000; background: #eee; overflow: hidden; box-shadow: 10px 10px 0px #0071ff;">
                         <img src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
                     </div>
                 </div>
 
-                <!-- Detalles -->
+                                                                                                     
                 <div style="flex-grow: 1;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
                         <h1 style="margin: 0; font-size: 38px; font-weight: 950; text-transform: uppercase; color: #000; letter-spacing: -2px; line-height: 0.85;">
@@ -1255,13 +1265,11 @@ navItems.forEach(item => {
                     </div>
                 </div>
 
-                <!-- QR AREA REFORZADA -->
+                                                                                                     
                 <div style="flex-shrink: 0; text-align: center; background: #fff; padding: 15px; border: 4px solid #000; box-shadow: 8px 8px 0px #eee; width: 140px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                     <img src="${qrUrl}" 
                          style="width: 110px; height: 110px; display: block; background: #fff;" 
-                         crossorigin="anonymous"
-                         onload="console.log('QR cargado correctamente')"
-                         onerror="this.src='https://via.placeholder.com/110?text=QR+ERROR'">
+                         crossorigin="anonymous">
                     <div style="margin-top: 10px; font-size: 9px; font-weight: 900; letter-spacing: 1px; border-top: 2px solid #000; padding-top: 5px; width: 100%;">VALIDATE_ID</div>
                 </div>
             </div>
@@ -1323,7 +1331,7 @@ navItems.forEach(item => {
                     <div id="db-percentage" style="font-size: 28px; font-weight: 900; font-family: 'JetBrains Mono';">0.0%</div>
                 </div>
                 
-                <!-- Barra Brutalista -->
+                                                                                                     
                 <div style="width: 100%; height: 30px; border: 4px solid #000; background: #eee; overflow: hidden; position: relative;">
                     <div id="db-progress-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 1s ease-in-out;"></div>
                 </div>
@@ -1335,7 +1343,7 @@ navItems.forEach(item => {
             </div>
 
             <div id="db-data-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-                <!-- Aquí se cargan los nodos -->
+                                                                                                     
             </div>
         </div>
     `;
@@ -2603,7 +2611,7 @@ const ejecutarAccionInactividad = () => {
 
    lockOverlay.innerHTML = `
     <div style="text-align: center; background: #ffffff; padding: 40px; border: 4px solid #000; box-shadow: 12px 12px 0px #000; max-width: 420px; width: 95%; position: relative; font-family: 'Inter', sans-serif;">
-        <!-- Identificador de Estamento -->
+                                                                                             
         <div style="position: absolute; top: -15px; right: 20px; background: #1a73e8; color: #fff; padding: 4px 15px; font-weight: 900; font-size: 11px; border: 2px solid #000; text-transform: uppercase; letter-spacing: 1px;">
             Acceso Docente
         </div>
@@ -2827,7 +2835,7 @@ function mostrarFelicidades(mensaje) {
             position:relative; overflow:hidden;
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         ">
-            <!-- Decoración brutalista de fondo -->
+                                                                                                 
             <div style="position:absolute; top:-20px; right:-20px; width:80px; height:80px; background:#ffeb3b; border:4px solid #000; border-radius:50%; z-index:-1;"></div>
             
             <span style="font-size:60px; display:block; margin-bottom:10px; filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.2));">🎂</span>
@@ -3219,7 +3227,7 @@ onAuthStateChanged(auth, (user) => {
     const snapshot = await get(userRef);
     const data = snapshot.val();
     
-    // Si es profesor, pedir PIN
+                                                              
     if (data.stats?.rango === "profesor") {
         const pinIngresado = prompt("🔒 ACCESO RESTRINGIDO: Ingresa tu PIN de profesor para continuar:");
         if (pinIngresado !== data.stats?.pin) {
@@ -3228,16 +3236,16 @@ onAuthStateChanged(auth, (user) => {
         }
     }
 
-    // Proceso de actualización normal tras validar PIN (o si es alumno)
+                                                              
     const nuevoValor = prompt(`Ingresa el nuevo ${campo.replace('_', ' ')}:`);
     if (nuevoValor && nuevoValor.trim() !== "") {
         try {
             await update(userRef, {
                 [campo]: nuevoValor.trim(),
-                apodo_listo: true // Aseguramos que no salga el modal inicial
+                apodo_listo: true                                                           
             });
             
-            // Sincronizar con el perfil de Auth para el Header
+                                                                      
             if (campo === 'nombre') {
                 await updateProfile(auth.currentUser, { displayName: nuevoValor.trim() });
             }
@@ -3248,14 +3256,13 @@ onAuthStateChanged(auth, (user) => {
             alert("❌ Error al guardar en Alonixz-Database.");
         }
     }
-};
-window.actualizarPin = async function() {
+};window.actualizarPin = async function() {
     const uid = auth.currentUser.uid;
-    const statsRef = ref(db, `usuarios/${uid}/stats`);
+                                                              
+    const userRef = ref(db, `usuarios/${uid}`);
 
     try {
-        // 1. Obtenemos los datos actuales para validar el PIN viejo
-        const snapshot = await get(statsRef);
+        const snapshot = await get(userRef);
         if (!snapshot.exists()) {
             alert("❌ No se encontraron datos de usuario.");
             return;
@@ -3263,38 +3270,47 @@ window.actualizarPin = async function() {
 
         const data = snapshot.val();
         
-        // 2. Capa de seguridad: Pedir el PIN actual
-        const pinActual = prompt("🔒 Para cambiar tu PIN, ingresa tu PIN ACTUAL:");
-        
-        if (pinActual !== data.pin) {
-            alert("❌ PIN Incorrecto. No tienes permiso para esta acción.");
+                                                                  
+        if (data.stats?.rango !== "profesor") {
+            alert("❌ Acceso restringido: Solo los docentes pueden gestionar un PIN.");
             return;
         }
 
-        // 3. Si el PIN es correcto, pedir el nuevo
+                                                                  
+        const pinActual = prompt("🔒 Seguridad Praxis: Ingresa tu PIN ACTUAL:");
+        
+                                                                  
+        const pinGuardado = data.pin || ""; 
+
+        if (pinGuardado !== "" && pinActual !== pinGuardado) {
+            alert("❌ PIN Incorrecto. Validación de identidad fallida.");
+            return;
+        }
+
         const nuevoPin = prompt("✨ Ingresa tu NUEVO PIN (4 dígitos):");
         
-        if (nuevoPin && nuevoPin.length === 4 && !isNaN(nuevoPin)) {
-            await update(statsRef, {
+        if (nuevoPin && /^\d{4}$/.test(nuevoPin)) {                                                           
+            await update(userRef, {
                 pin: nuevoPin
             });
-            alert("🔑 PIN actualizado correctamente en Alonixz-Database.");
+            alert("✅ PIN actualizado correctamente en Praxis Core.");
+            location.reload();                                                           
         } else {
-            alert("⚠️ El nuevo PIN debe ser de exactamente 4 números.");
+            alert("⚠️ Error: El PIN debe contener exactamente 4 números.");
         }
 
     } catch (error) {
-        console.error("Error de seguridad:", error);
-        alert("❌ Error al conectar con el servidor.");
+        console.error("Security Error:", error);
+        alert("❌ Error de conexión con Firebase.");
     }
 };window.descargarTarjeta = function() {
     const cardElement = document.getElementById("id-card-praxis");
-    // Seleccionamos el botón específico dentro de la tarjeta
+                                                              
     const btnDescargar = cardElement.querySelector("button");
     
     if (!cardElement) return;
 
-    // 1. Ocultamos el botón para que no salga en la foto
+                                                              
     btnDescargar.style.display = "none";
 
     html2canvas(cardElement, {
@@ -3303,7 +3319,7 @@ window.actualizarPin = async function() {
         logging: false,
         backgroundColor: "#ffffff"
     }).then(canvas => {
-        // 2. Volvemos a mostrar el botón inmediatamente
+                                                                  
         btnDescargar.style.display = "block";
 
         const link = document.createElement("a");
@@ -3313,7 +3329,7 @@ window.actualizarPin = async function() {
         
         console.log("✅ Identidad exportada sin el botón.");
     }).catch(err => {
-        // En caso de error, también nos aseguramos de mostrar el botón
+                                                                  
         btnDescargar.style.display = "block";
         console.error("Error:", err);
     });
