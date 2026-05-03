@@ -203,10 +203,28 @@
         </div>
     </div>
 </div>
+<!-- Este panel aparece solo cuando se escanea una boleta -->
+<div id="ticket-panel" style="display: none; background: #fff; color: #000; border: 4px solid #000; box-shadow: 12px 12px 0px #ff3131; padding: 25px; margin-top: 20px;">
+    <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 15px;">
+        <span style="font-size: 40px;">🎫</span>
+        <h2 style="margin: 0; text-transform: uppercase; font-weight: 900;">Validación de Boleta</h2>
+    </div>
+    
+    <div id="ticket-details">
+        <p><strong>PRODUCTO:</strong> <span id="view-prod-name">---</span></p>
+        <p><strong>COMPRADOR:</strong> <span id="view-buyer">---</span></p>
+        <p><strong>FECHA:</strong> <span id="view-date">---</span></p>
+        <div id="status-badge" style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; border: 2px solid #000;"></div>
+    </div>
 
-<script type="module">
+    <div id="ticket-actions" style="margin-top: 20px; display: grid; gap: 10px;">
+        <button id="btn-entregar" class="btn btn-plus" style="display: none;">Confirmar Entrega</button>
+        <button class="btn btn-close" onclick="location.reload()">Escanear otro</button>
+    </div>
+</div><script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
@@ -220,66 +238,160 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
     
     let currentUID = null;
     let userPoints = 0;
+    let currentTicketID = null;
 
-    window.updateVal = (v) => document.getElementById("range-val").innerText = v;
-    window.quickSet = (v) => {
-        document.getElementById("pts-slider").value = v;
-        updateVal(v);
+    // --- UTILIDADES DE INTERFAZ ---
+    window.updateVal = (v) => {
+        const el = document.getElementById("range-val");
+        if(el) el.innerText = v;
     };
-
-    window.onScanSuccess = async (uid) => {
-        currentUID = uid;
-        html5QrcodeScanner.clear();
-        
-        const snapshot = await get(ref(db, `usuarios/${currentUID}`));
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            userPoints = data.stats?.puntos || 0;
-            
-            document.getElementById("scanner-wrap").style.display = "none";
-            document.getElementById("management-panel").style.display = "block";
-            
-            document.getElementById("user-info-box").innerHTML = `
-                <img src="${data.foto || 'https://via.placeholder.com/150'}" class="user-avatar">
-                <div>
-                    <h2 style="margin:0; font-size:28px;">${data.apodo || 'USUARIO'}</h2>
-                    <small style="color:var(--neon)">SISTEMA PRAXIS // ID: ${currentUID.substring(0,8)}</small>
-                </div>
-            `;
-            document.getElementById("view-points").innerText = userPoints;
-            document.getElementById("view-rank").innerText = (data.stats?.rango || 'Alumno').toUpperCase();
-        } else {
-            alert("ID NO REGISTRADO EN EL SISTEMA");
-            location.reload();
+    
+    window.quickSet = (v) => {
+        const slider = document.getElementById("pts-slider");
+        if(slider) {
+            slider.value = v;
+            updateVal(v);
         }
     };
-window.execUpdate = async (type) => {
-    const val = parseInt(document.getElementById("pts-slider").value);
-    const newTotal = type === 'sumar' ? userPoints + val : Math.max(0, userPoints - val);
 
-    try {
-        // Usamos update para modificar SOLO el campo puntos dentro de stats
-        await update(ref(db, `usuarios/${currentUID}/stats`), { 
-            puntos: newTotal 
-        });
-        
-        userPoints = newTotal;
-        document.getElementById("view-points").innerText = userPoints;
-        alert("¡Puntos actualizados con éxito!");
-    } catch (e) { 
-        console.error(e);
-        alert("Error: No tienes permisos de Consejo para esta acción."); 
+    // --- LÓGICA PRINCIPAL DEL ESCÁNER ---
+    window.onScanSuccess = async (decodedText) => {
+        console.log("Código detectado:", decodedText);
+
+        // Si el código inicia con PRX, procesar como Boleta de Marketplace
+        if (decodedText.startsWith('PRX')) {
+            currentTicketID = decodedText;
+            await mostrarInfoBoleta(decodedText);
+        } 
+        // De lo contrario, procesar como Carnet de Estudiante (UID)
+        else {
+            currentUID = decodedText;
+            await abrirControlPuntos(decodedText);
+        }
+    };
+
+    // --- FUNCIÓN A: GESTIÓN DE PUNTOS (CARNETS) ---
+    async function abrirControlPuntos(uid) {
+        try {
+            await html5QrcodeScanner.clear(); // Detener cámara
+            
+            const snapshot = await get(ref(db, `usuarios/${uid}`));
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                userPoints = data.stats?.puntos || 0;
+                
+                document.getElementById("scanner-wrap").style.display = "none";
+                document.getElementById("management-panel").style.display = "block";
+                
+                const infoBox = document.getElementById("user-info-box");
+                if(infoBox) {
+                    infoBox.innerHTML = `
+                        <img src="${data.foto || 'https://via.placeholder.com/150'}" class="user-avatar">
+                        <div>
+                            <h2 style="margin:0; font-size:28px;">${data.apodo || 'USUARIO'}</h2>
+                            <small style="color:var(--neon)">SISTEMA PRAXIS // ID: ${uid.substring(0,8)}</small>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById("view-points").innerText = userPoints;
+                const rankEl = document.getElementById("view-rank");
+                if(rankEl) rankEl.innerText = (data.stats?.rango || 'Alumno').toUpperCase();
+            } else {
+                alert("ID NO REGISTRADO EN EL SISTEMA");
+                location.reload();
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error al acceder a los datos del carnet.");
+        }
     }
-};
 
-    // Configuración híbrida del Scanner
+    // --- FUNCIÓN B: VALIDACIÓN DE BOLETAS (PRX) ---
+    async function mostrarInfoBoleta(idTicket) {
+        try {
+            await html5QrcodeScanner.clear();
+            
+            // Buscamos en la ruta que definiste en tus reglas
+            const ticketRef = ref(db, `marketplace/pedidos/${idTicket}`);
+            const snap = await get(ticketRef);
+
+            if (snap.exists()) {
+                const data = snap.val();
+                document.getElementById("scanner-wrap").style.display = "none";
+                document.getElementById("ticket-panel").style.display = "block";
+
+                // Llenar datos en el panel de tickets
+                document.getElementById("view-prod-name").innerText = data.producto || "Artículo";
+                document.getElementById("view-buyer").innerText = data.estudiante || "Usuario";
+                document.getElementById("view-date").innerText = data.fecha || data.fechaCompra || "---";
+
+                const badge = document.getElementById("status-badge");
+                const btnEntregar = document.getElementById("btn-entregar");
+
+                if (data.estado === "pendiente") {
+                    badge.innerText = "Pendiente de Entrega";
+                    badge.style.background = "#ffff00";
+                    badge.style.color = "#000";
+                    btnEntregar.style.display = "block";
+                    btnEntregar.onclick = () => procesarEntrega(idTicket);
+                } else {
+                    badge.innerText = `Canjeado por: ${data.validadoPor || 'Admin'}`;
+                    badge.style.background = "#ff3131";
+                    badge.style.color = "#fff";
+                    btnEntregar.style.display = "none";
+                }
+            } else {
+                alert("LA BOLETA PRX NO EXISTE EN EL SISTEMA");
+                location.reload();
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error de permisos al validar boleta.");
+        }
+    }
+
+    // --- ACCIONES DE ACTUALIZACIÓN ---
+    window.execUpdate = async (type) => {
+        const val = parseInt(document.getElementById("pts-slider").value);
+        const newTotal = type === 'sumar' ? userPoints + val : Math.max(0, userPoints - val);
+
+        try {
+            await update(ref(db, `usuarios/${currentUID}/stats`), { puntos: newTotal });
+            userPoints = newTotal;
+            document.getElementById("view-points").innerText = userPoints;
+            alert("¡Puntos actualizados con éxito!");
+        } catch (e) { 
+            console.error(e);
+            alert("Error: No tienes permisos de Consejo para esta acción."); 
+        }
+    };
+
+    async function procesarEntrega(id) {
+        if(confirm("¿Confirmas la entrega física del producto?")) {
+            try {
+                await update(ref(db, `marketplace/pedidos/${id}`), {
+                    estado: "entregado",
+                    fechaCanje: new Date().toLocaleString(),
+                    validadoPor: auth.currentUser.email
+                });
+                alert("Entrega registrada correctamente.");
+                location.reload();
+            } catch (e) {
+                alert("Error al registrar la entrega.");
+            }
+        }
+    }
+
+    // --- CONFIGURACIÓN DEL SCANNER ---
     const html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
         fps: 30, 
         qrbox: (viewWidth, viewHeight) => {
-            // El cuadro de escaneo se ajusta proporcionalmente al tamaño del contenedor
             const minEdge = Math.min(viewWidth, viewHeight);
             const size = Math.floor(minEdge * 0.7);
             return { width: size, height: size };
@@ -288,55 +400,38 @@ window.execUpdate = async (type) => {
     }, false);
     
     html5QrcodeScanner.render(onScanSuccess);
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+    // --- SISTEMA DE AUTENTICACIÓN DEL CONSEJO ---
+    const authModal = document.getElementById('auth-modal');
+    const btnGoogle = document.getElementById('btn-google-reauth');
 
-// Forzar la aparición del modal al cargar la página
-const authModal = document.getElementById('auth-modal');
-const btnGoogle = document.getElementById('btn-google-reauth');
-
-// 1. Verificación de Estado
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        // Si no hay usuario, mostrar modal obligatoriamente
-        authModal.style.display = 'flex';
-    } else {
-        // Si hay usuario pero quieres que SIEMPRE inicien sesión al entrar aquí (Re-autenticación)
-        // Podrías descomentar la línea de abajo para forzar logout si prefieres que re-entren siempre.
-        // signOut(auth); 
-        authModal.style.display = 'none'; 
-    }
-});
-
-// 2. Acción del botón de Google
-btnGoogle.onclick = async () => {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        // Lista de correos autorizados del Consejo
-        const autorizados = [
-            'ajuliuszch@gmail.com',
-            'alonsobot080@gmail.com',
-            'consejo2@gmail.com',
-            'consejo3@gmail.com'
-        ];
-
-        if (autorizados.includes(user.email)) {
-            authModal.style.display = 'none';
-            console.log("Acceso concedido al Consejo");
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            authModal.style.display = 'flex';
         } else {
-            alert("Acceso denegado: Este correo no pertenece al Consejo Estudiantil.");
-            await signOut(auth);
-            location.reload();
+            const autorizados = [
+                'ajuliuszch@gmail.com',
+                'alonsobot080@gmail.com',
+                'consejo2@gmail.com',
+                'consejo3@gmail.com'
+            ];
+            if (!autorizados.includes(user.email)) {
+                signOut(auth).then(() => location.reload());
+            } else {
+                authModal.style.display = 'none'; 
+            }
         }
-    } catch (error) {
-        console.error("Error en login:", error);
-        alert("Error al autenticar con Google.");
-    }
-};
+    });
+
+    btnGoogle.onclick = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            // La validación ocurre en onAuthStateChanged
+        } catch (error) {
+            console.error("Error en login:", error);
+            alert("Error al autenticar con Google.");
+        }
+    };
 </script>
 <!-- Modal de Re-autenticación Forzada -->
 <div id="auth-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
