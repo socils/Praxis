@@ -2525,8 +2525,8 @@ onAuthStateChanged(auth, (user) => {
 
 function iniciarDetectorInactividad() {
     let tiempoInactividad;
-    let intentosPin = 0; // DECLARACIÓN GLOBAL: Soluciona el Error 367
-    const LIMITE_INACTIVIDAD = 120000; // 3 Minutos
+    let intentosPin = 0;                                                                                                         
+    const LIMITE_INACTIVIDAD = 120000;                                                                                                         
 
     const reiniciarTemporizador = () => {
         
@@ -2610,7 +2610,7 @@ function iniciarDetectorInactividad() {
         ejecutarAccionInactividad();
     }
 
-    // Eventos de Actividad
+                                                                                                            
     window.onload = reiniciarTemporizador;
     ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
         document.addEventListener(evt, reiniciarTemporizador);
@@ -2971,66 +2971,81 @@ const monitorSeguridad = (user) => {
 const database = getDatabase(app);
 
 
-
 const styles = `
+@keyframes shake {
+    0% { transform: rotate(-1deg) translate(2px, 1px); }
+    25% { transform: rotate(-2deg) translate(-1px, -2px); }
+    50% { transform: rotate(1deg) translate(-3px, 0px); }
+    75% { transform: rotate(0deg) translate(3px, 2px); }
+    100% { transform: rotate(-1deg) translate(1px, -1px); }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8) rotate(5deg); opacity: 0; }
+    100% { transform: scale(1) rotate(-1deg); opacity: 1; }
+}
+
 .streak-modal-overlay {
     position: fixed;
     top: 0; left: 0; 
     width: 100%; height: 100%;
-    background: rgba(255, 255, 255, 0.1); /* Menos opacidad para ver el dashboard al fondo */
-    backdrop-filter: blur(8px); /* Efecto cristal moderno que resalta el modal */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
     display: flex; justify-content: center; align-items: center;
     z-index: 9999; 
     visibility: hidden; opacity: 0;
-    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transición con rebote */
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .streak-card {
-    background: #FFDE03; /* Amarillo Neo-brutalista vibrante */
+    background: #FFDE03;
     border: 6px solid #000;
     padding: 30px;
     text-align: center;
     max-width: 420px;
     width: 90%;
-    /* Sombra brutalista más profunda y definida */
     box-shadow: 16px 16px 0px #000;
     position: relative;
-    transform: rotate(-1deg); /* Ligera inclinación para romper la simetría */
+    transform: rotate(-1deg);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.streak-card video {
+.racha-perdida {
+    animation: shake 0.3s infinite !important;
+    background: #ff4444 !important;
+}
+
+.video-container {
     width: 100%;
-    background: #000;
+    aspect-ratio: 16 / 9;
+    background: #fff;
     border: 4px solid #000;
     box-shadow: 8px 8px 0px rgba(0,0,0,0.2);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#streak-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     display: block;
+    transition: opacity 0.3s ease;
 }
 
 .streak-card h2 {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
-    font-size: 2.5rem; /* Más grande para impacto */
+    font-size: 2.5rem;
     margin: 25px 0 10px 0;
     text-transform: uppercase;
     line-height: 0.9;
     letter-spacing: -2px;
     color: #000;
-    -webkit-text-stroke: 1px #000; /* Borde de texto opcional para más agresividad */
 }
 
-/* Etiqueta de racha (el label que mencionaste) */
-.streak-label {
-    display: inline-block;
-    background: #000;
-    color: #fff;
-    padding: 8px 15px;
-    font-weight: 800;
-    font-size: 1.2rem;
-    margin-top: 10px;
-    transform: skewX(-10deg); /* Efecto de velocidad/dinamismo */
-}
-
-/* Botón de cierre o continuar brutalista */
 .streak-btn {
     margin-top: 25px;
     width: 100%;
@@ -3058,13 +3073,15 @@ const styles = `
 const styleSheet = document.createElement("style");
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
+
 const modalHTML = `
     <div id="streak-overlay" class="streak-modal-overlay">
         <div class="streak-card">
-            <video id="streak-video" muted playsinline></video>
+            <div class="video-container">
+                <video id="streak-video" muted playsinline></video>
+            </div>
             <h2 id="streak-label">RACHA</h2>
-            <button id="close-streak" 
-                    style="background:#fff; border:3px solid #000; padding:10px 25px; font-weight:900; cursor:pointer; text-transform:uppercase;">
+            <button id="close-streak" class="streak-btn">
                 ENTENDIDO
             </button>
         </div>
@@ -3081,49 +3098,39 @@ function iniciarDetectorRacha(uid) {
     const video = document.getElementById('streak-video');
     const overlay = document.getElementById('streak-overlay');
     const label = document.getElementById('streak-label');
+    const card = document.querySelector('.streak-card');
     const rachaRef = ref(database, `usuarios/${uid}/stats/racha`);
 
     video.src = "hailuo-2_3_Para_lograr_que_una_IA_de_video_como_Leonardo.ai_Runway_o_LottieFiles_genere_los-0.mp4";
-    video.muted = true;                                                                           
-    video.setAttribute('playsinline', ''); 
 
     onValue(rachaRef, (snapshot) => {
         const racha = snapshot.val();
         if (racha === null) return;
 
+        const hoy = new Date().toLocaleDateString();
+        const ultimaVezVisto = localStorage.getItem(`streak_visto_${uid}`);
+        if (ultimaVezVisto === hoy) return;
+
         if (ultimaRachaRegistrada !== null && racha === ultimaRachaRegistrada) return;
 
         ultimaRachaRegistrada = racha;
-        overlay.classList.add('show-modal');
+        localStorage.setItem(`streak_visto_${uid}`, hoy);
         
-                                                                                  
+        overlay.classList.add('show-modal');
+        card.classList.remove('racha-perdida');
+        video.style.opacity = "1";
         video.ontimeupdate = null;
         video.onended = null;
-        video.style.display = "block";
 
-        if (racha === 1) {
-            label.innerText = "¡RACHA INICIADA! 🔥";
-            video.currentTime = 0;
-            video.play().catch(e => console.log("Error en play:", e));
+        if (racha >= 1) {
+            label.innerText = racha === 1 ? "¡RACHA INICIADA! 🔥" : `¡RACHA DE ${racha} DÍAS! ⚡`;
+            video.currentTime = racha === 1 ? 0 : 3;
+            video.play().catch(e => console.log(e));
             
             video.ontimeupdate = () => {
-                                                                                          
-                if (video.currentTime >= 2 && video.currentTime < 3) {
+                if (racha === 1 && video.currentTime >= 2 && video.currentTime < 3) {
                     video.currentTime = 3;
                 }
-                                                                                          
-                if (video.currentTime >= 3.9) {
-                    video.currentTime = 3;
-                }
-            };
-        } 
-        else if (racha > 1) {
-            label.innerText = `¡RACHA DE ${racha} DÍAS! ⚡`;
-            video.currentTime = 3;
-            video.play().catch(e => console.log("Error en play:", e));
-            
-            video.ontimeupdate = () => {
-                                                                                          
                 if (video.currentTime >= 3.9) {
                     video.currentTime = 3;
                 }
@@ -3131,13 +3138,12 @@ function iniciarDetectorRacha(uid) {
         } 
         else if (racha === 0) {
             label.innerText = "RACHA PERDIDA ❄️";
+            card.classList.add('racha-perdida');
             video.currentTime = 4;
-            video.play().catch(e => console.log("Error en play:", e));
+            video.play().catch(e => console.log(e));
             
             video.onended = () => {
-                video.style.display = "none";
-                                                                                          
-                                                                                          
+                video.style.opacity = "0";
             };
         }
     });
@@ -3259,8 +3265,202 @@ onAuthStateChanged(auth, (user) => {
         btnDescargar.style.display = "block";
         console.error("Error:", err);
     });
+};const VERSION_LOCAL = "0.9.9";
+
+function iniciarRastreoVersiones() {
+    const versionRef = ref(db, 'config/version_actual');
+
+    onValue(versionRef, (snapshot) => {
+        const versionNube = snapshot.val();
+
+        if (versionNube && versionNube !== VERSION_LOCAL) {
+            if (document.getElementById('update-overlay')) return;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'update-overlay';
+            overlay.style = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0, 0, 0, 0.7); display: flex; align-items: center;
+                justify-content: center; z-index: 1000000; font-family: 'Inter', system-ui, sans-serif;
+                backdrop-filter: blur(8px); animation: fadeIn 0.4s ease-out;
+            `;
+
+            overlay.innerHTML = `
+                <style>
+                    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                    .btn-praxis { transition: all 0.2s ease; cursor: pointer; border: 3px solid #000; font-weight: 800; text-transform: uppercase; }
+                    .btn-praxis:hover { transform: translate(-4px, -4px); box-shadow: 4px 4px 0px #000; }
+                    .btn-praxis:active { transform: translate(0, 0); box-shadow: 0px 0px 0px #000; }
+                </style>
+                <div style="background: #fff; border: 5px solid #000; padding: 40px; max-width: 420px; width: 90%; box-shadow: 15px 15px 0px #34a853; animation: slideUp 0.5s cubic-bezier(0.17, 0.88, 0.32, 1.28);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                        <span style="background: #fbbc05; color: #000; padding: 4px 12px; font-size: 12px; font-weight: 900; border: 2px solid #000;">UPDATE</span>
+                        <span style="font-weight: 900; font-size: 14px; color: #666;">ALONIXZ CLOUD</span>
+                    </div>
+                    
+                    <h2 style="margin: 0 0 15px 0; font-size: 26px; font-weight: 900; color: #000; line-height: 1.1;">Mejoras disponibles en Praxis</h2>
+                    
+                    <p style="color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 25px;">
+                        Hay una nueva versión (<b>v${versionNube}</b>) con correcciones críticas. Recomendamos actualizar para evitar errores de sincronización.
+                    </p>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <button onclick="location.reload(true)" class="btn-praxis" style="background: #34a853; color: #fff; padding: 18px; font-size: 16px;">
+                            Actualizar ahora
+                        </button>
+                        
+                        <button id="btn-omitir" class="btn-praxis" style="background: #fff; color: #000; padding: 12px; font-size: 13px;">
+                            Continuar en v${VERSION_LOCAL}
+                        </button>
+                    </div>
+
+                    <p id="warn-text" style="margin-top: 20px; font-size: 11px; color: #888; font-weight: 600; line-height: 1.4; display: none; animation: fadeIn 0.3s;">
+                        ⚠️ <b>Nota:</b> Al cambiar de agenda o módulo, el sistema forzará la actualización automáticamente para proteger tus datos.
+                    </p>
+                </div>`;
+
+            document.body.appendChild(overlay);
+
+            document.getElementById('btn-omitir').onclick = () => {
+                const warn = document.getElementById('warn-text');
+                if (warn.style.display === 'none') {
+                    warn.style.display = 'block';
+                    document.getElementById('btn-omitir').innerText = "Entiendo, omitir por ahora";
+                } else {
+                    document.body.removeChild(overlay);
+                }
+            };
+        }
+    });
+}
+
+iniciarRastreoVersiones();
+document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);onAuthStateChanged(auth, (user) => {
+    if (user) {
+                                                                                                                
+        if (user.email === "ajuliuszch@gmail.com") {
+            console.log("%c [ADMIN] Alonixz-Guard: Modo Inmune. ", "color: #00ff00; font-weight: bold;");
+            return; 
+        }
+        verificarEstadoYVigilar(user.uid);
+    }
+});
+
+function verificarEstadoYVigilar(uid) {
+    const userRef = ref(database, `usuarios/${uid}`);
+    onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.baneado === true) {
+                                                                                                                    
+            ejecutarBloqueoFinal(uid, !!data.apelacion);
+            return;
+        }
+        iniciarVigilancia(uid, data ? data.advertido : false);
+    });
+}
+
+function iniciarVigilancia(uid, yaAdvertido) {
+    let tiempoDetectado = 0;
+    const interval = setInterval(() => {
+        const isDevOpen = (window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160);
+        if (isDevOpen) {
+            tiempoDetectado++;
+            console.clear();
+            console.log("%c ¡ALERTA DE SEGURIDAD PRAXIS! ", "background: #000; color: #FFDE03; font-size: 24px; font-weight: 900; padding: 10px; border: 4px solid #ff4444;");
+            console.log(`%c ${!yaAdvertido ? '[AVISO 1]' : '[REINCIDENCIA]'} Bloqueo en: ${15 - tiempoDetectado}s`, "color: #ff4444; font-weight: 900; font-size: 16px;");
+
+            if (tiempoDetectado >= 15) {
+                clearInterval(interval);
+                const updates = yaAdvertido ? { baneado: true } : { advertido: true };
+                update(ref(database, `usuarios/${uid}`), updates).then(() => { if(!yaAdvertido) location.reload(); });
+            }
+        } else if (tiempoDetectado > 0) { tiempoDetectado = 0; }
+    }, 1000);
+}
+
+function ejecutarBloqueoFinal(uid, apelacionEnviada) {
+    document.body.innerHTML = `
+        <style>
+            @keyframes scrollTape { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+            
+            .ban-wrapper { 
+                background: #ff4444; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; 
+                z-index: 999999; display: flex; align-items: center; justify-content: center; 
+                font-family: 'Inter', sans-serif; overflow: hidden;
+            }
+
+            /* Cintas en las esquinas */
+            .corner-tape {
+                position: absolute; width: 600px; height: 50px; background: #FFDE03; 
+                border-top: 4px solid #000; border-bottom: 4px solid #000;
+                display: flex; align-items: center; z-index: 1000001; pointer-events: none;
+            }
+            .tape-text { 
+                display: flex; font-weight: 900; font-size: 1.2rem; color: #000; 
+                white-space: nowrap; animation: scrollTape 5s linear infinite; 
+            }
+            
+            .top-left { top: 40px; left: -150px; transform: rotate(-35deg); }
+            .bottom-right { bottom: 40px; right: -150px; transform: rotate(-35deg); }
+
+            .ban-card { 
+                background: #FFDE03; border: 12px solid #000; padding: 40px; box-shadow: 25px 25px 0px #000; 
+                text-align: center; max-width: 450px; width: 90%; position: relative; z-index: 1000000;
+            }
+            .ban-card h1 { font-size: 3.5rem; font-weight: 900; margin: 0; line-height: 0.9; }
+            .form-box { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
+            textarea { border: 4px solid #000; padding: 12px; font-weight: 800; background: #fff; resize: none; font-size: 0.9rem; }
+            .btn-send { background: #000; color: #FFDE03; border: none; padding: 18px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+            .locked-msg { background: #000; color: #fff; padding: 25px; font-weight: 900; margin-top: 20px; border: 5px dashed #FFDE03; }
+        </style>
+
+        <div class="ban-wrapper">
+            <!-- Cinta Superior Izquierda -->
+            <div class="corner-tape top-left">
+                <div class="tape-text"> • ALONIXZ-GUARD • NO INSPECT • PROHIBIDO • </div>
+                <div class="tape-text"> • ALONIXZ-GUARD • NO INSPECT • PROHIBIDO • </div>
+            </div>
+
+            <div class="ban-card">
+                <h1>ANULADO</h1>
+                <p style="font-weight: 800; margin-top: 10px;">ID USUARIO: ${uid}</p>
+                
+                ${apelacionEnviada ? `
+                    <div class="locked-msg">
+                        APELACIÓN REGISTRADA.<br>BAJO REVISIÓN DE ALONIXZ-GROUP.
+                    </div>
+                ` : `
+                    <div class="form-box">
+                        <textarea id="r1" placeholder="¿Por qué abriste el inspector?"></textarea>
+                        <textarea id="r2" placeholder="Motivo para ser desbaneado"></textarea>
+                        <button class="btn-send" onclick="enviarApelacion('${uid}')">Enviar Apelación</button>
+                    </div>
+                `}
+            </div>
+
+            <!-- Cinta Inferior Derecha -->
+            <div class="corner-tape bottom-right">
+                <div class="tape-text"> • CRIME SCENE • DO NOT CROSS • SECURITY • </div>
+                <div class="tape-text"> • CRIME SCENE • DO NOT CROSS • SECURITY • </div>
+            </div>
+        </div>
+    `;
+    window.stop();
+}
+
+window.enviarApelacion = function(uid) {
+    const r1 = document.getElementById('r1').value;
+    const r2 = document.getElementById('r2').value;
+    if (r1.length < 5 || r2.length < 5) return alert("Justifica mejor tu respuesta.");
+
+    update(ref(database, `usuarios/${uid}/apelacion`), {
+        motivo_uso: r1,
+        motivo_perdon: r2,
+        fecha: new Date().toLocaleString(),
+        estado: "pendiente"
+    }).then(() => { location.reload(); });
 };
-document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
