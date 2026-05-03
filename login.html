@@ -285,34 +285,158 @@
             </div>
         </div>
 
-        <div class="info-section" id="info">
-            <div class="info-header">
-                <h2>¿Por qué usar Praxis?</h2>
-                <p>Creado pensando en las necesidades reales del Colegio San Jerónimo.</p>
+        <!-- Reemplaza toda la sección <div class="info-section" id="info"> por esta versión mejorada -->
+
+<style>
+    /* Estilos mejorados para la Licencia de Uso Alonixz-Group */
+    .info-section {
+        padding: 80px 10%;
+        background: #0a0a0a; /* Fondo oscuro para contraste técnico */
+        color: #fff;
+    }
+
+    .license-container {
+        border: 2px solid #333;
+        background: #111;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    .license-header {
+        background: #f4b400; /* Color de acento de San Jerónimo */
+        color: #000;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .license-body {
+        padding: 40px;
+    }
+
+    .license-body h2 {
+        color: #f4b400;
+        font-size: 24px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+    }
+
+    .warning-item {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 25px;
+        align-items: flex-start;
+    }
+
+    .warning-icon {
+        background: #b91c1c;
+        color: white;
+        min-width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-style: normal;
+    }
+
+    .warning-text h3 {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+        color: #eee;
+    }
+
+    .warning-text p {
+        margin: 0;
+        font-size: 13px;
+        color: #888;
+        line-height: 1.5;
+    }
+
+    .security-footer {
+        background: #000;
+        padding: 20px;
+        text-align: center;
+        font-family: monospace;
+        font-size: 11px;
+        color: #444;
+        border-top: 1px solid #222;
+    }
+
+    .btn-action {
+        background: #f4b400;
+        color: #000;
+        border: none;
+        padding: 15px 40px;
+        font-weight: 800;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 20px;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.05);
+        background: #ffc400;
+    }
+</style>
+
+<div class="info-section" id="info">
+    <div class="info-header" style="text-align: left; margin-bottom: 50px;">
+        <h2 style="color: #fff; font-size: 32px;">Protocolos de Uso de Praxis</h2>
+        <p style="color: #888;">Al utilizar este software desarrollado por <b>Alonixz-Group</b>, te sometes a las siguientes normativas de seguridad institucional.</p>
+    </div>
+
+    <div class="license-container">
+        <div class="license-header">
+            <span>Licencia de Uso Final v2.0</span>
+            <span>ID: PRAXIS-SEC-2026</span>
+        </div>
+        
+        <div class="license-body">
+            <h2>Restricciones de Integridad</h2>
+            
+            <div class="warning-item">
+                <i class="warning-icon">01</i>
+                <div class="warning-text">
+                    <h3>Prohibición de Ingeniería Inversa</h3>
+                    <p>Cualquier intento de abrir las <b>DevTools (F12)</b> o inspeccionar el código fuente activará el protocolo <b>Alonixz-Guard</b>. La manipulación del DOM o scripts locales resultará en un baneo permanente de la cuenta vinculado al correo institucional.</p>
+                </div>
             </div>
 
-            <div class="card-info">
-                <i>📅</i>
-                <h3>Agenda de Clase Compartida</h3>
-                <p>Basta de preguntar "¿qué tarea hay?". Con el código de tu sección, todos ven las tareas actualizadas en tiempo real. Si un compañero publica, tú lo ves.</p>
+            <div class="warning-item">
+                <i class="warning-icon">02</i>
+                <div class="warning-text">
+                    <h3>Protección de Datos de Praxis</h3>
+                    <p>Los datos de tareas, logros y configuración son propiedad de Alonixz-Group. La extracción masiva de información o "scraping" será reportada automáticamente a los servidores centrales bajo el ID del usuario infractor.</p>
+                </div>
             </div>
 
-            <div class="card-info">
-                <i>🔥</i>
-                <h3>Sistema de Logros y Rachas</h3>
-                <p>Convertimos el estudio en un juego. Mantén tu racha diaria activa para demostrar tu constancia y subir de rango en el Alonixz-Group.</p>
+            <div class="warning-item">
+                <i class="warning-icon">03</i>
+                <div class="warning-text">
+                    <h3>Consecuencias del Incumplimiento</h3>
+                    <p>Si intentas modificar el funcionamiento del sistema, tu cuenta entrará en estado <b>"Bajo Revisión"</b>. Se bloqueará el acceso a las agendas compartidas y perderás todo el progreso de rachas y niveles acumulados sin posibilidad de recuperación manual.</p>
+                </div>
             </div>
 
-            <div class="card-info">
-                <i>💬</i>
-                <h3>Chat de Tareas</h3>
-                <p>¿Dudas con un ejercicio? Pregunta directamente en la tarea. Tus compañeros pueden ayudarte sin salir de la plataforma.</p>
-            </div>
-
-            <div style="text-align: center; margin-top: 40px;">
-                <button onclick="window.scrollTo(0,0)" class="btn-main" style="width: auto; padding: 12px 30px;">¡Empezar ahora!</button>
+            <div style="text-align: center;">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="btn-action">HE LEÍDO Y ACEPTO LOS RIESGOS</button>
             </div>
         </div>
+
+        <div class="security-footer">
+            ENCRYPTED BY ALONIXZ-GROUP SECURITY PROTOCOLS • EST. 2025 • PRAXIS V2.0.0
+        </div>
+    </div>
+</div>
     </div>
 
     <div class="image-side">
