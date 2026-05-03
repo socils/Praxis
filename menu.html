@@ -1158,107 +1158,152 @@ navItems.forEach(item => {
     navegarA("Configuraciones", "VISTA_CONFIG");
 
     const uid = auth.currentUser.uid;
+    const userEmail = auth.currentUser.email;
+    const miCorreo = "ajuliuszch@gmail.com"; 
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(uid)}`;
 
     get(ref(db, `usuarios/${uid}`)).then((snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
-            const esProfesor = data.stats?.rango === "profesor";                                                           
+            const racha = data.stats?.racha || 0;
             const puntosTotales = data.stats?.puntos || 0;
-            const nivelActual = Math.floor(puntosTotales / 100) + 1;
-            
+            const horas = new Date().getHours();
+            const esVerificado = data.verificado || (data.insignias && data.insignias.verificado);
+
+            const catalogo = {
+                                                                                      
+    verificado: { img: "https://cdn-icons-png.flaticon.com/512/7641/7641727.png", nom: "VERIFICADO", bg: "#0071ff" },
+    beta_tester: { img: "https://cdn-icons-png.flaticon.com/512/2619/2619224.png", nom: "BETA TESTER", bg: "#e91e63" },
+    colaborador: { img: "https://cdn-icons-png.flaticon.com/512/1067/1067562.png", nom: "COLABORADOR", bg: "#4caf50" },
+    donador: { img: "https://cdn-icons-png.flaticon.com/512/3037/3037240.png", nom: "DONADOR", bg: "#ff9800" },
+    bug_hunter: { img: "https://cdn-icons-png.flaticon.com/512/2040/2040413.png", nom: "BUG HUNTER", bg: "#607d8b" },
+    
+                                                                                      
+    madrugador: { img: "https://cdn-icons-png.flaticon.com/512/1163/1163661.png", nom: "MADRUGADOR", bg: "#FFDE03" },
+    noctambulo: { img: "https://cdn-icons-png.flaticon.com/512/542/542453.png", nom: "NOCTÁMBULO", bg: "#673ab7" },
+    racha30: { img: "https://cdn-icons-png.flaticon.com/512/785/785116.png", nom: "RACHA 30", bg: "#ff5722" },
+    racha100: { img: "https://cdn-icons-png.flaticon.com/512/1909/1909705.png", nom: "RACHA 100", bg: "#00bcd4" },
+    racha1000: { img: "https://cdn-icons-png.flaticon.com/512/6941/6941697.png", nom: "LEYENDA", bg: "#ffd700" }
+};
+
+let insigniasHTML = '';
+const insigniasActivas = data.insignias || {};
+
+Object.keys(catalogo).forEach(key => {
+    let tiene = insigniasActivas[key];                                                                                   
+    
+                                                                                      
+    if (key === 'madrugador' && (horas >= 4 && horas <= 7)) tiene = true;
+    if (key === 'noctambulo' && (horas >= 23 || horas <= 3)) tiene = true;
+    if (key === 'racha30' && racha >= 30) tiene = true;
+    if (key === 'racha100' && racha >= 100) tiene = true;
+    if (key === 'racha1000' && racha >= 1000) tiene = true;
+
+    if (tiene) {
+        insigniasHTML += `
+            <div title="${catalogo[key].nom}" style="background: ${catalogo[key].bg}; width: 32px; height: 32px; border-radius: 6px; border: 2px solid #000; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 0px #000; flex-shrink: 0; padding: 4px;">
+                <img src="${catalogo[key].img}" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>`;
+    }
+});
+
             container.innerHTML = `
-    <div style="max-width: 850px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 40px;">
-        
-                                                                                             
-        <div style="border: 4px solid #000; background: #fff; box-shadow: 10px 10px 0px #000; padding: 25px;">
-            <h2 style="margin: 0 0 20px 0; font-weight: 950; text-transform: uppercase; font-size: 22px; border-bottom: 4px solid #000; padding-bottom: 5px;">⚙️ GESTIÓN DE CUENTA</h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="config-card-mini" onclick="actualizarDatoProtegido('apodo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fdfdfd;">
-                    <span style="display: block; font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">Apodo del Usuario</span>
-                    <code style="font-weight: 800; font-size: 18px; color: #000;">${data.apodo || '---'}</code>
-                </div>
-
-                <div class="config-card-mini" onclick="actualizarDatoProtegido('nombre_correo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fdfdfd;">
-                    <span style="display: block; font-size: 10px; font-weight: 900; color: #666; text-transform: uppercase;">Correo de Identidad</span>
-                    <code style="font-weight: 800; font-size: 18px; color: #000;">${data.nombre_correo || '---'}</code>
-                </div>
-
-                                                                                                     
-                ${esProfesor ? `
-                <div class="config-card-mini" onclick="actualizarDatoProtegido('pin')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fff5f5; grid-column: span 2; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <span style="display: block; font-size: 10px; font-weight: 900; color: #ff3131; text-transform: uppercase;">PIN de Autorización (Docente)</span>
-                        <code style="font-weight: 800; font-size: 18px; color: #000;">****</code>
-                    </div>
-                    <span style="font-size: 20px;">🔒</span>
-                </div>
-                ` : ''}
-            </div>
-        </div>
-
-                                                                                             
-        <div id="id-card-praxis" style="border: 6px solid #000; background: #fff; box-shadow: 20px 20px 0px #00ff88; display: flex; flex-direction: column; overflow: hidden; position: relative; min-height: 300px;">
-            
-            <div style="background: #000; color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 950; font-size: 14px; letter-spacing: 4px;">PRAXIS_CORE                                                           
-                <span style="font-weight: 900; font-size: 11px; opacity: 0.8;">AUTH: 2026_V2</span>
-            </div>
-
-            <div style="display: flex; flex-direction: row; padding: 40px; gap: 35px; align-items: center; background: #fff;">
+            <div style="max-width: 900px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 30px;">
                 
-                                                                                                     
-                <div style="position: relative; flex-shrink: 0;">
-                    <div style="width: 160px; height: 160px; border: 5px solid #000; background: #eee; overflow: hidden; box-shadow: 10px 10px 0px #0071ff;">
-                        <img src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
+                
+${userEmail === miCorreo ? `
+<div style="border: 4px solid #000; background: #ffff00; padding: 20px; box-shadow: 8px 8px 0px #000; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 10px 0; font-weight: 950; font-size: 14px;">🛠 CONSOLA DE ADMINISTRACIÓN ALONIXZ</h3>
+    
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <input type="text" id="targetUID" placeholder="PEGAR UID DEL USUARIO" style="flex-grow: 1; border: 3px solid #000; padding: 10px; font-weight: 900; font-family: monospace;">
+        <button onclick="document.getElementById('targetUID').value = '${uid}'" style="background: #000; color: #fff; border: none; padding: 0 15px; font-weight: 900; cursor: pointer;">MI UID</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+        <button onclick="otorgarInsignia(document.getElementById('targetUID').value, 'verificado')" style="background: #0071ff; color: #fff; border: 3px solid #000; padding: 8px; font-weight: 900; font-size: 10px; cursor: pointer;">+ VERIFICADO</button>
+        <button onclick="otorgarInsignia(document.getElementById('targetUID').value, 'beta_tester')" style="background: #e91e63; color: #fff; border: 3px solid #000; padding: 8px; font-weight: 900; font-size: 10px; cursor: pointer;">+ BETA TESTER</button>
+        <button onclick="otorgarInsignia(document.getElementById('targetUID').value, 'colaborador')" style="background: #4caf50; color: #fff; border: 3px solid #000; padding: 8px; font-weight: 900; font-size: 10px; cursor: pointer;">+ COLABORADOR</button>
+        <button onclick="otorgarInsignia(document.getElementById('targetUID').value, 'donador')" style="background: #ff9800; color: #fff; border: 3px solid #000; padding: 8px; font-weight: 900; font-size: 10px; cursor: pointer;">+ DONADOR</button>
+        <button onclick="otorgarInsignia(document.getElementById('targetUID').value, 'bug_hunter')" style="background: #607d8b; color: #fff; border: 3px solid #000; padding: 8px; font-weight: 900; font-size: 10px; cursor: pointer;">+ BUG HUNTER</button>
+    </div>
+</div>
+` : ''}
+
+                <div style="border: 4px solid #000; background: #fff; box-shadow: 8px 8px 0px #000; padding: 20px;">
+                    <h2 style="margin: 0 0 20px 0; font-weight: 950; text-transform: uppercase; font-size: 18px; border-bottom: 4px solid #000; padding-bottom: 8px;">CONFIGURACIONES</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div onclick="actualizarDatoProtegido('apodo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fff;">
+                            <span style="display: block; font-size: 9px; font-weight: 900; color: #888; text-transform: uppercase;">APODO</span>
+                            <div style="font-weight: 950; font-size: 18px;">${data.apodo || '---'}</div>
+                        </div>
+                        <div onclick="actualizarDatoProtegido('nombre_correo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fff;">
+                            <span style="display: block; font-size: 9px; font-weight: 900; color: #888; text-transform: uppercase;">CORREO</span>
+                            <div style="font-weight: 950; font-size: 18px;">${data.nombre_correo || '---'}</div>
+                        </div>
                     </div>
                 </div>
 
-                                                                                                     
-                <div style="flex-grow: 1;">
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
-                        <h1 style="margin: 0; font-size: 38px; font-weight: 950; text-transform: uppercase; color: #000; letter-spacing: -2px; line-height: 0.85;">
-                            ${data.apodo || 'USUARIO'}
-                        </h1>
-                        ${data.verificado === true ? `
-                            <div style="background: #0071ff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid #000; box-shadow: 3px 3px 0px #000;">
-                                <img src="mapas-y-banderas.png" style="width: 18px; height: 18px; object-fit: contain;" crossorigin="anonymous">
+                <div id="id-card-praxis" style="width: 100%; max-width: 800px; aspect-ratio: 1.6 / 1; border: 6px solid #000; background: #fff; box-shadow: 15px 15px 0px #00ff88; display: flex; flex-direction: column; overflow: hidden; margin: 0 auto;">
+                    
+                    <div style="background: #000; color: #fff; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 950; font-size: 12px; letter-spacing: 3px;">PRAXIS SYSTEM ID</span>
+                        <span style="font-weight: 900; font-size: 10px;">AUTH_V1.0.0</span>
+                    </div>
+
+                    <div style="flex-grow: 1; display: grid; grid-template-columns: 200px 1fr 140px; gap: 20px; padding: 25px; align-items: center;">
+                        
+                        <div style="text-align: center;">
+                            <div style="width: 150px; height: 150px; border: 5px solid #000; background: #eee; overflow: hidden; box-shadow: 8px 8px 0px #0071ff; margin: 0 auto;">
+                                <img src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
                             </div>
-                        ` : ''}
-                    </div>
-
-                    <div style="font-family: 'Courier New', monospace; font-size: 12px; font-weight: 800; color: #000; margin-bottom: 25px; border-left: 4px solid #00ff88; padding-left: 15px;">
-                        <span style="color: #666;">RANK:</span> ${data.stats?.rango || 'ESTUDIANTE'}<br>
-                        <span style="color: #666;">UID:</span> <span style="color: #0071ff;">${uid}</span>
-                    </div>
-
-                    <div style="display: flex; gap: 20px;">
-                        <div style="border: 4px solid #000; padding: 12px 20px; background: #fff;">
-                            <span style="display: block; font-size: 9px; font-weight: 900; color: #888;">PUNTOS ACTUALIZADOS</span>
-                            <span style="font-size: 24px; font-weight: 950;">${puntosTotales}</span>
                         </div>
-                        <div style="border: 4px solid #000; padding: 12px 20px; background: #00ff88; box-shadow: 6px 6px 0px #000;">
-                            <span style="display: block; font-size: 9px; font-weight: 900; color: #000;">NIVEL</span>
-                            <span style="font-size: 24px; font-weight: 950;">${nivelActual}</span>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <h1 style="margin: 0; font-size: 38px; font-weight: 950; text-transform: uppercase; color: #000; letter-spacing: -1px; line-height: 0.9;">
+                                    ${data.apodo || 'USUARIO'}
+                                </h1>
+                                ${esVerificado ? `
+                                    <img src="https://cdn-icons-png.flaticon.com/512/7641/7641727.png" style="width: 25px; height: 25px; object-fit: contain;">
+                                ` : ''}
+                            </div>
+                            
+                            <div style="font-family: monospace; font-size: 10px; font-weight: 950; background: #000; color: #fff; padding: 3px 8px; align-self: flex-start;">
+                                ${data.stats?.rango || 'ESTUDIANTE'}
+                            </div>
+
+                            <div style="display: flex; gap: 6px; margin: 10px 0; min-height: 35px; flex-wrap: wrap;">
+                                ${insigniasHTML || '<div style="font-size: 8px; font-weight: 950; color: #ccc;">NO_LOGS</div>'}
+                            </div>
+
+                            <div style="display: flex; gap: 15px; border-top: 3px solid #eee; padding-top: 10px;">
+                                <div>
+                                    <span style="display: block; font-size: 8px; font-weight: 900; color: #888;">PUNTOS</span>
+                                    <span style="font-size: 22px; font-weight: 950;">${puntosTotales}</span>
+                                </div>
+                                <div>
+                                    <span style="display: block; font-size: 8px; font-weight: 900; color: #888;">RACHA</span>
+                                    <span style="font-size: 22px; font-weight: 950;">${racha}D</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; border-left: 2px solid #eee; padding-left: 15px;">
+                            <div style="border: 2px solid #000; padding: 5px; background: #fff; display: inline-block;">
+                                <img src="${qrUrl}" style="width: 90px; height: 90px; display: block;">
+                            </div>
+                            <div style="font-family: monospace; font-size: 7px; font-weight: 900; margin-top: 10px; opacity: 0.4;">
+                                ${uid.substring(0, 15).toUpperCase()}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                                                                                                     
-                <div style="flex-shrink: 0; text-align: center; background: #fff; padding: 15px; border: 4px solid #000; box-shadow: 8px 8px 0px #eee; width: 140px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <img src="${qrUrl}" 
-                         style="width: 110px; height: 110px; display: block; background: #fff;" 
-                         crossorigin="anonymous">
-                    <div style="margin-top: 10px; font-size: 9px; font-weight: 900; letter-spacing: 1px; border-top: 2px solid #000; padding-top: 5px; width: 100%;">VALIDATE_ID</div>
+                    <button onclick="descargarTarjeta()" style="border: none; border-top: 5px solid #000; background: #ffff00; color: #000; padding: 15px; font-weight: 950; cursor: pointer; text-transform: uppercase; font-size: 13px; letter-spacing: 2px;">
+                        DESCARGAR TARJETA (.PNG)
+                    </button>
                 </div>
-            </div>
-
-            <button onclick="descargarTarjeta()" style="border: none; border-top: 6px solid #000; background: #ffff00; color: #000; padding: 22px; font-weight: 950; cursor: pointer; text-transform: uppercase; font-size: 16px; letter-spacing: 3px;">
-                💾 EXPORTAR IDENTIDAD PRAXIS (.PNG)
-            </button>
-        </div>
-    </div>`;
+            </div>`;
         }
     });
 }
@@ -3468,6 +3513,15 @@ window.enviarApelacion = function(uid) {
         fecha: new Date().toLocaleString(),
         estado: "pendiente"
     }).then(() => { location.reload(); });
+};window.otorgarInsignia = (targetUID, key) => {
+    if (!targetUID) return alert("Escribe un UID válido");
+    
+    const r = ref(db, `usuarios/${targetUID}/insignias/${key}`);
+    set(r, true).then(() => {
+        alert(`Éxito: Insignia '${key}' otorgada al usuario ${targetUID}`);
+    }).catch(e => {
+        alert("Error de permisos: Solo el administrador puede hacer esto.");
+    });
 };
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
