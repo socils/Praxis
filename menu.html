@@ -2525,21 +2525,53 @@ onAuthStateChanged(auth, (user) => {
 
 function iniciarDetectorInactividad() {
     let tiempoInactividad;
-    let intentosPin = 0;                                                                                                         
-    const LIMITE_INACTIVIDAD = 120000;                                                                                                         
+    let intentosPin = 0; 
+    const LIMITE_INACTIVIDAD = 120000;                                                   
 
     const reiniciarTemporizador = () => {
-        
         if (localStorage.getItem('praxis_locked') === 'true') return;
-
         clearTimeout(tiempoInactividad);
+        
         tiempoInactividad = setTimeout(() => {
             ejecutarAccionInactividad();
         }, LIMITE_INACTIVIDAD);
     };
 
+                                                      
+    const validarYActivar = () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const statsRef = ref(db, `usuarios/${user.uid}/stats`);
+        onValue(statsRef, (snapshot) => {
+            const data = snapshot.val();
+            
+                                                              
+            const tienePin = data && data.pin;
+            const esProfesor = data && data.rango === 'profesor';
+
+            if (tienePin || esProfesor) {
+                console.log("Alonixz-Guard: Usuario verificado. Temporizador iniciado.");
+                
+                                                                  
+                ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+                    document.addEventListener(evt, reiniciarTemporizador);
+                });
+                reiniciarTemporizador();
+
+                                                                  
+                if (localStorage.getItem('praxis_locked') === 'true') {
+                    ejecutarAccionInactividad();
+                }
+            } else {
+                console.log("Alonixz-Guard: Temporizador desactivado para este perfil.");
+                                                                  
+                localStorage.removeItem('praxis_locked');
+            }
+        }, { onlyOnce: true });
+    };
+
     const ejecutarAccionInactividad = () => {
-  
         if (document.getElementById('lock-screen')) return;
         
         localStorage.setItem('praxis_locked', 'true');
@@ -2561,13 +2593,13 @@ function iniciarDetectorInactividad() {
                 </div>
                 <div style="margin-bottom: 25px; font-size: 60px;">🔐</div>
                 <h2 style="margin: 0 0 10px 0; text-transform: uppercase; font-weight: 900; font-size: 22px; color: #000;">Seguridad Praxis</h2>
-                <p style="color: #444; font-size: 13px; margin-bottom: 30px; font-weight: 600;">Sesión de <b>Alonixz-Cloud</b> suspendida por inactividad.</p>
+                <p style="color: #444; font-size: 13px; margin-bottom: 30px; font-weight: 600;">Acceso restringido por protocolos de Alonixz-Group.</p>
                 
                 <input type="password" id="unlock-pin" placeholder="••••••" maxlength="6"
                     style="width: 100%; padding: 15px; border: 4px solid #000; background: #f0f0f0; color: #000; text-align: center; font-size: 35px; margin-bottom: 20px; outline: none; font-weight: 900; letter-spacing: 8px; box-sizing: border-box;">
                 
                 <button id="btn-unlock" style="width: 100%; background: #000; color: #34a853; border: none; padding: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 15px; box-shadow: 6px 6px 0px #34a853; transition: 0.1s;">
-                    ACCEDER A LA CONSOLA
+                    DESBLOQUEAR CONSOLA
                 </button>
                 <p id="pin-error" style="background: #000; color: #ff4444; padding: 12px; font-size: 11px; margin-top: 20px; display: none; font-weight: 800; border-left: 5px solid #ff4444; text-align: left;"></p>
             </div>
@@ -2575,16 +2607,15 @@ function iniciarDetectorInactividad() {
 
         document.body.appendChild(lockOverlay);
 
-        document.getElementById('btn-unlock').onclick = async () => {
+        document.getElementById('btn-unlock').onclick = () => {
             const inputPin = document.getElementById('unlock-pin').value;
             const user = auth.currentUser;
-
-            if (!user) return;
 
             const statsRef = ref(db, `usuarios/${user.uid}/stats`);
             onValue(statsRef, (snapshot) => {
                 const data = snapshot.val();
                 
+                                                                  
                 if (data && data.pin === inputPin) {
                     localStorage.removeItem('praxis_locked');
                     const overlay = document.getElementById('lock-screen');
@@ -2605,18 +2636,13 @@ function iniciarDetectorInactividad() {
         };
     };
 
-   
-    if (localStorage.getItem('praxis_locked') === 'true') {
-        ejecutarAccionInactividad();
-    }
-
-                                                                                                            
-    window.onload = reiniciarTemporizador;
-    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
-        document.addEventListener(evt, reiniciarTemporizador);
+                                                      
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            validarYActivar();
+        }
     });
 }
-
 
 iniciarDetectorInactividad();
 
