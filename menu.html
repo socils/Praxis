@@ -2995,8 +2995,6 @@ const monitorSeguridad = (user) => {
     setInterval(checkIntegridad, 4000);
 };
 const database = getDatabase(app);
-
-
 const styles = `
 @keyframes shake {
     0% { transform: rotate(-1deg) translate(2px, 1px); }
@@ -3120,6 +3118,7 @@ document.getElementById('close-streak').onclick = () => {
 };
 
 let ultimaRachaRegistrada = null;
+
 function iniciarDetectorRacha(uid) {
     const video = document.getElementById('streak-video');
     const overlay = document.getElementById('streak-overlay');
@@ -3134,13 +3133,19 @@ function iniciarDetectorRacha(uid) {
         if (racha === null) return;
 
         const hoy = new Date().toLocaleDateString();
-        const ultimaVezVisto = localStorage.getItem(`streak_visto_${uid}`);
-        if (ultimaVezVisto === hoy) return;
+        const ultimaVezVisto = localStorage.getItem(`streak_visto_fecha_${uid}`);
+        const rachaPreviaVista = localStorage.getItem(`streak_valor_visto_${uid}`);
+
+        if (ultimaVezVisto === hoy && String(racha) === rachaPreviaVista) {
+            ultimaRachaRegistrada = racha;
+            return;
+        }
 
         if (ultimaRachaRegistrada !== null && racha === ultimaRachaRegistrada) return;
 
         ultimaRachaRegistrada = racha;
-        localStorage.setItem(`streak_visto_${uid}`, hoy);
+        localStorage.setItem(`streak_visto_fecha_${uid}`, hoy);
+        localStorage.setItem(`streak_valor_visto_${uid}`, racha);
         
         overlay.classList.add('show-modal');
         card.classList.remove('racha-perdida');
@@ -3151,7 +3156,7 @@ function iniciarDetectorRacha(uid) {
         if (racha >= 1) {
             label.innerText = racha === 1 ? "¡RACHA INICIADA! 🔥" : `¡RACHA DE ${racha} DÍAS! ⚡`;
             video.currentTime = racha === 1 ? 0 : 3;
-            video.play().catch(e => console.log(e));
+            video.play().catch(() => {});
             
             video.ontimeupdate = () => {
                 if (racha === 1 && video.currentTime >= 2 && video.currentTime < 3) {
@@ -3166,7 +3171,7 @@ function iniciarDetectorRacha(uid) {
             label.innerText = "RACHA PERDIDA ❄️";
             card.classList.add('racha-perdida');
             video.currentTime = 4;
-            video.play().catch(e => console.log(e));
+            video.play().catch(() => {});
             
             video.onended = () => {
                 video.style.opacity = "0";
