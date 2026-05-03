@@ -354,6 +354,72 @@
     <!-- SECCIÓN DE RESULTADOS DE ENCUESTAS -->
     <div class="section-title">Resultados de Encuestas</div>
     <div id="resultados-encuestas"></div>
+    <div class="section-title">Logística y Suministros</div>
+<div class="marketplace-manager" style="background: #fff; border: 4px solid #000; box-shadow: 12px 12px 0px #000; padding: 30px; border-radius: 4px; margin-top: 20px;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 4px solid #000; padding-bottom: 15px;">
+        <span style="font-size: 32px;">📦</span>
+        <h3 style="margin: 0; font-size: 22px; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: -1px;">Registrar Nuevo Artículo</h3>
+    </div>
+    
+    <div style="display: grid; gap: 20px;">
+        <!-- Nombre del Producto -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Nombre del ítem</label>
+            <input type="text" id="prod-nombre" placeholder="Ej: Membresía Praxis Premium" 
+                   style="padding: 15px; border: 3px solid #000; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 16px; outline: none; background: #f8fafc;">
+        </div>
+
+        <!-- Descripción -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Descripción del beneficio</label>
+            <textarea id="prod-desc" placeholder="Detalla qué incluye este producto o servicio..." 
+                      style="padding: 15px; border: 3px solid #000; font-family: 'Outfit', sans-serif; font-weight: 600; min-height: 80px; resize: vertical; background: #f8fafc;"></textarea>
+        </div>
+        
+        <!-- Precio y Stock -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Costo (Créditos)</label>
+                <input type="number" id="prod-precio" placeholder="000" 
+                       style="padding: 15px; border: 3px solid #000; font-weight: 900; font-size: 20px; color: #1a73e8; background: #e8f0fe;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Stock Inicial</label>
+                <input type="number" id="prod-stock" placeholder="Unidades" 
+                       style="padding: 15px; border: 3px solid #000; font-weight: 900; font-size: 20px; background: #fff;">
+            </div>
+        </div>
+
+        <button onclick="subirProducto()" class="btn-post-market">
+            <span style="position: relative; z-index: 2;">DESPLEGAR EN MARKETPLACE</span>
+        </button>
+    </div>
+</div>
+
+<style>
+    .btn-post-market {
+        padding: 20px;
+        background: #00ff88; /* Color Neón Praxis */
+        color: #000;
+        border: 4px solid #000;
+        font-weight: 950;
+        font-size: 16px;
+        cursor: pointer;
+        position: relative;
+        transition: 0.1s;
+        margin-top: 10px;
+        box-shadow: 6px 6px 0px #000;
+    }
+    .btn-post-market:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0px #000;
+        background: #00e67a;
+    }
+    .btn-post-market:active {
+        transform: translate(4px, 4px);
+        box-shadow: 0px 0px 0px #000;
+    }
+</style>
 </div>
 
 <!-- Modales -->
@@ -728,7 +794,53 @@ window.guardar = async () => {
         } else {
             sessionStorage.setItem('avisoVisto', 'true');
         }
-    };
+    };// Función para que el consejo publique productos
+window.subirProducto = async () => {
+    const nombre = document.getElementById('prod-nombre').value;
+    const precio = parseInt(document.getElementById('prod-precio').value);
+    const stock = parseInt(document.getElementById('prod-stock').value);
+
+    if(!nombre || isNaN(precio)) return alert("Datos incompletos");
+
+    const productosRef = ref(db, 'marketplace');
+    await push(productosRef, {
+        nombre,
+        precio,
+        stock: stock || 99,
+        fecha: new Date().toISOString()
+    });
+
+    alert("Producto disponible en la tienda de los estudiantes");
+    document.getElementById('prod-nombre').value = "";
+};
+
+// Función para validar y "quemar" la boleta mediante el escáner
+window.validarBoletaQR = async (idBoleta) => {
+    // Buscamos la boleta en el nodo de compras/historial
+    const boletaRef = ref(db, `historial_compras/${idBoleta}`);
+    
+    try {
+        const snap = await get(boletaRef);
+        if(snap.exists()) {
+            const data = snap.val();
+            if(data.estado === 'canjeado') {
+                alert("❌ ERROR: Esta boleta ya fue utilizada el " + data.fechaCanje);
+            } else {
+                // Marcamos la boleta como usada para que no se repita
+                await update(boletaRef, {
+                    estado: 'canjeado',
+                    fechaCanje: new Date().toLocaleString(),
+                    validadoPor: auth.currentUser.email
+                });
+                alert(`✅ ÉXITO: Entrega de "${data.producto}" autorizada para ${data.usuario}`);
+            }
+        } else {
+            alert("⚠️ ALERTA: ID de boleta no encontrado en Alonixz-Cloud");
+        }
+    } catch (e) {
+        console.error(e);
+    }
+};
 </script><!-- Modal de Advertencia de Seguridad -->
 <div id="modal-seguridad" class="modal" style="display: flex;"> <!-- Se muestra al cargar -->
     <div class="modal-content" style="border: 3px solid #1a73e8; box-shadow: 10px 10px 0px rgba(26, 115, 232, 0.2);">
