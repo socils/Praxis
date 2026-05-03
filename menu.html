@@ -300,28 +300,18 @@ onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
     const loader = document.getElementById('loader-global');
     const displayCode = document.getElementById('display-code');
-if (user) {
-                                                                                                      
-        verificarApodoEstudiante(user);
-      
 
-                                                                                                      
+    if (user) {
+        verificarApodoEstudiante(user);
+        
         const isGuest = user.isAnonymous;
         const miCorreoAdmin = "ajuliuszch@gmail.com";
-        const STAFF_CONSEJO = [
-            "jzavaletac@gmail.com",
-            "miembro3@ejemplo.com",
-            "miembro4@ejemplo.com",
-            "miembro5@ejemplo.com"
-        ];
+        const STAFF_CONSEJO = ["jzavaletac@gmail.com", "miembro3@ejemplo.com", "miembro4@ejemplo.com", "miembro5@ejemplo.com"];
 
-                                                                                                      
         const adminBtn = document.getElementById('admin-link');
         const consejoBtn = document.getElementById('consejo-link');
-        if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
-            adminBtn.style.display = 'flex';
-        }
 
+        if (!isGuest && user.email === miCorreoAdmin && adminBtn) adminBtn.style.display = 'flex';
         if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
             consejoBtn.style.display = 'flex';
         }
@@ -341,86 +331,73 @@ if (user) {
                 foto: fotoDisplay,
                 ultimaConexion: Date.now()
             });
-            
             rachaFinal = await gestionarRachaUsuario(user.uid);
-            
+        }
+
+        userInfoDiv.innerHTML = `
+            ${!isGuest ? `
+            <div id="puntos-container" style="display: flex; align-items: center; margin-right: 12px; font-weight: 900; color: #000; background: #fff; padding: 5px 12px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                <span id="user-points-display" style="font-size: 16px;">0</span>
+                <img src="dolar.png" style="width: 20px; margin-left: 6px; filter: drop-shadow(1px 1px 0px #000);">
+            </div>
+            <div id="streak-container" style="display: flex; align-items: center; margin-right: 12px; font-weight: 900; color: #000; background: #FFDE03; padding: 5px 12px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                <span id="streak-count" style="font-size: 16px;">${rachaFinal}</span>
+                <img src="fuego.png" style="width: 20px; margin-left: 6px; filter: drop-shadow(1px 1px 0px #000);">
+            </div>` : ''}
+            <div style="display: flex; flex-direction: column; align-items: flex-end; margin-right: 10px;">
+                <span id="user-name-display" style="font-size: 13px; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px;">
+                    ${nombreDisplay}
+                </span>
+            </div>
+            <img id="user-avatar-display" src="${fotoDisplay}" 
+                 style="width: 38px; height: 38px; border-radius: 4px; border: 3px solid #000; box-shadow: 3px 3px 0px #000; object-fit: cover; background: #fff;">
+        `;
+
+        if (!isGuest) {
+            onValue(ref(db, `usuarios/${user.uid}/stats/puntos`), (snapshot) => {
+                const puntos = snapshot.val() || 0;
+                const pDisplay = document.getElementById('user-points-display');
+                if (pDisplay) {
+                    pDisplay.innerText = puntos;
+                    const container = pDisplay.parentElement;
+                    container.style.transform = "scale(1.1) translateY(-2px)";
+                    setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
+                }
+            });
+
+            onValue(ref(db, `usuarios/${user.uid}/stats/racha`), (snapshot) => {
+                const racha = snapshot.val() || 0;
+                const sDisplay = document.getElementById('streak-count');
+                if (sDisplay) {
+                    sDisplay.innerText = racha;
+                    const container = sDisplay.parentElement;
+                    container.style.transform = "scale(1.1) translateY(-2px)";
+                    setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
+                    
+                    const infoRango = obtenerRango(racha, user.email);
+                    aplicarTemaYBadge(infoRango, nombreDisplay, racha);
+                }
+            });
+
             if (displayCode && (displayCode.innerText === "..." || displayCode.innerText === "")) {
                 displayCode.innerText = "SIN AGENDA";
             }
-
             await cargarAgenda(user.uid);      
             await cargarListaSidebar(user.uid); 
-            const puntosRef = ref(db, `usuarios/${user.uid}/stats/puntos`);
-    onValue(puntosRef, (snapshot) => {
-        const puntos = snapshot.val() || 0;
-        const puntosDisplay = document.getElementById('user-points-display');
-        if (puntosDisplay) {
-            puntosDisplay.innerText = puntos;
-            
-            
-            puntosDisplay.style.transform = "scale(1.2)";
-            setTimeout(() => puntosDisplay.style.transform = "scale(1)", 200);
-        }
-    });
         } else {
             if (displayCode) displayCode.innerText = "INVITADO";
             bloquearFuncionesInvitado();
         }
 
-userInfoDiv.innerHTML = `
-    ${!isGuest ? `
-    <div id="puntos-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #1a73e8;">
-        <span id="user-points-display">0</span>
-        <span style="font-size: 18px; margin-left: 4px;"><img src="dolar.png" alt="Puntos" style="width: 25px;"></span>
-    </div>
-    <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
-        <span id="streak-count">${rachaFinal}</span>
-        <span style="font-size: 18px; margin-left: 4px;"><img src="fuego.png" alt="Racha" style="width: 25px;"></span>
-    </div>` : ''}
-    <div style="display: flex; flex-direction: column; align-items: flex-end;">
-        <span id="user-name-display" style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 700; display: flex; align-items: center;">
-            ${nombreDisplay}
-        </span>
-    </div>
-    <img id="user-avatar-display" src="${fotoDisplay}" alt="User" 
-         style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover;">
-`;
-
-if (!isGuest) {
-    onValue(ref(db, `usuarios/${user.uid}/stats/puntos`), (s) => {
-        const p = s.val() || 0;
-        const d = document.getElementById('user-points-display');
-        if (d) d.innerText = p;
-    });
-}
-
-        if (!isGuest) {
-            const infoInicial = obtenerRango(rachaFinal, user.email);
-            aplicarTemaYBadge(infoInicial, nombreDisplay, rachaFinal);
-
-            const rachaTarget = document.getElementById('streak-count');
-            if (rachaTarget) {
-                const observer = new MutationObserver(() => {
-                    const rachaCambio = parseInt(rachaTarget.innerText) || 0;
-                    const infoRango = obtenerRango(rachaCambio, user.email);
-                    aplicarTemaYBadge(infoRango, nombreDisplay, rachaCambio);
-                });
-                observer.observe(rachaTarget, { childList: true, characterData: true, subtree: true });
-            }
-        }
-
         if (loader) {
             loader.style.opacity = '0';
-            setTimeout(() => { 
-                loader.style.display = 'none'; 
-            }, 500);
+            setTimeout(() => { loader.style.display = 'none'; }, 500);
         }
         
     } else {
         window.location.href = "login.html";
     }
 });
-
 
 function bloquearFuncionesInvitado() {
    
