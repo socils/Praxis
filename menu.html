@@ -61,6 +61,8 @@
             <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>
             <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Ver espacio de Praxis</div>
           <div class="nav-item"><img src="configuraciones.png" alt="" style="width: 20px;"> Configuraciones</div>
+          <hr><div class="nav-item"><img src="marketplace.png" alt="" style="width: 20px;"> Marketplace</div>
+          <div class="nav-item"><img src="historial-de-pedidos.png" alt="" style="width: 20px;"> Historial de Compras</div><hr>
 <div id="admin-container" style="display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap;">
     
     <a href="centro-de-admins.html" id="admin-link" class="admin-button" style="display: none;">
@@ -1318,7 +1320,186 @@ navItems.forEach(item => {
                 const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
                 renderizarVistaLista(pendientes, "pendientes");
             });
+        }else if (texto.includes("marketplace") || texto.includes("tienda")) {
+    bannerTitle.innerText = "Mercado de Praxis";
+    displayCode.innerText = "MARKETPLACE";
+    navegarA("Marketplace", "VISTA_MARKET");
+
+    container.innerHTML = `
+        <style>
+            /* Animaciones de entrada */
+            @keyframes fadeInBrutal {
+                from { opacity: 0; transform: translateY(30px) scale(0.95); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            @keyframes scanline {
+                0% { transform: translateY(-100%); }
+                100% { transform: translateY(100%); }
+            }
+            @keyframes pulseShadow {
+                0% { box-shadow: 10px 10px 0px #000; }
+                50% { box-shadow: 15px 15px 0px #00ff88; }
+                100% { box-shadow: 10px 10px 0px #000; }
+            }
+            @keyframes textGlitch {
+                0% { text-shadow: 2px 0 #ff3131, -2px 0 #00ff88; }
+                50% { text-shadow: -2px 0 #ff3131, 2px 0 #00ff88; }
+                100% { text-shadow: 2px 0 #ff3131, -2px 0 #00ff88; }
+            }
+
+            .item-card {
+                animation: fadeInBrutal 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+                opacity: 0;
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .item-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 18px 18px 0px #000 !important;
+                border-color: #00ff88;
+            }
+            
+            .btn-canje {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.2s ease;
+            }
+            .btn-canje:hover {
+                background: #000 !important;
+                color: #00ff88 !important;
+                transform: translate(-4px, -4px);
+                box-shadow: 8px 8px 0px #00ff88 !important;
+            }
+            .btn-canje:active {
+                transform: translate(2px, 2px);
+                box-shadow: 0px 0px 0px #000 !important;
+            }
+
+            /* Etiqueta de precio con pulso */
+            .price-tag {
+                animation: pulseShadow 2s infinite;
+            }
+        </style>
+        
+        <div id="loader-market" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px; gap:30px;">
+            <div style="position:relative; width:80px; height:80px; border:8px solid #000; background:#fff; display:flex; align-items:center; justify-content:center;">
+                <div style="position:absolute; width:100%; height:100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.1) 2px, rgba(0,255,136,0.1) 4px); pointer-events:none;"></div>
+                <div style="position:absolute; width:100%; height:4px; background:#00ff88; animation: scanline 2s linear infinite; z-index:2;"></div>
+                <span style="font-weight:900; font-size:30px; animation: textGlitch 0.2s infinite alternate;">PX</span>
+            </div>
+            <p style="font-weight:950; text-transform:uppercase; letter-spacing:5px; color:#000;">Accediendo al Almacén...</p>
+        </div>
+    `;
+
+    const productosRef = ref(db, 'marketplace/productos');
+
+    get(productosRef).then((snapshot) => {
+        const loader = document.getElementById('loader-market');
+        if(loader) loader.remove();
+        
+        if (!snapshot.exists()) {
+            container.innerHTML += `
+                <div style="max-width:600px; margin: 50px auto; border: 10px solid #000; background: #fff; box-shadow: 20px 20px 0px #ff3131; padding: 60px; text-align: center; animation: fadeInBrutal 0.7s ease-out;">
+                    <span style="font-size: 80px;">⚠️</span>
+                    <h2 style="font-weight: 950; text-transform: uppercase; margin: 20px 0; font-size: 32px; letter-spacing:-1px;">Stock No Detectado</h2>
+                    <p style="font-weight: 800; color: #444; line-height: 1.6; border-top: 4px solid #000; pt-20px;">SISTEMA EN ESPERA. EL CONSEJO ESTUDIANTIL AÚN NO HA CARGADO LOS PREMIOS DE LA TEMPORADA.</p>
+                </div>
+            `;
+            return;
         }
+
+        const productos = snapshot.val();
+        let htmlProductos = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; padding: 30px;">`;
+        
+        let delay = 0;
+        Object.keys(productos).forEach(id => {
+            const p = productos[id];
+            delay += 0.12;
+            htmlProductos += `
+                <div class="item-card" style="border: 6px solid #000; background: #fff; padding: 30px; box-shadow: 12px 12px 0px #000; position: relative; animation-delay: ${delay}s;">
+                    <div class="price-tag" style="position: absolute; top: -10px; right: -10px; background: #00ff88; color: #000; padding: 10px 20px; font-weight: 950; font-size: 16px; border: 5px solid #000; transform: rotate(3deg);">
+                        ${p.costo} PTS
+                    </div>
+                    
+                    <div style="font-size: 11px; font-weight: 900; color: #aaa; margin-bottom: 10px; letter-spacing: 1px;">ID: ${id.toUpperCase()}</div>
+                    <h3 style="margin: 0 0 15px 0; font-weight: 950; text-transform: uppercase; font-size: 24px; line-height: 0.9; color:#000;">${p.nombre}</h3>
+                    <p style="margin: 0 0 25px 0; font-size: 14px; font-weight: 700; color: #555; line-height: 1.4; min-height: 50px; border-left: 4px solid #eee; padding-left: 15px;">${p.descripcion}</p>
+                    
+                    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <div style="height: 12px; flex-grow: 1; background: #eee; border: 2px solid #000; position: relative;">
+                            <div style="position: absolute; left: 0; top: 0; height: 100%; width: ${Math.min((p.stock/10)*100, 100)}%; background: #000;"></div>
+                        </div>
+                        <span style="font-weight: 950; font-size: 12px;">STOCK: ${p.stock}</span>
+                    </div>
+
+                    <button onclick="canjearPremio('${id}', ${p.costo})" class="btn-canje" style="width: 100%; border: 5px solid #000; background: #ffff00; padding: 15px; font-weight: 950; cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                        Iniciar Canje
+                    </button>
+                </div>
+            `;
+        });
+        
+        htmlProductos += `</div>`;
+        container.innerHTML += htmlProductos;
+    });
+
+}else if (texto.includes("mis compras") || texto.includes("historial")) {
+    bannerTitle.innerText = "Historial de Canjes";
+    displayCode.innerText = "MIS_PEDIDOS";
+    
+    // Cargador estilo Marketplace
+    container.innerHTML = `
+        <div id="loader-historial" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px; gap:30px;">
+            <div style="position:relative; width:80px; height:80px; border:8px solid #000; background:#fff; display:flex; align-items:center; justify-content:center;">
+                <div style="position:absolute; width:100%; height:4px; background:#00ff88; animation: scanline 2s linear infinite; z-index:2;"></div>
+                <span style="font-weight:900; font-size:30px;">HX</span>
+            </div>
+            <p style="font-weight:950; text-transform:uppercase; letter-spacing:5px; color:#000;">Sincronizando Registros...</p>
+        </div>
+    `;
+
+    const pedidosRef = ref(db, 'marketplace/pedidos');
+    get(pedidosRef).then((snapshot) => {
+        const loader = document.getElementById('loader-historial');
+        if(loader) loader.remove();
+
+        const todos = snapshot.val();
+        let encontrado = false;
+        let html = `<div style="padding:30px; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px; animation: fadeInBrutal 0.5s ease-out;">`;
+
+        for (let id in todos) {
+            if (todos[id].uid === auth.currentUser.uid) {
+                encontrado = true;
+                const p = todos[id];
+                html += `
+                    <div onclick="abrirBoletaExistente('${id}')" class="item-card" style="cursor:pointer; border:6px solid #000; background:#fff; padding:20px; box-shadow:8px 8px 0px #000; transition:0.2s; position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:15px;">
+                            <h3 style="margin:0; font-weight:950; text-transform:uppercase; font-size:18px; line-height:1;">${p.nombreProducto}</h3>
+                            <span style="background:${p.estado === 'entregado' ? '#00ff88' : '#ffff00'}; border:3px solid #000; font-size:10px; padding:4px 10px; font-weight:900; text-transform:uppercase;">
+                                ${p.estado}
+                            </span>
+                        </div>
+                        <div style="font-family:monospace; font-size:12px; color:#666;">
+                            <p style="margin:2px 0;">ID: ${p.ticket}</p>
+                            <p style="margin:2px 0;">FECHA: ${p.fecha || 'NO REGISTRADA'}</p>
+                        </div>
+                        <div style="margin-top:15px; padding-top:10px; border-top:2px solid #eee; text-align:right;">
+                            <span style="font-weight:950; font-size:11px; text-transform:uppercase; color:#00ff88;">Ver Comprobante ></span>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        if (!encontrado) {
+            container.innerHTML = `
+                <div style="max-width:500px; margin: 60px auto; border: 8px solid #000; background: #fff; box-shadow: 15px 15px 0px #000; padding: 40px; text-align: center;">
+                    <h2 style="font-weight: 950; text-transform: uppercase;">Sin Actividad</h2>
+                    <p style="font-weight: 800; color: #666;">AÚN NO HAS REALIZADO CANJES EN EL MARKETPLACE.</p>
+                </div>`;
+        } else {
+            container.innerHTML = html + "</div>";
+        }
+    });
+}
         else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
             const user = auth.currentUser;
             bannerTitle.innerText = "Información de Perfil";
@@ -3521,6 +3702,158 @@ window.enviarApelacion = function(uid) {
     }).catch(e => {
         alert("Error de permisos: Solo el administrador puede hacer esto.");
     });
+};window.canjearPremio = async function(idProducto, costo) {
+    const user = auth.currentUser;
+    const productoRef = ref(db, `marketplace/productos/${idProducto}`);
+    const userRef = ref(db, `usuarios/${user.uid}/stats`);
+    
+    try {
+        const prodSnap = await get(productoRef);
+        const producto = prodSnap.val();
+
+        // 1. Validación de Existencia y Stock
+        if (!prodSnap.exists() || producto.stock <= 0) {
+            alert("❌ PRODUCTO AGOTADO EN EL ALMACÉN");
+            return;
+        }
+
+        // 2. Validación de Saldo
+        const userSnap = await get(userRef);
+        const puntosActuales = userSnap.val().puntos || 0;
+
+        if (puntosActuales < costo) {
+            alert("❌ PUNTOS INSUFICIENTES");
+            return;
+        }
+
+        if (!confirm(`¿CONFIRMAR CANJE DE "${producto.nombre.toUpperCase()}" por ${costo} PTS?`)) return;
+
+        // 3. Generación de Identificador y Fecha
+        const idBoleta = "PRX-" + Math.random().toString(36).substr(2, 7).toUpperCase();
+        const fechaActual = new Date().toLocaleString(); 
+
+        const updates = {};
+        updates[`usuarios/${user.uid}/stats/puntos`] = puntosActuales - costo;
+        updates[`marketplace/productos/${idProducto}/stock`] = producto.stock - 1;
+        updates[`marketplace/pedidos/${idBoleta}`] = {
+            ticket: idBoleta,
+            nombreProducto: producto.nombre,
+            uid: user.uid,
+            estudiante: user.displayName || "Estudiante Praxis",
+            fecha: fechaActual,
+            costo: costo,
+            estado: "pendiente"
+        };
+
+        await update(ref(db), updates);
+        
+        // Renderizado automático tras compra exitosa
+        renderizarBoletaExito(idBoleta, producto.nombre, costo, fechaActual, true);
+
+    } catch (e) {
+        console.error("Error en transacción:", e);
+        alert("⚠️ ERROR CRÍTICO EN LA TRANSACCIÓN");
+    }
+};window.renderizarBoletaExito = function(id, nombre, costo, fecha, esNuevaCompra = false) {
+    // Aseguramos que la fecha sea la del sistema si no viene definida
+    const fechaFinal = fecha || new Date().toLocaleString(); 
+
+    container.innerHTML = `
+        <div id="boleta-contenedor" style="max-width:380px; margin: 20px auto; border: 8px solid #000; background: #fff; padding: 40px; box-shadow: 15px 15px 0px #00ff88; animation: fadeInBrutal 0.4s ease-out; position: relative; overflow: hidden; font-family: 'Courier New', Courier, monospace;">
+            
+            <!-- Sello de Agua Centrado (Prioridad Visual) -->
+            <div style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%) rotate(-20deg); opacity:0.06; font-size:90px; font-weight:950; pointer-events:none; z-index:0; white-space:nowrap; color:#000;">
+                PRAXIS
+            </div>
+
+            <div style="text-align:center; border-bottom:5px solid #000; padding-bottom:15px; margin-bottom:25px; position:relative; z-index:1;">
+                <h2 style="margin:0; font-weight:950; text-transform:uppercase; letter-spacing:-1px; font-size:22px; color:#000;">Ticket de Canje</h2>
+                <p style="margin:5px 0 0 0; font-size:10px; font-weight:900; letter-spacing:1px;">ALONIXZ-GROUP SECURED</p>
+            </div>
+            
+            <!-- Cuerpo con Flexbox para evitar deformación de letras -->
+            <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:5px;">
+                    <span style="font-weight:900; font-size:13px;">PRODUCTO:</span>
+                    <span style="font-weight:900; font-size:13px; text-transform:uppercase;">${nombre}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:5px;">
+                    <span style="font-weight:900; font-size:13px;">TICKET:</span>
+                    <span style="font-weight:700; font-size:13px;">${id}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:5px;">
+                    <span style="font-weight:900; font-size:13px;">FECHA:</span>
+                    <span style="font-weight:700; font-size:13px;">${fechaFinal}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                    <span style="font-weight:900; font-size:13px;">VALOR:</span>
+                    <span style="font-weight:900; font-size:13px; background:#000; color:#00ff88; padding:0 10px;">${costo} PTS</span>
+                </div>
+            </div>
+
+            <!-- Zona de QR con protección de área -->
+            <div style="text-align:center; margin:30px 0; background:#fff; padding:15px; border:4px solid #000; position:relative; z-index:1;">
+                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${id}" style="width:160px; height:160px; display:inline-block; image-rendering: -webkit-optimize-contrast;">
+                 <p style="margin:12px 0 0 0; font-size:9px; font-weight:950; letter-spacing:4px; text-transform:uppercase;">Autenticidad Digital</p>
+            </div>
+
+            <!-- Botones (Se ocultan en la descarga) -->
+            <div class="area-botones" style="display:grid; gap:12px; margin-top:10px; position:relative; z-index:2;">
+                <button onclick="descargarBoletaDigital('${id}')" style="border:6px solid #000; background:#00ff88; color:#000; padding:16px; font-weight:950; cursor:pointer; box-shadow:5px 5px 0px #000; text-transform:uppercase; font-size:13px;">
+                    💾 Descargar Imagen
+                </button>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <button onclick="ejecutarComando('marketplace')" style="border:4px solid #000; background:#ffff00; padding:10px; font-weight:950; cursor:pointer; text-transform:uppercase; font-size:10px;">Tienda</button>
+                    <button onclick="ejecutarComando('mis compras')" style="border:4px solid #000; background:#000; color:#fff; padding:10px; font-weight:950; cursor:pointer; text-transform:uppercase; font-size:10px;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+};window.abrirBoletaExistente = function(idPedido) {
+    const pedidoRef = ref(db, `marketplace/pedidos/${idPedido}`);
+    get(pedidoRef).then((snapshot) => {
+        if(snapshot.exists()) {
+            const p = snapshot.val();
+            // Renderiza la boleta cargando los datos históricos
+            renderizarBoletaExito(p.ticket, p.nombreProducto, p.costo, p.fecha, false);
+        } else {
+            alert("No se encontró el registro del pedido.");
+        }
+    }).catch(err => console.error("Error al recuperar pedido:", err));
+};window.descargarBoletaDigital = async function(idTicket) {
+    const boleta = document.getElementById('boleta-contenedor');
+    const botones = boleta.querySelector('.area-botones');
+    
+    // Bloquear dimensiones para evitar deformación de letras
+    const anchoOriginal = boleta.offsetWidth;
+    boleta.style.width = anchoOriginal + 'px';
+    botones.style.display = 'none';
+    
+    if (typeof html2canvas !== 'undefined') {
+        try {
+            const canvas = await html2canvas(boleta, {
+                backgroundColor: "#ffffff",
+                scale: 2, // Balance ideal para nitidez sin deformar
+                useCORS: true,
+                letterRendering: true, // Optimiza el renderizado de cada letra individualmente
+                logging: false,
+                width: anchoOriginal
+            });
+            
+            botones.style.display = 'grid';
+            boleta.style.width = ''; // Liberar ancho
+
+            const link = document.createElement('a');
+            link.download = `BOLETA_PRAXIS_${idTicket}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (err) {
+            console.error("Error en captura:", err);
+            botones.style.display = 'grid';
+            boleta.style.width = '';
+        }
+    }
 };
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
