@@ -794,26 +794,50 @@ window.guardar = async () => {
         } else {
             sessionStorage.setItem('avisoVisto', 'true');
         }
-    };// Función para que el consejo publique productos
+    }// Función para que el consejo publique productos con la nomenclatura de "Costo"
 window.subirProducto = async () => {
-    const nombre = document.getElementById('prod-nombre').value;
-    const precio = parseInt(document.getElementById('prod-precio').value);
+    // Captura de datos desde el panel de "Logística y Suministros"
+    const nombre = document.getElementById('prod-nombre').value.trim();
+    const descripcion = document.getElementById('prod-desc').value.trim();
+    const costo = parseInt(document.getElementById('prod-precio').value); // Vinculado al ID prod-precio del HTML
     const stock = parseInt(document.getElementById('prod-stock').value);
 
-    if(!nombre || isNaN(precio)) return alert("Datos incompletos");
+    // Validación de integridad de datos para Alonixz-Cloud
+    if(!nombre || isNaN(costo) || isNaN(stock)) {
+        return alert("⚠️ Error: Debes asignar un Costo y un Stock inicial al artículo.");
+    }
 
-    const productosRef = ref(db, 'marketplace');
-    await push(productosRef, {
-        nombre,
-        precio,
-        stock: stock || 99,
-        fecha: new Date().toISOString()
-    });
+    try {
+        // Referencia a la sub-ruta de productos para la tienda de los estudiantes
+        const productosRef = ref(db, 'marketplace/productos');
+        
+        // Generar un UID único para el nuevo producto
+        const nuevoProductoRef = push(productosRef);
 
-    alert("Producto disponible en la tienda de los estudiantes");
-    document.getElementById('prod-nombre').value = "";
+        // Estructura de datos técnica
+        await set(nuevoProductoRef, {
+            nombre: nombre,
+            descripcion: descripcion || "Sin descripción detallada",
+            costo: costo, // Guardado como costo
+            stock: stock,
+            fechaRegistro: new Date().toISOString(),
+            autor: auth.currentUser.email,
+            estado: "disponible"
+        });
+
+        alert(`✅ ÉXITO: "${nombre}" desplegado con un costo de ${costo} créditos.`);
+        
+        // Limpieza de los campos del formulario
+        document.getElementById('prod-nombre').value = "";
+        document.getElementById('prod-desc').value = "";
+        document.getElementById('prod-precio').value = "";
+        document.getElementById('prod-stock').value = "";
+
+    } catch (error) {
+        console.error("Fallo en la publicación:", error);
+        alert("❌ Error de permisos: Solo el personal del Consejo puede editar el Marketplace.");
+    }
 };
-
 // Función para validar y "quemar" la boleta mediante el escáner
 window.validarBoletaQR = async (idBoleta) => {
     // Buscamos la boleta en el nodo de compras/historial
