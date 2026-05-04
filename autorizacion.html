@@ -2,211 +2,242 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRAXIS | ACTUALIZACIÓN DE SISTEMA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRAXIS | AVISO DE SISTEMA</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap');
-
         :root {
-            --primary: #0071ff;
-            --accent: #00ff88;
-            --negro: #050505;
-            --blanco: #ffffff;
-            --brutal-shadow: 15px 15px 0px var(--negro);
+            --logo-grad-start: #00d2ff;
+            --logo-grad-end: #3a7bd5;
+            --text-dark: #000;
+            --bg-body: #ffffff;
+            --text-wall: #efefef;
+            --brutal-shadow: 12px 12px 0px #000;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: var(--primary);
-            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-body);
+            font-family: 'Arial Black', sans-serif;
             height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            perspective: 1200px;
-        }
-
-        /* FONDO DINÁMICO */
-        .grid-bg {
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 2px, transparent 2px);
-            background-size: 60px 60px;
-            transform: rotateX(60deg) translateY(-20%);
-            animation: moveGrid 5s linear infinite;
-        }
-
-        @keyframes moveGrid {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 60px; }
-        }
-
-        /* TARJETA DE AVISO */
-        .info-card {
-            background: var(--blanco);
-            border: 6px solid var(--negro);
-            padding: 50px 40px;
-            max-width: 550px;
-            width: 90%;
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
             position: relative;
-            z-index: 10;
+            padding: 20px;
+        }
+
+        /* Fondo dinámico de textos plomos con más velocidad */
+        .background-wall {
+            position: fixed; 
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            display: flex; flex-wrap: wrap;
+            gap: 20px; z-index: 1;
+            transform: rotate(-15deg);
+            pointer-events: none;
+            animation: scrollWall 40s linear infinite;
+        }
+
+        .background-wall span { 
+            font-size: 24px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            color: var(--text-wall);
+            letter-spacing: 1px;
+        }
+
+        @keyframes scrollWall {
+            from { transform: translate(0, 0) rotate(-15deg); }
+            to { transform: translate(-500px, -500px) rotate(-15deg); }
+        }
+
+        /* Contenedor con animación de entrada con rebote */
+        .container {
+            background: #fff;
+            border: 6px solid #000;
+            padding: 60px 30px;
             box-shadow: var(--brutal-shadow);
             text-align: center;
-            animation: popUp 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.5s;
-        }
-
-        @keyframes popUp {
-            0% { transform: scale(0.5) rotate(-5deg); opacity: 0; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        /* INDICADOR DE CARGA */
-        .loader-wrap {
+            max-width: 520px;
             width: 100%;
-            height: 40px;
-            border: 4px solid var(--negro);
-            margin: 25px 0;
-            background: #eee;
-            overflow: hidden;
+            z-index: 10;
+            position: relative;
+            animation: containerEntry 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .loader-fill {
-            height: 100%;
-            width: 99%;
-            background: var(--accent);
-            animation: fillGlow 1.5s ease-in-out infinite;
+        @keyframes containerEntry {
+            0% { transform: translateY(100px) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
         }
 
-        @keyframes fillGlow {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.2); box-shadow: 0 0 20px var(--accent); }
-        }
-
-        h1 {
-            font-size: clamp(35px, 8vw, 55px);
+        .presenta {
+            font-size: 11px;
+            letter-spacing: 4px;
             font-weight: 900;
-            line-height: 0.9;
-            letter-spacing: -2px;
+            margin-bottom: 5px;
+            color: #888;
             text-transform: uppercase;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; color: var(--text-dark); }
+        }
+
+        .brand-name {
+            font-size: 14px;
+            font-weight: 950;
+            color: #000;
+            margin-bottom: 25px;
+            display: inline-block;
+            border-bottom: 4px solid #000;
+            padding-bottom: 2px;
+        }
+
+        /* Logo con degradado y animación de flotación */
+        h1 {
+            font-size: clamp(50px, 16vw, 90px);
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 0.8;
+            letter-spacing: -5px;
+            background: linear-gradient(135deg, var(--logo-grad-start), var(--logo-grad-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            animation: logoFloat 4s ease-in-out infinite;
+            filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.05));
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+
+        /* Bloque de aviso "Beta No Disponible" */
+        .alert-box {
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border: 4px solid #000;
+            position: relative;
+            animation: slideLeft 0.6s 0.3s both cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideLeft {
+            0% { transform: translateX(50px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .alert-title {
+            font-size: 18px;
+            text-transform: uppercase;
+            color: var(--logo-grad-start);
             margin-bottom: 10px;
         }
 
-        .tag {
-            display: inline-block;
-            background: var(--negro);
-            color: var(--blanco);
-            padding: 8px 15px;
-            font-weight: 900;
+        .alert-text {
             font-size: 13px;
-            margin-bottom: 20px;
-            transform: skewX(-10deg);
+            line-height: 1.5;
+            font-weight: 400;
         }
 
-        /* CONSOLA DE HACK */
-        .hack-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 100;
-            display: none;
-            color: var(--accent);
-            padding: 40px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 18px;
-            border: 10px solid var(--accent);
-            text-shadow: 0 0 10px var(--accent);
+        .status-update {
+            margin-top: 25px;
+            font-size: 15px;
+            color: #000;
+            border: 3px double #000;
+            padding: 12px;
+            background: #f9f9f9;
+            animation: revealText 0.5s 0.8s both;
         }
 
-        .typing-text {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 3px solid var(--accent);
-            width: 0;
+        @keyframes revealText {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
+        .highlight {
+            color: var(--logo-grad-end);
+            display: block;
+            margin-top: 10px;
+            font-size: 16px;
         }
 
-        @keyframes blink {
-            50% { border-color: transparent }
+        .footer {
+            margin-top: 40px;
+            font-size: 10px;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .active-typing {
-            animation: typing 1s steps(40, end) forwards, blink .7s step-end infinite;
+        /* Animación de los cuadros de fondo que aparecen al azar */
+        .decor {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #000;
+            z-index: 5;
+            opacity: 0.1;
         }
     </style>
 </head>
 <body>
 
-    <div class="grid-bg"></div>
+    <div class="background-wall" id="wall"></div>
 
-    <!-- CONSOLA MEJORADA -->
-    <div class="hack-overlay" id="hack">
-        <div id="line1">> INICIANDO BYPASS DE SEGURIDAD...</div>
-        <div id="line2" style="margin-top: 10px;">> HACKEANDO SISTEMAS...</div>
-        <div id="line3" style="margin-top: 20px; font-size: 30px; font-weight: 900; color: #fff;">> ¡BIENVENIDO DUEÑO!</div>
-    </div>
-
-    <div class="info-card">
-        <div class="tag">FASE BETA: FINALIZADA</div>
-        <h1>¡YA CASI ESTAMOS LISTOS!</h1>
+    <div class="container">
+        <div class="presenta">ALONIXZ-GROUP PRESENTA</div>
+        <div class="brand-name">ESTADO DEL PROYECTO</div>
         
-        <div class="loader-wrap">
-            <div class="loader-fill"></div>
+        <h1>PRAXIS</h1>
+        
+        <div class="alert-box">
+            <div class="alert-title">¡BETA NO DISPONIBLE!</div>
+            <div class="alert-text">
+                El periodo de pruebas ha concluido satisfactoriamente.
+            </div>
         </div>
 
-        <p style="font-weight: 600; margin-bottom: 20px;">
-            La versión <strong>Beta</strong> ya no está disponible porque estamos a punto de lanzar la <strong>v1.0.0</strong>.
-        </p>
-
-        <div style="background: #000; color: #fff; padding: 15px; font-weight: 900; border: 3px solid #000;">
-            SINCRONIZANDO SERVIDORES...
+        <div class="status-update">
+            La infraestructura está lista.<br>
+            <strong>EL LANZAMIENTO ESTÁ MUY CERCA.</strong>
+            <span class="highlight">BETA ACTUALIZADA A v1.0.0</span>
         </div>
-
-        <p style="margin-top: 35px; font-size: 11px; font-weight: 900; opacity: 0.4;">
-            LANZAMIENTO: MAYO 2026
-        </p>
+        
+        <p class="footer">ESTABILIZANDO SERVIDORES | MAYO 2026</p>
     </div>
 
     <script>
-        // BACKDOOR: P + X + S (Praxis)
-        const keys = {};
+        // Generar fondo de textos plomos
+        const wall = document.getElementById('wall');
+        const fragment = document.createDocumentFragment();
+        for(let i=0; i<180; i++) {
+            const span = document.createElement('span');
+            span.innerText = "PRAXIS ";
+            fragment.appendChild(span);
+        }
+        wall.appendChild(fragment);
 
+        // Lógica de acceso para el dueño (P + X + S)
+        const keys = {};
         document.addEventListener('keydown', (e) => {
             keys[e.key.toLowerCase()] = true;
-
             if (keys['p'] && keys['x'] && keys['s']) {
-                // Efecto visual de la tarjeta
-                const card = document.querySelector('.info-card');
-                card.style.transform = "scale(0) rotate(720deg)";
-                card.style.opacity = "0";
-
-                // Activar consola de dueño
+                // Animación de salida rápida para entrar al panel
+                document.querySelector('.container').style.transform = "scale(1.2) translateY(-100vh)";
+                document.querySelector('.container').style.transition = "0.5s ease-in";
                 setTimeout(() => {
-                    const hack = document.getElementById('hack');
-                    hack.style.display = 'block';
-                    
-                    // Secuencia de mensajes
-                    document.getElementById('line1').classList.add('active-typing');
-                    
-                    setTimeout(() => {
-                        window.location.href = "login.html";
-                    }, 1500); // Tiempo para leer "¡BIENVENIDO DUEÑO!"
+                    window.location.href = "login.html";
                 }, 400);
             }
         });
-
-        document.addEventListener('keyup', (e) => {
-            keys[e.key.toLowerCase()] = false;
-        });
+        document.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
     </script>
 </body>
 </html>
