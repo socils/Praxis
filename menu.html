@@ -1164,7 +1164,7 @@ navItems.forEach(item => {
     const miCorreo = "ajuliuszch@gmail.com"; 
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(uid)}`;
 
-    get(ref(db, `usuarios/${uid}`)).then((snapshot) => {
+    onValue(ref(db, `usuarios/${uid}`), (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             const esProfesor = data.stats?.rango === "profesor";
@@ -1194,8 +1194,8 @@ navItems.forEach(item => {
 
             Object.keys(catalogo).forEach(key => {
                 let tiene = insigniasActivas[key];
-               if (key === 'bronce' && puntosTotales >= 150) tiene = true;  
-               if (key === 'plata' && puntosTotales >= 500) tiene = true;   
+                if (key === 'bronce' && puntosTotales >= 150) tiene = true;  
+                if (key === 'plata' && puntosTotales >= 500) tiene = true;   
                 if (key === 'oro' && puntosTotales >= 1500) tiene = true; 
                 if (key === 'madrugador' && (horas >= 4 && horas <= 7)) tiene = true;
                 if (key === 'noctambulo' && (horas >= 23 || horas <= 3)) tiene = true;
@@ -1312,9 +1312,8 @@ navItems.forEach(item => {
                 </div>
             </div>`;
         }
-    });
-}
-        else if (texto.includes("pendientes")) {
+    }); 
+}       else if (texto.includes("pendientes")) {
             bannerTitle.innerText = "Tareas Pendientes";
             displayCode.innerText = "PENDIENTES";
             navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
