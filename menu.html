@@ -153,7 +153,7 @@
 
 <style>
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>                                                                                     
+</style>    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>                                                                                 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
    
@@ -1161,7 +1161,7 @@ navItems.forEach(item => {
 
     const uid = auth.currentUser.uid;
     const userEmail = auth.currentUser.email;
-    const miCorreo = "alonso@tu-correo.com"; 
+    const miCorreo = "ajuliuszch@gmail.com"; 
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(uid)}`;
 
     get(ref(db, `usuarios/${uid}`)).then((snapshot) => {
@@ -1183,7 +1183,10 @@ navItems.forEach(item => {
                 noctambulo: { img: "https://cdn-icons-png.flaticon.com/512/542/542453.png", nom: "NOCTÁMBULO", bg: "#673ab7" },
                 racha30: { img: "https://cdn-icons-png.flaticon.com/512/785/785116.png", nom: "RACHA 30", bg: "#ff5722" },
                 racha100: { img: "https://cdn-icons-png.flaticon.com/512/1909/1909705.png", nom: "RACHA 100", bg: "#00bcd4" },
-                racha1000: { img: "https://cdn-icons-png.flaticon.com/512/6941/6941697.png", nom: "LEYENDA", bg: "#ffd700" }
+                racha1000: { img: "https://cdn-icons-png.flaticon.com/512/6941/6941697.png", nom: "LEYENDA", bg: "#ffd700" },
+                bronce: { img: "https://cdn-icons-png.flaticon.com/512/2583/2583344.png", nom: "INICIADOR PRAXIS", bg: "#cd7f32" },
+                plata: { img: "https://cdn-icons-png.flaticon.com/512/2583/2583319.png", nom: "ESTUDIANTE ACTIVO", bg: "#c0c0c0" },
+                oro: { img: "https://cdn-icons-png.flaticon.com/512/2583/2583434.png", nom: "MAESTRO DEL ESTUDIO", bg: "#ffd700" },
             };
 
             let insigniasHTML = '';
@@ -1191,6 +1194,9 @@ navItems.forEach(item => {
 
             Object.keys(catalogo).forEach(key => {
                 let tiene = insigniasActivas[key];
+               if (key === 'bronce' && puntosTotales >= 150) tiene = true;  
+               if (key === 'plata' && puntosTotales >= 500) tiene = true;   
+                if (key === 'oro' && puntosTotales >= 1500) tiene = true; 
                 if (key === 'madrugador' && (horas >= 4 && horas <= 7)) tiene = true;
                 if (key === 'noctambulo' && (horas >= 23 || horas <= 3)) tiene = true;
                 if (key === 'racha30' && racha >= 30) tiene = true;
@@ -1446,7 +1452,7 @@ navItems.forEach(item => {
     bannerTitle.innerText = "Historial de Canjes";
     displayCode.innerText = "MIS_PEDIDOS";
     
-    // Cargador estilo Marketplace
+                                                             
     container.innerHTML = `
         <div id="loader-historial" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px; gap:30px;">
             <div style="position:relative; width:80px; height:80px; border:8px solid #000; background:#fff; display:flex; align-items:center; justify-content:center;">
@@ -1500,26 +1506,144 @@ navItems.forEach(item => {
         }
     });
 }
-        else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
-            const user = auth.currentUser;
-            bannerTitle.innerText = "Información de Perfil";
-            displayCode.innerText = "PERFIL";
-            navegarA("Información de Perfil", "VISTA_PERFIL");
-            container.innerHTML = `
-                <div class="card" style="max-width: 500px; margin: 30px auto; text-align: center; padding: 40px; border: 4px solid #000; border-radius: 30px; box-shadow: 12px 12px 0px #000; background:#fff;">
-                    <div style="position: relative; display: inline-block; margin-bottom: 20px;">
-                        <img src="${user.photoURL}" style="border-radius: 50%; width: 140px; border: 4px solid #000; box-shadow: 6px 6px 0px #000;">
-                        <div style="position: absolute; bottom: 10px; right: 10px; background: #00ff88; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #000;"></div>
-                    </div>
-                    <h2 style="font-size: 28px; font-weight: 900; margin-bottom: 5px;">${user.displayName}</h2>
-                    <p style="font-family: 'JetBrains Mono'; font-size: 14px; color: #555;">${user.email}</p>
-                    <div style="margin: 25px 0; height: 4px; background: #000; border-radius: 2px;"></div>
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; background: #f1f3f4; padding: 12px; border-radius: 15px; border: 2px solid #000;">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png" width="20">
-                        <span style="font-weight: 800; font-size: 14px;">CONECTADO A ALONIXZ-GROUP</span>
-                    </div>
-                </div>`;
+else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
+    const user = auth.currentUser;
+    bannerTitle.innerText = "Información de Perfil";
+    displayCode.innerText = "PERFIL";
+    navegarA("Información de Perfil", "VISTA_PERFIL");
+
+                                                             
+    container.innerHTML = `
+        <div class="card" style="max-width: 500px; margin: 30px auto; text-align: center; padding: 40px; border: 4px solid #000; border-radius: 30px; box-shadow: 12px 12px 0px #000; background:#fff; animation: popIn 0.3s ease;">
+            
+            <div style="position: relative; display: inline-block; margin-bottom: 20px;">
+                <img src="${user.photoURL}" style="border-radius: 50%; width: 120px; border: 4px solid #000; box-shadow: 6px 6px 0px #000;">
+                <div style="position: absolute; bottom: 5px; right: 5px; background: #00ff88; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #000;"></div>
+            </div>
+
+            <h2 style="font-size: 26px; font-weight: 900; text-transform: uppercase; margin: 0;">${user.displayName}</h2>
+            <p style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #666; margin-bottom: 25px;">${user.email}</p>
+            
+            <div style="background: #f1f3f4; border: 4px solid #000; border-radius: 20px; padding: 20px; margin-bottom: 20px; min-height: 250px;">
+                <p id="titulo-grafica" style="font-weight: 900; font-size: 11px; margin-bottom: 15px; color: #0071ff; letter-spacing: 1px;">⚡ MONITOR DE ACTIVIDAD (ÚLTIMOS 7 CAMBIOS)</p>
+                
+                <div style="position: relative; height: 180px; width: 100%;">
+                    <canvas id="graficaProgreso"></canvas>
+                </div>
+                
+                <p id="status-msg" style="font-size: 10px; font-weight: 800; color: #999; margin-top: 10px;">SINCRONIZANDO CON CORE...</p>
+            </div>
+
+            <div style="background: #000; color: #fff; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 12px; letter-spacing: 2px;">
+                ALONIXZ-GROUP • PRAXIS v3.0
+            </div>
+        </div>`;
+
+                                                             
+    const historialRef = query(ref(db, `usuarios/${user.uid}/historial_puntos`), limitToLast(7));
+
+                                                             
+    onValue(historialRef, (snapshot) => {
+        const msg = document.getElementById('status-msg');
+        let etiquetas = [];
+        let valores = [];
+
+        if (snapshot.exists()) {
+            if (msg) msg.style.display = "none";
+
+            snapshot.forEach((child) => {
+                const data = child.val();
+                
+                                                                         
+                                                                         
+                const puntoValor = (typeof data === 'object') ? data.puntos : data;
+                const etiquetaInfo = (typeof data === 'object') ? data.hora : "--/-- --:--";
+
+                etiquetas.push(etiquetaInfo);
+                valores.push(puntoValor);
+            });
+
+                                                                     
+            if (typeof Chart === 'undefined') {
+                console.error("Chart.js no está cargado");
+                if (msg) {
+                    msg.style.display = "block";
+                    msg.innerText = "ERROR: LIBRERÍA DE GRÁFICOS NO ENCONTRADA";
+                }
+                return;
+            }
+
+            const ctx = document.getElementById('graficaProgreso').getContext('2d');
+            
+            if (window.myChartInstance) {
+                window.myChartInstance.destroy();
+            }
+
+            window.myChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: etiquetas,
+                    datasets: [{
+                        label: 'Puntos',
+                        data: valores,
+                        borderColor: '#0071ff',
+                        borderWidth: 5,
+                        backgroundColor: 'rgba(0, 113, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#000',
+                        pointBorderWidth: 3,
+                        pointHoverRadius: 9
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 800,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#000',
+                            titleFont: { family: 'JetBrains Mono', size: 13 },
+                            bodyFont: { family: 'JetBrains Mono', size: 12 },
+                            displayColors: false,
+                            padding: 10
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: false, 
+                            grid: { color: '#e0e0e0', drawBorder: false },
+                            ticks: { 
+                                font: { weight: 'bold', family: 'JetBrains Mono', size: 10 } 
+                            }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { 
+                                font: { weight: 'bold', size: 9 },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            if (msg) {
+                msg.style.display = "block";
+                msg.innerText = "NO HAY ACTIVIDAD REGISTRADA";
+            }
         }
+    }, (error) => {
+        console.error("Error en el monitor:", error);
+    });
+}
        else if (texto.includes("espacio de praxis") || texto.includes("praxis space")) {
     bannerTitle.innerText = "Monitor de Praxis Core";
     displayCode.innerText = "DB_LIVE_STORAGE";
@@ -2238,7 +2362,7 @@ window.navegarComoEstudiante = () => {
     const user = auth.currentUser;
     const userRef = ref(db, `usuarios/${uid}`);
 
-    // Registro básico inicial
+                                                             
     await update(userRef, {
         nombre_correo: user.displayName || "Usuario de Google",
         email: user.email,
@@ -2317,7 +2441,7 @@ window.navegarComoEstudiante = () => {
 
     document.body.appendChild(modal);
 
-    // --- LÓGICA DE INTERACCIÓN ---
+                                                             
     let rolSeleccionado = "";
     const dom = {
         btnEst: document.getElementById('select-estudiante'),
@@ -2334,7 +2458,7 @@ window.navegarComoEstudiante = () => {
         return Math.abs(new Date(diff).getUTCFullYear() - 1970);
     };
 
-    // Al cambiar el grado, verificar si es inicial
+                                                             
     dom.grado.onchange = () => {
         if (dom.grado.value.includes("Inicial")) {
             dom.avisoPadres.style.display = "block";
@@ -2350,7 +2474,7 @@ window.navegarComoEstudiante = () => {
         dom.btnProf.style.background = "#fff"; dom.btnProf.style.color = "#000";
         dom.camposEst.style.display = "block";
         dom.btnFin.style.display = "block";
-        dom.grado.dispatchEvent(new Event('change')); // Forzar check inicial
+        dom.grado.dispatchEvent(new Event('change'));                                                          
     };
 
     dom.btnProf.onclick = () => {
@@ -2369,7 +2493,7 @@ window.navegarComoEstudiante = () => {
             const fechaNac = document.getElementById('reg-nacimiento').value;
             const esInicial = dom.grado.value.includes("Inicial");
 
-            // Validaciones
+                                                                     
             if (!seccion || !fechaNac) return alert("Completa todos los campos.");
             if (esInicial && !dom.chkPadres.checked) return alert("Un padre o tutor debe marcar la casilla de autorización.");
 
@@ -2382,7 +2506,7 @@ window.navegarComoEstudiante = () => {
                 seccion, 
                 edad, 
                 fecha_nacimiento: fechaNac,
-                autorizacion_parental: esInicial // Guardamos registro de la autorización
+                autorizacion_parental: esInicial                                                          
             };
         }
 
@@ -3443,43 +3567,40 @@ onAuthStateChanged(auth, (user) => {
     }
 };window.actualizarPin = async function() {
     const uid = auth.currentUser.uid;
-                                                              
-    const userRef = ref(db, `usuarios/${uid}`);
+
+    const statsRef = ref(db, `usuarios/${uid}/stats`);
 
     try {
-        const snapshot = await get(userRef);
+        const snapshot = await get(statsRef);
         if (!snapshot.exists()) {
-            alert("❌ No se encontraron datos de usuario.");
+            alert("❌ No se encontraron estadísticas de usuario.");
             return;
         }
 
         const data = snapshot.val();
-        
-                                                                  
-        if (data.stats?.rango !== "profesor") {
+      
+        if (data.rango !== "profesor") {
             alert("❌ Acceso restringido: Solo los docentes pueden gestionar un PIN.");
             return;
         }
 
-                                                                  
-        const pinActual = prompt("🔒 Seguridad Praxis: Ingresa tu PIN ACTUAL:");
+        const pinActualInput = prompt("🔒 Seguridad Praxis: Ingresa tu PIN ACTUAL:");
         
-                                                                  
         const pinGuardado = data.pin || ""; 
 
-        if (pinGuardado !== "" && pinActual !== pinGuardado) {
+        if (pinGuardado !== "" && pinActualInput !== pinGuardado) {
             alert("❌ PIN Incorrecto. Validación de identidad fallida.");
             return;
         }
 
         const nuevoPin = prompt("✨ Ingresa tu NUEVO PIN (4 dígitos):");
         
-        if (nuevoPin && /^\d{4}$/.test(nuevoPin)) {                                                           
-            await update(userRef, {
+        if (nuevoPin && /^\d{4}$/.test(nuevoPin)) {                                           
+            await update(statsRef, {
                 pin: nuevoPin
             });
             alert("✅ PIN actualizado correctamente en Praxis Core.");
-            location.reload();                                                           
+            location.reload();                                           
         } else {
             alert("⚠️ Error: El PIN debe contener exactamente 4 números.");
         }
@@ -3731,13 +3852,13 @@ window.enviarApelacion = function(uid) {
         const prodSnap = await get(productoRef);
         const producto = prodSnap.val();
 
-        // 1. Validación de Existencia y Stock
+                                                                 
         if (!prodSnap.exists() || producto.stock <= 0) {
             alert("❌ PRODUCTO AGOTADO EN EL ALMACÉN");
             return;
         }
 
-        // 2. Validación de Saldo
+                                                                 
         const userSnap = await get(userRef);
         const puntosActuales = userSnap.val().puntos || 0;
 
@@ -3748,7 +3869,7 @@ window.enviarApelacion = function(uid) {
 
         if (!confirm(`¿CONFIRMAR CANJE DE "${producto.nombre.toUpperCase()}" por ${costo} PTS?`)) return;
 
-        // 3. Generación de Identificador y Fecha
+                                                                 
         const idBoleta = "PRX-" + Math.random().toString(36).substr(2, 7).toUpperCase();
         const fechaActual = new Date().toLocaleString(); 
 
@@ -3767,7 +3888,7 @@ window.enviarApelacion = function(uid) {
 
         await update(ref(db), updates);
         
-        // Renderizado automático tras compra exitosa
+                                                                 
         renderizarBoletaExito(idBoleta, producto.nombre, costo, fechaActual, true);
 
     } catch (e) {
@@ -3775,7 +3896,7 @@ window.enviarApelacion = function(uid) {
         alert("⚠️ ERROR CRÍTICO EN LA TRANSACCIÓN");
     }
 };window.renderizarBoletaExito = function(id, nombre, costo, fecha, esNuevaCompra = false) {
-    // Aseguramos que la fecha sea la del sistema si no viene definida
+                                                             
     const fechaFinal = fecha || new Date().toLocaleString(); 
 
     container.innerHTML = `
@@ -3835,7 +3956,7 @@ window.enviarApelacion = function(uid) {
     get(pedidoRef).then((snapshot) => {
         if(snapshot.exists()) {
             const p = snapshot.val();
-            // Renderiza la boleta cargando los datos históricos
+                                                                     
             renderizarBoletaExito(p.ticket, p.nombreProducto, p.costo, p.fecha, false);
         } else {
             alert("No se encontró el registro del pedido.");
@@ -3845,7 +3966,7 @@ window.enviarApelacion = function(uid) {
     const boleta = document.getElementById('boleta-contenedor');
     const botones = boleta.querySelector('.area-botones');
     
-    // Bloquear dimensiones para evitar deformación de letras
+                                                             
     const anchoOriginal = boleta.offsetWidth;
     boleta.style.width = anchoOriginal + 'px';
     botones.style.display = 'none';
@@ -3854,15 +3975,15 @@ window.enviarApelacion = function(uid) {
         try {
             const canvas = await html2canvas(boleta, {
                 backgroundColor: "#ffffff",
-                scale: 2, // Balance ideal para nitidez sin deformar
+                scale: 2,                                                          
                 useCORS: true,
-                letterRendering: true, // Optimiza el renderizado de cada letra individualmente
+                letterRendering: true,                                                          
                 logging: false,
                 width: anchoOriginal
             });
             
             botones.style.display = 'grid';
-            boleta.style.width = ''; // Liberar ancho
+            boleta.style.width = '';                                                          
 
             const link = document.createElement('a');
             link.download = `BOLETA_PRAXIS_${idTicket}.png`;
@@ -3875,6 +3996,156 @@ window.enviarApelacion = function(uid) {
         }
     }
 };
+function activarRastreadorPuntos(uid) {
+    const puntosRef = ref(db, `usuarios/${uid}/stats/puntos`);
+    
+    onValue(puntosRef, async (snapshot) => {
+        const puntosActuales = snapshot.val() || 0;
+        const hoy = new Date().toISOString().split('T')[0];                                                          
+        const historialHoyRef = ref(db, `usuarios/${uid}/historial_puntos/${hoy}`);
+
+        try {
+                                                                     
+            const registroHoy = await get(historialHoyRef);
+            
+                                                                     
+            if (!registroHoy.exists() || registroHoy.val() !== puntosActuales) {
+                await set(historialHoyRef, puntosActuales);
+                console.log("Historial actualizado para:", hoy, "Puntos:", puntosActuales);
+            }
+        } catch (error) {
+            console.error("Error en rastreador:", error);
+        }
+    });
+}async function iniciarSincronizacionHistorial(uid) {
+    const puntosRef = ref(db, `usuarios/${uid}/stats/puntos`);
+    const historialRef = ref(db, `usuarios/${uid}/historial_puntos`);
+
+    onValue(puntosRef, async (snapshot) => {
+        if (!snapshot.exists()) return;
+
+        const nuevosPuntos = snapshot.val();
+        const ahora = new Date();
+        const registroID = ahora.getTime(); 
+        
+                                                                 
+        const horaLegible = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                                 
+        const fechaLegible = ahora.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+
+        try {
+                                                                     
+            const ultimoRegistroSnap = await get(query(historialRef, limitToLast(1)));
+            let ultimoValor = null;
+            
+            if (ultimoRegistroSnap.exists()) {
+                ultimoRegistroSnap.forEach(child => {
+                    ultimoValor = child.val().puntos;
+                });
+            }
+
+                                                                     
+            if (nuevosPuntos !== ultimoValor) {
+                                                                         
+                await set(ref(db, `usuarios/${uid}/historial_puntos/${registroID}`), {
+                    puntos: nuevosPuntos,
+                    hora: `${fechaLegible} ${horaLegible}`,                                                          
+                    timestamp: registroID
+                });
+
+                                                                         
+                const historialSnap = await get(query(historialRef, orderByChild('timestamp')));
+                
+                if (historialSnap.exists()) {
+                    let registros = [];
+                    historialSnap.forEach(child => {
+                        registros.push({ key: child.key });
+                    });
+
+                                                                             
+                    if (registros.length > 7) {
+                        const cuantosEliminar = registros.length - 7;
+                        for (let i = 0; i < cuantosEliminar; i++) {
+                            await remove(ref(db, `usuarios/${uid}/historial_puntos/${registros[i].key}`));
+                        }
+                    }
+                }
+                console.log("✅ Historial sincronizado con fecha y hora.");
+            }
+
+        } catch (e) {
+            console.error("Error en sincronización:", e);
+        }
+    });
+}onAuthStateChanged(auth, (user) => {
+  if (user) {
+                                                             
+    iniciarSincronizacionHistorial(user.uid);
+  }
+});let insigniasCargadas = false;
+let insigniasPrevias = [];
+
+function escucharNuevasInsignias(uid) {
+    const insigniasRef = ref(db, `usuarios/${uid}/insignias`);
+
+    onValue(insigniasRef, (snapshot) => {
+        const insigniasActuales = snapshot.val() || {};
+        const keysActuales = Object.keys(insigniasActuales);
+
+                                                                                       
+        if (!insigniasCargadas) {
+            insigniasPrevias = keysActuales;
+            insigniasCargadas = true;
+            return;
+        }
+
+                                                                                       
+        keysActuales.forEach(key => {
+            if (!insigniasPrevias.includes(key)) {
+                                                                                               
+                mostrarPopUpInsignia(key);
+            }
+        });
+
+                                                                                       
+        insigniasPrevias = keysActuales;
+    });
+}function mostrarPopUpInsignia(idInsignia) {
+                                                                                   
+    const alerta = document.createElement('div');
+    alerta.style = `
+        position: fixed; bottom: 20px; right: 20px;
+        background: #ffff00; border: 4px solid #000;
+        padding: 20px; box-shadow: 10px 10px 0px #000;
+        z-index: 9999; font-family: 'Inter', sans-serif;
+        display: flex; align-items: center; gap: 15px;
+        animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    `;
+
+    alerta.innerHTML = `
+        <div style="background: #000; color: #fff; padding: 10px; font-weight: 900; font-size: 20px;">🏆</div>
+        <div>
+            <div style="font-size: 10px; font-weight: 900; color: #000; opacity: 0.6;">NUEVO LOGRO DESBLOQUEADO</div>
+            <div style="font-size: 16px; font-weight: 950; text-transform: uppercase;">${idInsignia.replace('_', ' ')}</div>
+        </div>
+    `;
+
+    document.body.appendChild(alerta);
+
+                                                                                   
+                                                                                   
+
+                                                                                   
+    setTimeout(() => {
+        alerta.style.animation = "slideOut 0.5s forwards";
+        setTimeout(() => alerta.remove(), 500);
+    }, 5000);
+}onAuthStateChanged(auth, (user) => {
+    if (user) {
+                                                                                       
+        escucharNuevasInsignias(user.uid);                                                                                
+    }
+});
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
