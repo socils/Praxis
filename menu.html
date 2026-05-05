@@ -2238,18 +2238,21 @@ window.navegarComoEstudiante = () => {
     const user = auth.currentUser;
     const userRef = ref(db, `usuarios/${uid}`);
 
+    // Registro básico inicial
     await update(userRef, {
         nombre_correo: user.displayName || "Usuario de Google",
-        email: user.email
+        email: user.email,
+        fecha_registro: new Date().toISOString()
     });
 
     const modal = document.createElement('div');
     modal.id = "modal-registro-praxis";
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(15px); font-family:sans-serif; color:#000;";
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:200000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(15px); font-family:sans-serif;";
 
     modal.innerHTML = `
-        <div style="background:white; border:5px solid #000; border-radius:30px; box-shadow:15px 15px 0px #0071ff; width:95%; max-width:420px; padding:30px; text-align:center; animation: popIn 0.5s ease; max-height:90vh; overflow-y:auto;">
-            <h2 style="font-weight:900; margin-bottom:5px; text-transform:uppercase; font-size:24px;">Configura tu Rol</h2>
+        <div style="background:white; border:5px solid #000; border-radius:30px; box-shadow:15px 15px 0px #0071ff; width:95%; max-width:420px; padding:30px; text-align:center; max-height:90vh; overflow-y:auto; position:relative;">
+            
+            <h2 style="font-weight:900; margin-bottom:5px; text-transform:uppercase; font-size:24px; color:#000;">Configura tu Rol</h2>
             <p style="font-weight:bold; color:#666; font-size:13px; margin-bottom:25px;">Selecciona cómo usarás Praxis</p>
             
             <div style="display:flex; gap:10px; margin-bottom:20px;">
@@ -2257,7 +2260,7 @@ window.navegarComoEstudiante = () => {
                 <button id="select-profesor" style="flex:1; padding:15px; border:3px solid #000; border-radius:12px; font-weight:900; cursor:pointer; background:#fff; transition: 0.2s;">👨‍🏫 PROFESOR</button>
             </div>
 
-            <div id="campos-estudiante" style="display:none; text-align:left; border-top:3px solid #000; padding-top:20px; margin-top:10px; animation: fadeIn 0.3s ease;">
+            <div id="campos-estudiante" style="display:none; text-align:left; border-top:3px solid #000; padding-top:20px; margin-top:10px;">
                 <div style="margin-bottom:15px;">
                     <label style="font-size:10px; font-weight:900; text-transform:uppercase; margin-left:5px;">Nivel y Grado</label>
                     <select id="reg-grado" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; background: #f0f0f0;">
@@ -2287,17 +2290,26 @@ window.navegarComoEstudiante = () => {
                 <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:10px; margin-bottom:15px;">
                     <div>
                         <label style="font-size:10px; font-weight:900; text-transform:uppercase; margin-left:5px;">Sección</label>
-                        <input type="text" id="reg-seccion" placeholder="Ej: A" maxlength="5" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; text-align:center; box-sizing:border-box;">
+                        <input type="text" id="reg-seccion" placeholder="Ej: A" maxlength="5" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; text-align:center;">
                     </div>
                     <div>
                         <label style="font-size:10px; font-weight:900; text-transform:uppercase; margin-left:5px;">Nacimiento</label>
-                        <input type="date" id="reg-nacimiento" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; box-sizing:border-box; text-align:center; font-family:sans-serif;">
+                        <input type="date" id="reg-nacimiento" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; text-align:center;">
                     </div>
+                </div>
+
+                <!-- AVISO LEGAL PARA INICIAL -->
+                <div id="protocolo-padres" style="display:none; background:#fff3cd; border:2px dashed #ff8800; padding:15px; border-radius:10px; margin-bottom:15px;">
+                    <p style="font-size:11px; font-weight:bold; color:#856404; margin:0;">⚠️ AVISO A PADRES: Al ser un menor de nivel inicial, un adulto responsable debe supervisar el uso de la plataforma.</p>
+                    <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-size:12px; font-weight:900; cursor:pointer;">
+                        <input type="checkbox" id="consentimiento-padres" style="width:18px; height:18px; accent-color:#000;"> 
+                        SOY EL PADRE/TUTOR Y AUTORIZO
+                    </label>
                 </div>
             </div>
 
             <button id="btn-finalizar-registro" 
-                style="width:100%; background:#00ff88; color:#000; border:3px solid #000; padding:18px; border-radius:15px; font-weight:900; cursor:pointer; font-size:16px; box-shadow: 4px 4px 0px #000; display:none; margin-top:10px; text-transform:uppercase;">
+                style="width:100%; background:#00ff88; color:#000; border:3px solid #000; padding:18px; border-radius:15px; font-weight:900; cursor:pointer; font-size:16px; box-shadow: 4px 4px 0px #000; display:none; margin-top:10px; text-transform:uppercase; transition:0.2s;">
                 Confirmar y Entrar
             </button>
         </div>
@@ -2305,85 +2317,93 @@ window.navegarComoEstudiante = () => {
 
     document.body.appendChild(modal);
 
+    // --- LÓGICA DE INTERACCIÓN ---
     let rolSeleccionado = "";
-    const btnEstudiante = document.getElementById('select-estudiante');
-    const btnProfesor = document.getElementById('select-profesor');
-    const camposEstudiante = document.getElementById('campos-estudiante');
-    const btnFinalizar = document.getElementById('btn-finalizar-registro');
+    const dom = {
+        btnEst: document.getElementById('select-estudiante'),
+        btnProf: document.getElementById('select-profesor'),
+        camposEst: document.getElementById('campos-estudiante'),
+        btnFin: document.getElementById('btn-finalizar-registro'),
+        grado: document.getElementById('reg-grado'),
+        avisoPadres: document.getElementById('protocolo-padres'),
+        chkPadres: document.getElementById('consentimiento-padres')
+    };
 
-                                                                                                  
-    const calcularEdad = (fechaNac) => {
-        const hoy = new Date();
-        const cumple = new Date(fechaNac);
-        let edad = hoy.getFullYear() - cumple.getFullYear();
-        const m = hoy.getMonth() - cumple.getMonth();
-        if (m < 0 || (m === 0 && hoy.getDate() < cumple.getDate())) {
-            edad--;
+    const calcularEdad = (fecha) => {
+        const diff = Date.now() - new Date(fecha).getTime();
+        return Math.abs(new Date(diff).getUTCFullYear() - 1970);
+    };
+
+    // Al cambiar el grado, verificar si es inicial
+    dom.grado.onchange = () => {
+        if (dom.grado.value.includes("Inicial")) {
+            dom.avisoPadres.style.display = "block";
+        } else {
+            dom.avisoPadres.style.display = "none";
+            dom.chkPadres.checked = false;
         }
-        return edad;
     };
 
-    btnEstudiante.onclick = () => {
+    dom.btnEst.onclick = () => {
         rolSeleccionado = "Estudiante";
-        btnEstudiante.style.background = "#0071ff"; btnEstudiante.style.color = "#fff";
-        btnProfesor.style.background = "#fff"; btnProfesor.style.color = "#000";
-        camposEstudiante.style.display = "block";
-        btnFinalizar.style.display = "block";
+        dom.btnEst.style.background = "#0071ff"; dom.btnEst.style.color = "#fff";
+        dom.btnProf.style.background = "#fff"; dom.btnProf.style.color = "#000";
+        dom.camposEst.style.display = "block";
+        dom.btnFin.style.display = "block";
+        dom.grado.dispatchEvent(new Event('change')); // Forzar check inicial
     };
 
-    btnProfesor.onclick = () => {
+    dom.btnProf.onclick = () => {
         rolSeleccionado = "profesor-pendiente";
-        btnProfesor.style.background = "#ff4b4b"; btnProfesor.style.color = "#fff";
-        btnEstudiante.style.background = "#fff"; btnEstudiante.style.color = "#000";
-        camposEstudiante.style.display = "none";
-        btnFinalizar.style.display = "block";
+        dom.btnProf.style.background = "#ff4b4b"; dom.btnProf.style.color = "#fff";
+        dom.btnEst.style.background = "#fff"; dom.btnEst.style.color = "#000";
+        dom.camposEst.style.display = "none";
+        dom.btnFin.style.display = "block";
     };
 
-    btnFinalizar.onclick = async () => {
-        let datosStats = {
-            rango: rolSeleccionado,
-            puntos: 0
-        };
+    dom.btnFin.onclick = async () => {
+        let datosStats = { rango: rolSeleccionado, puntos: 0 };
 
         if (rolSeleccionado === "Estudiante") {
-            const grado = document.getElementById('reg-grado').value;
             const seccion = document.getElementById('reg-seccion').value.trim().toUpperCase();
             const fechaNac = document.getElementById('reg-nacimiento').value;
+            const esInicial = dom.grado.value.includes("Inicial");
 
-            if (!seccion || !fechaNac) {
-                alert("Por favor, completa tu sección y fecha de nacimiento.");
-                return;
-            }
+            // Validaciones
+            if (!seccion || !fechaNac) return alert("Completa todos los campos.");
+            if (esInicial && !dom.chkPadres.checked) return alert("Un padre o tutor debe marcar la casilla de autorización.");
 
-            const edadCalculada = calcularEdad(fechaNac);
+            const edad = calcularEdad(fechaNac);
+            if (edad < 2 || edad > 95) return alert("Fecha de nacimiento no válida.");
 
-                                                                                                          
-            if (edadCalculada < 2 || edadCalculada > 90) {
-                alert("Por favor, ingresa una fecha de nacimiento válida.");
-                return;
-            }
-            
-            datosStats.grado = grado;
-            datosStats.seccion = seccion;
-            datosStats.edad = edadCalculada;                                                                                               
-            datosStats.fecha_nacimiento = fechaNac;                                                                                               
+            datosStats = { 
+                ...datosStats, 
+                grado: dom.grado.value, 
+                seccion, 
+                edad, 
+                fecha_nacimiento: fechaNac,
+                autorizacion_parental: esInicial // Guardamos registro de la autorización
+            };
         }
 
         try {
+            dom.btnFin.innerText = "GUARDANDO...";
+            dom.btnFin.disabled = true;
             await update(ref(db, `usuarios/${uid}/stats`), datosStats);
             modal.remove();
+            
             if (rolSeleccionado === "profesor-pendiente") {
-                mostrarBloqueoProfesor();
+                if (typeof mostrarBloqueoProfesor === "function") mostrarBloqueoProfesor();
             } else {
                 location.reload();
             }
-        } catch (error) {
-            console.error("Error al guardar el perfil:", error);
+        } catch (e) {
+            alert("Error al guardar. Intenta de nuevo.");
+            dom.btnFin.disabled = false;
+            dom.btnFin.innerText = "Confirmar y Entrar";
         }
     };
 }
-
-
 onAuthStateChanged(auth, (user) => {
     if (user) {
         verificarRegistroCompleto(user.uid);
@@ -2728,7 +2748,7 @@ onAuthStateChanged(auth, (user) => {
 function iniciarDetectorInactividad() {
     let tiempoInactividad;
     let intentosPin = 0; 
-    const LIMITE_INACTIVIDAD = 120000;                                                   
+    const LIMITE_INACTIVIDAD = 180000;                                                   
 
     const reiniciarTemporizador = () => {
         if (localStorage.getItem('praxis_locked') === 'true') return;
