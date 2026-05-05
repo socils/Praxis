@@ -1660,3 +1660,12 @@ body.tema-hacker .logo img {
     font-size: 14px;
     font-weight: 800;
 }
+@keyframes slideIn {
+    from { transform: translateX(120%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); }
+    to { transform: translateX(120%); }
+}
