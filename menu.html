@@ -304,7 +304,7 @@ onAuthStateChanged(auth, async (user) => {
     const displayCode = document.getElementById('display-code');
 
     if (user) {
-        verificarApodoEstudiante(user);
+       
         
         const isGuest = user.isAnonymous;
         const miCorreoAdmin = "ajuliuszch@gmail.com";
@@ -2095,6 +2095,7 @@ function escucharChatClase(code) {
    
     nameSpan.innerHTML = `${nombreUsuario} <span class="rango-tag ${claseRango}">${nombreRango}</span>`;
 }(function() {
+                                               
     if (!document.querySelector('script[src*="dotlottie-wc.js"]')) {
         const scriptLottie = document.createElement('script');
         scriptLottie.src = "https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.10/dist/dotlottie-wc.js";
@@ -2102,104 +2103,247 @@ function escucharChatClase(code) {
         document.head.appendChild(scriptLottie);
     }
 
+                                               
     const style = document.createElement('style');
     style.textContent = `
-        .tutorial-overlay { position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .tutorial-card { background: white; border-radius: 32px; max-width: 400px; width: 92%; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); animation: tutorialPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .tutorial-progress-bg { height: 6px; background: #f0f0f0; width: 100%; }
-        .tutorial-progress-fill { height: 100%; background: #1a73e8; transition: width 0.5s ease; width: 0%; }
-        .tutorial-content { padding: 30px; text-align: center; }
-        .tutorial-media { height: 250px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
-        .tutorial-title { font-size: 22px; color: #1e3a8a; margin-bottom: 10px; font-weight: 800; }
-        .tutorial-text { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 25px; min-height: 45px; }
-        .tutorial-btn-next { width: 100%; background: #1a73e8; color: white; border: none; padding: 16px; border-radius: 18px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; }
-        .tutorial-btn-next:hover { background: #1557b0; transform: translateY(-2px); }
-        .tutorial-btn-skip { margin-top: 15px; background: none; border: none; color: #cbd5e1; font-size: 12px; cursor: pointer; font-weight: 600; }
-        @keyframes tutorialPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .tutorial-overlay { position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .tutorial-card { background: white; border-radius: 32px; max-width: 440px; width: 92%; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative; border: 3px solid #000; animation: tutorialPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .tutorial-progress-bg { height: 6px; background: #e2e8f0; width: 100%; }
+        .tutorial-progress-fill { height: 100%; background: #1a73e8; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
+        .tutorial-content { padding: 35px; text-align: center; max-height: 85vh; overflow-y: auto; }
+        .tutorial-media { height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 65px; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.1)); }
+        .tutorial-title { font-size: 26px; color: #0f172a; margin-bottom: 12px; font-weight: 800; line-height: 1.2; }
+        .tutorial-text { color: #64748b; font-size: 15px; line-height: 1.6; margin-bottom: 25px; }
+        
+        .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .role-opt { padding: 20px 10px; border: 2px solid #e2e8f0; border-radius: 20px; cursor: pointer; font-weight: 700; transition: 0.3s; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .role-opt:hover { border-color: #1a73e8; background: #eff6ff; }
+        .role-opt.active { border-color: #1a73e8; background: #1a73e8; color: #fff; transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(26, 115, 232, 0.4); }
+        
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block; color: #1e293b; letter-spacing: 0.5px; }
+        .input-standard { width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 14px; font-weight: 600; font-size: 15px; transition: 0.2s; outline: none; }
+        .input-standard:focus { border-color: #1a73e8; box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1); }
+        
+        .alert-box { background: #fff7ed; border: 1.5px dashed #f97316; padding: 15px; border-radius: 15px; font-size: 12px; color: #9a3412; margin-top: 15px; text-align: left; line-height: 1.4; }
+        .alert-box.blue { background: #f0f9ff; border-color: #0ea5e9; color: #0369a1; }
+
+        .tutorial-btn-next { width: 100%; background: #000; color: #fff; border: none; padding: 18px; border-radius: 18px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .tutorial-btn-next:hover { background: #1e293b; transform: scale(1.02); }
+        
+        @keyframes tutorialPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     `;
     document.head.appendChild(style);
 
     let step = 0;
-    const content = [
-        {
-            title: "¡Hola, Nuevo Usuario!",
-            text: "Bienvenido a la nueva era de Praxis. Hemos rediseñado todo para que tu productividad no tenga límites.",
-            lottie: "https://lottie.host/4903df2e-d315-4742-9f8e-13f626da8b64/Gb8SQ9b7KU.lottie"
-        },
-        {
-            title: "Tus Agendas",
-            text: "Crear una agenda ahora es más intuitivo. Organiza tus materias y horarios con un solo toque.",
-            lottie: "https://lottie.host/ddf78bf0-d9e6-4163-b56a-7764c3a1e1d1/TukH1cKOEx.lottie"
-        },
-        {
-            title: "Alonixz Cloud",
-            text: "Toda tu información se sincroniza automáticamente con Google Drive. Tus datos, siempre contigo.",
-            lottie: "https://lottie.host/2924be7c-a967-4ba9-ac22-62ab4bb148f0/lVTL4xnbgs.lottie"
-        }
+    let userData = {
+        rol: '',
+        grado: '',
+        seccion: '',
+        nacimiento: '',
+        apodo: '',
+        isAutoProfesor: false
+    };
+
+    const stepsContent = [
+        { type: 'info', title: "¡Bienvenido a Praxis!", text: "La plataforma definitiva para organizar tu vida académica. Rediseñada para ser más rápida e intuitiva.", lottie: "https://lottie.host/4903df2e-d315-4742-9f8e-13f626da8b64/Gb8SQ9b7KU.lottie" },
+        { type: 'info', title: "Todo en un Lugar", text: "Tus agendas, horarios y materias sincronizados en tiempo real.", lottie: "https://lottie.host/ddf78bf0-d9e6-4163-b56a-7764c3a1e1d1/TukH1cKOEx.lottie" },
+        { type: 'info', title: "Sincronización Total", text: "Tu información se respalda automáticamente. Accede desde cualquier dispositivo.", lottie: "https://lottie.host/2924be7c-a967-4ba9-ac22-62ab4bb148f0/lVTL4xnbgs.lottie" },
+        { type: 'role', title: "Tu Rol en Praxis", text: "¿Eres estudiante o vienes a enseñar?", icon: "🎭" },
+        { type: 'student_data', title: "Información Académica", text: "Esto nos ayuda a mostrarte el contenido adecuado para tu grado.", icon: "🎓" },
+        { type: 'nickname', title: "Tu Identidad Digital", text: "Configura cómo te verán los demás en la comunidad.", icon: "👤" }
     ];
 
-    function updateTutorial() {
+    function renderStep() {
+        const container = document.querySelector('.tutorial-content');
         const fill = document.querySelector('.tutorial-progress-fill');
-        const title = document.querySelector('.tutorial-title');
-        const text = document.querySelector('.tutorial-text');
-        const btn = document.querySelector('.tutorial-btn-next');
-        const mediaContainer = document.querySelector('.tutorial-media');
-
-        fill.style.width = ((step + 1) / content.length) * 100 + "%";
-        title.innerText = content[step].title;
-        text.innerText = content[step].text;
-        btn.innerText = step === content.length - 1 ? "¡LISTO PARA EMPEZAR!" : "CONTINUAR";
+        const current = stepsContent[step];
         
-        mediaContainer.innerHTML = `
-            <dotlottie-wc 
-                src="${content[step].lottie}" 
-                style="width: 250px; height: 250px" 
-                autoplay 
-                loop>
-            </dotlottie-wc>`;
+        fill.style.width = ((step + 1) / stepsContent.length) * 100 + "%";
+
+        container.innerHTML = `
+            <div class="tutorial-media" id="step-media"></div>
+            <div class="tutorial-title">${current.title}</div>
+            <div class="tutorial-text">${current.text}</div>
+            <div id="step-custom-content"></div>
+            <button class="tutorial-btn-next" id="btn-main">${step === stepsContent.length - 1 ? 'EMPEZAR AHORA' : 'CONTINUAR'}</button>
+        `;
+
+        const media = document.getElementById('step-media');
+        const custom = document.getElementById('step-custom-content');
+
+        if (current.type === 'info') {
+            media.innerHTML = `<dotlottie-wc src="${current.lottie}" style="width:200px;height:200px" autoplay loop></dotlottie-wc>`;
+        } else {
+            media.innerHTML = current.icon;
+            
+            if (current.type === 'role') {
+                if(userData.isAutoProfesor) {
+                    custom.innerHTML = `
+                        <div class="alert-box blue">
+                            <strong>✨ Detección Automática:</strong> Hemos detectado tu correo institucional de <b>San Jerónimo</b>. Se te ha asignado el rango de <b>Profesor</b> automáticamente por seguridad y acceso prioritario.
+                        </div>
+                    `;
+                } else {
+                    custom.innerHTML = `
+                        <div class="role-grid">
+                            <div class="role-opt ${userData.rol === 'Estudiante' ? 'active' : ''}" onclick="window.setRole('Estudiante')"><span>🎓</span> Estudiante</div>
+                            <div class="role-opt ${userData.rol === 'profesor-pendiente' ? 'active' : ''}" onclick="window.setRole('profesor-pendiente')"><span>👨‍🏫</span> Profesor</div>
+                        </div>
+                        ${userData.rol === 'profesor-pendiente' ? '<div class="alert-box">⚠️ <b>Nota:</b> Las cuentas de profesores externos entran en revisión manual por el equipo de Alonso antes de ser activadas.</div>' : ''}
+                    `;
+                }
+            } else if (current.type === 'student_data') {
+                custom.innerHTML = `
+                   <div class="input-group">
+    <label>Nivel y Grado</label>
+    <select id="reg-grado" class="input-standard">
+                                                   
+        <optgroup label="Nivel Inicial">
+            <option value="Inicial-3">Inicial - 3 años</option>
+            <option value="Inicial-4">Inicial - 4 años</option>
+            <option value="Inicial-5">Inicial - 5 años</option>
+        </optgroup>
+
+                                                   
+        <optgroup label="Nivel Primaria">
+            <option value="Primaria-1">1ro Primaria</option>
+            <option value="Primaria-2">2do Primaria</option>
+            <option value="Primaria-3">3ro Primaria</option>
+            <option value="Primaria-4">4to Primaria</option>
+            <option value="Primaria-5">5to Primaria</option>
+            <option value="Primaria-6">6to Primaria</option>
+        </optgroup>
+
+                                                   
+        <optgroup label="Nivel Secundaria">
+            <option value="1ro-Sec">1ro Secundaria</option>
+            <option value="2do-Sec">2do Secundaria</option>
+            <option value="3ro-Sec">3ro Secundaria</option>
+            <option value="4to-Sec">4to Secundaria</option>
+            <option value="5to-Sec">5to Secundaria</option>
+        </optgroup>
+    </select>
+</div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div class="input-group"><label>Sección</label><input type="text" id="reg-seccion" class="input-standard" placeholder="Ej: A" maxlength="2"></div>
+                        <div class="input-group"><label>Nacimiento</label><input type="date" id="reg-nacimiento" class="input-standard"></div>
+                    </div>
+                `;
+            } else if (current.type === 'nickname') {
+                custom.innerHTML = `
+                    <div class="input-group">
+                        <label>Apodo o Nombre</label>
+                        <input type="text" id="reg-apodo" class="input-standard" placeholder="Ej: Alonso_Pro" maxlength="15">
+                    </div>
+                    <div class="alert-box blue">
+                        📸 <b>Imagen de Perfil:</b> Usaremos tu foto de Google. Se prohíben imágenes obscenas o inapropiadas. Si tu foto actual infringe esto, cámbiala en tu cuenta de Google.
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('btn-main').onclick = nextStep;
+    }
+
+    window.setRole = (role) => {
+        userData.rol = role;
+        renderStep();
+    };
+
+    async function nextStep() {
+        const user = auth.currentUser;
+        
+        if (stepsContent[step].type === 'role' && !userData.rol) return alert("Selecciona tu rol para continuar.");
+        
+        if (stepsContent[step].type === 'student_data') {
+            userData.grado = document.getElementById('reg-grado').value;
+            userData.seccion = document.getElementById('reg-seccion').value.trim();
+            userData.nacimiento = document.getElementById('reg-nacimiento').value;
+            if (!userData.seccion || !userData.nacimiento) return alert("Por favor, completa todos tus datos.");
+        }
+
+        if (stepsContent[step].type === 'nickname') {
+            userData.apodo = document.getElementById('reg-apodo').value.trim();
+            if (userData.apodo.length < 3) return alert("Tu apodo debe tener al menos 3 caracteres.");
+            await finalizarTodo();
+            return;
+        }
+
+                                                   
+        if (stepsContent[step].type === 'role' && (userData.rol === 'profesor-pendiente' || userData.rol === 'profesor')) {
+            step = 5; 
+        } else {
+            step++;
+        }
+        renderStep();
+    }
+
+    async function finalizarTodo() {
+        const user = auth.currentUser;
+        const btn = document.getElementById('btn-main');
+        btn.innerText = "Sincronizando...";
+        btn.disabled = true;
+
+        try {
+            const stats = {
+                rango: userData.rol,
+                puntos: 0,
+                grado: userData.grado || 'Docente',
+                seccion: userData.seccion || 'N/A',
+                fecha_nacimiento: userData.nacimiento || 'N/A'
+            };
+
+            await update(ref(db, `usuarios/${user.uid}/stats`), stats);
+            await update(ref(db, `usuarios/${user.uid}`), {
+                apodo: userData.apodo,
+                apodo_listo: true,
+                email: user.email,
+                avatar: user.photoURL || "",
+                fecha_registro: new Date().toISOString()
+            });
+
+            localStorage.setItem('praxis_tutorial_done', 'true');
+            document.getElementById('tutorial-ui').remove();
+
+            if (userData.rol === 'profesor-pendiente') {
+                if (typeof window.mostrarBloqueoProfesor === "function") window.mostrarBloqueoProfesor();
+                else location.reload();
+            } else {
+                location.reload();
+            }
+        } catch (e) {
+            alert("Error al guardar: " + e.message);
+            btn.disabled = false;
+        }
     }
 
     window.startTutorial = function() {
-        if (localStorage.getItem('praxis_tutorial_done')) return;
+        const user = auth.currentUser;
+        if (!user) return;
+
+                                                   
+        if (user.email && user.email.toLowerCase().endsWith("@colegiosanjeronimo.edu.pe")) {
+            userData.isAutoProfesor = true;
+            userData.rol = "profesor";
+        }
 
         const overlay = document.createElement('div');
         overlay.className = 'tutorial-overlay';
         overlay.id = 'tutorial-ui';
-        overlay.innerHTML = `
-            <div class="tutorial-card">
-                <div class="tutorial-progress-bg"><div class="tutorial-progress-fill"></div></div>
-                <div class="tutorial-content">
-                    <div class="tutorial-media"></div>
-                    <div class="tutorial-title"></div>
-                    <div class="tutorial-text"></div>
-                    <button class="tutorial-btn-next">CONTINUAR</button>
-                    <button class="tutorial-btn-skip">SALTAR TUTORIAL</button>
-                </div>
-            </div>
-        `;
+        overlay.innerHTML = `<div class="tutorial-card"><div class="tutorial-progress-bg"><div class="tutorial-progress-fill"></div></div><div class="tutorial-content"></div></div>`;
         document.body.appendChild(overlay);
-
-        overlay.querySelector('.tutorial-btn-next').onclick = () => {
-            if (step < content.length - 1) {
-                step++;
-                updateTutorial();
-            } else {
-                window.closeTutorial();
-            }
-        };
-
-        overlay.querySelector('.tutorial-btn-skip').onclick = window.closeTutorial;
-        updateTutorial();
+        renderStep();
     };
 
-    window.closeTutorial = function() {
-        const ui = document.getElementById('tutorial-ui');
-        if (ui) ui.remove();
-        localStorage.setItem('praxis_tutorial_done', 'true');
-    };
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            get(ref(db, `usuarios/${user.uid}/stats`)).then(snap => {
+                if (!snap.exists()) window.startTutorial();
+            });
+        }
+    });
 
-    if (document.readyState === 'complete') { window.startTutorial(); } 
-    else { window.addEventListener('load', window.startTutorial); }
 })();window.ejecutarAnalisis = function() {
     const consola = document.getElementById('pantalla-consola');
     const log = document.getElementById('output-log');
@@ -2297,241 +2441,7 @@ function escucharChatClase(code) {
         btn.innerText = "Error";
         btn.disabled = false;
     }
-};async function verificarRegistroCompleto(uid) {
-    try {
-        const statsRef = ref(db, `usuarios/${uid}/stats`);
-        const snapshot = await get(statsRef);
-        const stats = snapshot.val();
-
-        if (!stats || !stats.rango) {
-            mostrarFormularioInicial(uid);
-        } 
-        else if (stats.rango === "profesor-pendiente") {
-                                                                                                          
-            if (sessionStorage.getItem('praxis_skip_revision') !== 'true') {
-                mostrarBloqueoProfesor();
-            }
-        }
-    } catch (error) {
-        console.error("Error en validación:", error);
-    }
-}
-
-function mostrarBloqueoProfesor() {
-                                                                                                  
-    if(document.getElementById('bloqueo-profe')) return;
-
-    const bloqueo = document.createElement('div');
-    bloqueo.id = "bloqueo-profe";
-    bloqueo.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); font-family:sans-serif;";
-    
-    bloqueo.innerHTML = `
-        <div style="text-align:center; padding:40px; background:white; border: 3px solid #000; border-radius:25px; box-shadow: 12px 12px 0px #000; max-width:380px; width:90%; animation: popIn 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49);">
-            <div style="font-size:60px; margin-bottom:10px;">🕵️‍♂️</div>
-            <h2 style="margin:0; color:#000; font-size:24px; font-weight:900; text-transform:uppercase;">Cuenta en Revisión</h2>
-            <p style="color:#333; font-size:15px; line-height:1.6; margin:20px 0;">
-                Tu solicitud para ser <b>Profesor</b> está siendo verificada por Alonso. Pronto tendrás acceso a las herramientas de control.
-            </p>
-            
-            <div style="display:flex; flex-direction:column; gap:12px;">
-                <button onclick="navegarComoEstudiante()" style="padding:18px; border-radius:12px; border:3px solid #000; background:#0071ff; color:white; font-weight:900; cursor:pointer; font-size:15px; box-shadow: 5px 5px 0px #000;">NAVEGAR COMO ESTUDIANTE</button>
-                <button onclick="location.reload()" style="padding:12px; border-radius:10px; border:2px solid #000; background:white; color:#000; font-weight:bold; cursor:pointer; font-size:13px;">Actualizar Estado</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(bloqueo);
-    
-                                                                                                  
-    const app = document.getElementById('contenido-app');
-    if(app) app.style.display = 'none';
-}
-
-window.navegarComoEstudiante = () => {
-                                                                                                  
-    sessionStorage.setItem('praxis_skip_revision', 'true');
-    
-                                                                                                  
-    const bloqueo = document.getElementById('bloqueo-profe');
-    if(bloqueo) bloqueo.remove();
-    
-    const app = document.getElementById('contenido-app');
-    if(app) app.style.display = 'block';
-};async function mostrarFormularioInicial(uid) {
-    const user = auth.currentUser;
-    const userRef = ref(db, `usuarios/${uid}`);
-
-                                                             
-    await update(userRef, {
-        nombre_correo: user.displayName || "Usuario de Google",
-        email: user.email,
-        fecha_registro: new Date().toISOString()
-    });
-
-    const modal = document.createElement('div');
-    modal.id = "modal-registro-praxis";
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:200000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(15px); font-family:sans-serif;";
-
-    modal.innerHTML = `
-        <div style="background:white; border:5px solid #000; border-radius:30px; box-shadow:15px 15px 0px #0071ff; width:95%; max-width:420px; padding:30px; text-align:center; max-height:90vh; overflow-y:auto; position:relative;">
-            
-            <h2 style="font-weight:900; margin-bottom:5px; text-transform:uppercase; font-size:24px; color:#000;">Configura tu Rol</h2>
-            <p style="font-weight:bold; color:#666; font-size:13px; margin-bottom:25px;">Selecciona cómo usarás Praxis</p>
-            
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button id="select-estudiante" style="flex:1; padding:15px; border:3px solid #000; border-radius:12px; font-weight:900; cursor:pointer; background:#fff; transition: 0.2s;">🎓 ESTUDIANTE</button>
-                <button id="select-profesor" style="flex:1; padding:15px; border:3px solid #000; border-radius:12px; font-weight:900; cursor:pointer; background:#fff; transition: 0.2s;">👨‍🏫 PROFESOR</button>
-            </div>
-
-            <div id="campos-estudiante" style="display:none; text-align:left; border-top:3px solid #000; padding-top:20px; margin-top:10px;">
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:10px; font-weight:900; text-transform:uppercase; margin-left:5px;">Nivel y Grado</label>
-                    <select id="reg-grado" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; background: #f0f0f0;">
-                        <optgroup label="Nivel Inicial">
-                            <option value="Inicial-3">Inicial 3 años</option>
-                            <option value="Inicial-4">Inicial 4 años</option>
-                            <option value="Inicial-5">Inicial 5 años</option>
-                        </optgroup>
-                        <optgroup label="Nivel Primaria">
-                            <option value="Primaria-1">1ro Primaria</option>
-                            <option value="Primaria-2">2do Primaria</option>
-                            <option value="Primaria-3">3ro Primaria</option>
-                            <option value="Primaria-4">4to Primaria</option>
-                            <option value="Primaria-5">5to Primaria</option>
-                            <option value="Primaria-6">6to Primaria</option>
-                        </optgroup>
-                        <optgroup label="Nivel Secundaria">
-                            <option value="1ro-Sec">1ro Secundaria</option>
-                            <option value="2do-Sec">2do Secundaria</option>
-                            <option value="3ro-Sec">3ro Secundaria</option>
-                            <option value="4to-Sec">4to Secundaria</option>
-                            <option value="5to-Sec">5to Secundaria</option>
-                        </optgroup>
-                    </select>
-                </div>
-                
-                <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:10px; margin-bottom:15px;">
-                    <div>
-                        <label style="font-size:10px; font-weight:900; text-transform:uppercase; margin-left:5px;">Sección</label>
-                        <input type="text" id="reg-seccion" placeholder="Ej: A" maxlength="5" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; text-align:center;">
-                    </div>
-                    <div>
-                        <label style="font-size:10px; font-weight:900; text-transform:uppercase; margin-left:5px;">Nacimiento</label>
-                        <input type="date" id="reg-nacimiento" style="width:100%; padding:12px; border:3px solid #000; border-radius:10px; font-weight:bold; margin-top:5px; text-align:center;">
-                    </div>
-                </div>
-
-                <!-- AVISO LEGAL PARA INICIAL -->
-                <div id="protocolo-padres" style="display:none; background:#fff3cd; border:2px dashed #ff8800; padding:15px; border-radius:10px; margin-bottom:15px;">
-                    <p style="font-size:11px; font-weight:bold; color:#856404; margin:0;">⚠️ AVISO A PADRES: Al ser un menor de nivel inicial, un adulto responsable debe supervisar el uso de la plataforma.</p>
-                    <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-size:12px; font-weight:900; cursor:pointer;">
-                        <input type="checkbox" id="consentimiento-padres" style="width:18px; height:18px; accent-color:#000;"> 
-                        SOY EL PADRE/TUTOR Y AUTORIZO
-                    </label>
-                </div>
-            </div>
-
-            <button id="btn-finalizar-registro" 
-                style="width:100%; background:#00ff88; color:#000; border:3px solid #000; padding:18px; border-radius:15px; font-weight:900; cursor:pointer; font-size:16px; box-shadow: 4px 4px 0px #000; display:none; margin-top:10px; text-transform:uppercase; transition:0.2s;">
-                Confirmar y Entrar
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-                                                             
-    let rolSeleccionado = "";
-    const dom = {
-        btnEst: document.getElementById('select-estudiante'),
-        btnProf: document.getElementById('select-profesor'),
-        camposEst: document.getElementById('campos-estudiante'),
-        btnFin: document.getElementById('btn-finalizar-registro'),
-        grado: document.getElementById('reg-grado'),
-        avisoPadres: document.getElementById('protocolo-padres'),
-        chkPadres: document.getElementById('consentimiento-padres')
-    };
-
-    const calcularEdad = (fecha) => {
-        const diff = Date.now() - new Date(fecha).getTime();
-        return Math.abs(new Date(diff).getUTCFullYear() - 1970);
-    };
-
-                                                             
-    dom.grado.onchange = () => {
-        if (dom.grado.value.includes("Inicial")) {
-            dom.avisoPadres.style.display = "block";
-        } else {
-            dom.avisoPadres.style.display = "none";
-            dom.chkPadres.checked = false;
-        }
-    };
-
-    dom.btnEst.onclick = () => {
-        rolSeleccionado = "Estudiante";
-        dom.btnEst.style.background = "#0071ff"; dom.btnEst.style.color = "#fff";
-        dom.btnProf.style.background = "#fff"; dom.btnProf.style.color = "#000";
-        dom.camposEst.style.display = "block";
-        dom.btnFin.style.display = "block";
-        dom.grado.dispatchEvent(new Event('change'));                                                          
-    };
-
-    dom.btnProf.onclick = () => {
-        rolSeleccionado = "profesor-pendiente";
-        dom.btnProf.style.background = "#ff4b4b"; dom.btnProf.style.color = "#fff";
-        dom.btnEst.style.background = "#fff"; dom.btnEst.style.color = "#000";
-        dom.camposEst.style.display = "none";
-        dom.btnFin.style.display = "block";
-    };
-
-    dom.btnFin.onclick = async () => {
-        let datosStats = { rango: rolSeleccionado, puntos: 0 };
-
-        if (rolSeleccionado === "Estudiante") {
-            const seccion = document.getElementById('reg-seccion').value.trim().toUpperCase();
-            const fechaNac = document.getElementById('reg-nacimiento').value;
-            const esInicial = dom.grado.value.includes("Inicial");
-
-                                                                     
-            if (!seccion || !fechaNac) return alert("Completa todos los campos.");
-            if (esInicial && !dom.chkPadres.checked) return alert("Un padre o tutor debe marcar la casilla de autorización.");
-
-            const edad = calcularEdad(fechaNac);
-            if (edad < 2 || edad > 95) return alert("Fecha de nacimiento no válida.");
-
-            datosStats = { 
-                ...datosStats, 
-                grado: dom.grado.value, 
-                seccion, 
-                edad, 
-                fecha_nacimiento: fechaNac,
-                autorizacion_parental: esInicial                                                          
-            };
-        }
-
-        try {
-            dom.btnFin.innerText = "GUARDANDO...";
-            dom.btnFin.disabled = true;
-            await update(ref(db, `usuarios/${uid}/stats`), datosStats);
-            modal.remove();
-            
-            if (rolSeleccionado === "profesor-pendiente") {
-                if (typeof mostrarBloqueoProfesor === "function") mostrarBloqueoProfesor();
-            } else {
-                location.reload();
-            }
-        } catch (e) {
-            alert("Error al guardar. Intenta de nuevo.");
-            dom.btnFin.disabled = false;
-            dom.btnFin.innerText = "Confirmar y Entrar";
-        }
-    };
-}
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        verificarRegistroCompleto(user.uid);
-    }
-});window.administrarPuntosAgenda = async (codigoAgenda) => {
+};window.administrarPuntosAgenda = async (codigoAgenda) => {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -2774,81 +2684,7 @@ window.donarPuntosAAgenda = async (codigoAgenda) => {
 
 auth.onAuthStateChanged((user) => {
     if (user) inicializarBotonProfesor();
-});const verificarApodoEstudiante = async (user) => {
-    const userRef = ref(db, `usuarios/${user.uid}`);
-    const snapshot = await get(userRef);
-    const data = snapshot.exists() ? snapshot.val() : {};
-
-                                                                                                  
-                                                                                                  
-    if (!data.nombre_correo) {
-        await update(userRef, {
-            nombre_correo: user.displayName || "Usuario sin nombre"
-        });
-    }
-
-                                                                                                  
-                                                                                                  
-    if (!data.apodo_listo) {
-        mostrarModalApodo(user.uid, data.nombre_correo || user.displayName);
-    }
-};
-const mostrarModalApodo = (uid, nombreOriginal) => {
-                                                
-    if (document.getElementById('modal-apodo')) return;
-
-    const modal = document.createElement('div');
-    modal.id = "modal-apodo";
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); padding:20px;";
-
-    modal.innerHTML = `
-        <div style="background:white; border:4px solid #000; border-radius:30px; box-shadow:12px 12px 0px #0071ff; width:100%; max-width:380px; padding:35px; text-align:center; position:relative;">
-            <div style="background:#0071ff; color:white; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; border:4px solid #000; font-size:25px;">✨</div>
-            <h2 style="font-weight:950; margin:0 0 10px 0; text-transform:uppercase; font-size:24px; font-family:'Inter',sans-serif;">Tu Apodo</h2>
-            <p style="font-weight:bold; color:#666; font-size:14px; margin-bottom:25px;">Personaliza cómo te verán en el Ranking y por tus profesores.</p>
-            
-            <input type="text" id="nuevo-apodo" value="${nombreOriginal || ''}" placeholder="Ej: Alonso_Pro" 
-                style="width:100%; padding:18px; border:4px solid #000; border-radius:15px; font-weight:900; font-size:18px; margin-bottom:25px; box-sizing:border-box; text-align:center; outline:none;">
-            
-            <button id="btn-guardar-apodo" 
-                style="width:100%; background:#00ff88; color:#000; border:4px solid #000; padding:18px; border-radius:15px; font-weight:950; cursor:pointer; font-size:16px; box-shadow: 6px 6px 0px #000; transition: 0.2s;">
-                GUARDAR Y CONTINUAR
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    const input = document.getElementById('nuevo-apodo');
-    const btn = document.getElementById('btn-guardar-apodo');
-
-    btn.onclick = async () => {
-        const nuevoNombre = input.value.trim();
-        
-        if (nuevoNombre.length >= 3 && nuevoNombre.length <= 20) {
-            btn.innerText = "GUARDANDO...";
-            btn.disabled = true;
-
-            try {
-                                                            
-                await update(ref(db, `usuarios/${uid}`), {
-                    apodo: nuevoNombre,
-                    apodo_listo: true
-                });
-                
-                modal.remove();
-                console.log("Perfil actualizado correctamente");
-            } catch (error) {
-                console.error("Error Firebase:", error);
-                alert("Error al conectar con la base de datos.");
-                btn.disabled = false;
-                btn.innerText = "REINTENTAR";
-            }
-        } else {
-            alert("El apodo debe tener entre 3 y 20 caracteres.");
-        }
-    };
-};
+});
 onAuthStateChanged(auth, (user) => {
     if (user && !user.isAnonymous) {
         const statsRef = ref(db, `usuarios/${user.uid}/stats`);
@@ -2988,40 +2824,77 @@ function iniciarDetectorInactividad() {
         }
     });
 }
-
-iniciarDetectorInactividad();
-
 async function mostrarBienvenidaProfesor(uid) {
+    if (document.getElementById('bienvenida-profesor-ui')) return;
+
     const overlay = document.createElement('div');
+    overlay.id = 'bienvenida-profesor-ui';
     overlay.style = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(15, 23, 42, 0.95); display: flex; align-items: center;
-        justify-content: center; z-index: 9999; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 100000; font-family: 'Plus Jakarta Sans', sans-serif;
     `;
 
     overlay.innerHTML = `
-        <div style="background: white; padding: 40px; border-radius: 20px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
-            <div style="font-size: 50px; margin-bottom: 10px;">🎓</div>
-            <h2 style="color: #1e293b; margin: 0; font-size: 24px;">¡Felicidades, eres Profesor!</h2>
-            <p style="color: #64748b; margin-top: 10px;">Tu cuenta ha sido promovida al rango de instructor.</p>
+        <style>
+            .prof-card { 
+                background: white; border-radius: 32px; border: 4px solid #000;
+                max-width: 480px; width: 92%; overflow: hidden;
+                box-shadow: 15px 15px 0px #000; transition: all 0.4s ease;
+            }
+            .part-container { padding: 30px; text-align: center; display: none; animation: slideIn 0.5s ease-out; }
+            .part-active { display: block; }
             
-            <div style="text-align: left; background: #f1f5f9; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #3b82f6;">
-                <strong style="color: #1e293b; display: block; margin-bottom: 8px;">¿Por qué configurar un PIN?</strong>
-                <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.6;">
-                    <li><strong>Protección de datos:</strong> Asegura que solo tú puedas publicar o editar contenido académico.</li>
-                    <li><strong>Seguridad de sesión:</strong> Evita cambios accidentales si dejas tu dispositivo desatendido[cite: 5].</li>
-                    <li><strong>Verificación de identidad:</strong> Es necesario para acceder a las funciones avanzadas del panel[cite: 5].</li>
-                </ul>
+            .badge-prof { background: #00ff88; color: #000; padding: 8px 15px; border-radius: 10px; font-weight: 900; font-size: 12px; border: 2px solid #000; display: inline-block; margin-bottom: 15px; }
+            .title-prof { font-size: 28px; font-weight: 900; color: #000; margin-bottom: 10px; line-height: 1.1; }
+            .desc-prof { color: #64748b; font-size: 15px; line-height: 1.5; margin-bottom: 25px; }
+            
+            .security-item { display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 12px; border-radius: 15px; border: 2px solid #e2e8f0; margin-bottom: 10px; text-align: left; font-size: 13px; font-weight: 600; }
+            
+            .pin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+            .pin-box label { display: block; font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; text-align: left; }
+            .pin-input-v2 { width: 100%; padding: 12px; border: 3px solid #000; border-radius: 12px; font-size: 22px; text-align: center; font-weight: 900; outline: none; }
+            
+            .btn-next-prof { width: 100%; background: #000; color: #fff; border: none; padding: 20px; border-radius: 20px; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 15px; margin-top: 10px; }
+            .btn-next-prof:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+            @keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        </style>
+
+        <div class="prof-card" id="main-prof-card">
+                                                       
+            <div class="part-container part-active" id="part-1">
+                <div class="badge-prof">NIVEL ACTUALIZADO</div>
+                <div style="font-size: 60px; margin-bottom: 15px;">🎖️</div>
+                <h1 class="title-prof">¡Tu cuenta ha sido aprobada!</h1>
+                <p class="desc-prof">Alonso y el equipo de Alonixz-Group han verificado tus credenciales. Ahora tienes acceso a las herramientas de <b>Instructor Pro</b>.</p>
+                <button class="btn-next-prof" onclick="document.getElementById('part-1').classList.remove('part-active'); document.getElementById('part-2').classList.add('part-active');">
+                    CONTINUAR A SEGURIDAD
+                </button>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <input type="password" id="pin-1" placeholder="Crea tu PIN (4-6 dígitos)" maxlength="6"
-                    style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 18px; outline: none;">
-                <input type="password" id="pin-2" placeholder="Confirma tu PIN" maxlength="6"
-                    style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; text-align: center; font-size: 18px; outline: none;">
+                                                       
+            <div class="part-container" id="part-2">
+                <h2 class="title-prof">Seguridad Obligatoria</h2>
+                <p class="desc-prof" style="margin-bottom: 15px;">Para proteger tus datos de la manipulación de estudiantes, activa el bloqueo por inactividad.</p>
                 
-                <button id="btn-activar" style="margin-top: 10px; background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: background 0.3s;">
-                    ACTIVAR MI PANEL DE PROFESOR
+                <div class="security-item"><span>🔒</span> Bloqueo automático si dejas tu PC.</div>
+                <div class="security-item"><span>🛡️</span> Protección contra cambios de notas.</div>
+                
+                <div class="pin-grid">
+                    <div class="pin-box">
+                        <label>Nuevo PIN</label>
+                        <input type="password" id="pin-1" placeholder="****" maxlength="6" class="pin-input-v2">
+                    </div>
+                    <div class="pin-box">
+                        <label>Confirmar</label>
+                        <input type="password" id="pin-2" placeholder="****" maxlength="6" class="pin-input-v2">
+                    </div>
+                </div>
+                
+                <button id="btn-finalizar-prof" class="btn-next-prof" style="background: #00ff88; color: #000; border: 3px solid #000; margin-top: 25px;">
+                    ACTIVAR MI PANEL
                 </button>
             </div>
         </div>
@@ -3029,30 +2902,59 @@ async function mostrarBienvenidaProfesor(uid) {
 
     document.body.appendChild(overlay);
 
-                                                
-    document.getElementById('btn-activar').onclick = async () => {
+    document.getElementById('btn-finalizar-prof').onclick = async () => {
+        const btn = document.getElementById('btn-finalizar-prof');
         const p1 = document.getElementById('pin-1').value;
         const p2 = document.getElementById('pin-2').value;
 
         if (p1.length < 4 || isNaN(p1)) {
-            alert("El PIN debe tener entre 4 y 6 números.");
+            alert("⚠️ El PIN debe ser numérico (4-6 dígitos).");
+            return;
+        }
+        if (p1 !== p2) {
+            alert("❌ Los códigos PIN no coinciden.");
             return;
         }
 
-        if (p1 !== p2) {
-            alert("Los códigos PIN no coinciden.");
-            return;
-        }
+        btn.innerText = "ASEGURANDO CUENTA...";
+        btn.disabled = true;
 
         try {
-            await update(ref(db, `usuarios/${uid}/stats`), { pin: p1 });
-            alert("✅ ¡PIN configurado con éxito!");
-            overlay.remove();
+            await update(ref(db, `usuarios/${uid}/stats`), { 
+                pin: p1,
+                rango: "profesor" 
+            });
+            
+            document.getElementById('part-2').innerHTML = `
+                <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+                <h2 class="title-prof">¡Bienvenido, Profesor!</h2>
+                <p class="desc-prof">El sistema de Alonixz-Guard está vigilando tu sesión.</p>
+            `;
+            
+            setTimeout(() => {
+                overlay.remove();
+                location.reload(); 
+            }, 2000);
+
         } catch (e) {
-            alert("Error al guardar la configuración.");
+            alert("Error: " + e.message);
+            btn.disabled = false;
         }
     };
 }
+
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        onValue(ref(db, `usuarios/${user.uid}/stats`), (snapshot) => {
+            const data = snapshot.val();
+                                                       
+            if (data && data.rango === "profesor" && !data.pin) {
+                mostrarBienvenidaProfesor(user.uid);
+            }
+        });
+    }
+});
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -3096,7 +2998,7 @@ auth.onAuthStateChanged((user) => {
                                                                                                       
         verificarCumpleaños(user.uid);
 
-        verificarApodoEstudiante(user);
+      
         const isGuest = user.isAnonymous;
                                                                                                       
         const miCorreoAdmin = "ajuliuszch@gmail.com";
@@ -3789,7 +3691,7 @@ function ejecutarBloqueoFinal(uid, apelacionEnviada) {
         </style>
 
         <div class="ban-wrapper">
-            <!-- Cinta Superior Izquierda -->
+                                                       
             <div class="corner-tape top-left">
                 <div class="tape-text"> • ALONIXZ-GUARD • NO INSPECT • PROHIBIDO • </div>
                 <div class="tape-text"> • ALONIXZ-GUARD • NO INSPECT • PROHIBIDO • </div>
@@ -3812,7 +3714,7 @@ function ejecutarBloqueoFinal(uid, apelacionEnviada) {
                 `}
             </div>
 
-            <!-- Cinta Inferior Derecha -->
+                                                       
             <div class="corner-tape bottom-right">
                 <div class="tape-text"> • CRIME SCENE • DO NOT CROSS • SECURITY • </div>
                 <div class="tape-text"> • CRIME SCENE • DO NOT CROSS • SECURITY • </div>
@@ -3901,7 +3803,7 @@ window.enviarApelacion = function(uid) {
     container.innerHTML = `
         <div id="boleta-contenedor" style="max-width:380px; margin: 20px auto; border: 8px solid #000; background: #fff; padding: 40px; box-shadow: 15px 15px 0px #00ff88; animation: fadeInBrutal 0.4s ease-out; position: relative; overflow: hidden; font-family: 'Courier New', Courier, monospace;">
             
-            <!-- Sello de Agua Centrado (Prioridad Visual) -->
+                                                       
             <div style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%) rotate(-20deg); opacity:0.06; font-size:90px; font-weight:950; pointer-events:none; z-index:0; white-space:nowrap; color:#000;">
                 PRAXIS
             </div>
@@ -3911,7 +3813,7 @@ window.enviarApelacion = function(uid) {
                 <p style="margin:5px 0 0 0; font-size:10px; font-weight:900; letter-spacing:1px;">ALONIXZ-GROUP SECURED</p>
             </div>
             
-            <!-- Cuerpo con Flexbox para evitar deformación de letras -->
+                                                       
             <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:12px;">
                 <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:5px;">
                     <span style="font-weight:900; font-size:13px;">PRODUCTO:</span>
@@ -3931,13 +3833,13 @@ window.enviarApelacion = function(uid) {
                 </div>
             </div>
 
-            <!-- Zona de QR con protección de área -->
+                                                       
             <div style="text-align:center; margin:30px 0; background:#fff; padding:15px; border:4px solid #000; position:relative; z-index:1;">
                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${id}" style="width:160px; height:160px; display:inline-block; image-rendering: -webkit-optimize-contrast;">
                  <p style="margin:12px 0 0 0; font-size:9px; font-weight:950; letter-spacing:4px; text-transform:uppercase;">Autenticidad Digital</p>
             </div>
 
-            <!-- Botones (Se ocultan en la descarga) -->
+                                                       
             <div class="area-botones" style="display:grid; gap:12px; margin-top:10px; position:relative; z-index:2;">
                 <button onclick="descargarBoletaDigital('${id}')" style="border:6px solid #000; background:#00ff88; color:#000; padding:16px; font-weight:950; cursor:pointer; box-shadow:5px 5px 0px #000; text-transform:uppercase; font-size:13px;">
                     💾 Descargar Imagen
