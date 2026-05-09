@@ -1046,18 +1046,138 @@ navItems.forEach(item => {
                 mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
             }
         } 
-        else if (texto.includes("calendario")) {
-            bannerTitle.innerText = "Calendario Académico";
-            displayCode.innerText = "CALENDARIO";
-            navegarA("Calendario Académico", "VISTA_CALENDARIO");
-            container.innerHTML = "<div style='display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;'><div class='spinner'></div><p style='font-family:\"JetBrains Mono\";margin-top:15px;'>Sincronizando fechas...</p></div>";
-            
-            obtenerTodasLasTareas((todasLasTareas) => {
-                container.innerHTML = "";
-                todasLasTareas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-                renderizarVistaLista(todasLasTareas, "calendario");
-            });
+      else if (texto.includes("calendario")) {
+    bannerTitle.innerText = "Calendario Académico";
+    displayCode.innerText = "CALENDARIO";
+    navegarA("Calendario Académico", "VISTA_CALENDARIO");
+    
+                                                         
+    container.style.display = "block"; 
+    container.style.width = "100%";
+    container.style.overflowX = "hidden";
+
+    container.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:200px;">
+            <div class="spinner"></div>
+            <p style="font-family:'JetBrains Mono'; margin-top:15px;">Sincronizando cronograma...</p>
+        </div>`;
+    
+    obtenerTodasLasTareas((todasLasTareas) => {
+        container.innerHTML = "";
+        
+        const fechaRef = new Date();
+        const mesActual = fechaRef.getMonth();
+        const añoActual = fechaRef.getFullYear();
+        const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+                                                             
+        const headerMes = document.createElement('div');
+        headerMes.style = `
+            width: 100%;
+            box-sizing: border-box;
+            padding: 25px 0;
+            text-align: center;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+        `;
+        headerMes.innerHTML = `
+            <h2 style="color:#8A2BE2; font-family:'Arial Black', sans-serif; margin:0; letter-spacing: 2px; font-size: 24px;">
+                ${nombresMeses[mesActual].toUpperCase()} <span style="color:#fff;">${añoActual}</span>
+            </h2>
+        `;
+
+                                                             
+        const tareasPorFecha = {};
+        todasLasTareas.forEach(tarea => {
+            if (tarea.fecha) {
+                const partes = tarea.fecha.split('/');
+                const d = partes[0].padStart(2, '0');
+                const m = partes[1].padStart(2, '0');
+                let a = partes[2];
+                if (a.length === 2) a = "20" + a;
+                const fechaKey = `${a}-${m}-${d}`;
+                if (!tareasPorFecha[fechaKey]) tareasPorFecha[fechaKey] = [];
+                tareasPorFecha[fechaKey].push(tarea);
+            }
+        });
+
+                                                             
+        const calWrapper = document.createElement('div');
+        calWrapper.style = `
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #333;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+            background: #333; /* Color de las líneas divisorias */
+        `;
+
+        const calGrid = document.createElement('div');
+        calGrid.style = `
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 1px; 
+            width: 100%;
+        `;
+
+        const diasSemana = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+        diasSemana.forEach(dia => {
+            calGrid.innerHTML += `
+                <div style="background:#0a0a0a; color:#8A2BE2; font-weight:900; text-align:center; font-size:11px; padding:15px 0; text-transform:uppercase;">
+                    ${dia}
+                </div>`;
+        });
+
+        const primerDiaMes = new Date(añoActual, mesActual, 1).getDay();
+        const ultimoDiaMes = new Date(añoActual, mesActual + 1, 0).getDate();
+
+        for (let i = 0; i < primerDiaMes; i++) {
+            calGrid.innerHTML += `<div style="background:#050505;"></div>`;
         }
+
+        for (let dia = 1; dia <= ultimoDiaMes; dia++) {
+            const dStr = dia.toString().padStart(2, '0');
+            const mStr = (mesActual + 1).toString().padStart(2, '0');
+            const fechaHoyKey = `${añoActual}-${mStr}-${dStr}`;
+            const tareasDelDia = tareasPorFecha[fechaHoyKey] || [];
+            
+            const esHoy = new Date().getDate() === dia && new Date().getMonth() === mesActual;
+            const fondoCelda = esHoy ? "#1a0b2e" : "#0f0f0f";
+
+            calGrid.innerHTML += `
+                <div style="min-height: 110px; background: ${fondoCelda}; padding: 8px; box-sizing: border-box;">
+                    <div style="font-size: 13px; font-weight: 800; color: ${esHoy ? '#8A2BE2' : '#333'}; margin-bottom: 8px;">
+                        ${dia}
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        ${tareasDelDia.map(t => `
+                            <div onclick="verDetalleTarea('${t.id}')" style="
+                                background: rgba(138, 43, 226, 0.1);
+                                border-left: 2px solid #8A2BE2;
+                                padding: 4px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                            ">
+                                <div style="color:#fff; font-size:9px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                    ${t.titulo}
+                                </div>
+                                <div style="color:#777; font-size:8px; line-height:1.1; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+                                    ${t.descripcion || ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        calWrapper.appendChild(calGrid);
+        container.appendChild(headerMes);
+        container.appendChild(calWrapper);
+    });
+}
         else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
     bannerTitle.innerText = "Ranking Global Praxis";
     displayCode.innerText = "RANKING_V3";
@@ -1313,19 +1433,26 @@ navItems.forEach(item => {
             </div>`;
         }
     }); 
-}       else if (texto.includes("pendientes")) {
-            bannerTitle.innerText = "Tareas Pendientes";
-            displayCode.innerText = "PENDIENTES";
-            navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
-            container.innerHTML = "<div style='text-align:center; padding:40px;'><div class='spinner'></div><p>Buscando tareas pendientes...</p></div>";
-            
-            obtenerTodasLasTareas((todasLasTareas) => {
-                container.innerHTML = "";
-                const hoy = new Date().setHours(0,0,0,0);
-                const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
-                renderizarVistaLista(pendientes, "pendientes");
-            });
-        }else if (texto.includes("marketplace") || texto.includes("tienda")) {
+}    else if (texto.includes("pendientes")) {
+    bannerTitle.innerText = "Tareas Pendientes";
+    displayCode.innerText = "PENDIENTES";
+    navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
+    
+                                                         
+    container.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:200px;">
+            <div class="spinner"></div>
+            <p style="font-family:'JetBrains Mono'; margin-top:15px;">Filtrando tareas activas...</p>
+        </div>`;
+    
+    obtenerTodasLasTareas((todasLasTareas) => {
+        container.innerHTML = "";
+        const hoy = new Date().setHours(0,0,0,0);
+                                                             
+        const pendientes = todasLasTareas.filter(t => new Date(t.fecha).setHours(0,0,0,0) >= hoy);
+        renderizarVistaLista(pendientes, "pendientes");
+    });
+}else if (texto.includes("marketplace") || texto.includes("tienda")) {
     bannerTitle.innerText = "Mercado de Praxis";
     displayCode.innerText = "MARKETPLACE";
     navegarA("Marketplace", "VISTA_MARKET");
@@ -3955,6 +4082,629 @@ function escucharNuevasInsignias(uid) {
     if (user) {
                                                                                        
         escucharNuevasInsignias(user.uid);                                                                                
+    }
+});window.PraxisPlusManager = {
+    inject: function() {
+        if (document.getElementById('plus-overlay')) return;
+        const style = document.createElement('style');
+        style.textContent = `
+            #plus-overlay {
+                position: fixed; inset: 0; z-index: 10000;
+                background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+                display: none; flex-direction: column;
+                align-items: center; justify-content: center;
+                font-family: 'Arial Black', sans-serif;
+                opacity: 1; transition: opacity 1s ease;
+            }
+            .plus-img { 
+                width: 350px; 
+                filter: drop-shadow(0 0 50px rgba(138, 43, 226, 0.7)); 
+                animation: rollPlus 2s cubic-bezier(0.22, 1, 0.36, 1) forwards; 
+            }
+            .plus-title { 
+                background: linear-gradient(135deg, #8A2BE2, #DA70D6); 
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+                font-size: 6rem; font-weight: 950; margin-top: 25px; 
+                animation: slideUpPlus 0.8s ease forwards 1.4s; opacity: 0;
+                text-transform: uppercase; letter-spacing: -3px;
+            }
+            @keyframes rollPlus { 
+                0% { transform: scale(0) rotate(-720deg); opacity: 0; } 
+                100% { transform: scale(1) rotate(0deg); opacity: 1; } 
+            }
+            @keyframes slideUpPlus { 
+                from { transform: translateY(50px); opacity: 0; }
+                to { opacity: 1; transform: translateY(0); } 
+            }
+            #plus-modal-info {
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+                width: 90%; max-width: 450px; background: #111; border: 2px solid #8A2BE2;
+                border-radius: 32px; padding: 30px; z-index: 10001; display: none;
+                flex-direction: column; align-items: center; text-align: center;
+                color: white; box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+                font-family: 'Poppins', sans-serif; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            #plus-modal-info.active { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            .benefit-item { display: flex; align-items: center; gap: 15px; margin: 15px 0; text-align: left; width: 100%; }
+            .benefit-icon { font-size: 24px; color: #DA70D6; }
+            .btn-entendido-plus {
+                margin-top: 25px; padding: 12px 40px; border-radius: 50px; border: none;
+                background: linear-gradient(135deg, #8A2BE2, #DA70D6); color: white;
+                font-weight: bold; cursor: pointer; transition: transform 0.2s;
+            }
+            #plus-widget {
+                position: fixed; bottom: 20px; right: 20px;
+                width: 220px; background: rgba(15, 15, 15, 0.95);
+                border: 2px solid #8A2BE2; border-radius: 20px;
+                padding: 15px; z-index: 999; color: white;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(138, 43, 226, 0.2);
+                font-family: 'Poppins', sans-serif; cursor: move;
+                backdrop-filter: blur(10px);
+            }
+            .widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; pointer-events: none; }
+            .gem-display { display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 18px; color: #DA70D6; }
+            .btn-tienda-plus {
+                width: 100%; background: linear-gradient(135deg, #8A2BE2, #DA70D6);
+                border: none; border-radius: 10px; color: white; padding: 8px;
+                font-weight: bold; cursor: pointer; margin: 10px 0; font-size: 13px;
+            }
+            .time-left { font-size: 11px; color: #aaa; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        `;
+        document.head.appendChild(style);
+
+        const overlay = document.createElement('div');
+        overlay.id = 'plus-overlay';
+                                                            
+overlay.innerHTML = `
+    <img src="praxis_plus.png" class="plus-img" style="width: 550px; filter: drop-shadow(0 0 80px rgba(138, 43, 226, 0.8));"> 
+    <h1 class="plus-title" style="font-size: 8rem; margin-top: -20px;">Praxis Plus</h1>
+`;
+        
+        const modal = document.createElement('div');
+        modal.id = 'plus-modal-info';
+        modal.innerHTML = `
+    <div style="font-size: 50px; margin-bottom: 10px; filter: drop-shadow(0 0 10px #8A2BE2);">✨</div>
+    <h2 style="font-size: 24px; margin-bottom: 10px; font-family: 'Arial Black'; color: #fff;">¡ERES USUARIO PLUS!</h2>
+    <p style="opacity: 0.7; font-size: 14px; margin-bottom: 20px;">Tu suscripción mística está activa. Beneficios:</p>
+    
+    <div style="text-align: left; margin-bottom: 25px;">
+        <div class="benefit-item" style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+            <div class="benefit-icon" style="font-size: 25px;">💎</div>
+            <div><strong style="color: #DA70D6;">Botín Diario:</strong> +10 Mini Gemas cada día al entrar.</div>
+        </div>
+        
+        <div class="benefit-item" style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+            <div class="benefit-icon" style="font-size: 25px;">🛡️</div>
+            <div><strong style="color: #8A2BE2;">Escudo de Racha:</strong> Tienes <span id="display-escudos">2</span> protectores automáticos.</div>
+        </div>
+
+        <div class="benefit-item" style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+            <div class="benefit-icon" style="font-size: 25px;">🎲</div>
+            <div><strong style="color: #DA70D6;">Tienda Mística:</strong> Acceso a cofres con botín aleatorio.</div>
+        </div>
+
+        <div class="benefit-item" style="display: flex; align-items: center; gap: 15px;">
+            <div class="benefit-icon" style="font-size: 25px;">🔥</div>
+            <div><strong style="color: #8A2BE2;">Multiplicador:</strong> Probabilidad de duplicar puntos en cofres.</div>
+        </div>
+    </div>
+
+    <button class="btn-entendido-plus" 
+            style="background: linear-gradient(90deg, #8A2BE2, #DA70D6); border: none; color: white; padding: 12px 30px; border-radius: 15px; cursor: pointer; font-weight: bold; width: 100%; font-family: 'Poppins', sans-serif;" 
+            onclick="document.getElementById('plus-modal-info').classList.remove('active')">
+        ¡A DISFRUTAR!
+    </button>
+`;
+        document.body.appendChild(overlay);
+        document.body.appendChild(modal);
+    },
+
+    show: function() {
+        this.inject();
+        const overlay = document.getElementById('plus-overlay');
+        const modal = document.getElementById('plus-modal-info');
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.style.opacity = "0";
+            setTimeout(() => { 
+                overlay.style.display = "none"; 
+                overlay.style.opacity = "1";
+                modal.classList.add('active');
+            }, 1000);
+        }, 5500);
+    },
+
+    makeDraggable: function(el) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        el.onmousedown = function(e) {
+            e = e || window.event; e.preventDefault();
+            pos3 = e.clientX; pos4 = e.clientY;
+            document.onmouseup = function() { document.onmouseup = null; document.onmousemove = null; };
+            document.onmousemove = function(e) {
+                e = e || window.event; e.preventDefault();
+                pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+                pos3 = e.clientX; pos4 = e.clientY;
+                el.style.top = (el.offsetTop - pos2) + "px";
+                el.style.left = (el.offsetLeft - pos1) + "px";
+                el.style.bottom = "auto"; el.style.right = "auto";
+            };
+        };
+    },
+
+    injectWidget: function(uid, dbInstance, refFn, onValueFn) {
+        if (document.getElementById('plus-widget')) return;
+        const widget = document.createElement('div');
+        widget.id = 'plus-widget';
+        widget.innerHTML = `
+            <div class="widget-header"><span style="font-size: 10px; font-weight: 800; color: #8A2BE2;">PRAXIS PLUS</span></div>
+            <div class="gem-display"><span>💎</span> <span id="widget-gem-count">0</span></div>
+            <button class="btn-tienda-plus" onclick="if(window.abrirTiendaPlus) abrirTiendaPlus()">TIENDA PLUS</button>
+            <div class="time-left">EXPIRA EN: <span id="widget-timer">...</span></div>
+        `;
+        document.body.appendChild(widget);
+        this.makeDraggable(widget);
+
+        onValueFn(refFn(dbInstance, `usuarios/${uid}/stats/minigems`), (s) => {
+            document.getElementById('widget-gem-count').innerText = s.val() || 0;
+        });
+
+                                                      
+onValueFn(refFn(dbInstance, `usuarios/${uid}/plusExpire`), (s) => {
+    const expireStr = s.val();
+    
+    if (expireStr) {
+        if (window.praxisTimerInterval) clearInterval(window.praxisTimerInterval);
+
+        const parseDate = (str) => {
+            const [fecha, hora] = str.split(' ');
+            const [dia, mes, anio] = fecha.split('/');
+            const [hh, mm] = hora.split(':');
+            return new Date(parseInt(anio, 10), parseInt(mes, 10) - 1, parseInt(dia, 10), parseInt(hh, 10), parseInt(mm, 10)).getTime();
+        };
+
+        const expireTime = parseDate(expireStr);
+
+        const updateTimer = () => {
+            const dist = expireTime - new Date().getTime();
+            const timerEl = document.getElementById('widget-timer');
+
+            if (dist < 0) { 
+                clearInterval(window.praxisTimerInterval);
+                if (timerEl) timerEl.innerText = "EXPIRADO"; 
+                
+                                                                     
+                                                                     
+                this.handleExpiration(uid, dbInstance, refFn, window.update || update); 
+                return; 
+            }
+
+            const d = Math.floor(dist / 864e5);
+            const h = Math.floor((dist % 864e5) / 36e5);
+            const m = Math.floor((dist % 36e5) / 6e4);
+            if (timerEl) timerEl.innerText = `${d}d ${h}h ${m}m`;
+        };
+
+        updateTimer();
+        window.praxisTimerInterval = setInterval(updateTimer, 10000);
+    }
+});
+    },
+
+    escucharStatusPlusRTDB: function(uid, dbInstance, refFn, onValueFn) {
+        this.inject();
+        const plusPath = refFn(dbInstance, `usuarios/${uid}/inplus`);
+        onValueFn(plusPath, (snapshot) => {
+            if (snapshot.val() === true) {
+                this.injectWidget(uid, dbInstance, refFn, onValueFn);
+                if (!sessionStorage.getItem('plus_visto')) {
+                    this.show();
+                    sessionStorage.setItem('plus_visto', 'true');
+                }
+            } else {
+                const w = document.getElementById('plus-widget');
+                if (w) w.remove();
+                sessionStorage.removeItem('plus_visto');
+            }
+        });
+    },// --- FUNCIÓN DE REVOCACIÓN Y CORTINA DE CIERRE ---
+    handleExpiration: async function(uid, dbInstance, refFn, updateFn) {
+        const widget = document.getElementById('plus-widget');
+        
+                                                             
+                                                             
+        try {
+            await updateFn(refFn(dbInstance, `usuarios/${uid}`), { 
+                inplus: false 
+            });
+            console.log("🛡️ [Alonixz-Guard]: Acceso Plus revocado en DB.");
+        } catch (err) {
+            console.error("Error al revocar Plus:", err);
+        }
+
+                                                             
+        if (widget) {
+                                                                 
+            widget.classList.add('widget-glitch');
+            widget.style.borderColor = "#ff4444";
+            widget.style.boxShadow = "0 0 40px rgba(255, 0, 0, 0.6)";
+
+            setTimeout(() => {
+                                                                     
+                widget.style.animation = "fadeOutDown 1.2s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards";
+                
+                setTimeout(() => {
+                    widget.remove();
+                                                                         
+                    this.mostrarModalExpirado();
+                }, 1000);
+            }, 3000);                                                      
+        } else {
+            this.mostrarModalExpirado();
+        }
+    },
+
+                                                         
+    mostrarModalExpirado: function() {
+        if (document.getElementById('expired-modal')) return;
+
+        const modal = document.createElement('div');
+        modal.id = 'expired-modal';
+                                                             
+        modal.style = `
+            position: fixed; inset: 0; z-index: 200000;
+            background: rgba(0, 0, 0, 0.85); display: flex;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(15px); font-family: 'Poppins', sans-serif;
+        `;
+
+        modal.innerHTML = `
+            <div style="
+                background: #111; border: 3px solid #ff4444; 
+                padding: 40px; border-radius: 30px; text-align: center; 
+                color: white; max-width: 380px; 
+                box-shadow: 0 0 60px rgba(255, 68, 68, 0.3);
+                animation: slideUpPlus 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            ">
+                <div style="font-size: 70px; margin-bottom: 20px; filter: drop-shadow(0 0 15px #ff4444);">⌛</div>
+                <h2 style="font-family: 'Arial Black'; color: #ff4444; font-size: 26px; margin: 0; text-transform: uppercase;">Plus Expirado</h2>
+                <p style="opacity: 0.8; margin: 20px 0; font-size: 15px; line-height: 1.4;">
+                    Tu tiempo místico ha terminado. Se han desactivado los beneficios de racha y el acceso a la Tienda Plus.
+                </p>
+                <p style="font-size: 11px; color: #666; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px;">
+                    Solicita una renovación al Consejo Estudiantil
+                </p>
+                <button onclick="location.reload()" style="
+                    background: #ff4444; border: none; color: white; 
+                    padding: 15px 40px; border-radius: 15px; 
+                    cursor: pointer; font-weight: bold; width: 100%;
+                    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+                    transition: transform 0.2s;
+                ">
+                    REGRESAR A PRAXIS
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+};
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("✅ Usuario detectado:", user.uid);
+        
+                                                             
+        if (typeof escucharNuevasInsignias === 'function') {
+            escucharNuevasInsignias(user.uid);
+        }
+
+                                                             
+        if (window.PraxisPlusManager) {
+            PraxisPlusManager.escucharStatusPlusRTDB(user.uid, db, ref, onValue);
+        }
+
+     
+
+    } else {
+        console.log("❌ No hay sesión activa");
+    }
+});/**
+ * TIENDA MÍSTICA V3 - ALONIXZ-GROUP
+ * Loot System: Puntos Aleatorios + Alto Riesgo
+ */
+
+window.abrirTiendaPlus = function() {
+    let existingModal = document.getElementById('plus-shop-modal');
+    if (existingModal) {
+        existingModal.classList.add('active');
+        return;
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        #plus-shop-modal {
+            position: fixed; inset: 0; z-index: 10002;
+            background: rgba(0,0,0,0.97); backdrop-filter: blur(25px);
+            display: none; align-items: center; justify-content: center;
+            font-family: 'Poppins', sans-serif;
+        }
+        #plus-shop-modal.active { display: flex; animation: fadeIn 0.5s ease; }
+        .shop-container {
+            width: 95%; max-width: 850px; background: #050505;
+            border: 2px solid #8A2BE2; border-radius: 40px;
+            padding: 40px; position: relative; text-align: center; color: white;
+            box-shadow: 0 0 80px rgba(138, 43, 226, 0.15);
+        }
+        .shop-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px; margin-top: 30px;
+        }
+        .chest-card {
+            background: #0f0f0f; border: 1px solid #222; padding: 25px;
+            border-radius: 30px; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; position: relative;
+        }
+        .chest-card:hover { border-color: #DA70D6; transform: translateY(-10px); background: #151515; }
+        .chest-icon { font-size: 55px; display: block; margin-bottom: 10px; transition: 0.4s; }
+        .chest-card:hover .chest-icon { filter: drop-shadow(0 0 15px #8A2BE2); transform: scale(1.1); }
+        
+        /* Animaciones FX */
+        .fx-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    const shop = document.createElement('div');
+    shop.id = 'plus-shop-modal';
+    shop.innerHTML = `
+        <div class="shop-container" id="shop-main-ui">
+            <button style="position:absolute; top:20px; right:25px; background:none; border:none; color:#444; font-size:35px; cursor:pointer;" onclick="document.getElementById('plus-shop-modal').classList.remove('active')">×</button>
+            <h1 style="font-family: 'Arial Black'; font-size: 28px; letter-spacing: -1px;">SANTUARIO DE RECOMPENSAS</h1>
+            <p style="color:#666; font-size:11px; text-transform:uppercase; letter-spacing:3px;">Solo para la élite Praxis</p>
+            
+            <div class="shop-grid">
+                <div class="chest-card" onclick="PraxisPlusManager.comprarCofre('bronce', 150)">
+                    <span class="chest-icon">📦</span>
+                    <div style="font-weight:900; font-size:14px;">COFRE DE MADERA</div>
+                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">150 💎</div>
+                    <div style="font-size:10px; color:#555; margin-top:10px;">Riesgo: Extremo (60% Vacío)<br>Botín: 10 - 500 pts</div>
+                </div>
+                <div class="chest-card" onclick="PraxisPlusManager.comprarCofre('plata', 350)">
+                    <span class="chest-icon">💎</span>
+                    <div style="font-weight:900; font-size:14px;">COFRE DE CRISTAL</div>
+                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">350 💎</div>
+                    <div style="font-size:10px; color:#555; margin-top:10px;">Riesgo: Alto (50% Vacío)<br>Botín: 100 - 1500 pts</div>
+                </div>
+                <div class="chest-card" onclick="PraxisPlusManager.comprarCofre('oro', 750)">
+                    <span class="chest-icon">🔥</span>
+                    <div style="font-weight:900; font-size:14px;">COFRE INFERNAL</div>
+                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">750 💎</div>
+                    <div style="font-size:10px; color:#555; margin-top:10px;">Riesgo: Moderado (40% Vacío)<br>Botín: 500 - 5000 pts</div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(shop);
+    shop.classList.add('active');
+};
+
+PraxisPlusManager.comprarCofre = async function(tipo, precio) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const statsPath = `usuarios/${user.uid}/stats`;
+    const statsRef = ref(db, statsPath);
+    const ui = document.getElementById('shop-main-ui');
+
+    try {
+        const snap = await get(statsRef);
+        let data = snap.val() || {};
+        let gemas = data.minigems || 0;
+        let puntos = data.puntos || 0;
+
+        if (gemas < precio) { alert("Gemas insuficientes"); return; }
+
+        let azar = Math.random() * 100;
+        let pVacio = (tipo === 'bronce') ? 60 : (tipo === 'plata') ? 50 : 40;
+        let pDuplicar = (tipo === 'bronce') ? 2 : (tipo === 'plata') ? 3.5 : 5;
+        
+        let resultado = "vacio";
+        let botinObtenido = 0;
+
+        if (azar < pVacio) {
+            resultado = "vacio";
+        } else if (azar < (pVacio + pDuplicar)) {
+            resultado = "duplicar";
+        } else {
+            resultado = "puntos";
+                                                                 
+            if (tipo === 'bronce') botinObtenido = [10, 50, 100, 250, 500][Math.floor(Math.random() * 5)];
+            if (tipo === 'plata') botinObtenido = [100, 300, 600, 1000, 1500][Math.floor(Math.random() * 5)];
+            if (tipo === 'oro') botinObtenido = [500, 1000, 2000, 3500, 5000][Math.floor(Math.random() * 5)];
+        }
+
+        let nuevosPuntos = puntos;
+        if (resultado === "duplicar") nuevosPuntos = puntos * 2;
+        if (resultado === "puntos") nuevosPuntos = puntos + botinObtenido;
+
+        await update(statsRef, { minigems: gemas - precio, puntos: nuevosPuntos });
+
+                                                             
+        if (resultado === "vacio") {
+            ui.classList.add('fx-shake');
+            alert("💨 ¡VACÍO! El cofre no tenía nada.");
+            setTimeout(() => ui.classList.remove('fx-shake'), 500);
+        } else if (resultado === "duplicar") {
+            alert("👑 ¡MILAGRO! ¡Tus puntos se han DUPLICADO!");
+        } else {
+            alert(`✨ ¡BOTÍN! Has encontrado ${botinObtenido} puntos.`);
+        }
+
+    } catch (e) { console.error(e); }
+};window.PraxisDailyManager = {
+    isProcessing: false,
+
+    listenToStatsRealtime: function(uid) {
+                                                             
+        const userRef = ref(db, `usuarios/${uid}`);
+
+        onValue(userRef, async (snapshot) => {
+            if (this.isProcessing) return;
+
+            const userData = snapshot.exists() ? snapshot.val() : {};
+            const hoy = new Date().toDateString();
+
+                                                                 
+                                                                 
+            if (userData.inplus !== true) {
+                console.log("⚠️ [Alonixz-Guard]: Usuario no es Plus. Funciones diarias desactivadas.");
+                return;
+            }
+
+                                                                 
+            const stats = userData.stats || {};
+            const statsRef = ref(db, `usuarios/${uid}/stats`);
+
+                                                                 
+            if (stats.minigems === undefined || stats.protec_racha === undefined || stats.racha_historial === undefined) {
+                this.isProcessing = true;
+                console.log("🛠️ [Alonixz-Guard]: Usuario Plus detectado sin variables. Inicializando...");
+                
+                await update(statsRef, {
+                    minigems: stats.minigems !== undefined ? stats.minigems : 10,
+                    protec_racha: stats.protec_racha !== undefined ? stats.protec_racha : 2,
+                    racha_historial: stats.racha_historial !== undefined ? stats.racha_historial : (stats.racha || 0),
+                    racha: stats.racha !== undefined ? stats.racha : 0,
+                    last_login: stats.last_login !== undefined ? stats.last_login : hoy
+                });
+                
+                this.isProcessing = false;
+                return;
+            }
+
+                                                                 
+            const rachaActual = parseInt(stats.racha) || 0;
+            const rachaGuardada = parseInt(stats.racha_historial) || 0;
+            const escudos = parseInt(stats.protec_racha) || 0;
+
+                                                                 
+            if (rachaActual > rachaGuardada) {
+                this.isProcessing = true;
+                await update(statsRef, { racha_historial: rachaActual });
+                this.isProcessing = false;
+            }
+                                                                 
+            else if (rachaActual < rachaGuardada) {
+                if (escudos > 0) {
+                    this.isProcessing = true;
+                    console.log("🛡️ [Plus Protect]: Racha salvada.");
+                    await update(statsRef, { 
+                        racha: rachaGuardada,
+                        protec_racha: escudos - 1 
+                    });
+                    this.mostrarPopupProteccion(rachaGuardada, escudos - 1);
+                    this.isProcessing = false;
+                } else {
+                                                                         
+                    this.isProcessing = true;
+                    await update(statsRef, { racha_historial: rachaActual });
+                    this.isProcessing = false;
+                }
+            }
+
+                                                                 
+            if (stats.last_login !== hoy) {
+                this.isProcessing = true;
+                await update(statsRef, {
+                    minigems: (parseInt(stats.minigems) || 0) + 10,
+                    last_login: hoy
+                });
+                this.isProcessing = false;
+                console.log("🎁 [Daily]: +10 Mini Gemas entregadas.");
+            }
+        });
+    },
+
+    mostrarPopupProteccion: function(valor, quedan) {
+        if (document.getElementById('plus-alert-streak')) return;
+        const html = `
+            <div id="plus-alert-streak" style="position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(20px);">
+                <div style="background:#000;border:2px solid #8A2BE2;padding:40px;border-radius:40px;text-align:center;color:white;font-family:'Poppins',sans-serif;max-width:350px;box-shadow:0 0 60px rgba(138,43,226,0.6);">
+                    <div style="font-size:70px;margin-bottom:15px;filter:drop-shadow(0 0 15px #8A2BE2);">🛡️</div>
+                    <h2 style="margin:0;color:#8A2BE2;font-family:'Arial Black';">ESCUDO PLUS</h2>
+                    <p style="opacity:0.8;margin:20px 0;">
+                        Racha de <b>${valor} días</b> restaurada.<br>
+                        <span style="color:#DA70D6; font-weight:bold; display:block; margin-top:10px;">Protectores restantes: ${quedan}</span>
+                    </p>
+                    <button onclick="document.getElementById('plus-alert-streak').remove()" style="background:linear-gradient(90deg,#8A2BE2,#DA70D6);border:none;color:white;padding:15px 40px;border-radius:20px;cursor:pointer;font-weight:900;width:100%;">ENTENDIDO</button>
+                </div>
+            </div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+    }
+};onAuthStateChanged(auth, (user) => {
+    if (user) {
+                                                             
+        PraxisDailyManager.listenToStatsRealtime(user.uid);
+    }
+    });window.PraxisVisualManager = {
+    aplicarInterfazPlus: function(esPlus) {
+        if (esPlus) {
+            console.log("✨ [Visual]: Transformando a Praxis Plus (Logo Grande)...");
+            
+                                                                 
+            const logos = document.querySelectorAll('img');
+            logos.forEach(img => {
+                                                                     
+                if (img.closest('#plus-overlay')) return;
+
+                if (img.src.includes('praxis.png') || img.src.includes('praxis_plus.png')) {
+                                                                         
+                    img.src = "praxis_plus.png";
+                    
+                                                                         
+                    img.style.width = "100px"; 
+                    img.style.transition = "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                    
+                                                                         
+                    img.style.filter = "drop-shadow(0 0 12px rgba(138, 43, 226, 0.6))";
+                }
+            });
+
+                                                                 
+            const logoText = document.querySelector('.logo');
+            if (logoText) {
+                                                                     
+                if (logoText.closest('#plus-overlay')) return;
+
+                logoText.style.color = "#8A2BE2";
+                logoText.style.fontSize = "28px"; 
+                logoText.style.gap = "12px"; 
+                
+                if (!logoText.querySelector('.badge-plus')) {
+                    logoText.insertAdjacentHTML('beforeend', '<span class="badge-plus" style="font-size: 12px; color: #DA70D6; font-family: sans-serif; font-weight: 900; margin-left: 5px;">+</span>');
+                }
+            }
+        }
+    }
+};onAuthStateChanged(auth, (user) => {
+    if (user) {
+        const userRef = ref(db, `usuarios/${user.uid}`);
+
+        onValue(userRef, (snapshot) => {
+            const userData = snapshot.val() || {};
+            const esPlus = userData.inplus === true;
+
+                                                                 
+            PraxisVisualManager.aplicarInterfazPlus(esPlus);
+
+                                                                 
+            if (esPlus && window.PraxisDailyManager) {
+                PraxisDailyManager.listenToStatsRealtime(user.uid);
+            }
+        });
     }
 });
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
