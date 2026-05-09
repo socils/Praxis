@@ -4249,41 +4249,67 @@ overlay.innerHTML = `
         });
 
                                                       
-onValueFn(refFn(dbInstance, `usuarios/${uid}/plusExpire`), (s) => {
+onValueFn(refFn(dbInstance, `usuarios/${uid}/plusExpira`), (s) => {
     const expireStr = s.val();
     
     if (expireStr) {
+   
         if (window.praxisTimerInterval) clearInterval(window.praxisTimerInterval);
 
         const parseDate = (str) => {
-            const [fecha, hora] = str.split(' ');
-            const [dia, mes, anio] = fecha.split('/');
-            const [hh, mm] = hora.split(':');
-            return new Date(parseInt(anio, 10), parseInt(mes, 10) - 1, parseInt(dia, 10), parseInt(hh, 10), parseInt(mm, 10)).getTime();
+
+            const parts = str.split(' ');
+            if (parts.length < 2) return 0;
+
+            const [dia, mes, anio] = parts[0].split('/');
+            const [hh, mm] = parts[1].split(':');
+
+            // Convertimos el año '26' en 2026
+            let fullYear = parseInt(anio, 10);
+            if (fullYear < 100) fullYear += 2000;
+
+            return new Date(
+                fullYear, 
+                parseInt(mes, 10) - 1, 
+                parseInt(dia, 10), 
+                parseInt(hh, 10), 
+                parseInt(mm, 10)
+            ).getTime();
         };
 
         const expireTime = parseDate(expireStr);
 
         const updateTimer = () => {
-            const dist = expireTime - new Date().getTime();
+            const ahora = new Date().getTime();
+            const dist = expireTime - ahora;
             const timerEl = document.getElementById('widget-timer');
 
-            if (dist < 0) { 
+            if (dist <= 0) { 
                 clearInterval(window.praxisTimerInterval);
                 if (timerEl) timerEl.innerText = "EXPIRADO"; 
                 
-                                                                     
-                                                                     
+                console.log("⏰ [Timer]: Tiempo cumplido. Ejecutando cierre...");
+                
                 this.handleExpiration(uid, dbInstance, refFn, window.update || update); 
                 return; 
             }
 
+ 
             const d = Math.floor(dist / 864e5);
             const h = Math.floor((dist % 864e5) / 36e5);
             const m = Math.floor((dist % 36e5) / 6e4);
-            if (timerEl) timerEl.innerText = `${d}d ${h}h ${m}m`;
+            
+            if (timerEl) {
+         
+                if (d > 0) {
+                    timerEl.innerText = `${d}d ${h}h ${m}m`;
+                } else {
+                    timerEl.innerText = `${h}h ${m}m`;
+                }
+            }
         };
 
+        // Ejecutar inmediatamente y luego cada 10 segundos
         updateTimer();
         window.praxisTimerInterval = setInterval(updateTimer, 10000);
     }
