@@ -419,7 +419,26 @@
         transform: translate(4px, 4px);
         box-shadow: 0px 0px 0px #000;
     }
-</style>
+</style><div class="plus-manager" style="background: #1a0b2e; border: 4px solid #8A2BE2; box-shadow: 12px 12px 0px #000; padding: 30px; border-radius: 4px; margin-top: 30px; color: white;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #8A2BE2; padding-bottom: 15px;">
+        <span style="font-size: 32px;">💎</span>
+        <h3 style="margin: 0; font-size: 22px; font-weight: 900; text-transform: uppercase;">Activar Suscripción Plus</h3>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        <label style="font-size: 11px; font-weight: 800; color: #DA70D6; text-transform: uppercase;">ID del Estudiante</label>
+        <input type="text" id="plus-uid" placeholder="Pegar UID aquí..." 
+               style="padding: 15px; border: 2px solid #8A2BE2; background: #000; color: #00ff88; font-family: 'JetBrains Mono', monospace; outline: none;">
+        
+        <label style="font-size: 11px; font-weight: 800; color: #DA70D6; text-transform: uppercase;">Fecha y Hora de Expiración</label>
+        <input type="datetime-local" id="plus-expira" 
+               style="padding: 15px; border: 2px solid #8A2BE2; background: #000; color: #fff; font-family: 'Outfit', sans-serif; outline: none;">
+
+        <button onclick="activarPlusDefinitivo()" class="btn-plus-full">
+            CONFIRMAR ACTIVACIÓN PLUS
+        </button>
+    </div>
+</div>
 </div>
 
 <!-- Modales -->
@@ -863,6 +882,55 @@ window.validarBoletaQR = async (idBoleta) => {
         }
     } catch (e) {
         console.error(e);
+    }
+};window.activarPlusDefinitivo = async () => {
+    const uid = document.getElementById('plus-uid').value.trim();
+    const inputFecha = document.getElementById('plus-expira').value;
+    
+    if(!uid || !inputFecha) {
+        return alert("❌ Error: Faltan datos obligatorios.");
+    }
+
+    // Procesar la fecha al formato deseado: 10/04/26 13:34
+    const fechaObj = new Date(inputFecha);
+    const d = String(fechaObj.getDate()).padStart(2, '0');
+    const m = String(fechaObj.getMonth() + 1).padStart(2, '0');
+    const a = String(fechaObj.getFullYear()).substring(2); 
+    const hh = String(fechaObj.getHours()).padStart(2, '0');
+    const mm = String(fechaObj.getMinutes()).padStart(2, '0');
+    
+    const fechaFormateada = `${d}/${m}/${a} ${hh}:${mm}`;
+
+    // Referencia directa para evitar múltiples listeners
+    const userRef = ref(db, `usuarios/${uid}`);
+
+    try {
+        // 1. Verificamos si el usuario existe una sola vez
+        const snapshot = await get(userRef);
+        
+        if(!snapshot.exists()) {
+            return alert("⚠️ ID no encontrado en Alonixz-Cloud.");
+        }
+
+        const nombre = snapshot.val().nombre || "Estudiante";
+
+        // 2. ACTIVACIÓN SILENCIOSA (Sin anuncios en comunicados)
+        // Usamos update para modificar múltiples campos a la vez
+        await update(userRef, {
+            inplus: true,            // Sincronizado con tu lógica de expiración
+            plusExpira: fechaFormateada,
+         
+        });
+
+        alert(`💎 Sistema Praxis Plus activado para ${nombre} hasta el ${fechaFormateada}`);
+        
+        // Limpiar interfaz
+        document.getElementById('plus-uid').value = "";
+        document.getElementById('plus-expira').value = "";
+
+    } catch (error) {
+        console.error("Error en Alonixz-Cloud:", error);
+        alert("❌ Error de permisos o red. Revisa la consola.");
     }
 };
 </script><!-- Modal de Advertencia de Seguridad -->
