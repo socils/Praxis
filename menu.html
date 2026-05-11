@@ -19,7 +19,7 @@
     <div class="logo-wrapper" style="position: relative; display: flex; align-items: center; gap: 12px;">
         <div class="logo" style="font-family: 'Arial Black', sans-serif; font-size: 26px; font-weight: 950; text-transform: uppercase; display: flex; align-items: center; gap: 8px; letter-spacing: -1.5px; color: #000;">
             <img src="praxis.png" alt="Logo" style="width: 42px;">
-            Praxis
+        Praxis
         </div>
         
         <div class="badge-v1" style="background: #000; color: #fff; padding: 3px 8px; border: 2px solid #0071ff; transform: skewX(-12deg); box-shadow: 4px 4px 0px rgba(0, 113, 255, 0.2); display: flex; flex-direction: column; line-height: 1.1; min-width: 85px; text-align: center;">
@@ -4816,39 +4816,72 @@ PraxisPlusManager.comprarCofre = async function(tipo, precio) {
     });window.PraxisVisualManager = {
     aplicarInterfazPlus: function(esPlus) {
         if (esPlus) {
-            console.log("✨ [Visual]: Transformando a Praxis Plus (Logo Grande)...");
+            console.log("✨ [Visual]: Sincronizando Identidad Praxis Plus...");
             
-                                                                 
+                                                                                                                  
+            if (!document.getElementById('plus-core-styles')) {
+                const style = document.createElement('style');
+                style.id = 'plus-core-styles';
+                style.innerText = `
+                    @keyframes plusSync {
+                        0%, 100% { transform: scale(1.1) translateY(-2px); filter: drop-shadow(0 0 8px rgba(218, 112, 214, 0.5)); }
+                        50% { transform: scale(1.25) translateY(-5px); filter: drop-shadow(0 0 18px rgba(138, 43, 226, 0.8)); }
+                    }
+                    .badge-plus-animated {
+                        display: inline-block;
+                        font-family: 'Outfit', sans-serif;
+                        font-weight: 900;
+                        font-size: 42px; /* Más grande para dominar el espacio */
+                        line-height: 0.8;
+                        margin-left: -2px; /* Negativo para pegarlo al texto "Praxis" */
+                        background: linear-gradient(135deg, #DA70D6, #8A2BE2, #00BFFF);
+                        background-size: 200% auto;
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        animation: plusSync 3s ease-in-out infinite;
+                        vertical-align: middle;
+                        user-select: none;
+                    }
+                    .logo-plus-mode {
+                        gap: 4px !important; /* Une la imagen, el texto y el plus */
+                        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+                                                                                                                  
             const logos = document.querySelectorAll('img');
             logos.forEach(img => {
-                                                                     
                 if (img.closest('#plus-overlay')) return;
-
                 if (img.src.includes('praxis.png') || img.src.includes('praxis_plus.png')) {
-                                                                         
                     img.src = "praxis_plus.png";
-                    
-                                                                         
                     img.style.width = "100px"; 
-                    img.style.transition = "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-                    
-                                                                         
-                    img.style.filter = "drop-shadow(0 0 12px rgba(138, 43, 226, 0.6))";
+                    img.style.filter = "drop-shadow(0 0 15px rgba(138, 43, 226, 0.6))";
                 }
             });
 
-                                                                 
-            const logoText = document.querySelector('.logo');
-            if (logoText) {
-                                                                     
-                if (logoText.closest('#plus-overlay')) return;
+                                                                                                                  
+            const logoContainer = document.querySelector('.logo');
+            if (logoContainer) {
+                if (logoContainer.closest('#plus-overlay')) return;
 
-                logoText.style.color = "#8A2BE2";
-                logoText.style.fontSize = "28px"; 
-                logoText.style.gap = "12px"; 
-                
-                if (!logoText.querySelector('.badge-plus')) {
-                    logoText.insertAdjacentHTML('beforeend', '<span class="badge-plus" style="font-size: 12px; color: #DA70D6; font-family: sans-serif; font-weight: 900; margin-left: 5px;">+</span>');
+                logoContainer.classList.add('logo-plus-mode');
+                logoContainer.style.color = "#8A2BE2";
+                logoContainer.style.fontSize = "32px"; 
+                logoContainer.style.display = "flex";
+                logoContainer.style.alignItems = "center";
+
+                if (!logoContainer.querySelector('.badge-plus-animated')) {
+                                                                                                                          
+                    const currentText = logoContainer.innerText.trim();
+                    const currentImg = logoContainer.querySelector('img') ? logoContainer.querySelector('img').outerHTML : '';
+                    
+                    logoContainer.innerHTML = `
+                        ${currentImg}
+                        <span style="margin-left: 8px;">${currentText}</span>
+                        <span class="badge-plus-animated">+</span>
+                    `;
                 }
             }
         }
