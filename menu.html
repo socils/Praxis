@@ -56,6 +56,8 @@
             <div class="nav-item"><img src="podio.png" alt="" style="width: 20px;"> Rankings</div>
             <hr><div class="nav-item" id="nav-soporte">
     <img src="soporte.png" alt="" style="width: 20px;"> Soporte y Ayuda
+</div><div class="nav-item" id="nav-soporte">
+    <img src="megafono.png" alt="" style="width: 20px;"> Noticias y Anuncios
 </div>
 <hr>
             <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>
@@ -1176,6 +1178,142 @@ navItems.forEach(item => {
         calWrapper.appendChild(calGrid);
         container.appendChild(headerMes);
         container.appendChild(calWrapper);
+    });
+}else if (texto.includes("noticias") || texto.includes("actualizaciones")) {
+    bannerTitle.innerText = "Centro de Noticias";
+    displayCode.innerText = "LOGS_SISTEMA";
+    navegarA("Noticias", "VISTA_NOTICIAS");
+    
+    container.style.display = "block"; 
+    container.style.width = "100%";
+    container.style.overflowX = "hidden";
+
+                                                                   
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 5px rgba(138, 43, 226, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(138, 43, 226, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(138, 43, 226, 0.2); }
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .super-noticia {
+            background: linear-gradient(-45deg, #0f0f0f, #1a0b2e, #0f0f0f, #0a0a0a);
+            background-size: 400% 400%;
+            animation: gradientMove 10s ease infinite, glowPulse 3s infinite;
+            border: 1px solid #8A2BE2 !important;
+        }
+        .patch-log {
+            border-left: 3px solid #444;
+            margin-top: 10px;
+            padding-left: 15px;
+        }
+        .patch-item {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 5px;
+        }
+        .fix-badge {
+            color: #34a853;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+    `;
+    document.head.appendChild(styleSheet);
+
+    const noticiasDB = [
+        {
+            esSuper: true,
+            fecha: "18/05/26",
+            titulo: "Lanzamiento Oficial: Praxis V1.0.0",
+            categoria: "DESPLIEGUE GLOBAL",
+            cuerpo: "¡El futuro ha llegado! Praxis abandona la fase beta. Hemos habilitado el ecosistema completo: Sincronización Alonixz-Cloud, integración con Google y el nuevo sistema de logros.",
+            parches: [
+                "CORREGIDO: Bucle de carga infinita en conexiones lentas.",
+                "OPTIMIZADO: Estabilidad del Modo Incógnito en navegadores móviles.",
+                "SISTEMA: Cifrado de nivel institucional activo."
+            ],
+            color: "#8A2BE2"
+        },
+        {
+            fecha: "15/05/26",
+            titulo: "Hotfix: Parche de Estabilidad Beta",
+            categoria: "MANTENIMIENTO",
+            cuerpo: "Reporte de errores de la comunidad atendido. Se detectaron problemas críticos en el manejo de sesiones anónimas.",
+            parches: [
+                "FIX: Error de 'Sesión No Encontrada' al entrar como invitado.",
+                "FIX: El spinner de carga ya no se bloquea al fallar la red."
+            ],
+            color: "#ff4444"
+        }
+    ];
+
+    container.innerHTML = `
+        <div style="padding: 25px 0; text-align: center; background: #000; border: 1px solid #333; border-radius: 20px 20px 0 0;">
+            <p style="color:#8A2BE2; font-family:'JetBrains Mono'; font-size:10px; margin-bottom:5px; letter-spacing:3px;">SISTEMA OPERATIVO ALONIXZ</p>
+            <h2 style="color:#fff; font-family:'Arial Black', sans-serif; margin:0; letter-spacing: 2px; font-size: 22px;">
+                FEED DE <span style="color:#8A2BE2;">ACTUALIZACIONES</span>
+            </h2>
+        </div>
+        <div id="news-container" style="background:#050505; border: 1px solid #333; border-top:none; border-radius: 0 0 20px 20px; padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+        </div>
+    `;
+
+    const newsList = document.getElementById('news-container');
+
+    noticiasDB.forEach(nota => {
+        const entry = document.createElement('div');
+        const esSuper = nota.esSuper ? 'super-noticia' : '';
+        
+        entry.className = esSuper;
+        entry.style = `
+            background: #111;
+            border: 1px solid #222;
+            padding: 25px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        `;
+        
+        entry.innerHTML = `
+            ${nota.esSuper ? '<div style="position:absolute; top:0; right:20px; background:#8A2BE2; color:#fff; font-size:9px; font-weight:900; padding:4px 10px; border-radius:0 0 8px 8px;">MAJOR RELEASE</div>' : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="color:${nota.color}; font-size:11px; font-weight:900; letter-spacing:1px; text-transform:uppercase; font-family:'JetBrains Mono';">
+                    ● ${nota.categoria}
+                </span>
+                <span style="color:#555; font-family:'JetBrains Mono'; font-size:11px;">
+                    ${nota.fecha}
+                </span>
+            </div>
+            <h3 style="color:#fff; font-family:'Outfit', sans-serif; margin:0 0 10px 0; font-size:22px; letter-spacing:-0.5px;">
+                ${nota.titulo}
+            </h3>
+            <p style="color:#aaa; font-size:14px; line-height:1.6; margin:0;">
+                ${nota.cuerpo}
+            </p>
+            
+            <div class="patch-log">
+                ${nota.parches.map(p => `
+                    <div class="patch-item">
+                        <span class="fix-badge">#</span> ${p}
+                    </div>
+                `).join('')}
+            </div>
+
+            ${nota.esSuper ? `
+                <div style="margin-top:20px; display:flex; gap:10px;">
+                    <div style="background:rgba(138,43,226,0.1); border:1px solid #8A2BE2; color:#8A2BE2; font-size:10px; padding:5px 12px; border-radius:100px; font-weight:800;">V1.0.0 STABLE</div>
+                    <div style="background:rgba(52,168,83,0.1); border:1px solid #34a853; color:#34a853; font-size:10px; padding:5px 12px; border-radius:100px; font-weight:800;">EN LÍNEA</div>
+                </div>
+            ` : ''}
+        `;
+        
+        newsList.appendChild(entry);
     });
 }
         else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
@@ -4169,7 +4307,7 @@ overlay.innerHTML = `
     
     <div style="text-align: left; margin-bottom: 25px;">
         <div class="benefit-item" style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
-            <div class="benefit-icon" style="font-size: 25px;">💎</div>
+            <div class="benefit-icon" style="font-size: 25px;"><img src="diamante.png" style="width: 25px"></div>
             <div><strong style="color: #DA70D6;">Botín Diario:</strong> +10 Mini Gemas cada día al entrar.</div>
         </div>
         
@@ -4237,7 +4375,7 @@ overlay.innerHTML = `
         widget.id = 'plus-widget';
         widget.innerHTML = `
             <div class="widget-header"><span style="font-size: 10px; font-weight: 800; color: #8A2BE2;">PRAXIS PLUS</span></div>
-            <div class="gem-display"><span>💎</span> <span id="widget-gem-count">0</span></div>
+            <div class="gem-display"><span><img src="diamante.png" style="width: 25px"></span> <span id="widget-gem-count">0</span></div>
             <button class="btn-tienda-plus" onclick="if(window.abrirTiendaPlus) abrirTiendaPlus()">TIENDA PLUS</button>
             <div class="time-left">EXPIRA EN: <span id="widget-timer">...</span></div>
         `;
@@ -4264,7 +4402,7 @@ onValueFn(refFn(dbInstance, `usuarios/${uid}/plusExpira`), (s) => {
             const [dia, mes, anio] = parts[0].split('/');
             const [hh, mm] = parts[1].split(':');
 
-            // Convertimos el año '26' en 2026
+                                                                           
             let fullYear = parseInt(anio, 10);
             if (fullYear < 100) fullYear += 2000;
 
@@ -4309,7 +4447,7 @@ onValueFn(refFn(dbInstance, `usuarios/${uid}/plusExpira`), (s) => {
             }
         };
 
-        // Ejecutar inmediatamente y luego cada 10 segundos
+                                                                       
         updateTimer();
         window.praxisTimerInterval = setInterval(updateTimer, 10000);
     }
@@ -4332,7 +4470,7 @@ onValueFn(refFn(dbInstance, `usuarios/${uid}/plusExpira`), (s) => {
                 sessionStorage.removeItem('plus_visto');
             }
         });
-    },// --- FUNCIÓN DE REVOCACIÓN Y CORTINA DE CIERRE ---
+    },
     handleExpiration: async function(uid, dbInstance, refFn, updateFn) {
         const widget = document.getElementById('plus-widget');
         
@@ -4495,19 +4633,19 @@ window.abrirTiendaPlus = function() {
                 <div class="chest-card" onclick="PraxisPlusManager.comprarCofre('bronce', 150)">
                     <span class="chest-icon">📦</span>
                     <div style="font-weight:900; font-size:14px;">COFRE DE MADERA</div>
-                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">150 💎</div>
+                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">150 <img src="diamante.png" style="width: 25px"></div>
                     <div style="font-size:10px; color:#555; margin-top:10px;">Riesgo: Extremo (60% Vacío)<br>Botín: 10 - 500 pts</div>
                 </div>
                 <div class="chest-card" onclick="PraxisPlusManager.comprarCofre('plata', 350)">
-                    <span class="chest-icon">💎</span>
+                    <span class="chest-icon"><img src="diamante.png" style="width: 60px"></span>
                     <div style="font-weight:900; font-size:14px;">COFRE DE CRISTAL</div>
-                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">350 💎</div>
+                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">350 <img src="diamante.png" style="width: 25px"></div>
                     <div style="font-size:10px; color:#555; margin-top:10px;">Riesgo: Alto (50% Vacío)<br>Botín: 100 - 1500 pts</div>
                 </div>
                 <div class="chest-card" onclick="PraxisPlusManager.comprarCofre('oro', 750)">
                     <span class="chest-icon">🔥</span>
                     <div style="font-weight:900; font-size:14px;">COFRE INFERNAL</div>
-                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">750 💎</div>
+                    <div style="color:#DA70D6; font-weight:800; font-size:18px;">750 <img src="diamante.png" style="width: 25px"></div>
                     <div style="font-size:10px; color:#555; margin-top:10px;">Riesgo: Moderado (40% Vacío)<br>Botín: 500 - 5000 pts</div>
                 </div>
             </div>
