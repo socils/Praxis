@@ -97,7 +97,6 @@
         h1 { font-size: 34px; font-weight: 800; color: var(--dark); letter-spacing: -1.5px; margin-bottom: 12px; }
         .subtitle { color: var(--gray); font-size: 15px; margin-bottom: 40px; line-height: 1.6; }
 
-        /* --- BOTONES PREMIUM --- */
         .btn {
             width: 100%;
             padding: 20px;
@@ -290,7 +289,6 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // --- GESTIÓN DE BIENVENIDA ---
         const title = document.getElementById('welcome-title');
         const sub = document.getElementById('welcome-sub');
         
@@ -321,7 +319,7 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Pequeña pausa para efecto visual del loader
+         
                 setTimeout(() => window.location.replace("menu.html"), 800);
             }
         });
