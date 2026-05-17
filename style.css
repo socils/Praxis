@@ -1659,8 +1659,27 @@ body.tema-hacker .logo img {
 .admin-title {
     font-size: 14px;
     font-weight: 800;
+}.config-card-mini {
+    border: 2px solid #000;
+    padding: 12px;
+    cursor: pointer;
+    transition: 0.1s;
+    background: #f9f9f9;
 }
-@keyframes slideIn {
+
+.config-card-mini:hover {
+    background: #000;
+    color: #fff;
+    transform: translate(-3px, -3px);
+    box-shadow: 4px 4px 0px #00ff88;
+}
+
+.label-brutal {
+    display: block;
+    font-size: 10px;
+    font-weight: 900;
+    margin-bottom: 5px;
+}@keyframes slideIn {
     from { transform: translateX(120%); }
     to { transform: translateX(0); }
 }
@@ -1668,4 +1687,80 @@ body.tema-hacker .logo img {
 @keyframes slideOut {
     from { transform: translateX(0); }
     to { transform: translateX(120%); }
+}@media (max-width: 600px) {
+    .plus-img {
+        width: 80% !important; /* En móviles se adapta al ancho de la pantalla */
+    }
+    .plus-title {
+        font-size: 4rem !important;
+    }
+}/* El contenedor que cubre la pantalla (solo en móviles) */
+.notice-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Tarjeta del mensaje */
+.notice-card {
+    background-color: #fff;
+    border: 3px solid #000;
+    box-shadow: 8px 8px 0px #000; /* Sombra brutalista */
+    max-width: 400px;
+    width: 100%;
+    font-family: sans-serif;
+}
+
+.notice-header {
+    background-color: #000;
+    color: #fff;
+    padding: 10px 15px;
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.notice-body {
+    padding: 20px;
+    color: #333;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.notice-body strong {
+    color: #000;
+}
+
+.notice-footer {
+    padding: 0 20px 20px 20px;
+    text-align: right;
+}
+
+/* Botón sólido */
+.notice-btn {
+    background-color: #fff;
+    border: 2px solid #000;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notice-btn:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+/* Clase para ocultar el aviso */
+.hidden {
+    display: none !important;
 }
