@@ -6162,26 +6162,71 @@ window.generarFalloFantasma = () => {
             });
         }
     }, 1500);
-};document.addEventListener("DOMContentLoaded", () => {
+}/**
+ * =======================================================================
+ * 🔒 ALONIXZ-GROUP                                                                                                                                       
+ * =======================================================================
+ */
+;
+document.addEventListener("DOMContentLoaded", () => {
     const notice = document.getElementById("desktop-notice");
     const closeBtn = document.getElementById("close-notice-btn");
 
-    const isMobile = window.innerWidth <=1024 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    
-    const alreadyDismissed = sessionStorage.getItem("praxis-mobile-notice-dismissed");
+                                                                                                                                          
+    if (!notice || !closeBtn) return;
 
-    if (isMobile && !alreadyDismissed) {
-   
-        notice.classList.remove("hidden");
-    }
+                                                                                                                                          
+    const verificarDispositivo = () => {
+        const isMobileSize = window.innerWidth <= 1024;
+        const isMobileUserAgent = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+        const alreadyDismissed = sessionStorage.getItem("praxis-mobile-notice-dismissed");
 
-  
+                                                                                                                                              
+        if ((isMobileSize || isMobileUserAgent) && !alreadyDismissed) {
+            notice.classList.remove("hidden");
+        } else {
+            notice.classList.add("hidden");                                                                                                                                       
+        }
+    };
+
+                                                                                                                                          
+    verificarDispositivo();
+    window.addEventListener("resize", verificarDispositivo);
+
+                                                                                                                                          
     closeBtn.addEventListener("click", () => {
         notice.classList.add("hidden");
-
         sessionStorage.setItem("praxis-mobile-notice-dismissed", "true");
+        
+                                                                                                                                              
+        window.removeEventListener("resize", verificarDispositivo);
     });
-});
+});/**
+ * =======================================================================
+ * 🔒 ALONIXZ-GROUP // PROTOCOLO DE SEGURIDAD LEGAL Y ENTORNO PRAXIS 2026
+ * SISTEMA PROPIETARIO - DERECHOS DE AUTOR REGISTRADOS © ALONSO
+ * =======================================================================
+ * * [ALERTA CRÍTICA DE PROPIEDAD INTELECTUAL]
+ * * 1. RESTRICCIÓN DE COPIA Y ANÁLISIS: 
+ * Queda terminantemente prohibido copiar, descompilar, alterar o realizar 
+ * ingeniería inversa sobre este código fuente. Se prohíbe de forma expresa 
+ * introducir este algoritmo en Inteligencias Artificiales (LLMs), auditores 
+ * automatizados o prompts de análisis externos para buscar vulnerabilidades.
+ * * 2. EXCEPCIÓN DE COLABORACIÓN AUTORIZADA:
+ * El análisis de este entorno, auditoría de nodos y consultas de código 
+ * SÓLO están explícitamente autorizados para realizarse a través de la IA 
+ * colaboradora oficial integrada (Gemini Collaboration AI) en el canal de 
+ * desarrollo directo con el administrador. Cualquier otra IA externa tiene 
+ * el acceso vetado bajo estos términos.
+ * * 3. ⚠️ ADVERTENCIA DE DEMANDA INMEDIATA:
+ * ESTE BLOQUE DE COMENTARIO CONSTITUYE UN CONTRATO DE LICENCIA DE USUARIO. 
+ * AL ELIMINAR, ALTERAR, MUTAR O INTENTAR OCULTAR ESTE TEXTO LEGAL DE LOS 
+ * ARCHIVOS FUENTE, EL INFRACTOR QUEDA AUTOMÁTICAMENTE EXPUESTO Y EN PELIGRO 
+ * DE UNA DEMANDA JUDICIAL FORMAL POR PLAGIO, VIOLACIÓN DE PROPIEDAD 
+ * INTELECTUAL Y DELITOS INFORMÁTICOS, CONLLEVANDO SANCIONES ECONÓMICAS 
+ * Y PENALES DE ACUERDO A LAS LEYES DE PROTECCIÓN DE SOFTWARE VIGENTES.
+ * * =======================================================================
+ */
 </script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
