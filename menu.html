@@ -6190,26 +6190,7 @@ window.generarFalloFantasma = () => {
         <button onclick="cerrarModalAnuncio()" style="background: #1a73e8; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s;">Entendido</button>
     </div>
 </div>
-<div id="desktop-notice" class="notice-overlay hidden">
-    <div class="notice-card">
-        <div class="notice-header">
-            <span>⚠️ RECOMENDACIÓN TÉCNICA</span>
-        </div>
-        <div class="notice-body">
-            <p>Detectamos que estás en un dispositivo móvil. <strong>Praxis</strong> está diseñado y optimizado para pantallas grandes.</p>
-            <p>Para una mejor experiencia visual, mayor comodidad y rendimiento, te recomendamos activar la opción <strong>"Sitio para computadora"</strong> (o "Vista de escritorio") en la configuración de tu navegador.</p>
-        </div>
-        <div class="notice-footer">
-            <button id="close-notice-btn" class="notice-btn">Entendido</button>
-        </div>
-    </div>
-</div>
-<style>
-    @keyframes popIn {
-        from { opacity: 0; transform: scale(0.8); }
-        to { opacity: 1; transform: scale(1); }
-    }
-</style><div id="modal-consejo" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+<div id="modal-consejo" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); align-items: center; justify-content: center;">
     <div style="background: white; padding: 30px; border-radius: 32px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <div id="icon-consejo" style="font-size: 45px; margin-bottom: 15px;">📢</div>
         <h2 id="titulo-consejo" style="font-family: 'Outfit', sans-serif; margin-bottom: 8px; color: #1e293b; font-weight: 800;"></h2>
@@ -6246,5 +6227,24 @@ window.generarFalloFantasma = () => {
 
     </div>
 </div>
-</body>
+</body><div id="desktop-notice" class="notice-overlay hidden">
+    <div class="notice-card">
+        <div class="notice-header">
+            <span>⚠️ RECOMENDACIÓN TÉCNICA</span>
+        </div>
+        <div class="notice-body">
+            <p>Detectamos que estás en un dispositivo móvil. <strong>Praxis</strong> está diseñado y optimizado para pantallas grandes.</p>
+            <p>Para una mejor experiencia visual, mayor comodidad y rendimiento, te recomendamos activar la opción <strong>"Sitio para computadora"</strong> (o "Vista de escritorio") en la configuración de tu navegador.</p>
+        </div>
+        <div class="notice-footer">
+            <button id="close-notice-btn" class="notice-btn">Entendido</button>
+        </div>
+    </div>
+</div>
+<style>
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
 </html>
