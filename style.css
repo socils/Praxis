@@ -971,64 +971,84 @@ body {
     background: #fff9e6 !important;
     border-color: #f4b400 !important;
 }
+/* REGISTRAMOS LA VARIABLE DE ÁNGULO (Permite animar gradientes de forma suave en navegadores modernos) */
+@property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
 .btn-header-apoyo {
-    position: relative;
-    padding: 3px;
-    background: transparent;
-    border: none;
-    border-radius: 25px;
+    /* 1. DIMENSIONES MÁS PEQUEÑAS */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;                  /* Menor espacio interno */
+    padding: 6px 14px;         /* Reducido (antes era 10px 24px) */
     cursor: pointer;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-decoration: none;
+    border-radius: 50px;       /* Mantiene la forma de cápsula */
     margin-right: 12px;
-   
-    isolation: isolate; 
+    
+    /* 2. TIPOGRAFÍA AJUSTADA */
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;           /* Letra más compacta y fina */
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #1a73e8;
+
+    /* 3. BORDE LED MÁS FINO (2px) */
+    border: 2px solid transparent;
+    
+    /* Usamos la variable --angle para que el gradiente cambie de posición */
+    background-image: linear-gradient(#ffffff, #ffffff), 
+                      conic-gradient(from var(--angle), #4285f4, #34a853, #f4b400, #ea4335, #4285f4);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+
+    /* 4. EFECTO LUZ LED DINÁMICO */
+    filter: drop-shadow(0 0 5px rgba(66, 133, 244, 0.8))
+            drop-shadow(0 0 12px rgba(234, 67, 53, 0.5));
+
+    /* ANIMACIÓN EN BUCLE: Llama a la regla que cambia los colores */
+    animation: rotarLucesLED 3s linear infinite;
+
+    transition: filter 0.25s ease, transform 0.1s ease;
 }
 
-/* LA CAPA DE COLORES (FONDO) */
-.btn-header-apoyo::before {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 400%;
-    background: conic-gradient(
-        #4285f4, #34a853, #f4b400, #ea4335, #4285f4
-    );
-    animation: rotateColors 3s linear infinite;
-   
-    z-index: -1; 
-}
-
-/* LA CAPA BLANCA + TEXTO (FRENTE) */
-.btn-inner {
-    position: relative;
-   
-    z-index: 1; 
-    background: white;
-    padding: 6px 16px;
-    border-radius: 22px;
-    width: 100%;
-    height: 100%;
+/* Icono un poco más pequeño en proporción */
+.btn-header-apoyo .btn-icon {
+    font-size: 13px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: #1a73e8; 
-    font-size: 14px;
-    font-weight: 700;
-    white-space: nowrap;
-    transition: background 0.3s;
 }
 
-@keyframes rotateColors {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+/* LÓGICA DE LA ANIMACIÓN: Cambia continuamente el ángulo del gradiente para que las luces se muevan */
+@keyframes rotarLucesLED {
+    from {
+        --angle: 0deg;
+    }
+    to {
+        --angle: 360deg;
+    }
 }
 
-.btn-header-apoyo:hover .btn-inner {
-    background: #f8f9fa;
+/* HOVER: Sube la intensidad de la luz y el voltaje */
+.btn-header-apoyo:hover {
+    filter: drop-shadow(0 0 10px #4285f4)
+            drop-shadow(0 0 20px #ea4335)
+            drop-shadow(0 0 30px #34a853);
+}
+
+/* Mantiene el fondo blanco reactivo en hover sin romper la animación */
+.btn-header-apoyo:hover {
+    background-image: linear-gradient(#f8f9fa, #f8f9fa), 
+                      conic-gradient(from var(--angle), #4285f4, #34a853, #f4b400, #ea4335, #4285f4);
+}
+
+/* CLICK */
+.btn-header-apoyo:active {
+    transform: scale(0.95);
 }
 /* Transformamos el contenedor en un Banner Pro */
 .content-area {
