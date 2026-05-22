@@ -120,78 +120,130 @@
             </div>
         </div>
     </div>
-<div id="loader-global" style="display: flex; position: fixed; z-index: 20000; left: 0; top: 0; width: 100%; height: 100%; background: #ffffff; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;">
+<div id="loader-global" style="display: flex; position: fixed; z-index: 20000; left: 0; top: 0; width: 100%; height: 100%; background: #ffffff; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.8s;">
     
-    <div style="position: absolute; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px); background-size: 25px 25px; pointer-events: none; top:0; left:0;"></div>
+                                                                                                                      
+    <div style="position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, rgba(0,0,0,0.008) 1.2px, transparent 1.2px); background-size: 24px 24px; pointer-events: none; top:0; left:0; animation: fade-in-soft 1.5s ease-out forwards;"></div>
 
-    <div style="background: #ffffff; border: 4px solid #000000; padding: 35px; box-shadow: 12px 12px 0px #000000; max-width: 440px; width: 90%; box-sizing: border-box; position: relative; overflow: hidden; border-radius: 0px;">
+                                                                                                                      
+    <div style="background: #ffffff; border: 1px solid #f1f5f9; padding: 45px 35px; box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.04), 0 10px 20px -10px rgba(15, 23, 42, 0.02); max-width: 400px; width: 90%; box-sizing: border-box; position: relative; border-radius: 24px; animation: float-container 4s ease-in-out infinite alternate;">
         
-        <div style="position: absolute; top: 0; left: 0; background: #000000; color: #ffffff; font-size: 9px; padding: 3px 8px; font-weight: 900; letter-spacing: 0.5px;">SYS_BOOT</div>
-        <div style="position: absolute; top: 0; right: 0; border-left: 4px solid #000000; border-bottom: 4px solid #000000; background: #ffffff; color: #000000; font-size: 9px; padding: 3px 10px; font-weight: 900; letter-spacing: 0.5px;">v3.0_LIVE</div>
+                                                                                                                          
+        <div style="position: absolute; top: 20px; left: 24px; color: #94a3b8; font-size: 10px; font-weight: 700; letter-spacing: 1px; opacity: 0.7;">SYS_BOOT</div>
+        <div style="position: absolute; top: 20px; right: 24px; color: #2979FF; font-size: 10px; font-weight: 700; letter-spacing: 1px; opacity: 0.8; animation: pulse-text-soft 2s infinite ease-in-out;">v3.0_LIVE</div>
 
-        <div style="width: 90px; height: 90px; background: #ffffff; border: 4px solid #000000; display: flex; align-items: center; justify-content: center; margin: 15px auto 25px auto; box-shadow: 6px 6px 0px #000000; position: relative; overflow: hidden;">
-            <div style="position: absolute; width: 100%; height: 2px; background: #000000; opacity: 0.2; top: 0; left: 0; animation: scan-line-light 2.5s infinite linear;"></div>
-            <img src="praxis.png" alt="Praxis Logo" style="width: 50px; height: 50px; object-fit: contain; z-index: 2; animation: terminal-glitch-light 4s infinite steps(2);">
+                                                                                                                          
+        <div style="width: 84px; height: 84px; background: #ffffff; border: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: center; margin: 15px auto 25px auto; border-radius: 50%; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+            <div style="position: absolute; width: 100%; height: 100%; border: 1px solid rgba(41, 121, 255, 0.15); border-radius: 50%; animation: pulse-ring-one 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;"></div>
+            <div style="position: absolute; width: 100%; height: 100%; border: 1px solid rgba(41, 121, 255, 0.08); border-radius: 50%; animation: pulse-ring-two 3s cubic-bezier(0.25, 1, 0.5, 1) infinite; animation-delay: 1s;"></div>
+            <img src="praxis.png" alt="Praxis Logo" style="width: 42px; height: 42px; object-fit: contain; z-index: 2; animation: logo-scale-soft 3s infinite ease-in-out;">
         </div>
 
-        <h2 style="margin: 0; color: #000000; font-family: 'Outfit', sans-serif; font-weight: 950; font-size: 34px; text-transform: uppercase; letter-spacing: -1.5px; text-align: center; line-height: 1;">Praxis</h2>
+                                                                                                                          
+        <h2 style="margin: 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -0.5px; text-align: center;">Praxis</h2>
         
-        <div style="background: #ffffff; border: 3px solid #000000; padding: 14px; margin: 25px 0 15px 0; text-align: left; box-sizing: border-box; position: relative; box-shadow: inset 3px 3px 0px rgba(0,0,0,0.05);">
-            <div style="font-size: 8px; color: #777777; text-transform: uppercase; margin-bottom: 5px; font-weight: 900; letter-spacing: 1px;">LOG_STREAM //</div>
-            <p id="loader-text" style="color: #000000; font-size: 11px; margin: 0; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ⏩ Inicializando subrutinas de entorno...
+                                                                                                                          
+        <div style="background: #f8fafc; border: 1px solid #f1f5f9; padding: 14px 18px; margin: 25px 0 20px 0; text-align: left; box-sizing: border-box; border-radius: 14px;">
+            <div style="font-size: 9px; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; letter-spacing: 0.8px;">LOG_STREAM</div>
+            <p id="loader-text" style="color: #475569; font-size: 11.5px; margin: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: text-shimmer-soft 2.5s infinite ease-in-out;">
+                Inicializando subrutinas de entorno...
             </p>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 14px; margin-top: 5px; margin-bottom: 20px;">
-            <div style="flex: 1; height: 26px; background: #ffffff; border: 3px solid #000000; box-sizing: border-box; position: relative; overflow: hidden; display: flex; align-items: center; padding: 2px;">
-                <div id="loader-progress-bar" style="width: 0%; height: 100%; background: #2979FF; border-right: 3px solid #000000; transition: width 0.15s cubic-bezier(0.1, 0.8, 0.2, 1); position: relative;">
-                    <div style="position: absolute; width: 100%; height: 100%; background-image: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent); background-size: 8px 8px;"></div>
+                                                                                                                          
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+            <div style="flex: 1; height: 6px; background: #f1f5f9; border-radius: 100px; box-sizing: border-box; position: relative; overflow: hidden;">
+                                                                                                                                  
+                <div id="loader-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #2979FF, #00b0ff); border-radius: 100px; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; box-shadow: 0 0 8px rgba(41, 121, 255, 0.3);">
+                                                                                                                                      
+                    <div style="position: absolute; top: 0; left: 0; width: 30%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: progress-shimmer 1.8s infinite linear;"></div>
                 </div>
             </div>
-            <span id="loader-percentage" style="font-size: 20px; font-weight: 950; color: #000000; min-width: 60px; text-align: right; font-family: 'JetBrains Mono', monospace; letter-spacing: -1px;">00%</span>
+            <span id="loader-percentage" style="font-size: 13px; font-weight: 700; color: #0f172a; min-width: 35px; text-align: right; font-family: 'JetBrains Mono', monospace; opacity: 0.9;">00%</span>
         </div>
 
-        <div style="background: #fafafa; border: 2px dashed #000000; padding: 12px; text-align: left; box-sizing: border-box;">
-            <div style="font-size: 8px; color: #555; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px;">💡 TIP DE RENDIMIENTO:</div>
-            <p id="loader-tip-text" style="color: #444444; font-size: 11px; margin: 0; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.4;">
+                                                                                                                          
+        <div style="background: #ffffff; border: 1px dashed #e2e8f0; padding: 14px 16px; text-align: left; box-sizing: border-box; border-radius: 14px; transition: all 0.3s ease;">
+            <div style="font-size: 9px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px;">💡 Sugerencia</div>
+            <p id="loader-tip-text" style="color: #64748b; font-size: 11px; margin: 0; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.5; opacity: 0.85;">
                 Cargando sugerencia...
             </p>
         </div>
 
     </div>
 
-    <div style="position: absolute; bottom: 40px; display: flex; align-items: center; gap: 12px; background: #ffffff; color: #000000; padding: 10px 20px; border: 3px solid #000000; font-size: 10px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; box-shadow: 6px 6px 0px #000000;">
-        <span style="color: #888888;">DATAFEED:</span>
-        <span id="loader-telemetry" style="color: #000000;">ONLINE</span>
-        <div style="width: 8px; height: 8px; background: #00E676; border: 1px solid #000; border-radius: 0%; animation: telemetry-pulse-light 0.8s infinite steps(2);"></div>
+                                                                                                                      
+    <div style="position: absolute; bottom: 35px; display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #0f172a; padding: 8px 18px; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 100px; font-size: 11px; font-weight: 700; box-shadow: 0 10px 20px -10px rgba(0,0,0,0.04); animation: float-telemetry 3.5s ease-in-out infinite alternate;">
+        <span style="color: #94a3b8; font-size: 10px; letter-spacing: 0.3px;">DATAFEED:</span>
+        <span id="loader-telemetry" style="color: #0f172a; opacity: 0.9;">ONLINE</span>
+                                                                                                                          
+        <div style="width: 6px; height: 6px; background: #00E676; border-radius: 50%; position: relative; box-shadow: 0 0 6px #00E676;">
+            <div style="position: absolute; top: -3px; left: -3px; width: 12px; height: 12px; background: rgba(0, 230, 118, 0.2); border-radius: 50%; animation: aura-pulse 2s infinite ease-out;"></div>
+        </div>
     </div>
 </div>
 
 <style>
-    @keyframes terminal-glitch-light {
-        0%, 94%, 100% { transform: scale(1); }
-        96% { transform: scale(1.03) skewX(-2deg); }
-        98% { transform: scale(0.98) skewX(1deg); }
+    /* COMPENDIO DE ANIMACIONES CINEMÁTICAS Y SUAVES */
+    
+    /* Entrada sutil del fondo */
+    @keyframes fade-in-soft {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
     }
-    @keyframes scan-line-light {
-        0% { top: -2px; }
-        100% { top: 100%; }
-    }
-    @keyframes telemetry-pulse-light {
-        0% { opacity: 1; }
-        100% { opacity: 0.3; }
-    }
-</style>
-<style>
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes pulse-logo { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.92); opacity: 0.8; } }
-@keyframes loading-bar { 0% { left: -50%; } 100% { left: 100%; } }
-</style>
 
-<style>
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>                                                                                 
+    /* Flotación orgánica del contenedor principal */
+    @keyframes float-container {
+        0% { transform: translateY(0px); }
+        100% { transform: translateY(-6px); }
+    }
+
+    /* Flotación asíncrona de la barra inferior */
+    @keyframes float-telemetry {
+        0% { transform: translateY(3px); }
+        100% { transform: translateY(-3px); }
+    }
+
+    /* Escalado armónico del logo central */
+    @keyframes logo-scale-soft {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.01)); }
+        50% { transform: scale(0.96); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.03)); }
+    }
+
+    /* Ondas expansivas de los anillos del logo */
+    @keyframes pulse-ring-one {
+        0% { transform: scale(0.95); opacity: 1; }
+        100% { transform: scale(1.35); opacity: 0; }
+    }
+    @keyframes pulse-ring-two {
+        0% { transform: scale(0.95); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* Brillo fluido interno sobre la línea de progreso */
+    @keyframes progress-shimmer {
+        0% { left: -30%; }
+        100% { left: 100%; }
+    }
+
+    /* Transición de iluminación elegante para textos fijos */
+    @keyframes pulse-text-soft {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+    }
+
+    /* Vaivén sutil de opacidad para simular procesamiento en el log de carga */
+    @keyframes text-shimmer-soft {
+        0%, 100% { opacity: 0.9; }
+        50% { opacity: 0.6; }
+    }
+
+    /* Aura expansiva difuminada para el nodo de estado verde */
+    @keyframes aura-pulse {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(1.8); opacity: 0; }
+    }
+</style>   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>                                                                                 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
    
@@ -341,25 +393,24 @@ onAuthStateChanged(auth, async (user) => {
     const loader = document.getElementById('loader-global');
     const displayCode = document.getElementById('display-code');
 
-                                                                                
     const txtLoader = document.getElementById("loader-text");
     const percentLoader = document.getElementById("loader-percentage");
     const barLoader = document.getElementById("loader-progress-bar");
     const telemetryLoader = document.getElementById("loader-telemetry");
-    const tipLoader = document.getElementById("loader-tip-text");                                                                             
+    const tipLoader = document.getElementById("loader-tip-text");                                                                                 
 
     let progresoActual = 0;
     let procesosFirebaseCompletados = false;
     let intervaloLoader = null;
 
-                                                                                
+                                                                         
     const tipsEstrategicos = [
-        "¿Sabías que mantener una racha alta desbloquea insignias exclusivas en tu perfil?",
-        "Puedes sincronizar tus tareas pendientes con Google Classroom de forma directa.",
-        "Mantén tus puntos estables compitiendo limpiamente en el podio global.",
-        "El Centro de Noticias se actualiza dinámicamente con los parches del sistema.",
-        "Revisa la agenda diariamente para no perder ningún flujo de puntos importantes.",
-        "Vincular tu cuenta te permite comparar estadísticas con tus rivales en tiempo real."
+        "Mantener un índice de constancia elevado le permitirá desbloquear insignias exclusivas dentro de su perfil institucional.",
+        "El sistema le permite sincronizar sus actividades pendientes de Google Classroom de manera directa y centralizada.",
+        "Asegure la estabilidad de sus calificaciones participando de forma íntegra y transparente en el escalafón global.",
+        "El panel informativo de novedades se actualiza en tiempo real de acuerdo con las últimas directrices de la plataforma.",
+        "Es recomendable consultar la agenda académica diariamente para realizar un seguimiento oportuno de sus asignaciones.",
+        "La vinculación de credenciales compartidas le otorga la posibilidad de realizar un análisis comparativo de métricas académicas."
     ];
 
     if (loader) {
@@ -367,9 +418,9 @@ onAuthStateChanged(auth, async (user) => {
         loader.style.opacity = '1';
         loader.style.visibility = 'visible';
         
-        if (txtLoader) txtLoader.innerText = "⏩ [SYS] ABRIENDO CANAL DE INGRESO...";
+                                                                             
+        if (txtLoader) txtLoader.innerText = "[SYS] ESTABLECIENDO CONEXIÓN CON EL ENTORNO DE ENTRADA...";
         
-                                                                                    
         if (tipLoader) {
             const tipAleatorio = tipsEstrategicos[Math.floor(Math.random() * tipsEstrategicos.length)];
             tipLoader.innerText = tipAleatorio;
@@ -383,11 +434,11 @@ onAuthStateChanged(auth, async (user) => {
                     progresoActual += Math.floor(Math.random() * 4) + 2;
                     
                     if (progresoActual >= 25 && progresoActual < 60) {
-                        if (txtLoader) txtLoader.innerText = "📡 [AUTH] CARGANDO DATOS DE PERFIL DE USUARIO...";
+                        if (txtLoader) txtLoader.innerText = "[AUTH] CONSULTANDO CREDENCIALES Y PERFIL DE USUARIO...";
                     }
                     if (progresoActual >= 60) {
                         progresoActual = 72;
-                        if (txtLoader) txtLoader.innerText = "🗄️ [DB] SINCRONIZANDO NODOS CON FIREBASE...";
+                        if (txtLoader) txtLoader.innerText = "[DB] ALINEANDO PARÁMETROS CENTRALES CON ALONIXZ-DATABASE...";
                         if (telemetryLoader) telemetryLoader.innerText = "CONNECTING";
                     }
                 }
@@ -397,14 +448,15 @@ onAuthStateChanged(auth, async (user) => {
                     if (progresoActual >= 100) {
                         progresoActual = 100;
                         clearInterval(intervaloLoader);
-                        if (txtLoader) txtLoader.innerText = "🚀 [READY] SISTEMA SINCRONIZADO. BIENVENIDO.";
+                        if (txtLoader) txtLoader.innerText = "[READY] ACCESO AUTORIZADO. BIENVENIDO A PRAXIS CORE.";
                         if (telemetryLoader) telemetryLoader.innerText = "ONLINE";
                         
                         setTimeout(() => {
                             if (loader) {
                                 loader.style.opacity = '0';
-                                setTimeout(() => { loader.style.display = 'none'; }, 600);
-                            }inicializarAnuncioManual();
+                                setTimeout(() => { loader.style.display = 'none'; }, 800);                                                                      
+                            }
+                            inicialuncioManual();
                         }, 500);
                     }
                 }
@@ -1456,7 +1508,7 @@ navItems.forEach(item => {
         document.head.appendChild(styleSheet);
     }
 
-    // BASE DE DATOS COMPLETA CON REDACCIÓN FORMAL Y ENTENDIBLE
+                                                                         
     const noticiasDB = [
         {
             esSuper: true,
@@ -2775,7 +2827,7 @@ else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
 
     container.innerHTML = `
         <div class="praxis-explorer" style="max-width: 900px; margin: 0 auto; padding: 20px;">
-            <!-- Panel de Control exclusivo para Administrador -->
+                                                                                                                              
             <div id="admin-sandbox-panel" style="display: none; background: #fffbbf; border: 4px dashed #000; padding: 15px; margin-bottom: 20px; box-shadow: 6px 6px 0px #000;">
                 <div style="font-weight: 900; text-transform: uppercase; font-size: 14px; margin-bottom: 8px; color: #000;">
                     🛠️ Panel de Control Admin (Simulador de Umbrales y Purga)
@@ -2796,7 +2848,7 @@ else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
                 </button>
             </div>
 
-            <!-- Contenedor dinámico para alertas -->
+                                                                                                                              
             <div id="praxis-alert-zone" style="margin-bottom: 20px;"></div>
 
             <div style="background: #fff; padding: 30px; border: 4px solid #000; margin-bottom: 25px; box-shadow: 8px 8px 0px #000;">
@@ -2819,7 +2871,7 @@ else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
             </div>
 
             <div id="db-data-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-                <!-- Datos del nodo -->
+                                                                                                                                  
             </div>
         </div>
     `;
@@ -3171,7 +3223,7 @@ else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
         }
     };
 });
-// Función para inicializar el despliegue del anuncio
+                                                                     
 function inicializarAnuncioManual() {
     const yaVisto = localStorage.getItem("praxis_manual_visto");
     
@@ -3206,7 +3258,7 @@ function inicializarAnuncioManual() {
     }
 }
 
-// Lógica de Arrastre Sistemático (Soporta Mouse y Pantallas Táctiles)
+                                                                     
 function hacerElementoMovible(elemento) {
     const manija = document.getElementById("popup-drag-handle");
     let posPosicionX = 0, posPosicionY = 0, posInicialX = 0, posInicialY = 0;
@@ -4126,7 +4178,7 @@ async function iniciarDetectorInactividad() {
     let intentosPin = 0; 
     let pinCorrectoBaseDatos = "";
     let minutosConfigurados = 3; 
-    let quiereConfigurar = false; // Flag clave para detectar la intención
+    let quiereConfigurar = false;                                                                      
 
     if (!auth || !database) {
         console.error("Alonixz-Guard: Firebase no inicializado en el entorno global.");
@@ -4195,7 +4247,7 @@ async function iniciarDetectorInactividad() {
         
         localStorage.setItem('praxis_locked', 'true');
         intentosPin = 0; 
-        quiereConfigurar = false; // Resetear intención al bloquearse
+        quiereConfigurar = false;                                                                      
 
         const lockOverlay = document.createElement('div');
         lockOverlay.id = 'lock-screen';
@@ -4301,11 +4353,11 @@ async function iniciarDetectorInactividad() {
         const card = document.querySelector('.guard-card');
         const btnConfig = document.getElementById('btn-config-corner');
         
-        // Ventanas
+                                                                             
         const paneAuth = document.getElementById('pane-auth-pin');
         const paneSetup = document.getElementById('pane-setup-time');
 
-        // Inputs Ventana 2
+                                                                             
         const inputNewTime = document.getElementById('input-new-time');
         const btnSaveTime = document.getElementById('btn-save-time');
         const btnExitUnlock = document.getElementById('btn-exit-unlock');
@@ -4335,11 +4387,11 @@ async function iniciarDetectorInactividad() {
             };
         });
 
-        // DETECTOR CLIC: CONFIGURAR ⚙️
+                                                                             
         btnConfig.onclick = function() {
             quiereConfigurar = true;
             
-            // Estilo visual de aviso activo
+                                                                                 
             btnConfig.style.background = "#e2e8f0";
             btnConfig.style.color = "#0f172a";
             
@@ -4356,7 +4408,7 @@ async function iniciarDetectorInactividad() {
 
             if (pinIngresado === pinCorrectoBaseDatos && pinCorrectoBaseDatos !== "") {
                 if (quiereConfigurar) {
-                    // CONDICIONAL B: Presionó configurar -> Ir a Ventana 2 de Ajustes
+                                                                                         
                     paneAuth.style.opacity = "0";
                     setTimeout(() => {
                         paneAuth.style.display = "none";
@@ -4368,7 +4420,7 @@ async function iniciarDetectorInactividad() {
                         }, 50);
                     }, 300);
                 } else {
-                    // CONDICIONAL A: PIN directo normal -> Cerrar todo automáticamente de inmediato
+                                                                                         
                     desbloquearConsolaLimpia();
                 }
             } else if (pinIngresado.length === 4) {
@@ -4387,7 +4439,7 @@ async function iniciarDetectorInactividad() {
             }
         }
 
-        // Acciones Ventana 2 (Guardado de base de datos)
+                                                                             
         btnSaveTime.onclick = async () => {
             let valorInput = parseInt(inputNewTime.value, 10);
             if (isNaN(valorInput) || valorInput < 2) valorInput = 2;
@@ -4552,7 +4604,7 @@ async function mostrarBienvenidaProfesor(uid) {
 
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {// Activar el guardián de inactividad de Praxis
+    if (user) {                                                                     
 iniciarDetectorInactividad();
         onValue(ref(db, `usuarios/${user.uid}/stats`), (snapshot) => {
             const data = snapshot.val();
@@ -5039,31 +5091,32 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         iniciarDetectorRacha(user.uid);
     }
-});window.actualizarDatoProtegido = async function(campo) {
+    });window.actualizarDatoProtegido = async function(campo) {
     const uid = auth.currentUser.uid;
     const userRef = ref(db, `usuarios/${uid}`);
     const snapshot = await get(userRef);
     const data = snapshot.val();
     
-                                                              
-    if (data.stats?.rango === "profesor") {
+                                                                         
+    if (data && data.stats && data.stats.rango === "profesor") {
         const pinIngresado = prompt("🔒 ACCESO RESTRINGIDO: Ingresa tu PIN de profesor para continuar:");
-        if (pinIngresado !== data.stats?.pin) {
+        
+                                                                             
+        if (String(pinIngresado) !== String(data.stats.pin)) {
             alert("❌ PIN Incorrecto. Acción cancelada por Alonixz-Guard.");
             return;
         }
     }
 
-                                                              
     const nuevoValor = prompt(`Ingresa el nuevo ${campo.replace('_', ' ')}:`);
     if (nuevoValor && nuevoValor.trim() !== "") {
         try {
             await update(userRef, {
                 [campo]: nuevoValor.trim(),
-                apodo_listo: true                                                           
+                apodo_listo: true                                                                     
             });
             
-                                                                      
+                                                                                                      
             if (campo === 'nombre') {
                 await updateProfile(auth.currentUser, { displayName: nuevoValor.trim() });
             }
@@ -5074,42 +5127,47 @@ onAuthStateChanged(auth, (user) => {
             alert("❌ Error al guardar en Alonixz-Database.");
         }
     }
-};window.actualizarPin = async function() {
-    const uid = auth.currentUser.uid;
+};
 
-    const statsRef = ref(db, `usuarios/${uid}/stats`);
+window.actualizarPin = async function() {
+    const uid = auth.currentUser.uid;
+                                                                         
+    const userRef = ref(db, `usuarios/${uid}`);
 
     try {
-        const snapshot = await get(statsRef);
+        const snapshot = await get(userRef);
         if (!snapshot.exists()) {
-            alert("❌ No se encontraron estadísticas de usuario.");
+            alert("❌ No se encontraron datos del usuario.");
             return;
         }
 
         const data = snapshot.val();
       
-        if (data.rango !== "profesor") {
+                                                                             
+        if (!data.stats || data.stats.rango !== "profesor") {
             alert("❌ Acceso restringido: Solo los docentes pueden gestionar un PIN.");
             return;
         }
 
         const pinActualInput = prompt("🔒 Seguridad Praxis: Ingresa tu PIN ACTUAL:");
-        
-        const pinGuardado = data.pin || ""; 
+        const pinGuardado = data.stats.pin || ""; 
 
-        if (pinGuardado !== "" && pinActualInput !== pinGuardado) {
+                                                                             
+        if (pinGuardado !== "" && String(pinActualInput) !== String(pinGuardado)) {
             alert("❌ PIN Incorrecto. Validación de identidad fallida.");
             return;
         }
 
         const nuevoPin = prompt("✨ Ingresa tu NUEVO PIN (4 dígitos):");
         
-        if (nuevoPin && /^\d{4}$/.test(nuevoPin)) {                                           
+                                                                             
+        if (nuevoPin && /^\d{4}$/.test(nuevoPin)) {                                                                           
+            const statsRef = ref(db, `usuarios/${uid}/stats`);
             await update(statsRef, {
                 pin: nuevoPin
             });
             alert("✅ PIN actualizado correctamente en Praxis Core.");
-            location.reload();                                           
+            location.reload();                                                                     
         } else {
             alert("⚠️ Error: El PIN debe contener exactamente 4 números.");
         }
@@ -6592,7 +6650,7 @@ document.addEventListener("DOMContentLoaded", () => {
 };
 /**
  * =======================================================================
- * 🔒 ALONIXZ-GROUP // PROTOCOLO DE SEGURIDAD LEGAL Y ENTORNO PRAXIS 2026
+ * 🔒 ALONIXZ-GROUP                                                                      
  * SISTEMA PROPIETARIO - DERECHOS DE AUTOR REGISTRADOS © ALONSO
  * =======================================================================
  * * [ALERTA CRÍTICA DE PROPIEDAD INTELECTUAL]
