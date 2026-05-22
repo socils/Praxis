@@ -378,7 +378,10 @@
         .spin {
             animation: spinSieWeb 2.2s infinite linear;
         }
-
+        #btn-forgot-pin:hover {
+    color: #2979FF !important; /* Cambia al azul característico de tu login */
+    background-color: #f8fafc; /* Un fondo atenuado muy ligero */
+}
         @keyframes spinSieWeb {
             0% {
                 transform: rotate(0deg);
@@ -395,10 +398,14 @@
     </style>
 </head>
 <body>
-
+<!-- PANTALLA DE LOADING OPTIMIZADA CON ALERTA DE POPUPS -->
     <div id="loader">
         <img src="praxis.png" class="spin" width="140" height="140" alt="Cargando">
         <div id="loader-brand">PRAXIS CORE</div>
+        <!-- Contenedor dinámico de advertencia (Oculto por defecto y corregido) -->
+        <div id="loader-popup-warning" class="animate__animated animate__fadeIn" style="display: none; margin-top: 25px; padding: 12px 20px; background: rgba(234, 67, 53, 0.15); border: 1px solid #ea4335; border-radius: 10px; max-width: 320px; text-align: center; font-size: 13px; color: #fecaca; font-weight: 600; line-height: 1.5;">
+            ⚠️ ¿El sistema demora? Es posible que tengas desactivadas las ventanas emergentes. Por favor, actívalas en tu navegador para realizar tu ingreso con éxito.
+        </div>
     </div>
 
     <div id="modal-licencia" class="modal" onclick="event.target == this ? cerrarModal() : null">
@@ -428,7 +435,7 @@
             </div>
         </div>
     </div>
-
+<!-- MODAL 1: VERIFICACIÓN ORIGINAL DEL PIN -->
     <div id="modal-pin" class="modal">
         <div class="modal-content animate__animated animate__zoomIn">
             <div class="modal-icon">🔒</div>
@@ -444,10 +451,50 @@
 
             <div id="pin-error" class="error-message">⚠️ PIN incorrecto. Inténtalo de nuevo.</div>
 
-            <div class="modal-buttons">
-                <button id="btn-verify-pin" class="btn btn-primary">Verificar e Ingresar</button>
-                <button id="btn-cancel-pin" class="btn btn-danger">Salir de la cuenta</button>
+            <div class="modal-buttons" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button id="btn-verify-pin" class="btn btn-primary" style="flex: 1;">Verificar e Ingresar</button>
+                    <button id="btn-cancel-pin" class="btn btn-danger" style="flex: 1;">Salir de la cuenta</button>
+                </div>
+                <div style="text-align: center; margin-top: 4px;">
+                    <button id="btn-forgot-pin" style="background: none; border: none; color: #64748b; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none; transition: color 0.2s ease; padding: 4px 8px; border-radius: 4px;">
+                        ¿Olvidaste tu PIN?
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: VALIDACIÓN DE IDENTIDAD Y CÓDIGO DE CORREO (INMUNE A CAMBIO DE VENTANA) -->
+    <div id="modal-reset-verify" class="modal">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div class="modal-icon">📡</div>
+            <h2>Recuperación de PIN</h2>
+            <p style="margin-bottom: 15px;">Ingrese el código de 6 dígitos enviado a su correo institucional.</p>
+            
+            <input type="text" id="input-reset-code" placeholder="Ej. 123456" maxlength="6" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 15px; outline: none; font-family: monospace;">
+            
+            <!-- CAPA EXTRA: Validación Intuitiva del Antiguo PIN -->
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-align: left; font-weight: 600;">Capa de Verificación Algorítmica:</p>
+            <input type="password" id="input-old-hint" placeholder="¿Qué recuerdas de tu PIN anterior?" maxlength="4" style="width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 14px; text-align: center; margin-bottom: 20px; outline: none;">
+            
+            <div class="modal-buttons">
+                <button id="btn-submit-verification" class="btn btn-primary">Validar Identidad</button>
+                <button id="btn-close-verification" class="btn btn-danger">Cancelar Proceso</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ASIGNACIÓN DEL NUEVO PIN -->
+    <div id="modal-new-pin" class="modal">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div class="modal-icon">✨</div>
+            <h2>Identidad Confirmada</h2>
+            <p>Establezca su nuevo código PIN de docente (4 números obligatorios).</p>
+            
+            <input type="password" id="input-created-pin" placeholder="Nuevo PIN" maxlength="4" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 20px; outline: none; letter-spacing: 4px;">
+            
+            <button id="btn-save-new-pin" class="btn btn-primary">Guardar Cambios y Entrar</button>
         </div>
     </div>
 
@@ -495,12 +542,20 @@
         </div>
 
     </div>
+<!-- Cargar la librería oficial de EmailJS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
+<script type="text/javascript">
+   (function(){
+                                                                          
+      emailjs.init("lvcb_dTbAMzWFjYRg");
+   })();
+</script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        // Importación añadida de Realtime Database para verificar el rango y el PIN
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+                                                                            
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
@@ -530,7 +585,7 @@
         window.abrirModal = () => document.getElementById('modal-licencia').style.display = 'flex';
         window.cerrarModal = () => document.getElementById('modal-licencia').style.display = 'none';
 
-        // --- CARRUSEL ---
+                                                                            
         const slides = document.querySelectorAll('.slide');
         let currentSlide = 0;
         setInterval(() => {
@@ -539,7 +594,7 @@
             slides[currentSlide].classList.add('active');
         }, 5000);
 
-        // --- CONTROLADORES DE MODALES Y COMPROBACIONES ---
+                                                                            
         const loader = document.getElementById('loader');
         const modalAutoLogin = document.getElementById('modal-autologin');
         const modalPin = document.getElementById('modal-pin');
@@ -549,61 +604,80 @@
         
         let usuarioActualValido = null;
         let pinCorrectoBaseDatos = "";
+                                                                     
+        let popupTimerAlert = null;
 
         const startLogin = async (action) => {
+                                                                                
+            if (popupTimerAlert) clearTimeout(popupTimerAlert);
+            document.getElementById('loader-popup-warning').style.display = 'none';
+            
+                                                                                
             loader.style.display = 'flex'; 
+
+                                                                                
+            popupTimerAlert = setTimeout(() => {
+                if (loader.style.display === 'flex') {
+                    document.getElementById('loader-popup-warning').style.display = 'block';
+                }
+            }, 5000);
+
             try { 
                 await action(); 
+                                                                                    
+                clearTimeout(popupTimerAlert);
             } catch(e) { 
+                                                                                    
                 loader.style.display = 'none';
+                clearTimeout(popupTimerAlert);
                 console.error("Error en autenticación:", e);
             }
         };
 
         document.getElementById('login-google').onclick = () => startLogin(() => signInWithPopup(auth, provider));
         document.getElementById('login-guest').onclick = () => startLogin(() => signInAnonymously(auth));
-
-        // --- SISTEMA REFORZADO DE ANÁLISIS DE RANGOS ---
+                                                                            
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 usuarioActualValido = user;
                 
-                // Si es un login manual recién hecho con el loader activo
+                                                                                    
                 if (loader.style.display === 'flex') {
                     await evaluarPerfilProfesor(user);
                 } else {
-                    // Si el usuario ya estaba guardado en el dispositivo, salta la alerta primero
+                                                                                        
                     detectedEmail.innerText = user.email ? user.email : "Modo Invitado Anónimo";
                     modalAutoLogin.style.display = 'flex';
                 }
             }
         });
 
-        // Función que busca en Realtime Database la ruta usuarios/UID/stats/rango
+                                                                            
         async function evaluarPerfilProfesor(user) {
             modalAutoLogin.style.display = 'none';
             loader.style.display = 'flex';
-
+                                                                     
+            if (popupTimerAlert) clearTimeout(popupTimerAlert);
             try {
                 const snapshot = await get(ref(database, `usuarios/${user.uid}/stats`));
                 
                 if (snapshot.exists()) {
                     const stats = snapshot.val();
                     
-                    // Condición solicitada: usuarios/UID/stats/rango: profesor
+                                                                                        
                     if (stats.rango === "profesor") {
                         pinCorrectoBaseDatos = stats.pin ? stats.pin.toString() : "";
                         loader.style.display = 'none';
-                        abrirVentanaPIN(); // Intercepta el flujo y pide contraseña de 4 dígitos
+                        abrirVentanaPIN();                                                                     
                         return;
                     }
                 }
-                // Si no es profesor o no tiene estadísticas, pasa directo
+                                                                                    
                 procederAlMenu();
 
             } catch (error) {
                 console.error("Error leyendo Realtime Database:", error);
-                procederAlMenu(); // Fallback seguro
+                procederAlMenu();                                                                     
             }
         }
 
@@ -620,7 +694,7 @@
             setTimeout(() => window.location.replace("menu.html"), 600);
         }
 
-        // --- ACCIONES DE LOS MODALES DE DECISIÓN ---
+                                                                            
         document.getElementById('autologin-continue').onclick = () => {
             if (usuarioActualValido) evaluarPerfilProfesor(usuarioActualValido);
         };
@@ -628,6 +702,7 @@
         const cerrarSesionLimpia = async () => {
             modalAutoLogin.style.display = 'none';
             modalPin.style.display = 'none';
+            if (popupTimerAlert) clearTimeout(popupTimerAlert);
             loader.style.display = 'flex';
             try {
                 await signOut(auth);
@@ -641,7 +716,7 @@
         document.getElementById('autologin-cancel').onclick = cerrarSesionLimpia;
         document.getElementById('btn-cancel-pin').onclick = cerrarSesionLimpia;
 
-        // Verificar el PIN ingresado por el Profesor
+                                                                            
         document.getElementById('btn-verify-pin').onclick = verificarCodigoPIN;
 
         function verificarCodigoPIN() {
@@ -658,13 +733,13 @@
             }
         }
 
-        // --- COMPORTAMIENTO VISUAL DE LAS CAJAS DE PIN (COMPORTAMIENTO AUTOMÁTICO) ---
+                                                                            
         window.moverPin = function(elemento, index) {
             if (elemento.value.length === 1 && index < 4) {
                 pinInputs[index].focus();
             }
             if (index === 4 && elemento.value.length === 1) {
-                verificarCodigoPIN(); // Se auto-verifica al escribir el último número
+                verificarCodigoPIN();                                                                     
             }
         }
 
@@ -672,7 +747,154 @@
             if (evento.key === "Backspace" && pinInputs[index - 1].value === "" && index > 1) {
                 pinInputs[index - 2].focus();
             }
+        }                                                                     
+document.getElementById('btn-forgot-pin').addEventListener('click', async () => {
+    const user = auth.currentUser;
+    
+    if (!user || !user.email) {
+        alert("❌ Error: No se ha detectado una sesión activa para gestionar el restablecimiento.");
+        return;
+    }
+
+    const databaseInstance = typeof database !== 'undefined' ? database : getDatabase();
+    const btnForgot = document.getElementById('btn-forgot-pin');
+    const textoOriginal = btnForgot.innerText;
+    
+    btnForgot.innerText = "Enviando...";
+    btnForgot.disabled = true;
+
+    const codigoVerificacion = Math.floor(100000 + Math.random() * 900000);
+    const tiempoExpiracion = Date.now() + 10 * 60 * 1000; 
+
+    try {
+                                                                            
+        const securityRef = ref(databaseInstance, `usuarios/${user.uid}/security_reset`);
+        await update(securityRef, {
+            reset_code: codigoVerificacion,
+            expires_at: tiempoExpiracion
+        });
+
+        const templateParams = {
+            to_email: user.email, 
+            to_name: user.displayName || "Docente Praxis",
+            verification_code: codigoVerificacion,
+            system_time: new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' })
+        };
+
+        await emailjs.send('service_i1g7pwu', 'template_gcy5pnd', templateParams);
+
+                                                                            
+        document.getElementById('modal-pin').style.display = 'none';
+        document.getElementById('modal-reset-verify').style.display = 'flex';
+        
+                                                                            
+         CONFIGURAR_EVENTO_VALIDACION(codigoVerificacion, tiempoExpiracion, pinCorrectoBaseDatos, user, databaseInstance, securityRef);
+
+    } catch (error) {
+        console.error("Security Mail Error:", error);
+        alert("❌ Error de comunicación con Alonixz-Guard.");
+    } finally {
+        btnForgot.innerText = textoOriginal;
+        btnForgot.disabled = false;
+    }
+});
+
+                                                                     
+document.getElementById('btn-close-verification').onclick = () => {
+    document.getElementById('modal-reset-verify').style.display = 'none';
+    document.getElementById('modal-pin').style.display = 'flex';                                                                     
+};
+                                                                     
+function CONFIGURAR_EVENTO_VALIDACION(codigoReal, expiracion, pinOriginal, user, dbInst, refSeguridad) {
+    document.getElementById('btn-submit-verification').onclick = async () => {
+        const codigoIngresado = document.getElementById('input-reset-code').value.trim();
+        const pistaPinAnterior = document.getElementById('input-old-hint').value.trim();
+
+                                                                            
+        if (parseInt(codigoIngresado) !== codigoReal) {
+            alert("❌ El código de verificación de 6 dígitos es incorrecto.");
+            return;
         }
+
+        if (Date.now() > expiracion) {
+            alert("❌ Esta solicitud ha expirado (Límite: 10 minutos). Genere una nueva.");
+            return;
+        }
+
+                                                                            
+        if (pinOriginal !== "") {
+                                                                                
+            if (pistaPinAnterior.length !== 4) {
+                alert("❌ Validación Rechazada: Lo que recuerdas de tu PIN debe tener exactamente 4 dígitos.");
+                return;
+            }
+
+            let identidadAprobada = false;
+            let bitacoraFiltro = "";
+
+                                                                                
+            const valorReal = parseInt(pinOriginal);
+            const valorPista = parseInt(pistaPinAnterior);
+            const difAbsoluta = Math.abs(valorReal - valorPista);
+
+            if (difAbsoluta <= 50) {
+                identidadAprobada = true;
+                bitacoraFiltro = "Aprobado por Capa 1: Proximidad matemática estrecha.";
+            } else {
+                                                                                    
+                let digitosIncorrectos = 0;
+
+                for (let i = 0; i < 4; i++) {
+                    if (pinOriginal[i] !== pistaPinAnterior[i]) {
+                        digitosIncorrectos++;
+                    }
+                }
+
+                                                                                    
+                if (digitosIncorrectos <= 2) {
+                    identidadAprobada = true;
+                    bitacoraFiltro = `Aprobado por Capa 2: Tolerancia aceptada (${digitosIncorrectos} error(es) posicionales).`;
+                } else {
+                    bitacoraFiltro = `Rechazado: El intento difiere en ${digitosIncorrectos} dígitos del original.`;
+                }
+            }
+
+                                                                                
+            if (!identidadAprobada) {
+                console.warn(`[Alonixz-Guard] ${bitacoraFiltro}`);
+                alert("❌ Validación de Identidad Rechazada: Los dígitos estructurados no coinciden con los registros del docente.");
+                return;
+            } else {
+                console.log(`[Alonixz-Guard] ${bitacoraFiltro}`);
+            }
+        }
+
+                                                                            
+        document.getElementById('modal-reset-verify').style.display = 'none';
+        document.getElementById('modal-new-pin').style.display = 'flex';
+
+                                                                            
+        document.getElementById('btn-save-new-pin').onclick = async () => {
+            const nuevoPin = document.getElementById('input-created-pin').value.trim();
+
+            if (nuevoPin && /^\d{4}$/.test(nuevoPin)) {
+                                                                                    
+                const statsRef = ref(dbInst, `usuarios/${user.uid}/stats`);
+                await update(statsRef, { pin: nuevoPin });
+                
+                                                                                    
+                await update(refSeguridad, { reset_code: null, expires_at: null });
+                
+                document.getElementById('modal-new-pin').style.display = 'none';
+                
+                                                                                    
+                procederAlMenu(); 
+            } else {
+                alert("⚠️ Formato Inválido: El PIN institucional debe constar estrictamente de 4 números.");
+            }
+        };
+    };
+}
     </script>
 </body>
 </html>
