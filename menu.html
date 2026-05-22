@@ -1381,13 +1381,11 @@ navItems.forEach(item => {
     displayCode.innerText = "NEWS_V3_BRUTALIST";
     navegarA("Noticias", "VISTA_NOTICIAS");
     
-                                                                
     container.style.display = "block"; 
     container.style.width = "100%";
     container.style.overflowX = "hidden";
     container.style.padding = "0";
 
-                                                                
     if (!document.getElementById('news-styles-v3')) {
         const styleSheet = document.createElement("style");
         styleSheet.id = 'news-styles-v3';
@@ -1446,6 +1444,7 @@ navItems.forEach(item => {
                 align-items: center;
                 gap: 10px;
                 margin-bottom: 6px;
+                padding: 4px 8px;
             }
             .dot-v3 {
                 width: 8px;
@@ -1457,11 +1456,20 @@ navItems.forEach(item => {
         document.head.appendChild(styleSheet);
     }
 
-                                                                
+    // BASE DE DATOS COMPLETA CON REDACCIÓN FORMAL Y ENTENDIBLE
     const noticiasDB = [
         {
+            esSuper: true,
+            fecha: "21/05/26",
+            titulo: "Optimización de Seguridad y Accesibilidad",
+            categoria: "UPDATE",
+            cuerpo: "Se ha implementado con éxito la mejora del sistema de inicio de sesión (login) para garantizar un acceso más rápido y protegido al entorno. Asimismo, a partir de ahora, los usuarios pueden interactuar directamente con los códigos de la agenda para visualizarlos de forma independiente. Esta función ha sido diseñada con el objetivo de facilitar su consulta en formato físico dentro del aula, asegurando que ningún estudiante quede desinformado o excluido de las actividades y planificaciones programadas para su respectiva clase.",
+            parches: ["Optimización del módulo de autenticación", "Sincronización de agenda institucional", "Prevención de exclusión informativa en el aula"],
+            icono: "⚙️"
+        },
+        {
             esSuper: false,
-            esFeature: true,                                                                             
+            esFeature: true,                                                                                                                                                                                    
             fecha: "16/05/26",
             titulo: "Despliegue: Central de Nexos",
             categoria: "FEATURE",
@@ -1470,7 +1478,7 @@ navItems.forEach(item => {
             icono: "👥"
         },
         {
-            esSuper: true,
+            esSuper: false,
             fecha: "18/05/26",
             titulo: "Lanzamiento Oficial Praxis",
             categoria: "MAJOR",
@@ -1489,12 +1497,11 @@ navItems.forEach(item => {
         }
     ];
 
-                                                                
     container.innerHTML = `
         <div class="news-wrapper-v3">
             <div style="display: flex; gap: 20px; margin-bottom: 40px; align-items: center; justify-content: center;">
-                <div style="min-width: 70px; height: 70px; background: #8A2BE2; border: 4px solid #000; border-radius: 22px; box-shadow: 6px 6px 0px #000; display: flex; align-items: center; justify-content: center; font-size: 30px;">
-                    📢
+                <div style="min-width: 70px; height: 70px; background: white; border: 4px solid #000; border-radius: 22px; box-shadow: 6px 6px 0px #000; display: flex; align-items: center; justify-content: center; font-size: 30px;">
+                    <img src="megafono.png" style="width: 40px; height: 40px;">
                 </div>
                 <div style="text-align: left;">
                     <h2 style="font-family:'Outfit'; font-weight:900; font-size:28px; margin:0; text-transform:uppercase; line-height:0.9;">Noticias</h2>
@@ -1510,7 +1517,6 @@ navItems.forEach(item => {
     noticiasDB.forEach(nota => {
         const card = document.createElement('div');
         
-                                                                                    
         let tipoCardClass = '';
         if (nota.esSuper) {
             tipoCardClass = 'super-noticia-v3';
@@ -1530,7 +1536,7 @@ navItems.forEach(item => {
                 <h3 style="font-family: 'Outfit'; font-weight: 900; font-size: 24px; margin: 0; letter-spacing: -0.5px;">${nota.titulo}</h3>
             </div>
 
-            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; color: #111; line-height: 1.5; margin: 0;">
+            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; color: #111; line-height: 1.5; margin: 0; text-align: left;">
                 ${nota.cuerpo}
             </p>
 
@@ -1538,7 +1544,7 @@ navItems.forEach(item => {
                 ${nota.parches.map(p => `
                     <div class="patch-item-v3">
                         <div class="dot-v3"></div> 
-                        ${p}
+                        <span>${p}</span>
                     </div>
                 `).join('')}
             </div>
@@ -4111,125 +4117,319 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-function iniciarDetectorInactividad() {
+/**
+ * Alonixz-Guard v7.0 - Sistema de Doble Ventana Bifurcada por Intención
+ * Cierre automático por PIN directo / Apertura de segunda ventana por botón previo.
+ */
+async function iniciarDetectorInactividad() {
     let tiempoInactividad;
     let intentosPin = 0; 
-    const LIMITE_INACTIVIDAD = 180000;                                                   
+    let pinCorrectoBaseDatos = "";
+    let minutosConfigurados = 3; 
+    let quiereConfigurar = false; // Flag clave para detectar la intención
 
-    const reiniciarTemporizador = () => {
-        if (localStorage.getItem('praxis_locked') === 'true') return;
-        clearTimeout(tiempoInactividad);
-        
-        tiempoInactividad = setTimeout(() => {
-            ejecutarAccionInactividad();
-        }, LIMITE_INACTIVIDAD);
+    if (!auth || !database) {
+        console.error("Alonixz-Guard: Firebase no inicializado en el entorno global.");
+        return;
+    }
+
+    const obtenerUsuarioActivo = () => {
+        return new Promise((resolve) => {
+            const desvincular = onAuthStateChanged(auth, (user) => {
+                desvincular();
+                resolve(user);
+            });
+        });
     };
 
-                                                      
-    const validarYActivar = () => {
-        const user = auth.currentUser;
-        if (!user) return;
+    const user = await obtenerUsuarioActivo();
+    if (!user) return;
 
-        const statsRef = ref(db, `usuarios/${user.uid}/stats`);
-        onValue(statsRef, (snapshot) => {
-            const data = snapshot.val();
-            
-                                                              
-            const tienePin = data && data.pin;
-            const esProfesor = data && data.rango === 'profesor';
+    const statsRef = ref(database, `usuarios/${user.uid}/stats`);
 
-            if (tienePin || esProfesor) {
-                console.log("Alonixz-Guard: Usuario verificado. Temporizador iniciado.");
+    try {
+        const statsSnapshot = await get(statsRef);
+        
+        if (statsSnapshot.exists()) {
+            const stats = statsSnapshot.val();
+            const esProfesor = stats && stats.rango === 'profesor';
+            const tienePin = stats && stats.pin;
+
+            if (esProfesor || tienePin) {
+                pinCorrectoBaseDatos = stats.pin ? stats.pin.toString() : "";
                 
-                                                                  
-                ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
-                    document.addEventListener(evt, reiniciarTemporizador);
+                if (stats.tiempo_inac !== undefined) {
+                    minutosConfigurados = parseInt(stats.tiempo_inac, 10);
+                } else {
+                    await update(statsRef, { tiempo_inac: 3 });
+                    minutosConfigurados = 3;
+                }
+
+                console.log(`%c Alonixz-Guard: Resguardando Praxis. Intervalo: ${minutosConfigurados} min.`, "color: #1a73e8; font-weight: bold;");
+
+                ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
+                    document.addEventListener(evento, reiniciarTemporizador, { passive: true });
                 });
+
                 reiniciarTemporizador();
 
-                                                                  
                 if (localStorage.getItem('praxis_locked') === 'true') {
                     ejecutarAccionInactividad();
                 }
             } else {
-                console.log("Alonixz-Guard: Temporizador desactivado para este perfil.");
-                                                                  
                 localStorage.removeItem('praxis_locked');
             }
-        }, { onlyOnce: true });
-    };
+        }
+    } catch (error) {
+        console.error("Alonixz-Guard: Error en comunicación:", error);
+    }
 
-    const ejecutarAccionInactividad = () => {
+    function reiniciarTemporizador() {
+        if (localStorage.getItem('praxis_locked') === 'true') return;
+        clearTimeout(tiempoInactividad);
+        tiempoInactividad = setTimeout(ejecutarAccionInactividad, minutosConfigurados * 60000);
+    }
+
+    function ejecutarAccionInactividad() {
         if (document.getElementById('lock-screen')) return;
         
         localStorage.setItem('praxis_locked', 'true');
         intentosPin = 0; 
+        quiereConfigurar = false; // Resetear intención al bloquearse
 
         const lockOverlay = document.createElement('div');
         lockOverlay.id = 'lock-screen';
-        lockOverlay.style = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 10, 10, 0.98); display: flex; align-items: center;
-            justify-content: center; z-index: 100000; backdrop-filter: blur(20px);
-            font-family: 'JetBrains Mono', monospace;
+        lockOverlay.style.cssText = `
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 9999999; font-family: 'Plus Jakarta Sans', sans-serif;
+            opacity: 0; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         `;
 
+        const estiloAnimacion = document.createElement('style');
+        estiloAnimacion.id = 'alonixz-guard-styles';
+        estiloAnimacion.innerHTML = `
+            @keyframes alonixzPopup {
+                from { transform: scale(0.94) translateY(10px); opacity: 0; }
+                to { transform: scale(1) translateY(0); opacity: 1; }
+            }
+            @keyframes alonixzShake {
+                0%, 100% { transform: translateX(0); }
+                20%, 60% { transform: translateX(-6px); }
+                40%, 80% { transform: translateX(6px); }
+            }
+            .guard-card { animation: alonixzPopup 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; transition: all 0.4s ease; }
+            .guard-shake { animation: alonixzShake 0.4s linear !important; }
+            .window-pane { transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        `;
+        document.head.appendChild(estiloAnimacion);
+
         lockOverlay.innerHTML = `
-            <div style="text-align: center; background: #ffffff; padding: 40px; border: 5px solid #000; box-shadow: 20px 20px 0px #1a73e8; max-width: 400px; width: 90%; position: relative;">
-                <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: #1a73e8; color: #fff; padding: 5px 20px; font-weight: 900; font-size: 12px; border: 3px solid #000; letter-spacing: 2px;">
-                    TERMINAL_LOCKED
+            <div class="guard-card" style="background: #ffffff; padding: 45px 30px 35px 30px; border-radius: 28px; box-shadow: 0 30px 70px rgba(15, 23, 42, 0.2); max-width: 420px; width: 92%; box-sizing: border-box; border: 1px solid rgba(226, 232, 240, 0.8); text-align: center; position: relative; overflow: hidden;">
+                
+                <div id="pane-auth-pin" class="window-pane" style="opacity: 1; display: block;">
+                    
+                    <button id="btn-config-corner" style="position: absolute; top: 20px; right: 22px; background: transparent; border: none; color: #64748b; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a';" onmouseout="this.style.background='transparent'; this.style.color='#64748b';">
+                        Configurar ⚙️
+                    </button>
+
+                    <div style="margin: 0 auto 16px auto; width: 60px; height: 60px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px;">
+                        🔒
+                    </div>
+                    
+                    <h2 style="margin: 0 0 6px 0; font-weight: 800; font-size: 24px; color: #0f172a; letter-spacing: -0.5px;">Terminal Protegida</h2>
+                    <p style="color: #64748b; font-size: 14px; margin-bottom: 25px; line-height: 1.5;">
+                        Consola restringida automáticamente por inactividad.
+                    </p>
+                    
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
+                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
+                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
+                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
+                    </div>
+
+                    <div id="guard-error-text" style="color: #ea4335; font-size: 13px; font-weight: 700; margin-bottom: 15px; display: none;"></div>
+                    <div id="guard-warning-text" style="background: #fffbeb; color: #b45309; border: 1px solid #fef3c7; padding: 12px; border-radius: 12px; font-size: 12.5px; font-weight: 700; margin-bottom: 15px; display: none; line-height: 1.4;"></div>
                 </div>
-                <div style="margin-bottom: 25px; font-size: 60px;">🔐</div>
-                <h2 style="margin: 0 0 10px 0; text-transform: uppercase; font-weight: 900; font-size: 22px; color: #000;">Seguridad Praxis</h2>
-                <p style="color: #444; font-size: 13px; margin-bottom: 30px; font-weight: 600;">Acceso restringido por protocolos de Alonixz-Group.</p>
-                
-                <input type="password" id="unlock-pin" placeholder="••••••" maxlength="6"
-                    style="width: 100%; padding: 15px; border: 4px solid #000; background: #f0f0f0; color: #000; text-align: center; font-size: 35px; margin-bottom: 20px; outline: none; font-weight: 900; letter-spacing: 8px; box-sizing: border-box;">
-                
-                <button id="btn-unlock" style="width: 100%; background: #000; color: #34a853; border: none; padding: 20px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 15px; box-shadow: 6px 6px 0px #34a853; transition: 0.1s;">
-                    DESBLOQUEAR CONSOLA
+
+                <div id="pane-setup-time" class="window-pane" style="opacity: 0; display: none; transform: translateY(15px);">
+                    <div style="margin: 0 auto 14px auto; width: 56px; height: 56px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                        ⚙️
+                    </div>
+                    <h3 style="margin: 0 0 6px 0; font-weight: 800; font-size: 21px; color: #0f172a; letter-spacing: -0.3px;">Ajustes del Guardián</h3>
+                    
+                    <div style="text-align: left; background: #f8fafc; padding: 16px; border-radius: 18px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-sizing: border-box;">
+                        <span style="color: #ea4335; font-weight: 700; font-size: 12px;">⚠️ AMENAZA DE SEGURIDAD VIRTUAL:</span><br>
+                        <p style="color: #475569; font-size: 12px; line-height: 1.5; margin: 4px 0 12px 0;">
+                            Dejar el equipo inactivo expone la sesión a que estudiantes malintencionados **coloquen puntos a su favor**, destruyendo el balance económico y la equidad de Praxis.
+                        </p>
+                        
+                        <div style="border-top: 1px dashed #cbd5e1; padding-top: 12px;">
+                            <label style="font-weight: 700; font-size: 13px; color: #0f172a; display: block; margin-bottom: 6px;">Tiempo de Tolerancia:</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="number" id="input-new-time" value="${minutosConfigurados}" min="2" max="10"
+                                    style="width: 75px; padding: 10px; border: 2px solid #0f172a; border-radius: 10px; text-align: center; font-weight: 800; background: #ffffff; color: #0f172a; outline: none; font-size: 15px;">
+                                <span style="font-size: 13px; font-weight: 600; color: #475569;">minutos</span>
+                                <button id="btn-save-time" style="margin-left: auto; background: #0f172a; color: #ffffff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">
+                                    Guardar
+                                </button>
+                            </div>
+                            <p style="font-size: 11px; color: #64748b; margin-top: 6px;">Rango admitido por administrador: 2 a 10 min.</p>
+                            <div id="time-success-text" style="color: #34a853; font-size: 12px; font-weight: 700; margin-top: 6px; display: none;">✔️ Parámetros sincronizados en Praxis.</div>
+                        </div>
+                    </div>
+
+                    <button id="btn-exit-unlock" style="width: 100%; background: #1a73e8; color: #ffffff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 14px; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2); transition: background 0.2s;">
+                        APLICAR Y DESBLOQUEAR
+                    </button>
+                </div>
+
+                <button id="btn-kill-session" style="margin-top: 15px; background: transparent; color: #94a3b8; border: none; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; transition: color 0.2s;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
+                    Cerrar sesión de la cuenta
                 </button>
-                <p id="pin-error" style="background: #000; color: #ff4444; padding: 12px; font-size: 11px; margin-top: 20px; display: none; font-weight: 800; border-left: 5px solid #ff4444; text-align: left;"></p>
             </div>
         `;
 
         document.body.appendChild(lockOverlay);
+        setTimeout(() => { lockOverlay.style.opacity = "1"; }, 50);
 
-        document.getElementById('btn-unlock').onclick = () => {
-            const inputPin = document.getElementById('unlock-pin').value;
-            const user = auth.currentUser;
+        const inputs = document.querySelectorAll('.alonixz-field');
+        const errorText = document.getElementById('guard-error-text');
+        const warningText = document.getElementById('guard-warning-text');
+        const card = document.querySelector('.guard-card');
+        const btnConfig = document.getElementById('btn-config-corner');
+        
+        // Ventanas
+        const paneAuth = document.getElementById('pane-auth-pin');
+        const paneSetup = document.getElementById('pane-setup-time');
 
-            const statsRef = ref(db, `usuarios/${user.uid}/stats`);
-            onValue(statsRef, (snapshot) => {
-                const data = snapshot.val();
-                
-                                                                  
-                if (data && data.pin === inputPin) {
-                    localStorage.removeItem('praxis_locked');
-                    const overlay = document.getElementById('lock-screen');
-                    if (overlay) document.body.removeChild(overlay);
-                    reiniciarTemporizador();
-                } else {
-                    intentosPin++;
-                    const errorMsg = document.getElementById('pin-error');
-                    errorMsg.innerText = `> ACCESO DENEGADO. INTENTOS RESTANTES: ${3 - intentosPin}`;
-                    errorMsg.style.display = 'block';
+        // Inputs Ventana 2
+        const inputNewTime = document.getElementById('input-new-time');
+        const btnSaveTime = document.getElementById('btn-save-time');
+        const btnExitUnlock = document.getElementById('btn-exit-unlock');
+        const timeSuccessText = document.getElementById('time-success-text');
 
-                    if (intentosPin >= 3) {
-                        localStorage.removeItem('praxis_locked');
-                        signOut(auth).then(() => location.reload());
-                    }
+        inputs[0].focus();
+
+        inputs.forEach((input, index) => {
+            input.onfocus = () => {
+                input.style.borderColor = "#1a73e8";
+                input.style.boxShadow = "0 0 0 4px rgba(26, 115, 232, 0.15)";
+            };
+            input.onblur = () => {
+                input.style.borderColor = "#cbd5e1";
+                input.style.boxShadow = "none";
+            };
+            input.oninput = () => {
+                if (input.value.length === 1 && index < 3) {
+                    inputs[index + 1].focus();
                 }
-            }, { onlyOnce: true });
-        };
-    };
+                comprobarEntradaPin();
+            };
+            input.onkeydown = (e) => {
+                if (e.key === "Backspace" && input.value === "" && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            };
+        });
 
-                                                      
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            validarYActivar();
+        // DETECTOR CLIC: CONFIGURAR ⚙️
+        btnConfig.onclick = function() {
+            quiereConfigurar = true;
+            
+            // Estilo visual de aviso activo
+            btnConfig.style.background = "#e2e8f0";
+            btnConfig.style.color = "#0f172a";
+            
+            warningText.innerHTML = "⚙️ <strong>Modo Configuración Activo</strong><br>Al colocar tu PIN correcto se abrirá el panel de ajustes de la terminal.";
+            warningText.style.display = "block";
+            errorText.style.display = "none";
+            
+            inputs[0].focus();
+        };
+
+        function comprobarEntradaPin() {
+            let pinIngresado = "";
+            inputs.forEach(i => pinIngresado += i.value);
+
+            if (pinIngresado === pinCorrectoBaseDatos && pinCorrectoBaseDatos !== "") {
+                if (quiereConfigurar) {
+                    // CONDICIONAL B: Presionó configurar -> Ir a Ventana 2 de Ajustes
+                    paneAuth.style.opacity = "0";
+                    setTimeout(() => {
+                        paneAuth.style.display = "none";
+                        paneSetup.style.display = "block";
+                        setTimeout(() => {
+                            paneSetup.style.opacity = "1";
+                            paneSetup.style.transform = "translateY(0)";
+                            inputNewTime.focus();
+                        }, 50);
+                    }, 300);
+                } else {
+                    // CONDICIONAL A: PIN directo normal -> Cerrar todo automáticamente de inmediato
+                    desbloquearConsolaLimpia();
+                }
+            } else if (pinIngresado.length === 4) {
+                intentosPin++;
+                card.classList.add('guard-shake');
+                setTimeout(() => card.classList.remove('guard-shake'), 450);
+
+                errorText.innerText = `⚠️ PIN incorrecto. Intentos restantes: ${3 - intentosPin}`;
+                errorText.style.display = 'block';
+                warningText.style.display = "none";
+                
+                inputs.forEach(i => i.value = "");
+                inputs[0].focus();
+
+                if (intentosPin >= 3) destruirSesionPorAtaque();
+            }
         }
-    });
+
+        // Acciones Ventana 2 (Guardado de base de datos)
+        btnSaveTime.onclick = async () => {
+            let valorInput = parseInt(inputNewTime.value, 10);
+            if (isNaN(valorInput) || valorInput < 2) valorInput = 2;
+            if (valorInput > 10) valorInput = 10;
+            inputNewTime.value = valorInput;
+
+            try {
+                await update(statsRef, { tiempo_inac: valorInput });
+                minutosConfigurados = valorInput;
+                timeSuccessText.style.display = "block";
+                setTimeout(() => { timeSuccessText.style.display = "none"; }, 2000);
+            } catch (err) {
+                console.error("Alonixz-Guard: Fallo al guardar parámetros:", err);
+            }
+        };
+
+        btnExitUnlock.onclick = desbloquearConsolaLimpia;
+
+        function desbloquearConsolaLimpia() {
+            localStorage.removeItem('praxis_locked');
+            lockOverlay.style.opacity = "0";
+            setTimeout(() => {
+                if (document.body.contains(lockOverlay)) document.body.removeChild(lockOverlay);
+                const styleTag = document.getElementById('alonixz-guard-styles');
+                if (styleTag) document.head.removeChild(styleTag);
+            }, 400);
+            reiniciarTemporizador();
+        }
+
+        document.getElementById('btn-kill-session').onclick = destruirSesionPorAtaque;
+
+        async function destruirSesionPorAtaque() {
+            localStorage.removeItem('praxis_locked');
+            try {
+                await signOut(auth);
+                localStorage.clear();
+                window.location.replace("login.html");
+            } catch (err) {
+                window.location.reload();
+            }
+        }
+    }
 }
 async function mostrarBienvenidaProfesor(uid) {
     if (document.getElementById('bienvenida-profesor-ui')) return;
@@ -4352,7 +4552,8 @@ async function mostrarBienvenidaProfesor(uid) {
 
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
+    if (user) {// Activar el guardián de inactividad de Praxis
+iniciarDetectorInactividad();
         onValue(ref(db, `usuarios/${user.uid}/stats`), (snapshot) => {
             const data = snapshot.val();
                                                        
