@@ -398,11 +398,11 @@
     </style>
 </head>
 <body>
-<!-- PANTALLA DE LOADING OPTIMIZADA CON ALERTA DE POPUPS -->
+                                                        
     <div id="loader">
         <img src="praxis.png" class="spin" width="140" height="140" alt="Cargando">
         <div id="loader-brand">PRAXIS CORE</div>
-        <!-- Contenedor dinámico de advertencia (Oculto por defecto y corregido) -->
+                                                                
         <div id="loader-popup-warning" class="animate__animated animate__fadeIn" style="display: none; margin-top: 25px; padding: 12px 20px; background: rgba(234, 67, 53, 0.15); border: 1px solid #ea4335; border-radius: 10px; max-width: 320px; text-align: center; font-size: 13px; color: #fecaca; font-weight: 600; line-height: 1.5;">
             ⚠️ ¿El sistema demora? Es posible que tengas desactivadas las ventanas emergentes. Por favor, actívalas en tu navegador para realizar tu ingreso con éxito.
         </div>
@@ -422,7 +422,7 @@
 
     <div id="modal-autologin" class="modal">
         <div class="modal-content animate__animated animate__zoomIn">
-            <div class="modal-icon">🔄</div>
+            <div class="modal-icon"><img src="rehacer.png" alt="reentrar" style="width: 40px; height: 40px;"></div>
             <h2>Sesión Activa Detectada</h2>
             <p>
                 Hemos detectado que ya tienes una cuenta vinculada a este dispositivo:
@@ -435,7 +435,7 @@
             </div>
         </div>
     </div>
-<!-- MODAL 1: VERIFICACIÓN ORIGINAL DEL PIN -->
+                                                        
     <div id="modal-pin" class="modal">
         <div class="modal-content animate__animated animate__zoomIn">
             <div class="modal-icon">🔒</div>
@@ -465,7 +465,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: VALIDACIÓN DE IDENTIDAD Y CÓDIGO DE CORREO (INMUNE A CAMBIO DE VENTANA) -->
+                                                            
     <div id="modal-reset-verify" class="modal">
         <div class="modal-content animate__animated animate__zoomIn">
             <div class="modal-icon">📡</div>
@@ -474,7 +474,7 @@
             
             <input type="text" id="input-reset-code" placeholder="Ej. 123456" maxlength="6" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 15px; outline: none; font-family: monospace;">
             
-            <!-- CAPA EXTRA: Validación Intuitiva del Antiguo PIN -->
+                                                                    
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-align: left; font-weight: 600;">Capa de Verificación Algorítmica:</p>
             <input type="password" id="input-old-hint" placeholder="¿Qué recuerdas de tu PIN anterior?" maxlength="4" style="width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 14px; text-align: center; margin-bottom: 20px; outline: none;">
             
@@ -485,7 +485,7 @@
         </div>
     </div>
 
-    <!-- MODAL 3: ASIGNACIÓN DEL NUEVO PIN -->
+                                                            
     <div id="modal-new-pin" class="modal">
         <div class="modal-content animate__animated animate__zoomIn">
             <div class="modal-icon">✨</div>
@@ -521,14 +521,19 @@
                     <p class="subtitle" id="welcome-sub">Plataforma comunitaria del Colegio San Jerónimo.</p>
                 </header>
 
-                <div class="auth-actions">
-                    <button class="btn btn-google" id="login-google">
-                        <img src="google.png" class="google-icon" alt="Google">
-                        <span>Continuar con Google</span>
-                    </button>
+               <div class="auth-actions">
+    <button class="btn btn-google" id="login-google">
+        <img src="google.png" class="google-icon" alt="Google">
+        <span>Continuar con Google</span>
+    </button>
 
-                    <button class="btn btn-guest" id="login-guest">Acceder como invitado</button>
-                </div>
+    <button class="btn btn-primary" id="login-email" style="background: #0071ff; border: 1px solid rgba(0, 113, 255, 0.1);">
+        <img src="gmail.png" class="google-icon" alt="Correo">
+        <span>Continuar con Correo</span>
+    </button>
+
+    <button class="btn btn-guest" id="login-guest">Acceder como invitado</button>
+</div>
 
                 <footer class="legal-footer">
                     <p>Al entrar, confirmas que has leído y aceptas nuestros <br> 
@@ -541,8 +546,109 @@
             </main>
         </div>
 
+    </div><div id="modal-correo-auth" class="modal" style="display: none; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);">
+        <div class="modal-content animate__animated animate__zoomIn" style="width: 100%; max-width: 440px; padding: 24px 28px; border-radius: 24px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08); box-sizing: border-box;">
+            
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+                <div id="correo-modal-icon" style="width: 46px; height: 46px; background: rgba(99, 102, 241, 0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid rgba(99, 102, 241, 0.12); flex-shrink: 0;">🔑</div>
+                <div style="text-align: left;">
+                    <h2 id="correo-modal-title" style="margin: 0 0 2px 0; font-family: system-ui, -apple-system, sans-serif; font-size: 19px; font-weight: 850; color: #0f172a; letter-spacing: -0.5px;">Acceso por Credenciales</h2>
+                    <span style="color: #6366f1; font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">Correo Personal o Institucional</span>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.04), rgba(0, 113, 255, 0.04)); border: 1px solid rgba(245, 158, 11, 0.12); padding: 12px 14px; border-radius: 14px; margin-bottom: 18px; box-sizing: border-box; display: flex; gap: 12px; align-items: flex-start;">
+                <div style="font-size: 15px; margin-top: 1px; filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.2));">⚠️</div>
+                
+                <div style="font-family: system-ui, -apple-system, sans-serif; font-size: 11px; line-height: 1.4; color: #475569; display: flex; flex-direction: column; gap: 6px;">
+                    <div>
+                        <strong style="color: #d97706; font-weight: 750;">Directiva Autónomica:</strong> 
+                        Si presentas bloqueos de administrador mediante el botón nativo de Google, este canal tradicional garantiza tu entrada independiente.
+                    </div>
+                    <div style="border-top: 1px dashed rgba(0, 0, 0, 0.06); padding-top: 6px; font-style: italic; color: #64748b;">
+                        * Cuenta con ligeras limitaciones de datos automatizados (nombre/foto oficial) solucionables en el siguiente paso.
+                    </div>
+                </div>
+            </div>
+
+            <p id="correo-modal-sub" style="margin: 0 0 16px 0; font-family: system-ui, -apple-system, sans-serif; font-size: 12px; color: #64748b; text-align: left;">
+                Ingresa tus credenciales para resguardar tu progreso en Praxis:
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+                <input type="email" id="input-auth-email" placeholder="ejemplo@correo.com o .edu" 
+                       style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 13.5px; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; outline: none; box-sizing: border-box; transition: all 0.2s ease;"
+                       onfocus="this.style.background='#ffffff'; this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.06)';" 
+                       onblur="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+                
+                <input type="password" id="input-auth-password" placeholder="Establecer o ingresar contraseña" 
+                       style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 13.5px; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; outline: none; box-sizing: border-box; transition: all 0.2s ease;"
+                       onfocus="this.style.background='#ffffff'; this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.06)';" 
+                       onblur="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+            </div>
+
+            <div id="correo-error" class="error-message" style="margin-top: -6px; margin-bottom: 12px; font-size: 11.5px; font-family: system-ui, -apple-system, sans-serif; font-weight: 600; color: #ea4335; display: none; text-align: left;"></div>
+
+            <div class="modal-buttons" style="display: flex; gap: 10px; margin-bottom: 18px;">
+                <button id="btn-close-correo" class="btn" 
+                        style="flex: 1; background: transparent; color: #64748b; border: 1px solid #e2e8f0; padding: 12px; font-size: 13px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;"
+                        onmouseover="this.style.background='#f8fafc';" 
+                        onmouseout="this.style.background='transparent';">
+                    Cancelar
+                </button>
+                <button id="btn-submit-correo" class="btn" 
+                        style="flex: 2; background: #0071ff; color: #ffffff; border: none; padding: 12px; font-size: 13px; font-weight: 700; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 113, 255, 0.1);"
+                        onmouseover="this.style.background='#0062dd';" 
+                        onmouseout="this.style.background='#0071ff';">
+                    Acceder al Sistema
+                </button>
+            </div>
+
+            <div style="text-align: center; padding-top: 14px; border-top: 1px solid #f1f5f9; font-family: system-ui, -apple-system, sans-serif;">
+                <span id="txt-switch-auth" style="font-size: 12px; color: #64748b;">¿No tienes una cuenta?</span>
+                <button id="btn-switch-auth" style="background: none; border: none; color: #6366f1; font-weight: 750; cursor: pointer; font-size: 12px; margin-left: 4px; padding: 0; transition: color 0.2s ease;"
+                        onmouseover="this.style.color='#4f46e5';" 
+                        onmouseout="this.style.color='#6366f1';">
+                    Regístrate
+                </button>
+            </div>
+        </div>
+    </div>                                                        
+<div style="position: absolute; top: 0; left: 40px; z-index: 100; width: 115px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-top: none; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; box-shadow: 0 15px 30px -8px rgba(15, 23, 42, 0.1); padding: 16px 10px 14px 10px; font-family: system-ui, -apple-system, sans-serif; text-align: center; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; animation: slideDownEstandarte 1.2s cubic-bezier(0.16, 1, 0.3, 1);">
+    
+                                                            
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #6366f1, #0071ff); border-top-left-radius: 0; border-top-right-radius: 0;"></div>
+
+                                                            
+    <span style="font-size: 8px; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; line-height: 1;">
+        Desde el 18 de Mayo
+    </span>
+
+                                                            
+    <div style="line-height: 1; margin-bottom: 2px;">
+        <span id="contador-dias-estandarte" style="font-size: 36px; font-weight: 950; color: #0071ff; letter-spacing: -1px; background: linear-gradient(180deg, #0071ff 0%, #4f46e5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; filter: drop-shadow(0 2px 6px rgba(99, 102, 241, 0.1));">
+            --
+        </span>
     </div>
-<!-- Cargar la librería oficial de EmailJS -->
+
+                                                            
+    <span style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 8px; width: 75%; display: block;">
+        Días
+    </span>
+
+                                                            
+    <p style="margin: 0; font-size: 10px; font-weight: 750; color: #475569; line-height: 1.3; letter-spacing: -0.1px;">
+        Al Servicio del <br>
+        <span style="color: #0f172a; font-weight: 850;">Colegio <br>San Jerónimo</span>
+    </p>
+
+                                                            
+    <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 8px; background: rgba(0, 255, 136, 0.05); padding: 3px 6px; border-radius: 20px; border: 1px solid rgba(0, 255, 136, 0.12); width: fit-content;">
+        <span style="width: 4px; height: 4px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 4px #00ff88;"></span>
+        <span style="font-size: 7.5px; font-weight: 800; color: #00a859; text-transform: uppercase; letter-spacing: 0.2px;">Activo</span>
+    </div>
+</div>
+                                                        
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script type="text/javascript">
@@ -553,8 +659,7 @@
 </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-                                                                            
+      import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInAnonymously, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";                                                               
         import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
@@ -894,7 +999,127 @@ function CONFIGURAR_EVENTO_VALIDACION(codigoReal, expiracion, pinOriginal, user,
             }
         };
     };
-}
+}const modalCorreo = document.getElementById('modal-correo-auth');
+        const correoTitle = document.getElementById('correo-modal-title');
+        const correoSub = document.getElementById('correo-modal-sub');
+        const correoIcon = document.getElementById('correo-modal-icon');
+        const btnSubmitCorreo = document.getElementById('btn-submit-correo');
+        const btnSwitchAuth = document.getElementById('btn-switch-auth');
+        const txtSwitchAuth = document.getElementById('txt-switch-auth');
+        const correoError = document.getElementById('correo-error');
+
+        const inputEmail = document.getElementById('input-auth-email');
+        const inputPassword = document.getElementById('input-auth-password');
+
+        let esModoRegistro = false;
+
+        document.getElementById('login-email').onclick = () => {
+            esModoRegistro = false;
+            actualizarInterfazModalCorreo();
+            correoError.style.display = "none";
+            inputEmail.value = "";
+            inputPassword.value = "";
+            modalCorreo.style.display = "flex";
+        };
+
+        document.getElementById('btn-close-correo').onclick = () => {
+            modalCorreo.style.display = "none";
+        };
+
+        btnSwitchAuth.onclick = () => {
+            esModoRegistro = !esModoRegistro;
+            actualizarInterfazModalCorreo();
+        };
+
+        function actualizarInterfazModalCorreo() {
+            correoError.style.display = "none";
+            if (esModoRegistro) {
+                correoIcon.innerText = "✨";
+                correoTitle.innerText = "Crear Cuenta";
+                correoSub.innerText = "Regístrate con tu correo para unirte a Praxis.";
+                btnSubmitCorreo.innerText = "Registrarse y Entrar";
+                txtSwitchAuth.innerText = "¿Ya tienes cuenta?";
+                btnSwitchAuth.innerText = "Inicia Sesión";
+            } else {
+                correoIcon.innerText = "🔑";
+                correoTitle.innerText = "Iniciar Sesión";
+                correoSub.innerText = "Ingresa tus credenciales institucionales para continuar.";
+                btnSubmitCorreo.innerText = "Acceder al Sistema";
+                txtSwitchAuth.innerText = "¿No tienes una cuenta?";
+                btnSwitchAuth.innerText = "Regístrate";
+            }
+        }
+
+        btnSubmitCorreo.onclick = () => {
+            const email = inputEmail.value.trim();
+            const password = inputPassword.value.trim();
+
+            if (!email || !password) {
+                mostrarErrorCorreo("Por favor, completa todos los campos.");
+                return;
+            }
+
+            if (password.length < 6) {
+                mostrarErrorCorreo("La contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            startLogin(async () => {
+                if (esModoRegistro) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+                modalCorreo.style.display = "none";
+            }).catch((error) => {
+                console.error("Auth Email Error: ", error.code);
+                switch (error.code) {
+                    case "auth/invalid-credential":
+                        mostrarErrorCorreo("Credenciales incorrectas. Verifica tu correo o contraseña.");
+                        break;
+                    case "auth/email-already-in-use":
+                        mostrarErrorCorreo("El correo electrónico ya está registrado en la plataforma.");
+                        break;
+                    case "auth/invalid-email":
+                        mostrarErrorCorreo("El formato del correo electrónico no es válido.");
+                        break;
+                    case "auth/weak-password":
+                        mostrarErrorCorreo("La contraseña es muy débil.");
+                        break;
+                    default:
+                        mostrarErrorCorreo("Ocurrió un error en el servidor. Inténtalo de nuevo.");
+                }
+            });
+        };
+
+        function mostrarErrorCorreo(mensaje) {
+            correoError.innerText = "⚠️ " + mensaje;
+            correoError.style.display = "block";
+        }document.addEventListener("DOMContentLoaded", () => {
+    function actualizarDiasServicio() {
+                                                                
+        const fechaLanzamiento = new Date("2026-05-18T00:00:00");
+        const fechaActual = new Date();
+
+                                                                
+        const diferenciaMilisegundos = fechaActual - fechaLanzamiento;
+
+                                                                
+        let diasTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+
+                                                                
+        if (diasTranscurridos < 1) diasTranscurridos = 1;
+
+                                                                
+        const contenedorNumero = document.getElementById("contador-dias-estandarte");
+        if (contenedorNumero) {
+            contenedorNumero.innerText = diasTranscurridos;
+        }
+    }
+
+                                                            
+    actualizarDiasServicio();
+});
     </script>
 </body>
 </html>
