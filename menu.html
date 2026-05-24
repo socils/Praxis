@@ -456,7 +456,7 @@ onAuthStateChanged(auth, async (user) => {
                                 loader.style.opacity = '0';
                                 setTimeout(() => { loader.style.display = 'none'; }, 800);                                                                      
                             }
-                            inicialuncioManual();
+                            inicializarAnuncioManual();
                         }, 500);
                     }
                 }
@@ -654,7 +654,7 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
 
             if (data) {
                 bannerTitle.innerText = data.nombre || "Agenda sin nombre";
-               displayCode.innerHTML = `Código de acceso: <button class="btn-codigo" data-codigo="${code.toUpperCase()}" onclick="window.tarjetaClase(this)" style="background-color: #f1f3f4; color: #1a73e8; font-weight: bold; border: 2px solid #1a73e8; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-family: monospace; font-size: 1rem; margin-left: 5px; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='#1a73e8'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#f1f3f4'; this.style.color='#1a73e8';">${code.toUpperCase()}</button>`;
+                displayCode.innerHTML = `Código de acceso: <button class="btn-codigo" data-codigo="${code.toUpperCase()}" onclick="window.tarjetaClase(this)" style="background: #f1f5f9; color: #0071ff; font-weight: 700; border: 1px solid #e2e8f0; padding: 4px 12px; border-radius: 12px; cursor: pointer; font-family: ui-monospace, monospace; font-size: 0.9rem; margin-left: 6px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" onmouseover="this.style.background='#0071ff'; this.style.color='#ffffff'; this.style.borderColor='#0071ff';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#0071ff'; this.style.borderColor='#e2e8f0';">${code.toUpperCase()}</button>`;
 
                 const uidActual = auth.currentUser.uid;
                 const statsRef = ref(db, `usuarios/${uidActual}/stats/rango`);
@@ -669,33 +669,50 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
                         if (!document.getElementById('admin-publish-btn')) {
                             const adminBtn = document.createElement('button');
                             adminBtn.id = 'admin-publish-btn';
-                            adminBtn.innerHTML = "<img src='anadir.png' width='20px' height='20px' style='margin-right:8px;'> Publicar Nueva Tarea";
-                            adminBtn.className = "btn-confirm"; 
-                            adminBtn.style.marginTop = "15px";
+                            adminBtn.innerHTML = "<img src='anadir.png' width='18px' height='18px' style='margin-right:8px; filter: brightness(0) invert(1);'> Publicar Nueva Tarea";
+                            adminBtn.style.marginTop = "20px";
                             adminBtn.style.display = "flex";
                             adminBtn.style.alignItems = "center";
                             adminBtn.style.justifyContent = "center";
+                            adminBtn.style.border = "none";
+                            adminBtn.style.background = "#0071ff";
+                            adminBtn.style.color = "#ffffff";
+                            adminBtn.style.padding = "12px 24px";
+                            adminBtn.style.fontWeight = "700";
+                            adminBtn.style.borderRadius = "14px";
+                            adminBtn.style.cursor = "pointer";
+                            adminBtn.style.fontSize = "13px";
+                            adminBtn.style.letterSpacing = "0.5px";
+                            adminBtn.style.transition = "background 0.2s ease";
+                            adminBtn.onmouseover = () => adminBtn.style.background = "#005ecb";
+                            adminBtn.onmouseout = () => adminBtn.style.background = "#0071ff";
                             adminBtn.onclick = () => abrirModalTarea(code); 
                             banner.appendChild(adminBtn);
                         }
                     }
 
                     const chatContainer = document.createElement('div');
-                    chatContainer.className = 'card'; 
-                    chatContainer.style.marginBottom = "25px";
+                    chatContainer.style.background = "#ffffff";
+                    chatContainer.style.border = "1px solid #e2e8f0";
+                    chatContainer.style.borderRadius = "24px";
+                    chatContainer.style.padding = "25px";
+                    chatContainer.style.marginBottom = "30px";
+                    chatContainer.style.boxShadow = "0 4px 20px rgba(15, 23, 42, 0.01)";
                     chatContainer.innerHTML = `
-                        <div class="card-header" style="border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                            <h3 style="margin:0; font-size: 16px; color: var(--p-600);">💬 Tablón de la Clase</h3>
+                        <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 5px;">
+                            <h3 style="margin:0; font-size: 15px; font-weight: 850; color: #0f172a; letter-spacing: -0.3px;">💬 Tablón de la Clase</h3>
                         </div>
-                        <div id="lista-mensajes-${code}" style="max-height: 200px; overflow-y: auto; padding: 15px 5px; scroll-behavior: smooth;">
-                            <p style="text-align:center; color: #999; font-size: 13px;">Cargando mensajes...</p>
+                        <div id="lista-mensajes-${code}" style="max-height: 220px; overflow-y: auto; padding: 10px 0; scroll-behavior: smooth;">
+                            <p style="text-align:center; color: #64748b; font-size: 13px; font-family: system-ui, sans-serif;">Cargando mensajes...</p>
                         </div>
-                        <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <div style="display: flex; gap: 12px; padding-top: 15px; border-top: 1px solid #f1f5f9; align-items: center;">
                             <input type="text" id="input-chat-${code}" placeholder="Comparte algo con tu clase..." 
-                                   style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; outline: none;">
-                            <button class="btn-confirm" onclick="enviarMensajeClase('${code}')" 
-                                    style="border-radius: 50%; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;">
-                                <span><img src="enviar.png" style="width: 20px;"></span>
+                                   style="flex: 1; padding: 12px 18px; border: 1px solid #e2e8f0; border-radius: 14px; font-size: 14px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s ease;"
+                                   onfocus="this.style.background='#ffffff'; this.style.borderColor='#0071ff';">
+                            <button onclick="enviarMensajeClase('${code}')" 
+                                    style="border: none; background: #0f172a; border-radius: 12px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s ease;"
+                                    onmouseover="this.style.background='#1e293b';" onmouseout="this.style.background='#0f172a';">
+                                <span><img src="enviar.png" style="width: 18px; filter: brightness(0) invert(1);"></span>
                             </button>
                         </div>
                     `;
@@ -707,31 +724,49 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
                             const t = data.tareas[id];
                             if (id === 'inicio') return;
 
-                            const btnEliminar = tienePermiso ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea"><img src="papelera-de-reciclaje.png" style="width: 15px;"></button>` : "";
+                            const btnEliminar = tienePermiso ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea" style="border: none; background: #f1f5f9; padding: 8px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease;" onmouseover="this.style.background='#fee2e2';" onmouseout="this.style.background='#f1f5f9';"><img src="papelera-de-reciclaje.png" style="width: 14px;"></button>` : "";
                             
                             const linkAdjunto = t.fileUrl ? `
-                                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ddd;">
+                                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9;">
                                     <a href="${t.fileUrl}" target="_blank" 
-                                       style="display: inline-flex; align-items: center; gap: 8px; background: #f1f3f4; color: #1a73e8; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 12px; border: 2px solid #000; box-shadow: 3px 3px 0px #000;">
+                                       style="display: inline-flex; align-items: center; gap: 8px; background: #f1f5f9; color: #0071ff; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 12px; border: 1px solid #e2e8f0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);"
+                                       onmouseover="this.style.background='#ffffff'; this.style.borderColor='#0071ff'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#f1f5f9'; this.style.borderColor='#e2e8f0'; this.style.transform='none';">
                                         <span>🔗 Ver Recurso (${t.tipo || 'Enlace'})</span>
                                     </a>
                                 </div>` : "";
 
                             const tareaCard = document.createElement('div');
-                            tareaCard.className = 'card';
+                            tareaCard.style.background = "#ffffff";
+                            tareaCard.style.border = "1px solid #e2e8f0";
+                            tareaCard.style.borderRadius = "20px";
+                            tareaCard.style.padding = "25px";
+                            tareaCard.style.marginBottom = "20px";
+                            tareaCard.style.boxShadow = "0 4px 20px rgba(15, 23, 42, 0.01)";
+                            tareaCard.style.transition = "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)";
+                            tareaCard.onmouseover = () => {
+                                tareaCard.style.transform = "translateY(-4px)";
+                                tareaCard.style.boxShadow = "0 10px 30px rgba(15, 23, 42, 0.04)";
+                            };
+                            tareaCard.onmouseout = () => {
+                                tareaCard.style.transform = "none";
+                                tareaCard.style.boxShadow = "0 4px 20px rgba(15, 23, 42, 0.01)";
+                            };
+
                             tareaCard.innerHTML = `
-                                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                                     <div>
-                                        <h3>${t.titulo}</h3>
-                                        <span>${t.materia}</span>
+                                        <h3 style="margin: 0; font-size: 16px; font-weight: 850; color: #0f172a; letter-spacing: -0.3px;">${t.titulo}</h3>
+                                        <span style="display: inline-block; margin-top: 4px; font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; color: #64748b; background: #f8fafc; padding: 2px 8px; border-radius: 6px; border: 1px solid #f1f5f9;">${t.materia}</span>
                                     </div>
                                     ${btnEliminar}
                                 </div>
-                                <div class="card-body">
-                                    <p>${t.descripcion}</p>
+                                <div style="font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 16px;">
+                                    <p style="margin: 0;">${t.descripcion}</p>
                                     ${linkAdjunto}
                                 </div>
-                                <div class="card-footer"><span>Entrega: ${t.fecha}</span></div>
+                                <div style="padding-top: 12px; border-top: 1px solid #f8fafc; font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    Entrega: <span style="color: #0f172a; font-family: ui-monospace, monospace;">${t.fecha}</span>
+                                </div>
                             `;
                             container.appendChild(tareaCard);
                         });
@@ -746,7 +781,6 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
         mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
     }
 }
-
 window.eliminarTarea = async (agendaCode, tareaId) => {
     if (confirm("¿Seguro que quieres borrar esta tarea?")) {
         try {
@@ -1899,142 +1933,468 @@ window.cambiarFiltroAlumno = (scope) => {
                 }
             });
 
-            container.innerHTML = `
-            <div style="max-width: 900px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 30px;">
+       container.innerHTML = `
+            <div style="max-width: 900px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 30px; animation: fadeInSmooth 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 
+                <style>
+                    @keyframes fadeInSmooth {
+                        from { opacity: 0; transform: translateY(15px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    .smooth-input {
+                        flex-grow: 1; 
+                        border: 1.5px solid #e2e8f0; 
+                        border-radius: 12px; 
+                        padding: 12px 16px; 
+                        font-weight: 600; 
+                        font-family: monospace; 
+                        outline: none; 
+                        background: #f8fafc; 
+                        transition: all 0.25s ease;
+                    }
+                    .smooth-input:focus {
+                        border-color: #0071ff;
+                        background: #fff;
+                        box-shadow: 0 0 0 4px rgba(0, 113, 255, 0.15);
+                    }
+                    .smooth-btn {
+                        background: #0f172a; 
+                        color: #fff; 
+                        border: none; 
+                        border-radius: 12px; 
+                        padding: 0 24px; 
+                        font-weight: 700; 
+                        cursor: pointer; 
+                        font-size: 13px; 
+                        transition: all 0.2s ease;
+                    }
+                    .smooth-btn:hover {
+                        background: #1e293b;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+                    }
+                    .admin-badge-pill-btn {
+                        background: #fff; 
+                        border: 1.5px solid #e2e8f0; 
+                        border-radius: 10px; 
+                        padding: 10px 12px; 
+                        font-weight: 700; 
+                        font-size: 11px; 
+                        color: #334155;
+                        cursor: pointer; 
+                        transition: all 0.2s ease;
+                        text-align: center;
+                    }
+                    .admin-badge-pill-btn:hover {
+                        border-color: #0f172a;
+                        background: #0f172a;
+                        color: #fff;
+                        transform: translateY(-2px);
+                    }
+                    .config-smooth-card {
+                        border-radius: 16px; 
+                        padding: 16px; 
+                        cursor: pointer; 
+                        background: #fff; 
+                        border: 1px solid #f1f5f9;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+                        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+                    .config-smooth-card:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+                        border-color: #e2e8f0;
+                    }
+                    .btn-download-smooth {
+                        border: none; 
+                        background: #00ff88; 
+                        color: #093321; 
+                        padding: 18px; 
+                        font-weight: 800; 
+                        cursor: pointer; 
+                        text-transform: uppercase; 
+                        font-size: 14px; 
+                        letter-spacing: 1px; 
+                        flex-shrink: 0; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        gap: 8px;
+                        transition: all 0.25s ease;
+                    }
+                    .btn-download-smooth:hover {
+                        background: #00e67a;
+                        box-shadow: 0 8px 20px rgba(0, 255, 136, 0.25);
+                    }
+                </style>
+
                 ${userEmail === miCorreo ? `
-                <div style="border: 4px solid #000; background: #ffff00; padding: 20px; box-shadow: 8px 8px 0px #000;">
-                    <h3 style="margin: 0 0 10px 0; font-weight: 950; font-size: 14px;">🛠 CONSOLA DE ADMINISTRACIÓN ALONIXZ</h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <input type="text" id="targetUID" placeholder="UID DEL USUARIO" style="flex-grow: 1; border: 3px solid #000; padding: 10px; font-weight: 900; font-family: monospace;">
-                        <button onclick="document.getElementById('targetUID').value = '${uid}'" style="background: #000; color: #fff; border: none; padding: 0 15px; font-weight: 900; cursor: pointer;">MI UID</button>
+                <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(217, 119, 6, 0.05);">
+                    <h3 style="margin: 0 0 15px 0; font-weight: 800; font-size: 13px; color: #b45309; letter-spacing: 0.5px;">🛠 CONSOLA DE ADMINISTRACIÓN ALONIXZ</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="targetUID" placeholder="UID DEL USUARIO" class="smooth-input">
+                        <button onclick="document.getElementById('targetUID').value = '${uid}'" class="smooth-btn">MI UID</button>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
                         ${Object.keys(catalogo).map(key => `
-                            <button onclick="otorgarInsignia(document.getElementById('targetUID').value, '${key}')" style="background: #fff; border: 3px solid #000; padding: 8px; font-weight: 900; font-size: 10px; cursor: pointer; box-shadow: 3px 3px 0px #000;">
-                                + ${catalogo[key].nom}
+                            <button class="admin-badge-pill-btn" onclick="otorgarInsignia(document.getElementById('targetUID').value, '${key}')">
+                                ${catalogo[key].nom}
                             </button>
                         `).join('')}
                     </div>
                 </div>
                 ` : ''}
 
-                <div style="border: 4px solid #000; background: #fff; box-shadow: 8px 8px 0px #000; padding: 20px;">
-                    <h2 style="margin: 0 0 20px 0; font-weight: 950; text-transform: uppercase; font-size: 18px; border-bottom: 4px solid #000; padding-bottom: 8px;">CONFIGURACIONES</h2>
+                <div style="background: #fff; border-radius: 20px; border: 1px solid #f1f5f9; box-shadow: 0 10px 35px rgba(0,0,0,0.03); padding: 25px;">
+                    <h2 style="margin: 0 0 20px 0; font-weight: 800; text-transform: uppercase; font-size: 16px; color: #0f172a; letter-spacing: 0.5px;">CONFIGURACIONES</h2>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                        <div onclick="actualizarDatoProtegido('apodo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fff;">
-                            <span style="display: block; font-size: 9px; font-weight: 900; color: #888; text-transform: uppercase;">APODO</span>
-                            <div style="font-weight: 950; font-size: 18px;">${data.apodo || '---'}</div>
+                        <div class="config-smooth-card" onclick="actualizarDatoProtegido('apodo')">
+                            <span style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">APODO</span>
+                            <div style="font-weight: 700; font-size: 18px; color: #1e293b; word-break: break-all;">${data.apodo || '---'}</div>
                         </div>
-                        <div onclick="actualizarDatoProtegido('nombre_correo')" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fff;">
-                            <span style="display: block; font-size: 9px; font-weight: 900; color: #888; text-transform: uppercase;">CORREO</span>
-                            <div style="font-weight: 950; font-size: 18px;">${data.nombre_correo || '---'}</div>
+                        <div class="config-smooth-card" onclick="actualizarDatoProtegido('nombre_correo')">
+                            <span style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">CORREO</span>
+                            <div style="font-weight: 700; font-size: 18px; color: #1e293b; word-break: break-all;">${data.nombre_correo || '---'}</div>
                         </div>
                         ${esProfesor ? `
-                        <div onclick="window.actualizarPin()" style="border: 3px solid #000; padding: 15px; cursor: pointer; background: #fff; box-shadow: 4px 4px 0px #ff3131;">
-                            <span style="display: block; font-size: 9px; font-weight: 900; color: #ff3131; text-transform: uppercase;">SEGURIDAD DOCENTE</span>
-                            <div style="font-weight: 950; font-size: 18px;">ACTUALIZAR PIN</div>
+                        <div class="config-smooth-card" onclick="window.actualizarPin()" style="border-color: #fee2e2; background: #fff8f8;">
+                            <span style="display: block; font-size: 10px; font-weight: 700; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">SEGURIDAD DOCENTE</span>
+                            <div style="font-weight: 700; font-size: 18px; color: #ef4444;">ACTUALIZAR PIN</div>
                         </div>
                         ` : ''}
                     </div>
                 </div>
 
+                <!-- TARJETA DEFINITIVA: APODO EXCLUSIVO, SELLO GRANDE Y QR MAXIMIZADO -->
                 <div id="id-card-praxis" style="
                     width: 750px; 
                     height: 450px; 
                     min-width: 750px; 
                     min-height: 450px; 
-                    border: 8px solid #000; 
-                    background: #fff; 
-                    box-shadow: 20px 20px 0px #00ff88; 
+                    border-radius: 24px;
+                    background: #ffffff; 
+                    border: 1px solid #cbd5e1;
+                    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08); 
                     display: flex; 
                     flex-direction: column; 
                     overflow: hidden; 
                     margin: 0 auto; 
                     position: relative;
                     flex-shrink: 0;
-                ">
+                    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                " onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 35px 70px rgba(15, 23, 42, 0.12)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 25px 60px rgba(15, 23, 42, 0.08)';">
                     
-                    <div style="background: #000; color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-                        <span style="font-weight: 950; font-size: 14px; letter-spacing: 4px;">PRAXIS SYSTEM ID</span>
-                        <span style="font-weight: 900; font-size: 12px; font-family: monospace;">VER_1.2_STABLE</span>
-                    </div>
+                    <!-- Patrón geométrico DNI de fondo -->
+                    <div style="position: absolute; inset: 0; opacity: 0.04; pointer-events: none; background-image: radial-gradient(circle at 1px 1px, #475569 1px, transparent 0); background-size: 6px 6px;"></div>
+                    
+                    <!-- MARCA DE AGUA CORPORATIVA PRAXIS -->
+                    <div style="
+                        position: absolute; 
+                        bottom: 25px; 
+                        left: 205px; 
+                        font-size: 155px; 
+                        font-weight: 900; 
+                        color: #f1f5f9; 
+                        letter-spacing: -5px; 
+                        user-select: none; 
+                        pointer-events: none; 
+                        font-family: 'Impact', 'Arial Black', sans-serif;
+                        z-index: 1;
+                    ">PRAXIS</div>
 
-                    <div style="flex-grow: 1; display: grid; grid-template-columns: 240px 1fr 160px; gap: 20px; padding: 30px; align-items: center;">
+                    <!-- Layout Perimetral de 3 Bloques -->
+                    <div style="flex-grow: 1; display: grid; grid-template-columns: 200px 1fr 205px; padding: 25px; z-index: 2; position: relative; height: 100%; box-sizing: border-box; gap: 15px;">
                         
-                        <div style="text-align: center; display: flex; justify-content: center;">
-                            <div style="width: 180px; height: 180px; border: 6px solid #000; background: #f0f0f0; overflow: hidden; box-shadow: 10px 10px 0px #0071ff;">
+                        <!-- COLUMNA IZQUIERDA: Sistema e Identificación Fotográfica -->
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; border-right: 1px solid #f1f5f9; padding-right: 10px;">
+                            
+                            <div>
+                                <h4 style="margin: 0; font-size: 10px; font-weight: 800; color: #0071ff; letter-spacing: 1px; text-transform: uppercase;">PRAXIS NETWORK</h4>
+                                <span style="font-family: monospace; font-size: 10px; font-weight: 700; color: #94a3b8;">SECURE_V1.2</span>
+                            </div>
+
+                            <!-- Fotografía Marco DNI -->
+                            <div style="width: 140px; height: 140px; border-radius: 16px; background: #f8fafc; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; margin: 10px 0;">
                                 <img src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
                             </div>
+
+                            <!-- Validaciones de Emisión Base -->
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <div>
+                                    <span style="display: block; font-size: 8.5px; font-weight: 700; color: #a1a1aa; text-transform: uppercase;">CÓDIGO VERIFICADOR</span>
+                                    <span style="font-family: monospace; font-size: 12px; font-weight: 700; color: #1e293b;">PRX-${Math.floor(1000 + Math.random() * 9000)}-${uid.substring(0,2).toUpperCase()}</span>
+                                </div>
+                                <div>
+                                    <span style="display: block; font-size: 8.5px; font-weight: 700; color: #a1a1aa; text-transform: uppercase;">FECHA EMISIÓN</span>
+                                    <span style="font-size: 11px; font-weight: 700; color: #475569;">${new Date().toLocaleDateString('es-PE')}</span>
+                                </div>
+                                <!-- Barras Técnicas Simuladas -->
+                                <div style="display: flex; gap: 1.5px; height: 15px; margin-top: 4px; opacity: 0.5;">
+                                    ${Array.from({length: 22}).map(() => `<div style="width: ${Math.random() > 0.4 ? '2px' : '1px'}; background: #000; height: 100%;"></div>`).join('')}
+                                </div>
+                            </div>
                         </div>
 
-                        <div style="display: flex; flex-direction: column; gap: 10px; overflow: hidden;">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <h1 style="margin: 0; font-size: 42px; font-weight: 950; text-transform: uppercase; color: #000; letter-spacing: -2px; line-height: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
-                                    ${data.apodo || 'USUARIO'}
-                                </h1>
-                                ${esVerificado ? `
-                                    <img src="https://cdn-icons-png.flaticon.com/512/7641/7641727.png" style="width: 30px; height: 30px; flex-shrink: 0;">
-                                ` : ''}
-                            </div>
+                        <!-- COLUMNA CENTRAL: Apodo de la Plataforma y Sello de Verificación Destacado -->
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 0 5px;">
                             
-                            <div style="font-family: monospace; font-size: 12px; font-weight: 950; background: #000; color: #fff; padding: 4px 12px; align-self: flex-start; text-transform: uppercase;">
-                                ${esProfesor ? 'DOCENTE' : (data.stats?.rango || 'ESTUDIANTE')}
+                            <div>
+                                <h2 style="margin: 0; font-size: 14px; font-weight: 900; color: #0f172a; letter-spacing: -0.3px; text-transform: uppercase;">DOCUMENTO DE IDENTIDAD DIGITAL</h2>
                             </div>
 
-                            <div style="display: flex; gap: 8px; margin: 15px 0; height: 45px; flex-wrap: wrap; overflow: hidden; align-content: flex-start;">
-                                ${insigniasHTML || '<div style="font-size: 10px; font-weight: 950; color: #ddd; letter-spacing: 1px;">SIN LOGROS ACTIVOS</div>'}
-                            </div>
-
-                            <div style="display: flex; gap: 30px; border-top: 4px solid #000; padding-top: 15px; margin-top: 5px;">
+                            <!-- Campos de Registro Identatario Escalados -->
+                            <div style="display: flex; flex-direction: column; gap: 14px; margin: 10px 0;">
+                                
+                                <!-- APODO EXCLUSIVO CON EL VERIFICADO AL LADO Y EN GRANDE -->
                                 <div>
-                                    <span style="display: block; font-size: 10px; font-weight: 900; color: #888;">PUNTOS</span>
-                                    <span style="font-size: 28px; font-weight: 950;">${puntosTotales}</span>
+                                    <span style="display: block; font-size: 10px; font-weight: 800; color: #0071ff; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px;">APODO DE PLATAFORMA</span>
+                                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;">
+                                        <span style="font-size: 32px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">
+                                            ${data.apodo || 'USUARIO_RED'}
+                                        </span>
+                                        ${esVerificado ? `<img src="https://cdn-icons-png.flaticon.com/512/7641/7641727.png" style="width: 28px; height: 28px; flex-shrink: 0; filter: drop-shadow(0 2px 8px rgba(0,113,255,0.25));" alt="Verificado">` : ''}
+                                    </div>
                                 </div>
+
                                 <div>
-                                    <span style="display: block; font-size: 10px; font-weight: 900; color: #888;">RACHA</span>
-                                    <span style="font-size: 28px; font-weight: 950;">${racha}D</span>
+                                    <span style="display: block; font-size: 9.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.3px;">NÚCLEO DE ACCESO (UID)</span>
+                                    <span style="font-family: monospace; font-size: 14px; font-weight: 700; color: #334155; word-break: break-all;">${uid.substring(0, 16).toUpperCase()}</span>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <span style="display: block; font-size: 9.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">RANGO RED</span>
+                                        <div style="margin-top: 3px;">
+                                            <span style="font-family: monospace; font-size: 11px; font-weight: 700; background: #0f172a; color: #fff; padding: 4px 8px; border-radius: 5px; text-transform: uppercase;">
+                                                ${esProfesor ? 'DOCENTE' : (data.stats?.rango || 'ESTUDIANTE')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span style="display: block; font-size: 9.5px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">ESTADO EN LÍNEA</span>
+                                        <span style="font-size: 12px; font-weight: 700; color: #00ff88; display: flex; align-items: center; gap: 5px; margin-top: 4px;">
+                                            <span style="width: 6px; height: 6px; background: #00ff88; border-radius: 50%;"></span> SISTEMA ACTIVO
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- EMBLEMAS / LOGROS ASIGNADOS -->
+                            <div style="border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                                <span style="display: block; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px;">LOGROS DE IDENTIDAD</span>
+                                <div style="display: flex; gap: 6px; height: 44px; flex-wrap: wrap; overflow: hidden; align-items: center;">
+                                    ${insigniasHTML || '<div style="font-size: 11px; font-weight: 600; color: #cbd5e1; padding-top: 2px;">NINGÚN EMBLEMA REGISTRADO</div>'}
                                 </div>
                             </div>
                         </div>
 
-                        <div style="text-align: center; border-left: 4px solid #eee; padding-left: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                            <div style="border: 3px solid #000; padding: 8px; background: #fff; box-shadow: 5px 5px 0px #000;">
-                                <img src="${qrUrl}" style="width: 100px; height: 100px; display: block;">
+                        <!-- COLUMNA DERECHA: Código QR Corporativo Gigante y Estadísticas -->
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; border-left: 1px solid #f1f5f9; padding-left: 15px; align-items: center; text-align: center;">
+                            
+                            <!-- Bloque de Métricas Superiores -->
+                            <div style="display: flex; width: 100%; justify-content: space-around; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                                <div>
+                                    <span style="display: block; font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase;">PUNTOS</span>
+                                    <span style="font-size: 20px; font-weight: 800; color: #0f172a; line-height: 1.1;">${puntosTotales}</span>
+                                </div>
+                                <div style="border-left: 1px solid #e2e8f0; height: 22px; align-self: center;"></div>
+                                <div>
+                                    <span style="display: block; font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase;">RACHA</span>
+                                    <span style="font-size: 20px; font-weight: 800; color: #0f172a; line-height: 1.1;">${racha}D</span>
+                                </div>
                             </div>
-                            <div style="font-family: monospace; font-size: 8px; font-weight: 950; margin-top: 15px; opacity: 0.5; width: 100px; word-break: break-all;">
-                                ID_${uid.substring(0, 12).toUpperCase()}
+
+                            <!-- QR GIGANTE TOTALMENTE PROTAGÓNICO -->
+                            <div style="
+                                border-radius: 18px; 
+                                padding: 10px; 
+                                background: #fff; 
+                                border: 1.5px solid #cbd5e1; 
+                                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05); 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center;
+                                transition: transform 0.3s ease;
+                                margin: 5px 0;
+                            " onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='none'">
+                                <img src="${qrUrl}" style="width: 140px; height: 140px; display: block;">
                             </div>
+
+                            <!-- Pie de Firma Electrónica -->
+                            <div style="width: 100%;">
+                                <div style="font-family: monospace; font-size: 9px; font-weight: 700; color: #94a3b8; word-break: break-all; line-height: 1.2;">
+                                    AUTH_ID:${uid.substring(0, 14).toUpperCase()}
+                                </div>
+                                <span style="font-size: 8px; font-weight: 800; color: #0071ff; letter-spacing: 0.5px; text-transform: uppercase; display: block; margin-top: 2px;">FIRMA DIGITAL ESCANEABLE</span>
+                            </div>
+
                         </div>
                     </div>
 
-                    <button onclick="descargarTarjeta()" style="border: none; border-top: 6px solid #000; background: #ffff00; color: #000; padding: 20px; font-weight: 950; cursor: pointer; text-transform: uppercase; font-size: 15px; letter-spacing: 3px; flex-shrink: 0;">
+                    <!-- Activador de descarga del elemento en canvas -->
+                    <button class="btn-download-smooth" onclick="descargarTarjeta()">
                         DESCARGAR TARJETA OFICIAL (.PNG)
                     </button>
                 </div>
                 
-                <p style="text-align: center; font-weight: 800; font-size: 11px; color: #aaa; text-transform: uppercase;">La tarjeta tiene dimensiones fijas de 750x450px para una impresión perfecta.</p>
+                <p style="text-align: center; font-weight: 600; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">La tarjeta tiene dimensiones fijas de 750x450px para una impresión perfecta.</p>
             </div>`;
         }
     }); 
-}   else if (texto.includes("pendientes")) {
-    bannerTitle.innerText = "Tareas Pendientes";
-    displayCode.innerText = "PENDIENTES";
+}else if (texto.includes("pendientes")) {
+    bannerTitle.innerText = "Panel de Tareas";
+    displayCode.innerText = "DASHBOARD";
     navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
-    
-                                                         
+                                                       
     container.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:200px;">
             <div class="spinner"></div>
-            <p style="font-family:'JetBrains Mono'; margin-top:15px;">Filtrando tareas activas...</p>
+            <p style="font-family:system-ui, sans-serif; font-size:0.9rem; color:#a0aec0; margin-top:15px;">Organizando tu cronograma...</p>
         </div>`;
     
     obtenerTodasLasTareas((todasLasTareas) => {
         container.innerHTML = "";
-        const hoy = new Date().setHours(0,0,0,0);
-                                                             
-        const pendientes = todasLasTareas.filter(t => new Date(t.fecha).setHours(0,0,0,0) >= hoy);
-        renderizarVistaLista(pendientes, "pendientes");
+        
+        const ahora = new Date();
+        const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).getTime();
+        const unaSemanaDespues = hoy + (7 * 24 * 60 * 60 * 1000);
+
+        const bloqueHoy = [];
+        const bloqueSemana = [];
+        const bloqueTodas = [];
+        const bloqueRevision = [];
+
+        todasLasTareas.forEach(t => {
+            if (!t.fecha) {
+                bloqueRevision.push(t);
+                return;
+            }
+
+            const partes = t.fecha.split("/");
+            if (partes.length !== 3) {
+                bloqueRevision.push(t);
+                return;
+            }
+
+            const dia = parseInt(partes[0]);
+            const mes = parseInt(partes[1]) - 1;
+            const anio = parseInt(partes[2]);
+            const fechaTarea = new Date(anio, mes, dia).getTime();
+
+            if (isNaN(fechaTarea)) {
+                bloqueRevision.push(t);
+                return;
+            }
+
+            if (fechaTarea < hoy) {
+                bloqueRevision.push(t);
+            } else if (fechaTarea === hoy) {
+                bloqueHoy.push(t);
+                bloqueTodas.push(t);
+            } else if (fechaTarea > hoy && fechaTarea <= unaSemanaDespues) {
+                bloqueSemana.push(t);
+                bloqueTodas.push(t);
+            } else {
+                bloqueTodas.push(t);
+            }
+        });
+
+        const secciones = [
+            { titulo: "Tareas de Hoy", items: bloqueHoy, color: "#ef4444" },
+            { titulo: "Esta Semana", items: bloqueSemana, color: "#3b82f6" },
+            { titulo: "Todos los Próximos Objetivos", items: bloqueTodas, color: "#10b981" },
+            { titulo: "Por Revisar o Vencidas", items: bloqueRevision, color: "#f59e0b" }
+        ];
+
+        let dashboardHTML = `
+            <style>
+                @keyframes containerFade {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .dashboard-section {
+                    margin-bottom: 40px;
+                    animation: containerFade 0.4s ease forwards;
+                    font-family: system-ui, sans-serif;
+                }
+                .section-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 16px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .section-title {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: #1e293b;
+                }
+                .section-badge {
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    padding: 2px 8px;
+                    border-radius: 20px;
+                    color: #ffffff;
+                }
+                .empty-msg {
+                    font-size: 0.85rem;
+                    color: #94a3b8;
+                    padding: 16px;
+                    background: #f8fafc;
+                    border-radius: 12px;
+                    border: 1px dashed #e2e8f0;
+                }
+                .task-mini-card {
+                    background: #ffffff;
+                    border-radius: 12px;
+                    padding: 16px;
+                    margin-bottom: 12px;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    transition: transform 0.2s ease;
+                }
+                .task-mini-card:hover {
+                    transform: translateX(4px);
+                }
+            </style>
+            <div style="padding: 24px;">
+        `;
+
+        secciones.forEach(sec => {
+            dashboardHTML += `
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <span class="section-title">${sec.titulo}</span>
+                        <span class="section-badge" style="background: ${sec.color}">${sec.items.length}</span>
+                    </div>
+            `;
+
+            if (sec.items.length === 0) {
+                dashboardHTML += `<div class="empty-msg">No hay tareas asignadas a este bloque.</div>`;
+            } else {
+                sec.items.forEach(task => {
+                    dashboardHTML += `
+                        <div class="task-mini-card">
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.95rem; color: #1e293b;">${task.titulo || 'Sin título'}</div>
+                                <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">${task.materia || 'General'} — ${task.descripcion || 'Sin especificaciones'}</div>
+                            </div>
+                            <div style="font-size: 0.8rem; font-weight: 500; color: #94a3b8; background: #f1f5f9; padding: 4px 10px; border-radius: 8px;">
+                                ${task.fecha || 'Sin fecha'}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            dashboardHTML += `</div>`;
+        });
+
+        dashboardHTML += `</div>`;
+        container.innerHTML = dashboardHTML;
     });
 }else if (texto.includes("marketplace") || texto.includes("tienda")) {
     bannerTitle.innerText = "Mercado de Praxis";
@@ -2043,66 +2403,158 @@ window.cambiarFiltroAlumno = (scope) => {
 
     container.innerHTML = `
         <style>
-            /* Animaciones de entrada */
-            @keyframes fadeInBrutal {
-                from { opacity: 0; transform: translateY(30px) scale(0.95); }
-                to { opacity: 1; transform: translateY(0) scale(1); }
+            /* Animaciones de Entrada y Entorno */
+            @keyframes fadeInSmooth {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
             }
-            @keyframes scanline {
-                0% { transform: translateY(-100%); }
-                100% { transform: translateY(100%); }
-            }
-            @keyframes pulseShadow {
-                0% { box-shadow: 10px 10px 0px #000; }
-                50% { box-shadow: 15px 15px 0px #00ff88; }
-                100% { box-shadow: 10px 10px 0px #000; }
-            }
-            @keyframes textGlitch {
-                0% { text-shadow: 2px 0 #ff3131, -2px 0 #00ff88; }
-                50% { text-shadow: -2px 0 #ff3131, 2px 0 #00ff88; }
-                100% { text-shadow: 2px 0 #ff3131, -2px 0 #00ff88; }
+            @keyframes spinLoader {
+                to { transform: rotate(360deg); }
             }
 
-            .item-card {
-                animation: fadeInBrutal 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-                opacity: 0;
-                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* ANIMACIÓN DE BALANCEO (Estilo Letrero Colgante) */
+            @keyframes swingSign {
+                0% { transform: rotate(-3deg); transform-origin: top center; }
+                50% { transform: rotate(3deg); transform-origin: top center; }
+                100% { transform: rotate(-3deg); transform-origin: top center; }
             }
-            .item-card:hover {
-                transform: translateY(-8px);
-                box-shadow: 18px 18px 0px #000 !important;
-                border-color: #00ff88;
+
+            /* ANIMACIÓN DE DESTELLO EN EL PRECIO */
+            @keyframes priceGlow {
+                0% { background-position: 0% 50%; box-shadow: 0 4px 15px rgba(0, 113, 255, 0.2); }
+                50% { background-position: 100% 50%; box-shadow: 0 4px 25px rgba(0, 255, 136, 0.4); }
+                100% { background-position: 0% 50%; box-shadow: 0 4px 15px rgba(0, 113, 255, 0.2); }
             }
-            
-            .btn-canje {
+
+            .market-grid-container {
+                max-width: 1000px; 
+                margin: 0 auto; 
+                padding: 20px; 
+                animation: fadeInSmooth 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+
+            /* Contenedor del Estante / Tarjeta */
+            .market-item-card {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 24px;
+                padding: 26px;
                 position: relative;
-                overflow: hidden;
-                transition: all 0.2s ease;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+                transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                overflow: visible; /* Permitir que el letrero sobresalga */
             }
-            .btn-canje:hover {
-                background: #000 !important;
-                color: #00ff88 !important;
-                transform: translate(-4px, -4px);
-                box-shadow: 8px 8px 0px #00ff88 !important;
-            }
-            .btn-canje:active {
-                transform: translate(2px, 2px);
-                box-shadow: 0px 0px 0px #000 !important;
+            .market-item-card:hover {
+                transform: translateY(-6px);
+                border-color: #cbd5e1;
+                box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
             }
 
-            /* Etiqueta de precio con pulso */
-            .price-tag {
-                animation: pulseShadow 2s infinite;
+            /* EL LETRERO/ETIQUETA ANMADO DE PRECIO */
+            .market-hanging-price {
+                position: absolute;
+                top: -12px;
+                right: 20px;
+                background: linear-gradient(-45deg, #0f172a, #1e293b, #0071ff, #0f172a);
+                background-size: 300% 300%;
+                color: #ffffff;
+                padding: 8px 16px;
+                font-weight: 800;
+                font-size: 14px;
+                border-radius: 12px;
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 10;
+                animation: swingSign 3.5s ease-in-out infinite, priceGlow 6s ease infinite;
+            }
+
+            /* Cables de sujeción simulados para el Letrero */
+            .market-hanging-price::before {
+                content: '';
+                position: absolute;
+                top: -8px;
+                left: 25%;
+                width: 2px;
+                height: 8px;
+                background: #cbd5e1;
+            }
+            .market-hanging-price::after {
+                content: '';
+                position: absolute;
+                top: -8px;
+                right: 25%;
+                width: 2px;
+                height: 8px;
+                background: #cbd5e1;
+            }
+
+            /* Botón de Canje Estilo Compra Transaccional */
+            .btn-market-action {
+                width: 100%;
+                border: none;
+                background: #0f172a;
+                color: #ffffff;
+                padding: 15px;
+                font-weight: 700;
+                border-radius: 14px;
+                cursor: pointer;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                transition: all 0.25s ease;
+            }
+            .btn-market-action:hover {
+                background: #0071ff;
+                transform: translateY(-1px);
+                box-shadow: 0 10px 20px rgba(0, 113, 255, 0.2);
+            }
+            .btn-market-action:active {
+                transform: translateY(1px);
+            }
+
+            .stock-progress-bar {
+                height: 6px;
+                background: #f1f5f9;
+                border-radius: 10px;
+                overflow: hidden;
+                position: relative;
+                flex-grow: 1;
+            }
+            .stock-progress-fill {
+                height: 100%;
+                border-radius: 10px;
+                transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             }
         </style>
         
-        <div id="loader-market" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px; gap:30px;">
-            <div style="position:relative; width:80px; height:80px; border:8px solid #000; background:#fff; display:flex; align-items:center; justify-content:center;">
-                <div style="position:absolute; width:100%; height:100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.1) 2px, rgba(0,255,136,0.1) 4px); pointer-events:none;"></div>
-                <div style="position:absolute; width:100%; height:4px; background:#00ff88; animation: scanline 2s linear infinite; z-index:2;"></div>
-                <span style="font-weight:900; font-size:30px; animation: textGlitch 0.2s infinite alternate;">PX</span>
+        <div class="market-grid-container" id="market-root">
+            <!-- Encabezado del Mercado -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
+                <div>
+                    <span style="font-size: 10px; font-weight: 800; color: #0071ff; text-transform: uppercase; letter-spacing: 1.2px; display: block;">ALMACÉN CENTRAL DE CAMBIOS</span>
+                    <h2 style="margin: 4px 0 0 0; font-weight: 900; font-size: 24px; color: #0f172a; letter-spacing: -0.5px;">ESTA TRIPULACIÓN TIENE EXISTENCIAS</h2>
+                </div>
+                <div style="font-size: 11px; font-weight: 700; background: #f8fafc; color: #475569; padding: 8px 16px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 6px; height: 6px; background: #00ff88; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #00ff88;"></span> TERMINAL OPERATIVO
+                </div>
             </div>
-            <p style="font-weight:950; text-transform:uppercase; letter-spacing:5px; color:#000;">Accediendo al Almacén...</p>
+
+            <!-- Cargador Inicial de datos -->
+            <div id="loader-market" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 0; gap: 15px;">
+                <div style="width: 32px; height: 32px; border: 3px solid #f1f5f9; border-top-color: #0071ff; border-radius: 50%; animation: spinLoader 0.7s linear infinite;"></div>
+                <p style="font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Inspeccionando estanterías...</p>
+            </div>
         </div>
     `;
 
@@ -2112,64 +2564,166 @@ window.cambiarFiltroAlumno = (scope) => {
         const loader = document.getElementById('loader-market');
         if(loader) loader.remove();
         
+        const marketRoot = document.getElementById('market-root');
+
         if (!snapshot.exists()) {
-            container.innerHTML += `
-                <div style="max-width:600px; margin: 50px auto; border: 10px solid #000; background: #fff; box-shadow: 20px 20px 0px #ff3131; padding: 60px; text-align: center; animation: fadeInBrutal 0.7s ease-out;">
-                    <span style="font-size: 80px;">⚠️</span>
-                    <h2 style="font-weight: 950; text-transform: uppercase; margin: 20px 0; font-size: 32px; letter-spacing:-1px;">Stock No Detectado</h2>
-                    <p style="font-weight: 800; color: #444; line-height: 1.6; border-top: 4px solid #000; pt-20px;">SISTEMA EN ESPERA. EL CONSEJO ESTUDIANTIL AÚN NO HA CARGADO LOS PREMIOS DE LA TEMPORADA.</p>
+            marketRoot.innerHTML += `
+                <div style="max-width: 480px; margin: 50px auto; border: 1px solid #fee2e2; background: #fff8f8; border-radius: 24px; padding: 45px; text-align: center; box-shadow: 0 15px 35px rgba(239, 68, 68, 0.02);">
+                    <span style="font-size: 45px; display: block; margin-bottom: 15px;">📦</span>
+                    <h3 style="font-weight: 800; text-transform: uppercase; margin: 0 0 8px 0; font-size: 15px; color: #ef4444; letter-spacing: 0.5px;">ESTA SECCIÓN ESTÁ VACÍA</h3>
+                    <p style="font-weight: 600; font-size: 13px; color: #7f1d1d; line-height: 1.5; margin: 0;">EL CONSEJO ESTUDIANTIL REORGANIZARÁ LOS PREMIOS PRÓXIMAMENTE. MANTENTE EN SINTONÍA.</p>
                 </div>
             `;
             return;
         }
 
         const productos = snapshot.val();
-        let htmlProductos = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; padding: 30px;">`;
+        let htmlProductos = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 30px 25px;">`;
         
-        let delay = 0;
         Object.keys(productos).forEach(id => {
             const p = productos[id];
-            delay += 0.12;
+            const stockPorcentaje = Math.min((p.stock / 15) * 100, 100);
+            const esBajoStock = p.stock <= 3;
+
             htmlProductos += `
-                <div class="item-card" style="border: 6px solid #000; background: #fff; padding: 30px; box-shadow: 12px 12px 0px #000; position: relative; animation-delay: ${delay}s;">
-                    <div class="price-tag" style="position: absolute; top: -10px; right: -10px; background: #00ff88; color: #000; padding: 10px 20px; font-weight: 950; font-size: 16px; border: 5px solid #000; transform: rotate(3deg);">
-                        ${p.costo} PTS
-                    </div>
-                    
-                    <div style="font-size: 11px; font-weight: 900; color: #aaa; margin-bottom: 10px; letter-spacing: 1px;">ID: ${id.toUpperCase()}</div>
-                    <h3 style="margin: 0 0 15px 0; font-weight: 950; text-transform: uppercase; font-size: 24px; line-height: 0.9; color:#000;">${p.nombre}</h3>
-                    <p style="margin: 0 0 25px 0; font-size: 14px; font-weight: 700; color: #555; line-height: 1.4; min-height: 50px; border-left: 4px solid #eee; padding-left: 15px;">${p.descripcion}</p>
-                    
-                    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                        <div style="height: 12px; flex-grow: 1; background: #eee; border: 2px solid #000; position: relative;">
-                            <div style="position: absolute; left: 0; top: 0; height: 100%; width: ${Math.min((p.stock/10)*100, 100)}%; background: #000;"></div>
-                        </div>
-                        <span style="font-weight: 950; font-size: 12px;">STOCK: ${p.stock}</span>
+                <div class="market-item-card">
+                    <!-- LETRERO / ETIQUETA COLGANTE DE PRECIO -->
+                    <div class="market-hanging-price">
+                        <span style="color: #00ff88; font-weight: 900; text-shadow: 0 0 6px rgba(0,255,136,0.6);">⚡</span> 
+                        <span>${p.costo}</span> 
+                        <span style="font-size: 9px; color: #94a3b8; font-weight: 700; margin-left: 1px;">PTS</span>
                     </div>
 
-                    <button onclick="canjearPremio('${id}', ${p.costo})" class="btn-canje" style="width: 100%; border: 5px solid #000; background: #ffff00; padding: 15px; font-weight: 950; cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
-                        Iniciar Canje
+                    <!-- Cabecera técnica del producto -->
+                    <div style="margin-bottom: 18px;">
+                        <span style="font-family: monospace; font-size: 9.5px; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">
+                            SKU-${id.substring(0, 6).toUpperCase()}
+                        </span>
+                    </div>
+                    
+                    <!-- Información del Item -->
+                    <div style="flex-grow: 1; margin-bottom: 22px;">
+                        <h3 style="margin: 0 0 8px 0; font-weight: 800; font-size: 19px; color: #0f172a; letter-spacing: -0.4px; line-height: 1.25; padding-right: 70px;">
+                            ${p.nombre}
+                        </h3>
+                        <p style="margin: 0; font-size: 13px; font-weight: 500; color: #64748b; line-height: 1.45; min-height: 42px;">
+                            ${p.descripcion}
+                        </p>
+                    </div>
+                    
+                    <!-- Monitor del Estante (Stock) -->
+                    <div style="margin-bottom: 20px; background: #f8fafc; padding: 14px; border-radius: 16px; border: 1px solid #f1f5f9;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px;">Stock de Tienda</span>
+                            <span style="font-size: 11px; font-weight: 700; color: ${esBajoStock ? '#ef4444' : '#0f172a'}">
+                                ${p.stock <= 0 ? 'AGOTADO' : p.stock + ' UNIDADES'}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="stock-progress-bar">
+                                <div class="stock-progress-fill" style="width: ${stockPorcentaje}%; background: ${p.stock <= 0 ? '#cbd5e1' : (esBajoStock ? '#ef4444' : '#0071ff')};"></div>
+                            </div>
+                            ${esBajoStock && p.stock > 0 ? `<span style="font-size: 8.5px; font-weight: 800; color: #ef4444; background: #fee2e2; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">¡ESCRAZO!</span>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Acción Adquisición -->
+                    <button onclick="canjearPremio('${id}', ${p.costo})" class="btn-market-action" ${p.stock <= 0 ? 'disabled style="background:#e2e8f0; color:#94a3b8; cursor:not-allowed;"' : ''}>
+                        <span>${p.stock <= 0 ? 'Sin existencias' : 'Adquirir Producto'}</span>
+                        ${p.stock > 0 ? '<svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>' : ''}
                     </button>
                 </div>
             `;
         });
         
         htmlProductos += `</div>`;
-        container.innerHTML += htmlProductos;
+        marketRoot.innerHTML += htmlProductos;
     });
-
 }else if (texto.includes("mis compras") || texto.includes("historial")) {
     bannerTitle.innerText = "Historial de Canjes";
     displayCode.innerText = "MIS_PEDIDOS";
     
-                                                             
     container.innerHTML = `
-        <div id="loader-historial" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px; gap:30px;">
-            <div style="position:relative; width:80px; height:80px; border:8px solid #000; background:#fff; display:flex; align-items:center; justify-content:center;">
-                <div style="position:absolute; width:100%; height:4px; background:#00ff88; animation: scanline 2s linear infinite; z-index:2;"></div>
-                <span style="font-weight:900; font-size:30px;">HX</span>
+        <style>
+            /* Animaciones y Clases del Historial */
+            @keyframes fadeInSmooth {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes spinLoader {
+                to { transform: rotate(360deg); }
+            }
+
+            .history-grid-container {
+                max-width: 1000px; 
+                margin: 0 auto; 
+                padding: 20px; 
+                animation: fadeInSmooth 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+
+            /* Tarjetas de Pedidos Estilo Comprobante Limpio */
+            .history-order-card {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 18px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.005);
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                cursor: pointer;
+            }
+            .history-order-card:hover {
+                transform: translateY(-4px);
+                border-color: #cbd5e1;
+                box-shadow: 0 15px 30px rgba(15, 23, 42, 0.05);
+            }
+
+            /* Badges de Estados Dinámicos */
+            .badge-status {
+                font-size: 10px;
+                padding: 5px 10px;
+                font-weight: 700;
+                border-radius: 30px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .badge-entregado {
+                background: rgba(0, 255, 136, 0.12);
+                color: #008746;
+            }
+            .badge-pendiente {
+                background: rgba(255, 217, 0, 0.15);
+                color: #8c7600;
+            }
+            .badge-generico {
+                background: #f1f5f9;
+                color: #475569;
+            }
+        </style>
+        
+        <div class="history-grid-container" id="history-root">
+            <!-- Header del Historial -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
+                <div>
+                    <span style="font-size: 10px; font-weight: 800; color: #0071ff; text-transform: uppercase; letter-spacing: 1px; display: block;">REGISTRO PERSONAL</span>
+                    <h2 style="margin: 2px 0 0 0; font-weight: 800; font-size: 20px; color: #0f172a;">COMPROBANTES EMITIDOS</h2>
+                </div>
+                <div style="font-size: 11px; font-weight: 600; color: #64748b; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    Sincronizado con cuenta
+                </div>
             </div>
-            <p style="font-weight:950; text-transform:uppercase; letter-spacing:5px; color:#000;">Sincronizando Registros...</p>
+
+            <!-- Loader de Registros -->
+            <div id="loader-historial" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 0; gap: 15px;">
+                <div style="width: 32px; height: 32px; border: 3px solid #f1f5f9; border-top-color: #0071ff; border-radius: 50%; animation: spinLoader 0.7s linear infinite;"></div>
+                <p style="font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Extrayendo transacciones...</p>
+            </div>
         </div>
     `;
 
@@ -2178,41 +2732,61 @@ window.cambiarFiltroAlumno = (scope) => {
         const loader = document.getElementById('loader-historial');
         if(loader) loader.remove();
 
+        const historyRoot = document.getElementById('history-root');
         const todos = snapshot.val();
         let encontrado = false;
-        let html = `<div style="padding:30px; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px; animation: fadeInBrutal 0.5s ease-out;">`;
+        
+        let htmlPedidos = `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">`;
 
         for (let id in todos) {
             if (todos[id].uid === auth.currentUser.uid) {
                 encontrado = true;
                 const p = todos[id];
-                html += `
-                    <div onclick="abrirBoletaExistente('${id}')" class="item-card" style="cursor:pointer; border:6px solid #000; background:#fff; padding:20px; box-shadow:8px 8px 0px #000; transition:0.2s; position:relative;">
-                        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:15px;">
-                            <h3 style="margin:0; font-weight:950; text-transform:uppercase; font-size:18px; line-height:1;">${p.nombreProducto}</h3>
-                            <span style="background:${p.estado === 'entregado' ? '#00ff88' : '#ffff00'}; border:3px solid #000; font-size:10px; padding:4px 10px; font-weight:900; text-transform:uppercase;">
+                
+                // Determinación del tipo de badge segun el estado devuelto
+                let claseBadge = 'badge-generico';
+                if(p.estado === 'entregado') claseBadge = 'badge-entregado';
+                else if(p.estado === 'pendiente' || p.estado === 'en espera') claseBadge = 'badge-pendiente';
+
+                htmlPedidos += `
+                    <div onclick="abrirBoletaExistente('${id}')" class="history-order-card">
+                        <!-- Fila Superior: Nombre del Item y Estado -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 10px;">
+                            <h3 style="margin: 0; font-weight: 800; font-size: 16px; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">
+                                ${p.nombreProducto}
+                            </h3>
+                            <span class="badge-status ${claseBadge}">
+                                <span style="width: 5px; height: 5px; background: currentColor; border-radius: 50%;"></span>
                                 ${p.estado}
                             </span>
                         </div>
-                        <div style="font-family:monospace; font-size:12px; color:#666;">
-                            <p style="margin:2px 0;">ID: ${p.ticket}</p>
-                            <p style="margin:2px 0;">FECHA: ${p.fecha || 'NO REGISTRADA'}</p>
+                        
+                        <!-- Contenido Central: Detalles de la Operación -->
+                        <div style="font-family: monospace; font-size: 11.5px; color: #64748b; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #f1f5f9; margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px;">
+                            <div><span style="color:#94a3b8; font-weight:700;">TICKET:</span> ${p.ticket || id.substring(0,8).toUpperCase()}</div>
+                            <div><span style="color:#94a3b8; font-weight:700;">EMISIÓN:</span> ${p.fecha || 'NO REGISTRADA'}</div>
                         </div>
-                        <div style="margin-top:15px; padding-top:10px; border-top:2px solid #eee; text-align:right;">
-                            <span style="font-weight:950; font-size:11px; text-transform:uppercase; color:#00ff88;">Ver Comprobante ></span>
+                        
+                        <!-- Pie de Tarjeta: Gatillo de Acción Visual -->
+                        <div style="padding-top: 10px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: flex-end; align-items: center;">
+                            <span style="font-weight: 700; font-size: 12px; color: #0071ff; display: flex; align-items: center; gap: 4px;">
+                                Examinar Comprobante
+                                <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                            </span>
                         </div>
                     </div>`;
             }
         }
 
         if (!encontrado) {
-            container.innerHTML = `
-                <div style="max-width:500px; margin: 60px auto; border: 8px solid #000; background: #fff; box-shadow: 15px 15px 0px #000; padding: 40px; text-align: center;">
-                    <h2 style="font-weight: 950; text-transform: uppercase;">Sin Actividad</h2>
-                    <p style="font-weight: 800; color: #666;">AÚN NO HAS REALIZADO CANJES EN EL MARKETPLACE.</p>
+            historyRoot.innerHTML += `
+                <div style="max-width: 460px; margin: 40px auto; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.015);">
+                    <span style="font-size: 35px; display: block; margin-bottom: 12px;">📊</span>
+                    <h3 style="font-weight: 800; text-transform: uppercase; margin: 0 0 8px 0; font-size: 15px; color: #0f172a; letter-spacing: 0.5px;">Sin registros</h3>
+                    <p style="font-weight: 500; font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;">TU HISTORIAL DE MOVIMIENTOS APARECERÁ AQUÍ CUANDO ADQUIERAS TU PRIMER ITEM EN EL ALMACÉN.</p>
                 </div>`;
         } else {
-            container.innerHTML = html + "</div>";
+            historyRoot.innerHTML += htmlPedidos + "</div>";
         }
     });
 }
@@ -4741,56 +5315,81 @@ function mostrarFelicidades(mensaje) {
         bdayModal.style.animation = "fadeOut 0.3s ease-in forwards";
         setTimeout(() => bdayModal.remove(), 300);
     };
-}
-window.mostrarPuntosBancoGlobal = () => {
+}window.mostrarPuntosBancoGlobal = () => {
     const params = new URLSearchParams(window.location.search);
     const codigoAgenda = params.get('code');
 
     if (!codigoAgenda) return;
 
- 
     const bancoRef = ref(db, `agendas/${codigoAgenda}/bancoPuntos`);
 
     onValue(bancoRef, (snapshot) => {
         const puntos = snapshot.val() || 0;
         
-       
         const banner = document.querySelector('.banner');
         if (!banner) return;
 
-      
         let cajaPuntos = document.getElementById('visor-puntos-global');
         
         if (!cajaPuntos) {
             cajaPuntos = document.createElement('div');
             cajaPuntos.id = 'visor-puntos-global';
-           
-            cajaPuntos.style = `
-                background: #00ff88; 
-                color: #000; 
-                border: 4px solid #000; 
-                padding: 10px 20px; 
-                display: inline-block; 
-                margin-top: 15px; 
-                border-radius: 12px; 
-                box-shadow: 6px 6px 0px #000;
-                font-weight: 900;
-                font-family: sans-serif;
-            `;
             banner.appendChild(cajaPuntos);
         }
 
+        cajaPuntos.style.display = 'inline-flex';
+        cajaPuntos.style.alignItems = 'center';
+        cajaPuntos.style.background = '#ffffff';
+        cajaPuntos.style.border = '1px solid #e2e8f0';
+        cajaPuntos.style.padding = '16px 32px';
+        cajaPuntos.style.borderRadius = '20px';
+        cajaPuntos.style.marginTop = '24px';
+        cajaPuntos.style.boxShadow = '0 12px 40px rgba(15, 23, 42, 0.03), 0 0 1px rgba(99, 102, 241, 0.1)';
+        cajaPuntos.style.position = 'relative';
+        cajaPuntos.style.cursor = 'default';
+        cajaPuntos.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease';
 
-        cajaPuntos.innerHTML = `<img src="dolar.png" alt="⭐" style="width:25px; height:25px; margin-right:5px;"> POZO COMÚN: ${puntos} PTS`;
+        cajaPuntos.onmouseover = () => {
+            cajaPuntos.style.transform = 'translateY(-6px)';
+            cajaPuntos.style.boxShadow = '0 20px 45px rgba(99, 102, 241, 0.08), 0 0 0 1px rgba(0, 113, 255, 0.1)';
+            cajaPuntos.style.borderColor = '#6366f1';
+        };
+        cajaPuntos.onmouseout = () => {
+            cajaPuntos.style.transform = 'none';
+            cajaPuntos.style.boxShadow = '0 12px 40px rgba(15, 23, 42, 0.03), 0 0 1px rgba(99, 102, 241, 0.1)';
+            cajaPuntos.style.borderColor = '#e2e8f0';
+        };
+
+        cajaPuntos.innerHTML = `
+            <div style="position: relative; display: flex; align-items: center; margin-right: 18px;">
+                <div style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 12px #00ff88; z-index: 2;"></div>
+                <div style="position: absolute; width: 8px; height: 8px; background: #6366f1; border-radius: 50%; scale: 2.5; opacity: 0.25; animation: pulseSincroPremium 2.5s infinite cubic-bezier(0.16, 1, 0.3, 1); z-index: 1;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; margin-right: 24px;">
+                <span style="font-family: system-ui, -apple-system, sans-serif; font-size: 10px; font-weight: 900; color: #6366f1; letter-spacing: 1.5px; text-transform: uppercase; animation: glowText 4s ease-in-out infinite alternate;">Sincronizado</span>
+                <span style="font-family: system-ui, -apple-system, sans-serif; font-size: 18px; font-weight: 900; color: #0f172a; letter-spacing: -0.4px;">Pozo Común</span>
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 26px; font-weight: 900; color: #6366f1; letter-spacing: -0.5px; background: rgba(99, 102, 241, 0.06); padding: 8px 20px; border-radius: 14px; border: 1px solid rgba(99, 102, 241, 0.12); display: flex; align-items: center; gap: 6px; box-shadow: inset 0 2px 4px rgba(99, 102, 241, 0.02);">
+                <span>${puntos}</span>
+                <span style="font-size: 13px; font-weight: 850; color: #6366f1; letter-spacing: 0.5px; margin-left: 1px; opacity: 0.8;">PTS</span>
+            </div>
+            <style>
+                @keyframes pulseSincroPremium {
+                    0% { transform: scale(1); opacity: 0.4; }
+                    60% { transform: scale(3); opacity: 0; }
+                    100% { transform: scale(1); opacity: 0; }
+                }
+                @keyframes glowText {
+                    0% { opacity: 0.8; filter: drop-shadow(0 0 1px rgba(99, 102, 241, 0)); }
+                    100% { opacity: 1; filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.3)); }
+                }
+            </style>
+        `;
 
         const title = document.getElementById('banner-title');
         if (title) title.innerText = "Panel de Control";
     });
 };
-
-
-
-
 const mostrarConsejo = (titulo, msg, ops = null, id = "") => {
     const modal = document.getElementById('modal-consejo');
     const t = document.getElementById('titulo-consejo');
@@ -5463,57 +6062,53 @@ window.enviarApelacion = function(uid) {
         alert("⚠️ ERROR CRÍTICO EN LA TRANSACCIÓN");
     }
 };window.renderizarBoletaExito = function(id, nombre, costo, fecha, esNuevaCompra = false) {
-                                                             
     const fechaFinal = fecha || new Date().toLocaleString(); 
 
-    container.innerHTML = `
-        <div id="boleta-contenedor" style="max-width:380px; margin: 20px auto; border: 8px solid #000; background: #fff; padding: 40px; box-shadow: 15px 15px 0px #00ff88; animation: fadeInBrutal 0.4s ease-out; position: relative; overflow: hidden; font-family: 'Courier New', Courier, monospace;">
+      container.innerHTML = `
+        <div id="boleta-contenedor" style="max-width: 400px; margin: 30px auto; border: 1px solid #e2e8f0; background: #ffffff; padding: 35px; border-radius: 24px; box-shadow: 0 4px 30px rgba(15, 23, 42, 0.03); position: relative; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
             
-                                                       
-            <div style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%) rotate(-20deg); opacity:0.06; font-size:90px; font-weight:950; pointer-events:none; z-index:0; white-space:nowrap; color:#000;">
+            <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); opacity: 0.03; font-family: ui-monospace, monospace; font-size: 85px; font-weight: 900; pointer-events: none; z-index: 0; white-space: nowrap; color: #0f172a; letter-spacing: -2px;">
                 PRAXIS
             </div>
 
-            <div style="text-align:center; border-bottom:5px solid #000; padding-bottom:15px; margin-bottom:25px; position:relative; z-index:1;">
-                <h2 style="margin:0; font-weight:950; text-transform:uppercase; letter-spacing:-1px; font-size:22px; color:#000;">Ticket de Canje</h2>
-                <p style="margin:5px 0 0 0; font-size:10px; font-weight:900; letter-spacing:1px;">ALONIXZ-GROUP SECURED</p>
+            <div style="text-align: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 25px; position: relative; z-index: 1;">
+                <h2 style="margin: 0; font-weight: 900; font-size: 20px; color: #0f172a; letter-spacing: -0.5px;">Ticket de Canje</h2>
+                <p style="margin: 6px 0 0 0; font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700; color: #64748b; letter-spacing: 1.5px;">ALONIXZ-GROUP SECURED</p>
             </div>
-            
-                                                       
-            <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:12px;">
-                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:5px;">
-                    <span style="font-weight:900; font-size:13px;">PRODUCTO:</span>
-                    <span style="font-weight:900; font-size:13px; text-transform:uppercase;">${nombre}</span>
+
+            <div style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; margin-bottom: 25px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f8fafc; padding-bottom: 8px;">
+                    <span style="font-weight: 700; font-size: 11px; color: #64748b; letter-spacing: 0.5px;">PRODUCTO</span>
+                    <span style="font-weight: 850; font-size: 14px; color: #0f172a; text-transform: uppercase;"> ${nombre}</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:5px;">
-                    <span style="font-weight:900; font-size:13px;">TICKET:</span>
-                    <span style="font-weight:700; font-size:13px;">${id}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f8fafc; padding-bottom: 8px;">
+                    <span style="font-weight: 700; font-size: 11px; color: #64748b; letter-spacing: 0.5px;">TICKET ID</span>
+                    <span style="font-family: ui-monospace, monospace; font-weight: 600; font-size: 13px; color: #1e293b; background: #f1f5f9; padding: 2px 8px; border-radius: 6px;"> ${id}</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #eee; padding-bottom:5px;">
-                    <span style="font-weight:900; font-size:13px;">FECHA:</span>
-                    <span style="font-weight:700; font-size:13px;">${fechaFinal}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f8fafc; padding-bottom: 8px;">
+                    <span style="font-weight: 700; font-size: 11px; color: #64748b; letter-spacing: 0.5px;">EMISIÓN</span>
+                    <span style="font-family: ui-monospace, monospace; font-weight: 600; font-size: 12px; color: #1e293b;"> ${fechaFinal}</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; margin-top:5px;">
-                    <span style="font-weight:900; font-size:13px;">VALOR:</span>
-                    <span style="font-weight:900; font-size:13px; background:#000; color:#00ff88; padding:0 10px;">${costo} PTS</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; background: #f8fafc; padding: 12px 16px; border-radius: 14px; border: 1px solid #f1f5f9;">
+                    <span style="font-weight: 800; font-size: 12px; color: #0f172a; letter-spacing: 0.5px;">TOTAL CANJEADO</span>
+                    <span style="font-weight: 900; font-size: 15px; color: #0071ff; letter-spacing: -0.5px;"> ${costo} PTS</span>
                 </div>
             </div>
 
-                                                       
-            <div style="text-align:center; margin:30px 0; background:#fff; padding:15px; border:4px solid #000; position:relative; z-index:1;">
-                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${id}" style="width:160px; height:160px; display:inline-block; image-rendering: -webkit-optimize-contrast;">
-                 <p style="margin:12px 0 0 0; font-size:9px; font-weight:950; letter-spacing:4px; text-transform:uppercase;">Autenticidad Digital</p>
+            <div style="text-align: center; margin: 25px 0; background: #ffffff; padding: 20px; border-radius: 18px; border: 1px solid #e2e8f0; position: relative; z-index: 1; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.01);">
+                <div style="position: absolute; top: 12px; right: 12px; width: 6px; height: 6px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 8px #00ff88;"></div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${id}" style="width: 140px; height: 140px; display: inline-block; image-rendering: -webkit-optimize-contrast;">
+                <p style="margin: 12px 0 0 0; font-family: ui-monospace, monospace; font-size: 9px; font-weight: 700; color: #64748b; letter-spacing: 3px; text-transform: uppercase;">Autenticidad Digital</p>
             </div>
 
-                                                       
-            <div class="area-botones" style="display:grid; gap:12px; margin-top:10px; position:relative; z-index:2;">
-                <button onclick="descargarBoletaDigital('${id}')" style="border:6px solid #000; background:#00ff88; color:#000; padding:16px; font-weight:950; cursor:pointer; box-shadow:5px 5px 0px #000; text-transform:uppercase; font-size:13px;">
+            <div class="area-botones" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px; position: relative; z-index: 2;">
+                <button onclick="descargarBoletaDigital('${id}')" style="border: none; background: #0071ff; color: #ffffff; padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; transition: background 0.2s ease;">
                     💾 Descargar Imagen
                 </button>
                 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <button onclick="ejecutarComando('marketplace')" style="border:4px solid #000; background:#ffff00; padding:10px; font-weight:950; cursor:pointer; text-transform:uppercase; font-size:10px;">Tienda</button>
-                    <button onclick="ejecutarComando('mis compras')" style="border:4px solid #000; background:#000; color:#fff; padding:10px; font-weight:950; cursor:pointer; text-transform:uppercase; font-size:10px;">Cerrar</button>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="ejecutarComando('marketplace')" style="flex: 1; border: 1px solid #e2e8f0; background: #ffffff; color: #0f172a; padding: 11px; font-weight: 700; border-radius: 12px; cursor: pointer; text-transform: uppercase; font-size: 11px; transition: background 0.2s ease;">Tienda</button>
+                    <button onclick="ejecutarComando('mis compras')" style="flex: 1; border: none; background: #0f172a; color: #ffffff; padding: 11px; font-weight: 700; border-radius: 12px; cursor: pointer; text-transform: uppercase; font-size: 11px; transition: background 0.2s ease;">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -5533,7 +6128,6 @@ window.enviarApelacion = function(uid) {
     const boleta = document.getElementById('boleta-contenedor');
     const botones = boleta.querySelector('.area-botones');
     
-                                                             
     const anchoOriginal = boleta.offsetWidth;
     boleta.style.width = anchoOriginal + 'px';
     botones.style.display = 'none';
@@ -5542,23 +6136,21 @@ window.enviarApelacion = function(uid) {
         try {
             const canvas = await html2canvas(boleta, {
                 backgroundColor: "#ffffff",
-                scale: 2,                                                          
+                scale: 2,
                 useCORS: true,
-                letterRendering: true,                                                          
+                letterRendering: true,
                 logging: false,
                 width: anchoOriginal
             });
             
-            botones.style.display = 'grid';
-            boleta.style.width = '';                                                          
-
             const link = document.createElement('a');
             link.download = `BOLETA_PRAXIS_${idTicket}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
         } catch (err) {
             console.error("Error en captura:", err);
-            botones.style.display = 'grid';
+        } finally {
+            botones.style.display = 'flex';
             boleta.style.width = '';
         }
     }
@@ -6647,7 +7239,256 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     btnDescargar.addEventListener('click', procesarDescarga);
-};
+};document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("notes-container");
+    let notes = JSON.parse(localStorage.getItem("praxis_postits")) || [];
+
+    notes.forEach(note => renderNote(note));
+
+    window.createPraxisNote = () => {
+        const newNote = {
+            id: 'note_' + Date.now(),
+            text: '',
+            x: 150 + (Math.random() * 80),
+            y: 150 + (Math.random() * 80),
+            color: `color-${Math.floor(Math.random() * 4) + 1}`
+        };
+        notes.push(newNote);
+        saveNotes();
+        renderNote(newNote);
+    };
+
+    window.togglePraxisNotes = (visible) => {
+        if (visible) {
+            container.classList.remove("hidden-notes");
+        } else {
+            container.classList.add("hidden-notes");
+        }
+    };
+
+    window.clearAllPraxisNotes = () => {
+        container.innerHTML = "";
+        notes = [];
+        saveNotes();
+    };
+
+    function renderNote(noteData) {
+        const noteEl = document.createElement("div");
+        noteEl.classList.add("post-it", noteData.color);
+        noteEl.id = noteData.id;
+        noteEl.style.left = `${noteData.x}px`;
+        noteEl.style.top = `${noteData.y}px`;
+
+        noteEl.innerHTML = `
+            <div class="post-it-header">
+                <button class="btn-close-note">✕</button>
+            </div>
+            <textarea class="post-it-body" placeholder="Escribe algo aquí...">${noteData.text}</textarea>
+        `;
+
+        container.appendChild(noteEl);
+
+        const textarea = noteEl.querySelector(".post-it-body");
+        const closeBtn = noteEl.querySelector(".btn-close-note");
+
+        textarea.addEventListener("input", (e) => {
+            const index = notes.findIndex(n => n.id === noteData.id);
+            if (index !== -1) {
+                notes[index].text = e.target.value;
+                saveNotes();
+            }
+        });
+
+        closeBtn.addEventListener("click", () => {
+            noteEl.remove();
+            notes = notes.filter(n => n.id !== noteData.id);
+            saveNotes();
+        });
+
+        noteEl.addEventListener("mousedown", (e) => {
+            if (e.target === textarea || e.target === closeBtn) return;
+
+            let shiftX = e.clientX - noteEl.getBoundingClientRect().left;
+            let shiftY = e.clientY - noteEl.getBoundingClientRect().top;
+
+            function moveAt(clientX, clientY) {
+                let newX = clientX - shiftX;
+                let newY = clientY - shiftY;
+
+                if (newX < 0) newX = 0;
+                if (newY < 0) newY = 0;
+
+                noteEl.style.left = newX + 'px';
+                noteEl.style.top = newY + 'px';
+            }
+
+            function onMouseMove(event) { moveAt(event.clientX, event.clientY); }
+            document.addEventListener('mousemove', onMouseMove);
+
+            document.addEventListener('mouseup', () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                const index = notes.findIndex(n => n.id === noteData.id);
+                if (index !== -1) {
+                    notes[index].x = parseInt(noteEl.style.left);
+                    notes[index].y = parseInt(noteEl.style.top);
+                    saveNotes();
+                }
+            }, { once: true });
+        });
+
+        noteEl.ondragstart = () => false;
+    }
+
+    function saveNotes() {
+        localStorage.setItem("praxis_postits", JSON.stringify(notes));
+    }
+});document.addEventListener("DOMContentLoaded", () => {
+    const panel = document.getElementById("notes-panel");
+    const btnAdd = document.getElementById("btn-add");
+    const btnToggleAll = document.getElementById("btn-toggle-all");
+    const btnClearAll = document.getElementById("btn-clear-all");
+    let notesVisible = true;
+
+    document.addEventListener("keydown", (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'm') {
+            e.preventDefault();
+            panel.classList.toggle("hidden");
+        }
+    });
+
+    btnAdd.addEventListener("click", () => {
+        if (!notesVisible) {
+            notesVisible = true;
+            window.togglePraxisNotes(true);
+            btnToggleAll.textContent = "👁️ Ocultar Todas";
+        }
+        if (typeof window.createPraxisNote === "function") {
+            window.createPraxisNote();
+        }
+    });
+
+    btnToggleAll.addEventListener("click", () => {
+        notesVisible = !notesVisible;
+        if (notesVisible) {
+            window.togglePraxisNotes(true);
+            btnToggleAll.textContent = "👁️ Ocultar Todas";
+        } else {
+            window.togglePraxisNotes(false);
+            btnToggleAll.textContent = "👁️ Mostrar Todas";
+        }
+    });
+
+    btnClearAll.addEventListener("click", () => {
+        if (confirm("¿Seguro que quieres eliminar todas las notas?")) {
+            if (typeof window.clearAllPraxisNotes === "function") {
+                window.clearAllPraxisNotes();
+            }
+        }
+    });
+});document.addEventListener("DOMContentLoaded", () => {
+    const searchModal = document.getElementById("search-modal");
+    const searchInput = document.getElementById("search-input");
+    const searchResults = document.getElementById("search-results");
+
+    let tasksList = [];
+
+    document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            const isHidden = searchModal.classList.toggle("hidden");
+            if (!isHidden) {
+                searchInput.value = "";
+                searchResults.innerHTML = "";
+                searchInput.focus();
+                fetchAllUserTasks();
+            }
+        }
+    });
+
+    function fetchAllUserTasks() {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        tasksList = [];
+        const userAgendasRef = ref(db, `usuarios/${user.uid}/mis_agendas`);
+
+        get(userAgendasRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const promises = [];
+
+                snapshot.forEach((agendaSnapshot) => {
+                    const agendaId = agendaSnapshot.key;
+                    const agendaName = agendaSnapshot.child("nombre").val() || agendaId;
+                    const tasksRef = ref(db, `agendas/${agendaId}/tareas`);
+                    
+                    const promise = get(tasksRef).then((tasksSnapshot) => {
+                        if (tasksSnapshot.exists()) {
+                            tasksSnapshot.forEach((taskSnapshot) => {
+                                tasksList.push({
+                                    id: taskSnapshot.key,
+                                    agendaId: agendaId,
+                                    agendaNombre: agendaName,
+                                    ...taskSnapshot.val()
+                                });
+                            });
+                        }
+                    });
+                    promises.push(promise);
+                });
+
+                return Promise.all(promises);
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+
+    searchInput.addEventListener("input", (e) => {
+        const queryStr = e.target.value.toLowerCase().trim();
+        searchResults.innerHTML = "";
+
+        if (queryStr === "") return;
+
+        const filtered = tasksList.filter(task => {
+            const title = (task.titulo || "").toLowerCase();
+            const subject = (task.materia || "").toLowerCase();
+            return title.includes(queryStr) || subject.includes(queryStr);
+        });
+
+        if (filtered.length === 0) {
+            const noResults = document.createElement("div");
+            noResults.style.padding = "20px";
+            noResults.style.textAlign = "center";
+            noResults.style.color = "#a0aec0";
+            noResults.style.fontSize = "0.9rem";
+            noResults.textContent = "No se encontraron tareas con ese nombre";
+            searchResults.appendChild(noResults);
+            return;
+        }
+
+        filtered.forEach(task => {
+            const item = document.createElement("div");
+            item.classList.add("search-item");
+            item.innerHTML = `
+                <div class="search-item-header">
+                    <span class="search-item-title">${task.titulo || 'Sin título'}</span>
+                    <span class="search-item-subject">${task.materia || 'General'}</span>
+                </div>
+                <div class="search-item-desc">${task.descripcion || 'Sin descripción'}</div>
+                <div style="font-size: 0.75rem; color: #a0aec0; margin-top: 2px;">Agenda: ${task.agendaNombre}</div>
+            `;
+
+            item.addEventListener("click", () => {
+                searchModal.classList.add("hidden");
+                if (typeof window.onTaskSelected === "function") {
+                    window.onTaskSelected(task);
+                }
+            });
+
+            searchResults.appendChild(item);
+        });
+    });
+});
 /**
  * =======================================================================
  * 🔒 ALONIXZ-GROUP                                                                      
@@ -6730,6 +7571,25 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="notice-footer">
             <button id="close-notice-btn" class="notice-btn">Entendido</button>
         </div>
+    </div>
+</div><div id="notes-container"></div><div id="notes-panel" class="hidden">
+    <div class="panel-header">
+        <span>Control de Notas</span>
+    </div>
+    <div class="panel-actions">
+        <button id="btn-add" class="panel-btn">✨ Nueva Nota</button>
+        <button id="btn-toggle-all" class="panel-btn">👁️ Ocultar Todas</button>
+        <button id="btn-clear-all" class="panel-btn danger">🗑️ Borrar Todo</button>
+    </div>
+    <div class="panel-footer">Alt + M para cerrar</div>
+</div><div id="search-modal" class="hidden">
+    <div class="search-box">
+        <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Buscar tarea por título o materia...">
+        </div>
+        <div id="search-results"></div>
+        <div class="search-footer">Presiona Ctrl + K para cerrar</div>
     </div>
 </div>
 <style>
