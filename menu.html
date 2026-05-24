@@ -470,27 +470,53 @@ onAuthStateChanged(auth, async (user) => {
 
     controlarProgresoLoader();
                                                                                 
-    if (user) {
-        try {
-            const isGuest = user.isAnonymous;
-            const miCorreoAdmin = "ajuliuszch@gmail.com";
-            const STAFF_CONSEJO = ["jzavaletac@gmail.com", "miembro3@ejemplo.com", "miembro4@ejemplo.com", "miembro5@ejemplo.com"];
+   if (user) {
+    try {
+        const isGuest = user.isAnonymous;
+        const miCorreoAdmin = "ajuliuszch@gmail.com";
+        const STAFF_CONSEJO = ["jzavaletac@gmail.com", "miembro3@ejemplo.com", "miembro4@ejemplo.com", "miembro5@ejemplo.com"];
 
-            const adminBtn = document.getElementById('admin-link');
-            const consejoBtn = document.getElementById('consejo-link');
+        const adminBtn = document.getElementById('admin-link');
+        const consejoBtn = document.getElementById('consejo-link');
 
-            if (!isGuest && user.email === miCorreoAdmin && adminBtn) adminBtn.style.display = 'flex';
-            if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
-                consejoBtn.style.display = 'flex';
+        if (!isGuest && user.email === miCorreoAdmin && adminBtn) adminBtn.style.display = 'flex';
+        if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
+            consejoBtn.style.display = 'flex';
+        }
+
+                                                                
+        const FOTO_POR_DEFECTO = "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+        let fotoDisplay = FOTO_POR_DEFECTO;
+        let nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
+
+        if (!isGuest) {
+            try {
+                                                                        
+                const usuarioSnap = await get(ref(database, `usuarios/${user.uid}`));
+                const usuarioData = usuarioSnap.val();
+
+                if (usuarioData && usuarioData.foto) {
+                    fotoDisplay = usuarioData.foto;
+                } else if (user.photoURL) {
+                    fotoDisplay = user.photoURL;
+                }
+
+                if (usuarioData && usuarioData.nombre) {
+                    nombreDisplay = usuarioData.nombre;
+                }
+            } catch (dbError) {
+                console.warn("Fallo al leer base de datos, usando fallback de Google:", dbError);
+                if (user.photoURL) fotoDisplay = user.photoURL;
             }
 
-            const nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
-            const fotoDisplay = isGuest 
-                ? "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png" 
-                : (user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png");
+                                                                    
+            if (fotoDisplay === FOTO_POR_DEFECTO) {
+                                                                        
+                setTimeout(solicitarConfiguracionFoto, 10000);
+            }
+        }
 
-            let rachaFinal = 0;
-
+        let rachaFinal = 0;
                                                                                         
             if (!isGuest) {
                 const userRef = ref(db, 'usuarios/' + user.uid);
@@ -2065,7 +2091,7 @@ window.cambiarFiltroAlumno = (scope) => {
                     </div>
                 </div>
 
-                <!-- TARJETA DEFINITIVA: APODO EXCLUSIVO, SELLO GRANDE Y QR MAXIMIZADO -->
+                                                                        
                 <div id="id-card-praxis" style="
                     width: 750px; 
                     height: 450px; 
@@ -2084,10 +2110,10 @@ window.cambiarFiltroAlumno = (scope) => {
                     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
                 " onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 35px 70px rgba(15, 23, 42, 0.12)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 25px 60px rgba(15, 23, 42, 0.08)';">
                     
-                    <!-- Patrón geométrico DNI de fondo -->
+                                                                            
                     <div style="position: absolute; inset: 0; opacity: 0.04; pointer-events: none; background-image: radial-gradient(circle at 1px 1px, #475569 1px, transparent 0); background-size: 6px 6px;"></div>
                     
-                    <!-- MARCA DE AGUA CORPORATIVA PRAXIS -->
+                                                                            
                     <div style="
                         position: absolute; 
                         bottom: 25px; 
@@ -2102,10 +2128,10 @@ window.cambiarFiltroAlumno = (scope) => {
                         z-index: 1;
                     ">PRAXIS</div>
 
-                    <!-- Layout Perimetral de 3 Bloques -->
+                                                                            
                     <div style="flex-grow: 1; display: grid; grid-template-columns: 200px 1fr 205px; padding: 25px; z-index: 2; position: relative; height: 100%; box-sizing: border-box; gap: 15px;">
                         
-                        <!-- COLUMNA IZQUIERDA: Sistema e Identificación Fotográfica -->
+                                                                                
                         <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; border-right: 1px solid #f1f5f9; padding-right: 10px;">
                             
                             <div>
@@ -2113,12 +2139,12 @@ window.cambiarFiltroAlumno = (scope) => {
                                 <span style="font-family: monospace; font-size: 10px; font-weight: 700; color: #94a3b8;">SECURE_V1.2</span>
                             </div>
 
-                            <!-- Fotografía Marco DNI -->
+                                                                                    
                             <div style="width: 140px; height: 140px; border-radius: 16px; background: #f8fafc; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; margin: 10px 0;">
                                 <img src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
                             </div>
 
-                            <!-- Validaciones de Emisión Base -->
+                                                                                    
                             <div style="display: flex; flex-direction: column; gap: 4px;">
                                 <div>
                                     <span style="display: block; font-size: 8.5px; font-weight: 700; color: #a1a1aa; text-transform: uppercase;">CÓDIGO VERIFICADOR</span>
@@ -2128,24 +2154,24 @@ window.cambiarFiltroAlumno = (scope) => {
                                     <span style="display: block; font-size: 8.5px; font-weight: 700; color: #a1a1aa; text-transform: uppercase;">FECHA EMISIÓN</span>
                                     <span style="font-size: 11px; font-weight: 700; color: #475569;">${new Date().toLocaleDateString('es-PE')}</span>
                                 </div>
-                                <!-- Barras Técnicas Simuladas -->
+                                                                                        
                                 <div style="display: flex; gap: 1.5px; height: 15px; margin-top: 4px; opacity: 0.5;">
                                     ${Array.from({length: 22}).map(() => `<div style="width: ${Math.random() > 0.4 ? '2px' : '1px'}; background: #000; height: 100%;"></div>`).join('')}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- COLUMNA CENTRAL: Apodo de la Plataforma y Sello de Verificación Destacado -->
+                                                                                
                         <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 0 5px;">
                             
                             <div>
                                 <h2 style="margin: 0; font-size: 14px; font-weight: 900; color: #0f172a; letter-spacing: -0.3px; text-transform: uppercase;">DOCUMENTO DE IDENTIDAD DIGITAL</h2>
                             </div>
 
-                            <!-- Campos de Registro Identatario Escalados -->
+                                                                                    
                             <div style="display: flex; flex-direction: column; gap: 14px; margin: 10px 0;">
                                 
-                                <!-- APODO EXCLUSIVO CON EL VERIFICADO AL LADO Y EN GRANDE -->
+                                                                                        
                                 <div>
                                     <span style="display: block; font-size: 10px; font-weight: 800; color: #0071ff; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px;">APODO DE PLATAFORMA</span>
                                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;">
@@ -2179,7 +2205,7 @@ window.cambiarFiltroAlumno = (scope) => {
                                 </div>
                             </div>
 
-                            <!-- EMBLEMAS / LOGROS ASIGNADOS -->
+                                                                                    
                             <div style="border-top: 1px solid #f1f5f9; padding-top: 10px;">
                                 <span style="display: block; font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px;">LOGROS DE IDENTIDAD</span>
                                 <div style="display: flex; gap: 6px; height: 44px; flex-wrap: wrap; overflow: hidden; align-items: center;">
@@ -2188,10 +2214,10 @@ window.cambiarFiltroAlumno = (scope) => {
                             </div>
                         </div>
 
-                        <!-- COLUMNA DERECHA: Código QR Corporativo Gigante y Estadísticas -->
+                                                                                
                         <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; border-left: 1px solid #f1f5f9; padding-left: 15px; align-items: center; text-align: center;">
                             
-                            <!-- Bloque de Métricas Superiores -->
+                                                                                    
                             <div style="display: flex; width: 100%; justify-content: space-around; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9;">
                                 <div>
                                     <span style="display: block; font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase;">PUNTOS</span>
@@ -2204,7 +2230,7 @@ window.cambiarFiltroAlumno = (scope) => {
                                 </div>
                             </div>
 
-                            <!-- QR GIGANTE TOTALMENTE PROTAGÓNICO -->
+                                                                                    
                             <div style="
                                 border-radius: 18px; 
                                 padding: 10px; 
@@ -2220,7 +2246,7 @@ window.cambiarFiltroAlumno = (scope) => {
                                 <img src="${qrUrl}" style="width: 140px; height: 140px; display: block;">
                             </div>
 
-                            <!-- Pie de Firma Electrónica -->
+                                                                                    
                             <div style="width: 100%;">
                                 <div style="font-family: monospace; font-size: 9px; font-weight: 700; color: #94a3b8; word-break: break-all; line-height: 1.2;">
                                     AUTH_ID:${uid.substring(0, 14).toUpperCase()}
@@ -2231,7 +2257,7 @@ window.cambiarFiltroAlumno = (scope) => {
                         </div>
                     </div>
 
-                    <!-- Activador de descarga del elemento en canvas -->
+                                                                            
                     <button class="btn-download-smooth" onclick="descargarTarjeta()">
                         DESCARGAR TARJETA OFICIAL (.PNG)
                     </button>
@@ -2539,7 +2565,7 @@ window.cambiarFiltroAlumno = (scope) => {
         </style>
         
         <div class="market-grid-container" id="market-root">
-            <!-- Encabezado del Mercado -->
+                                                                    
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
                 <div>
                     <span style="font-size: 10px; font-weight: 800; color: #0071ff; text-transform: uppercase; letter-spacing: 1.2px; display: block;">ALMACÉN CENTRAL DE CAMBIOS</span>
@@ -2550,7 +2576,7 @@ window.cambiarFiltroAlumno = (scope) => {
                 </div>
             </div>
 
-            <!-- Cargador Inicial de datos -->
+                                                                    
             <div id="loader-market" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 0; gap: 15px;">
                 <div style="width: 32px; height: 32px; border: 3px solid #f1f5f9; border-top-color: #0071ff; border-radius: 50%; animation: spinLoader 0.7s linear infinite;"></div>
                 <p style="font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Inspeccionando estanterías...</p>
@@ -2587,21 +2613,21 @@ window.cambiarFiltroAlumno = (scope) => {
 
             htmlProductos += `
                 <div class="market-item-card">
-                    <!-- LETRERO / ETIQUETA COLGANTE DE PRECIO -->
+                                                                            
                     <div class="market-hanging-price">
                         <span style="color: #00ff88; font-weight: 900; text-shadow: 0 0 6px rgba(0,255,136,0.6);">⚡</span> 
                         <span>${p.costo}</span> 
                         <span style="font-size: 9px; color: #94a3b8; font-weight: 700; margin-left: 1px;">PTS</span>
                     </div>
 
-                    <!-- Cabecera técnica del producto -->
+                                                                            
                     <div style="margin-bottom: 18px;">
                         <span style="font-family: monospace; font-size: 9.5px; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">
                             SKU-${id.substring(0, 6).toUpperCase()}
                         </span>
                     </div>
                     
-                    <!-- Información del Item -->
+                                                                            
                     <div style="flex-grow: 1; margin-bottom: 22px;">
                         <h3 style="margin: 0 0 8px 0; font-weight: 800; font-size: 19px; color: #0f172a; letter-spacing: -0.4px; line-height: 1.25; padding-right: 70px;">
                             ${p.nombre}
@@ -2611,7 +2637,7 @@ window.cambiarFiltroAlumno = (scope) => {
                         </p>
                     </div>
                     
-                    <!-- Monitor del Estante (Stock) -->
+                                                                            
                     <div style="margin-bottom: 20px; background: #f8fafc; padding: 14px; border-radius: 16px; border: 1px solid #f1f5f9;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px;">Stock de Tienda</span>
@@ -2627,7 +2653,7 @@ window.cambiarFiltroAlumno = (scope) => {
                         </div>
                     </div>
 
-                    <!-- Acción Adquisición -->
+                                                                            
                     <button onclick="canjearPremio('${id}', ${p.costo})" class="btn-market-action" ${p.stock <= 0 ? 'disabled style="background:#e2e8f0; color:#94a3b8; cursor:not-allowed;"' : ''}>
                         <span>${p.stock <= 0 ? 'Sin existencias' : 'Adquirir Producto'}</span>
                         ${p.stock > 0 ? '<svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>' : ''}
@@ -2708,7 +2734,7 @@ window.cambiarFiltroAlumno = (scope) => {
         </style>
         
         <div class="history-grid-container" id="history-root">
-            <!-- Header del Historial -->
+                                                                    
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
                 <div>
                     <span style="font-size: 10px; font-weight: 800; color: #0071ff; text-transform: uppercase; letter-spacing: 1px; display: block;">REGISTRO PERSONAL</span>
@@ -2719,7 +2745,7 @@ window.cambiarFiltroAlumno = (scope) => {
                 </div>
             </div>
 
-            <!-- Loader de Registros -->
+                                                                    
             <div id="loader-historial" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 0; gap: 15px;">
                 <div style="width: 32px; height: 32px; border: 3px solid #f1f5f9; border-top-color: #0071ff; border-radius: 50%; animation: spinLoader 0.7s linear infinite;"></div>
                 <p style="font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Extrayendo transacciones...</p>
@@ -2743,14 +2769,14 @@ window.cambiarFiltroAlumno = (scope) => {
                 encontrado = true;
                 const p = todos[id];
                 
-                // Determinación del tipo de badge segun el estado devuelto
+                                                                        
                 let claseBadge = 'badge-generico';
                 if(p.estado === 'entregado') claseBadge = 'badge-entregado';
                 else if(p.estado === 'pendiente' || p.estado === 'en espera') claseBadge = 'badge-pendiente';
 
                 htmlPedidos += `
                     <div onclick="abrirBoletaExistente('${id}')" class="history-order-card">
-                        <!-- Fila Superior: Nombre del Item y Estado -->
+                                                                                
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 10px;">
                             <h3 style="margin: 0; font-weight: 800; font-size: 16px; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">
                                 ${p.nombreProducto}
@@ -2761,13 +2787,13 @@ window.cambiarFiltroAlumno = (scope) => {
                             </span>
                         </div>
                         
-                        <!-- Contenido Central: Detalles de la Operación -->
+                                                                                
                         <div style="font-family: monospace; font-size: 11.5px; color: #64748b; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #f1f5f9; margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px;">
                             <div><span style="color:#94a3b8; font-weight:700;">TICKET:</span> ${p.ticket || id.substring(0,8).toUpperCase()}</div>
                             <div><span style="color:#94a3b8; font-weight:700;">EMISIÓN:</span> ${p.fecha || 'NO REGISTRADA'}</div>
                         </div>
                         
-                        <!-- Pie de Tarjeta: Gatillo de Acción Visual -->
+                                                                                
                         <div style="padding-top: 10px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: flex-end; align-items: center;">
                             <span style="font-weight: 700; font-size: 12px; color: #0071ff; display: flex; align-items: center; gap: 4px;">
                                 Examinar Comprobante
@@ -7488,7 +7514,115 @@ document.addEventListener("DOMContentLoaded", () => {
             searchResults.appendChild(item);
         });
     });
-});
+});function solicitarConfiguracionFoto() {
+                                                            
+    if (!auth.currentUser || auth.currentUser.isAnonymous) return;
+    if (document.getElementById('modal-welcome-profile-dinamico')) return;                                                         
+
+    const user = auth.currentUser;
+    let base64ImageResult = "";                                                         
+
+                                                            
+    const modal = document.createElement('div');
+    modal.id = 'modal-welcome-profile-dinamico';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.background = 'rgba(15, 23, 42, 0.6)';
+    modal.style.backdropFilter = 'blur(8px)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.zIndex = '99999';
+    modal.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+
+                                                            
+    modal.innerHTML = `
+        <div class="animate__animated animate__zoomIn" style="background: #ffffff; width: 100%; max-width: 380px; padding: 32px; border-radius: 24px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15); text-align: center; border: 1px solid #e2e8f0; box-sizing: border-box;">
+            <div style="font-size: 32px; margin-bottom: 12px; filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.2));">📸</div>
+            <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 850; color: #0f172a; letter-spacing: -0.5px;">Sube tu Foto</h2>
+            <p style="margin: 0 0 24px 0; font-size: 13px; color: #64748b; line-height: 1.5;">Selecciona una imagen de tu dispositivo para personalizar tu cuenta en Praxis.</p>
+            
+            <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+                <img id="profile-preview-dinamico" src="https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}" alt="Preview" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #6366f1; object-fit: cover; background: #f8fafc; padding: 4px; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; text-align: left;">
+                <label for="input-profile-file-dinamico" style="font-size: 11px; font-weight: 800; color: #6366f1; letter-spacing: 0.8px; text-transform: uppercase; text-align: center; display: block; border: 2px dashed #6366f1; padding: 14px; border-radius: 14px; background: rgba(99, 102, 241, 0.04); cursor: pointer; transition: all 0.2s ease;">
+                    📁 Seleccionar Archivo
+                </label>
+                <input type="file" id="input-profile-file-dinamico" accept="image/*" style="display: none;">
+                <span id="file-name-text" style="font-size: 12px; color: #64748b; text-align: center; display: block; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Ningún archivo seleccionado</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button id="btn-save-profile-dinamico" style="width: 100%; background: #6366f1; color: #ffffff; border: none; padding: 14px; font-size: 14px; font-weight: 700; border-radius: 14px; cursor: pointer; transition: background 0.2s ease; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);">Guardar Perfil</button>
+                <button id="btn-skip-profile-dinamico" style="width: 100%; background: transparent; color: #64748b; border: none; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: color 0.2s ease;">Recordar más tarde</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+                                                            
+    const inputFile = document.getElementById('input-profile-file-dinamico');
+    const fileNameText = document.getElementById('file-name-text');
+    const previewImg = document.getElementById('profile-preview-dinamico');
+    const btnSave = document.getElementById('btn-save-profile-dinamico');
+    const btnSkip = document.getElementById('btn-skip-profile-dinamico');
+
+                                                            
+    inputFile.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        fileNameText.innerText = file.name;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+                                                                    
+            base64ImageResult = event.target.result;
+            previewImg.src = base64ImageResult;                                                         
+        };
+        reader.readAsDataURL(file);
+    };
+
+                                                            
+    btnSkip.onclick = () => {
+        modal.remove();
+    };
+
+                                                            
+    btnSave.onclick = async () => {
+        btnSave.disabled = true;
+        btnSave.innerText = "Subiendo imagen...";
+        btnSave.style.background = '#94a3b8';
+
+                                                                
+        const valorFotoFinal = base64ImageResult ? base64ImageResult : String(Date.now());
+
+        try {
+                                                                    
+            await update(ref(database, `usuarios/${user.uid}`), {
+                foto: valorFotoFinal
+            });
+
+                                                                    
+            const menuAvatar = document.getElementById('user-avatar');
+            if (menuAvatar) menuAvatar.src = base64ImageResult ? base64ImageResult : `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`;
+
+            modal.remove();
+        } catch (error) {
+            console.error("Error al guardar la foto en Realtime Database:", error);
+            alert("Hubo un error al procesar tu subida. Inténtalo de nuevo.");
+            btnSave.disabled = false;
+            btnSave.innerText = "Guardar Perfil";
+            btnSave.style.background = '#6366f1';
+        }
+    };
+}
 /**
  * =======================================================================
  * 🔒 ALONIXZ-GROUP                                                                      
