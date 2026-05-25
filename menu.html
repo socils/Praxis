@@ -550,14 +550,7 @@ onAuthStateChanged(auth, async (user) => {
                          style="width: 38px; height: 38px; border-radius: 4px; border: 3px solid #000; box-shadow: 3px 3px 0px #000; object-fit: cover; background: #fff;">
                 `;
             }
-setTimeout(() => {
-                // Buscamos la imagen dentro del DNI (ya sea por su ID o el contenedor de la tarjeta de red)
-                const imgDNI = document.getElementById('config-foto-perfil') || document.querySelector('.main-container img[crossorigin="anonymous"]');
-                if (imgDNI) {
-                    // Pasa la foto recuperada de la Realtime Database (Base64 o URL) para que deje de estar vacía
-                    imgDNI.src = fotoDisplay; 
-                }
-            }, 1000);
+
                                                                                         
             if (!isGuest) {
                 onValue(ref(db, `usuarios/${user.uid}/stats/puntos`), (snapshot) => {
@@ -2146,10 +2139,9 @@ window.cambiarFiltroAlumno = (scope) => {
                                 <span style="font-family: monospace; font-size: 10px; font-weight: 700; color: #94a3b8;">SECURE_V1.2</span>
                             </div>
 
-                                                                                    
-                            <div style="width: 140px; height: 140px; border-radius: 16px; background: #f8fafc; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; margin: 10px 0;">
-                                <img id="config-foto-perfil" src="${auth.currentUser.photoURL || fotoDisplay || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
-                            </div>
+                          <div style="width: 140px; height: 140px; border-radius: 16px; background: #f8fafc; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; margin: 10px 0;">
+    <img id="config-foto-perfil" src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
+</div>
 
                                                                                     
                             <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -7629,6 +7621,32 @@ document.addEventListener("DOMContentLoaded", () => {
             btnSave.style.background = '#6366f1';
         }
     };
+}// Función para forzar la carga de la foto directo de la RTDB
+function sincronizarFotoDNI(user) {
+    if (!user) return;
+
+    setTimeout(async () => {
+        const imgDNI = document.getElementById('config-foto-perfil');
+        
+        if (imgDNI) {
+            try {
+                // Va directo a leer el nodo usuarios/UID/foto
+                const fotoSnap = await get(ref(database, `usuarios/${user.uid}/foto`));
+                
+                if (fotoSnap.exists() && fotoSnap.val().trim() !== "") {
+                    // Si el nodo existe y tiene contenido, se lo inyecta al DNI (Base64 o URL)
+                    imgDNI.src = fotoSnap.val();
+                } else {
+                    // Si el nodo de la base de datos está vacío, deja la de Google o el placeholder
+                    imgDNI.src = user.photoURL || 'https://via.placeholder.com/150';
+                }
+            } catch (error) {
+                console.warn("Error leyendo el nodo foto directo de la base de datos:", error);
+                // Fallback de seguridad en caso de desconexión
+                imgDNI.src = user.photoURL || 'https://via.placeholder.com/150';
+            }
+        }
+    }, 1000); // 1 segundo de retraso para esperar que el DNI exista en el DOM
 }
 /**
  * =======================================================================
