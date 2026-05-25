@@ -247,22 +247,23 @@
 <body>
 
     <div class="mesh-bg"></div>
-
-    <nav>
+<nav>
         <a href="#" class="logo">
             <img src="praxis.png" width="45" alt="Praxis Logo">
             <span>PRAXIS</span>
         </a>
-        <a href="login.html" class="btn-login">Acceder</a>
+        <a href="login.html" id="nav-btn" class="btn-login">Acceder</a>
     </nav>
-
     <header class="hero">
         <div class="hero-badge animate__animated animate__fadeInDown">PROYECTO ACADÉMICO 2026</div>
-        <h1 class="animate__animated animate__fadeInUp">Organiza tu mundo <br> estudiantil.</h1>
-        <p class="animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        
+        <h1 id="hero-title" class="animate__animated animate__fadeInUp">Organiza tu mundo <br> estudiantil.</h1>
+        
+        <p id="hero-subtitle" class="animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
             Praxis es la solución tecnológica diseñada para la comunidad del Colegio San Jerónimo. Gestiona tus tareas, sincroniza tu Drive y mide tu rendimiento en tiempo real.
         </p>
-        <a href="login.html" class="btn-cta animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">Empezar Ahora</a>
+        
+        <a href="login.html" id="hero-btn" class="btn-cta animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">Empezar Ahora</a>
     </header>
 
     <section class="stats-grid">
@@ -347,9 +348,30 @@
         </div>
     </footer>
 
-    <script>
-        // Animación de aparición al hacer scroll
-        function reveal() {
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>                                                                                 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+            authDomain: "praxis-79b9a.firebaseapp.com",
+            projectId: "praxis-79b9a",
+            databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+            storageBucket: "praxis-79b9a.firebasestorage.app",
+            messagingSenderId: "596083977949",
+            appId: "1:596083977949:web:71064f89a23f8d9738f534"
+        };
+
+        // Inicialización de servicios (Mantenemos tus nombres originales)
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app); 
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+    function reveal() {
             var reveals = document.querySelectorAll(".reveal");
             for (var i = 0; i < reveals.length; i++) {
                 var windowHeight = window.innerHeight;
@@ -360,8 +382,79 @@
                 }
             }
         }
-        window.addEventListener("scroll", reveal);
-        window.addEventListener("load", reveal);
+        // --- FUNCIÓN AUTOMÁTICA DEL ESTANDARTE ---
+        function calcularTrayectoriaPraxis() {
+            const fechaLanzamiento = new Date("2026-05-18T00:00:00");
+            const fechaActual = new Date();
+            const diferenciaMili = fechaActual - fechaLanzamiento;
+            
+            let diasActivos = Math.floor(diferenciaMili / (1000 * 60 * 60 * 24));
+            if (diasActivos < 1) diasActivos = 1;
+            
+            const txtContador = document.getElementById("contador-dias-estandarte");
+            if (txtContador) {
+                txtContador.innerText = diasActivos;
+            }
+        }
+
+        // --- DETECCIÓN INTELIGENTE DE USUARIO ---
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const heroTitle = document.getElementById('hero-title');
+                const heroSubtitle = document.getElementById('hero-subtitle');
+                const heroBtn = document.getElementById('hero-btn');
+                const navBtn = document.getElementById('nav-btn');
+
+                try {
+                    // CORRECCIÓN CRÍTICA: Se cambió 'database' por 'db' para coincidir con tu inicialización
+                    const userRef = ref(db, `usuarios/${user.uid}`);
+                    const snapshot = await get(userRef);
+                    
+                    let apodo = "Estudiante";
+                    let fotoPerfil = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`;
+
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        apodo = userData.apodo || userData.nombre || user.email.split('@')[0];
+                        
+                        if (userData.foto && userData.foto.length > 20) {
+                            fotoPerfil = userData.foto; 
+                        }
+                    }
+
+                    // Transformación visual premium con el apodo del alumno
+                    if (heroTitle) {
+                        heroTitle.innerHTML = `¡Bienvenido de nuevo, <br><span style="color: var(--primary); font-family: 'Outfit'; text-transform: capitalize;">${apodo}</span>!`;
+                    }
+                    
+                    if (heroSubtitle) {
+                        heroSubtitle.innerText = "Tu ecosistema académico está sincronizado y listo. Revisa tus tareas pendientes, tus logros Platinum y tu almacenamiento en un solo clic.";
+                    }
+
+                    if (heroBtn) {
+                        heroBtn.innerText = "Ir a mi Panel de Control";
+                        heroBtn.href = "dashboard.html";
+                        heroBtn.style.background = "linear-gradient(135deg, var(--primary), #4f46e5)";
+                    }
+
+                    if (navBtn) {
+                        navBtn.innerHTML = `<img src="${fotoPerfil}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); vertical-align: middle; margin-right: 8px;"> Panel`;
+                        navBtn.href = "dashboard.html";
+                        navBtn.style.padding = "8px 16px";
+                        navBtn.style.display = "inline-flex";
+                        navBtn.style.alignItems = "center";
+                    }
+
+                } catch (error) {
+                    console.error("Error cargando personalización del index:", error);
+                }
+            }
+        });
+
+        // Ejecutar funciones al cargar el DOM dentro del módulo
+        window.addEventListener("DOMContentLoaded", () => {
+            calcularTrayectoriaPraxis();
+        });
     </script>
 </body>
 </html>
