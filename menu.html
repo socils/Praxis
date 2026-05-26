@@ -2139,10 +2139,11 @@ window.cambiarFiltroAlumno = (scope) => {
                                 <span style="font-family: monospace; font-size: 10px; font-weight: 700; color: #94a3b8;">SECURE_V1.2</span>
                             </div>
 
-                          <div style="width: 140px; height: 140px; border-radius: 16px; background: #f8fafc; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; margin: 10px 0;">
-    <img id="config-foto-perfil" src="${auth.currentUser.photoURL || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;" crossorigin="anonymous">
-</div>
+                                                                                    
 
+<div id="contenedor-foto-perfil" style="width: 140px; height: 140px; border-radius: 16px; background: #f8fafc; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0; margin: 10px 0;">
+    <!-- Totalmente vacío, esperando la inyección síncrona/asíncrona -->
+</div>
                                                                                     
                             <div style="display: flex; flex-direction: column; gap: 4px;">
                                 <div>
@@ -2264,8 +2265,41 @@ window.cambiarFiltroAlumno = (scope) => {
                 
                 <p style="text-align: center; font-weight: 600; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">La tarjeta tiene dimensiones fijas de 750x450px para una impresión perfecta.</p>
             </div>`;
+       // 🛠️ REEMPLAZO DESDE AQUÍ ABAJO:
+            const fotoContenedor = document.getElementById('contenedor-foto-perfil');
+            if (fotoContenedor) {
+                // Evaluamos prioritariamente el nodo foto, luego avatar
+                const datoImagen = data.foto || data.avatar;
+
+                if (datoImagen) {
+                    let srcFinal = datoImagen.trim();
+
+                    // 1. Validar si es código SVG puro en texto (por si manejas avatares vectoriales)
+                    if (srcFinal.startsWith('<svg') || srcFinal.endsWith('</svg>')) {
+                        fotoContenedor.innerHTML = srcFinal; // Se inyecta directamente el código SVG
+                    } else {
+                        // 2. Procesar variantes de imágenes basadas en texto para el atributo src
+                        
+                        // Si es un Base64 que viene sin la cabecera "data:image...", se la añadimos automáticamente
+                        if (srcFinal.match(/^[a-zA-Z0-9+/={}\s]+$/) && !srcFinal.startsWith('data:')) {
+                            // Detectamos si parece un SVG en base64 o una imagen común (por defecto png/jpeg)
+                            if (srcFinal.includes('PHN2Z')) { // Cabecera común de <svg> en base64
+                                srcFinal = `data:image/svg+xml;base64,${srcFinal}`;
+                            } else {
+                                srcFinal = `data:image/png;base64,${srcFinal}`;
+                            }
+                        }
+                        
+                        // Si ya es una URL válida (http/https) o un Base64 con cabecera correcta, pasa directo
+                        fotoContenedor.innerHTML = `<img src="${srcFinal}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    }
+                } else {
+                    // Si no hay datos en ningún nodo, permanece estrictamente limpio
+                    fotoContenedor.innerHTML = "";
+                }
+            }
         }
-    }); 
+    });
 }else if (texto.includes("pendientes")) {
     bannerTitle.innerText = "Panel de Tareas";
     displayCode.innerText = "DASHBOARD";
@@ -6996,6 +7030,7 @@ PraxisPlusManager.comprarCofre = async function(tipo, precio) {
     }
 };onAuthStateChanged(auth, (user) => {
     if (user) {
+        
         const userRef = ref(db, `usuarios/${user.uid}`);
 
         onValue(userRef, (snapshot) => {
@@ -7621,33 +7656,58 @@ document.addEventListener("DOMContentLoaded", () => {
             btnSave.style.background = '#6366f1';
         }
     };
-}// Función para forzar la carga de la foto directo de la RTDB
-function sincronizarFotoDNI(user) {
-    if (!user) return;
+}function cargarFotoPerfilDesdeFirebase() {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const contenedor = document.getElementById('contenedor-foto-perfil');
 
-    setTimeout(async () => {
-        const imgDNI = document.getElementById('config-foto-perfil');
-        
-        if (imgDNI) {
-            try {
-                // Va directo a leer el nodo usuarios/UID/foto
-                const fotoSnap = await get(ref(database, `usuarios/${user.uid}/foto`));
-                
-                if (fotoSnap.exists() && fotoSnap.val().trim() !== "") {
-                    // Si el nodo existe y tiene contenido, se lo inyecta al DNI (Base64 o URL)
-                    imgDNI.src = fotoSnap.val();
-                } else {
-                    // Si el nodo de la base de datos está vacío, deja la de Google o el placeholder
-                    imgDNI.src = user.photoURL || 'https://via.placeholder.com/150';
-                }
-            } catch (error) {
-                console.warn("Error leyendo el nodo foto directo de la base de datos:", error);
-                // Fallback de seguridad en caso de desconexión
-                imgDNI.src = user.photoURL || 'https://via.placeholder.com/150';
+    // 1. Si el contenedor no existe en el DOM, salimos
+    if (!contenedor) return;
+    
+    // 2. Si no hay sesión activa, aseguramos que se quede completamente vacío
+    if (!user) {
+        contenedor.innerHTML = "";
+        return;
+    }
+
+    const uid = user.uid;
+    const db = getDatabase();
+    
+    // Apuntamos a la raíz del usuario para traer los datos necesarios en una sola consulta limpia
+    const usuarioRef = ref(db, `usuarios/${uid}`);
+
+    // Usamos 'get' para consultar los datos una vez de forma eficiente
+    get(usuarioRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const datosUsuario = snapshot.val();
+            const fotoBase64 = datosUsuario.foto;
+            const avatarBase64 = datosUsuario.avatar;
+
+            // 3. Validación en cascada: Primero foto, si no existe, avatar
+            if (fotoBase64) {
+                contenedor.innerHTML = `<img src="${fotoBase64}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            } else if (avatarBase64) {
+                contenedor.innerHTML = `<img src="${avatarBase64}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            } else {
+                // Si ambos nodos están vacíos, se queda estrictamente vacío
+                contenedor.innerHTML = "";
             }
+        } else {
+            contenedor.innerHTML = "";
         }
-    }, 1000); // 1 segundo de retraso para esperar que el DNI exista en el DOM
-}
+    }).catch((error) => {
+        console.error("Error al consultar Firebase:", error);
+        // Protegemos el diseño dejándolo vacío ante cualquier fallo de red
+        contenedor.innerHTML = "";
+    });
+}auth.onAuthStateChanged((user) => {
+    if (user) {
+      
+        
+        // 2. Inmediatamente después, ejecutas la carga asíncrona de la foto
+        cargarFotoPerfilDesdeFirebase();
+    }
+});
 /**
  * =======================================================================
  * 🔒 ALONIXZ-GROUP                                                                      
