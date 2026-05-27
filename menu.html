@@ -398,26 +398,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
 import { GoogleGenerativeAI } from "@google/generative-ai";
-// Primero: prueba de vida básica
-    console.log("Motor JS cargado correctamente");
 
-    // Segundo: intenta importar, pero usa una ruta relativa correcta
-    // Si config.js está en la carpeta raíz y el html en una subcarpeta, usa '../config.js'
-    try {
-        const { GEMINI_API_KEY } = await import('./config.js');
-        console.log("Configuración cargada");
-    } catch (err) {
-        console.error("Error al cargar config.js. Revisa si el archivo está en la misma carpeta.", err);
-    }
-
-    // Tercero: Inicialización de Firebase
-    try {
-        // Asegúrate de que firebaseConfig esté definido ANTES de esto
-        const app = initializeApp(firebaseConfig); 
-        console.log("Firebase inicializado");
-    } catch (e) {
-        console.error("Error al inicializar Firebase:", e);
-    }
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
 
