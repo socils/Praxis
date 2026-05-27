@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduSolve AI | Flashcards Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="statusBanner" class="status-banner status-tranquilo">
+        <span id="statusIcon">●</span> 
+        <span id="statusText">Sistema listo: Esperando instrucciones</span>
+    </div>
+
+    <main class="app-container">
+        <header class="app-header">
+            <h1>EduSolve <span>AI</span></h1>
+            <p>Generador inteligente de tarjetas de estudio</p>
+        </header>
+
+        <section class="config-section">
+            <div class="input-group">
+                <label for="topicInput">Tema Detallado</label>
+                <textarea id="topicInput" placeholder="Ej: La Segunda Guerra Mundial, enfocándote en las causas económicas y los tratados de paz principales..."></textarea>
+            </div>
+            
+            <div class="controls">
+                <select id="difficulty">
+                    <option value="basico">Nivel Básico</option>
+                    <option value="intermedio" selected>Nivel Intermedio</option>
+                    <option value="avanzado">Nivel Avanzado</option>
+                </select>
+                <button id="generateBtn" class="btn-main">Generar Tarjetas</button>
+            </div>
+        </section>
+
+        <section class="cards-display">
+            <div id="cardsGrid" class="cards-grid">
+                <div class="empty-state">
+                    <p>Escribe un tema arriba para comenzar a estudiar.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="loadingOverlay" class="overlay hidden">
+        <div class="loader"></div>
+        <p>La IA está procesando tu solicitud...</p>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

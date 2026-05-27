@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Praxis | Comunidad Académica</title>
+    <link rel="icon" href="praxis.png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --praxis-dark: #0f172a;      /* Azul medianoche premium de fondo */
+            --praxis-panel: #1e293b;     /* Azul complementario para el slider */
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --accent-blue: #1a73e8;      /* Azul interactivo */
+            --accent-red: #ea4335;       /* Rojo reactivo para cancelar */
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            cursor: default; 
+        }
+
+        body, html {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-wrapper {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* PANEL IZQUIERDO: CARRUSEL HD OPTIMIZADO */
+        .brand-panel {
+            flex: 1.2;
+            position: relative;
+            background: var(--praxis-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow: hidden;
+        }
+
+        @media (max-width: 900px) {
+            .brand-panel { display: none; }
+        }
+
+        .bg-slider {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            filter: brightness(0.4) blur(2px); 
+            transform: scale(1.05);
+            transition: opacity 1.5s ease-in-out; 
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .brand-showcase {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: var(--white);
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .brand-showcase h1 {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin-bottom: 5px;
+        }
+
+        .brand-divider {
+            width: 50px;
+            height: 4px;
+            background: var(--white);
+            margin: 15px auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .brand-slogan {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            opacity: 0.9;
+        }
+
+        /* PANEL DERECHO: INTERFAZ SÓLIDA */
+        .auth-panel {
+            flex: 0.8;
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            z-index: 10;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .praxis-minilogo {
+            width: 52px;
+            height: auto;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .auth-header h2 {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 40px;
+        }
+
+        /* DISEÑO DE BOTONES PREMIUM */
+        .auth-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-google {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-google:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .btn-guest {
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .btn-guest:hover {
+            color: var(--text-main);
+            background: #e2e8f0;
+        }
+
+        .btn-primary {
+            background: var(--praxis-dark);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--praxis-panel);
+        }
+
+        .btn-danger {
+            background: #fef2f2;
+            color: var(--accent-red);
+            border: 1px solid #fee2e2;
+        }
+
+        .btn-danger:hover {
+            background: #fee2e2;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* TEXTOS LEGALES */
+        .legal-footer {
+            margin-top: 50px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .legal-footer a, .legal-footer span {
+            color: var(--accent-blue);
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .legal-footer a:hover, .legal-footer span:hover {
+            text-decoration: underline;
+        }
+
+        .developer-tag {
+            margin-top: 30px;
+            font-weight: 700;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+        }
+
+        /* MODALES DE INTERFAZ */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 35px;
+            border-radius: 20px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        .modal-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .modal p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .user-email-highlight {
+            display: block;
+            margin: 10px auto;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            color: var(--praxis-dark);
+            border-radius: 8px;
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        /* DISEÑO DE ENTRADA PARA EL PIN DE SEGURIDAD */
+        .pin-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .pin-input {
+            width: 50px;
+            height: 55px;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: var(--praxis-dark);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .pin-input:focus {
+            border-color: var(--accent-blue);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15);
+        }
+
+        /* Oculta las flechas arriba/abajo en navegadores */
+        .pin-input::-webkit-outer-spin-button,
+        .pin-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .error-message {
+            color: var(--accent-red);
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        /* PANTALLA DE LOADING TIPO SIEWEB */
+        #loader {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: var(--praxis-dark);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #loader-brand {
+            color: var(--white);
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 5px;
+            margin-top: 20px;
+            opacity: 0.85;
+        }
+
+        .spin {
+            animation: spinSieWeb 2.2s infinite linear;
+        }
+        #btn-forgot-pin:hover {
+    color: #2979FF !important; /* Cambia al azul característico de tu login */
+    background-color: #f8fafc; /* Un fondo atenuado muy ligero */
+}
+        @keyframes spinSieWeb {
+            0% {
+                transform: rotate(0deg);
+                animation-timing-function: cubic-bezier(.55, .055, .675, .19);
+            }
+            50% {
+                transform: rotate(180deg);
+                animation-timing-function: cubic-bezier(.215, .61, .355, 1);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+                                                        
+    <div id="loader">
+        <img src="praxis.png" class="spin" width="140" height="140" alt="Cargando">
+        <div id="loader-brand">PRAXIS CORE</div>
+                                                                
+        <div id="loader-popup-warning" class="animate__animated animate__fadeIn" style="display: none; margin-top: 25px; padding: 12px 20px; background: rgba(234, 67, 53, 0.15); border: 1px solid #ea4335; border-radius: 10px; max-width: 320px; text-align: center; font-size: 13px; color: #fecaca; font-weight: 600; line-height: 1.5;">
+            ⚠️ ¿El sistema demora? Es posible que tengas desactivadas las ventanas emergentes. Por favor, actívalas en tu navegador para realizar tu ingreso con éxito.
+        </div>
+    </div>
+
+    <div id="modal-licencia" class="modal" onclick="event.target == this ? cerrarModal() : null">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div class="modal-icon">⚖️</div>
+            <h2>Licencia de Uso</h2>
+            <p>
+                Para garantizar un ambiente académico honesto, el uso de herramientas de inspección está estrictamente prohibido. <br><br>
+                El sistema detecta intentos de acceso al código y aplicará un baneo permanente a tu cuenta.
+            </p>
+            <button onclick="cerrarModal()" class="btn btn-primary">Acepto los términos</button>
+        </div>
+    </div>
+
+    <div id="modal-autologin" class="modal">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div class="modal-icon"><img src="rehacer.png" alt="reentrar" style="width: 40px; height: 40px;"></div>
+            <h2>Sesión Activa Detectada</h2>
+            <p>
+                Hemos detectado que ya tienes una cuenta vinculada a este dispositivo:
+                <span id="detected-email" class="user-email-highlight">buscando...</span>
+                ¿Deseas continuar al menú de Praxis o ingresar con otra credencial?
+            </p>
+            <div class="modal-buttons">
+                <button id="autologin-continue" class="btn btn-primary">Continuar al Menú</button>
+                <button id="autologin-cancel" class="btn btn-danger">Cancelar e Iniciar con otra cuenta</button>
+            </div>
+        </div>
+    </div>
+                                                        
+    <div id="modal-pin" class="modal">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div class="modal-icon">🔒</div>
+            <h2>Verificación de Seguridad</h2>
+            <p>Se ha detectado rango de <strong>Profesor</strong>. Introduce tu PIN de 4 dígitos para continuar.</p>
+            
+            <div class="pin-container">
+                <input type="password" class="pin-input" maxlength="1" oninput="moverPin(this, 1)" onkeydown="borrarPin(event, 1)">
+                <input type="password" class="pin-input" maxlength="1" oninput="moverPin(this, 2)" onkeydown="borrarPin(event, 2)">
+                <input type="password" class="pin-input" maxlength="1" oninput="moverPin(this, 3)" onkeydown="borrarPin(event, 3)">
+                <input type="password" class="pin-input" maxlength="1" oninput="moverPin(this, 4)" onkeydown="borrarPin(event, 4)">
+            </div>
+
+            <div id="pin-error" class="error-message">⚠️ PIN incorrecto. Inténtalo de nuevo.</div>
+
+            <div class="modal-buttons" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button id="btn-verify-pin" class="btn btn-primary" style="flex: 1;">Verificar e Ingresar</button>
+                    <button id="btn-cancel-pin" class="btn btn-danger" style="flex: 1;">Salir de la cuenta</button>
+                </div>
+                <div style="text-align: center; margin-top: 4px;">
+                    <button id="btn-forgot-pin" style="background: none; border: none; color: #64748b; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none; transition: color 0.2s ease; padding: 4px 8px; border-radius: 4px;">
+                        ¿Olvidaste tu PIN?
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                            
+    <div id="modal-reset-verify" class="modal">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div class="modal-icon">📡</div>
+            <h2>Recuperación de PIN</h2>
+            <p style="margin-bottom: 15px;">Ingrese el código de 6 dígitos enviado a su correo institucional.</p>
+            
+            <input type="text" id="input-reset-code" placeholder="Ej. 123456" maxlength="6" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 15px; outline: none; font-family: monospace;">
+            
+                                                                    
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-align: left; font-weight: 600;">Capa de Verificación Algorítmica:</p>
+            <input type="password" id="input-old-hint" placeholder="¿Qué recuerdas de tu PIN anterior?" maxlength="4" style="width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 14px; text-align: center; margin-bottom: 20px; outline: none;">
+            
+            <div class="modal-buttons">
+                <button id="btn-submit-verification" class="btn btn-primary">Validar Identidad</button>
+                <button id="btn-close-verification" class="btn btn-danger">Cancelar Proceso</button>
+            </div>
+        </div>
+    </div>
+
+                                                            
+    <div id="modal-new-pin" class="modal">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <div class="modal-icon">✨</div>
+            <h2>Identidad Confirmada</h2>
+            <p>Establezca su nuevo código PIN de docente (4 números obligatorios).</p>
+            
+            <input type="password" id="input-created-pin" placeholder="Nuevo PIN" maxlength="4" style="width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 20px; outline: none; letter-spacing: 4px;">
+            
+            <button id="btn-save-new-pin" class="btn btn-primary">Guardar Cambios y Entrar</button>
+        </div>
+    </div>
+
+    <div class="login-wrapper">
+        
+        <div class="brand-panel">
+            <div class="bg-slider">
+                <div class="slide active" style="background-image: url('foto1.jpg');"></div>
+                <div class="slide" style="background-image: url('foto2.jpg');"></div>
+            </div>
+
+            <div class="brand-showcase animate__animated animate__fadeIn">
+                <h1>PRAXIS</h1>
+                <div class="brand-divider"></div>
+                <p class="brand-slogan">DE ESTUDIANTES PARA ESTUDIANTES</p>
+            </div>
+        </div>
+
+        <div class="auth-panel">
+            <main class="auth-container animate__animated animate__fadeInRight">
+                <header class="auth-header">
+                    <img src="praxis.png" class="praxis-minilogo" alt="Praxis Logo">
+                    <h2 id="welcome-title">Bienvenido</h2>
+                    <p class="subtitle" id="welcome-sub">Plataforma comunitaria del Colegio San Jerónimo.</p>
+                </header>
+
+               <div class="auth-actions">
+    <button class="btn btn-google" id="login-google">
+        <img src="google.png" class="google-icon" alt="Google">
+        <span>Continuar con Google</span>
+    </button>
+
+    <button class="btn btn-primary" id="login-email" style="background: #0071ff; border: 1px solid rgba(0, 113, 255, 0.1);">
+        <img src="gmail.png" class="google-icon" alt="Correo">
+        <span>Continuar con Correo</span>
+    </button>
+
+    <button class="btn btn-guest" id="login-guest">Acceder como invitado</button>
+</div>
+
+                <footer class="legal-footer">
+                    <p>Al entrar, confirmas que has leído y aceptas nuestros <br> 
+                        <a href="terminos.html">Términos</a>, 
+                        <a href="condiciones.html">Condiciones</a> y la 
+                        <span onclick="abrirModal()">Licencia de Uso</span>.
+                    </p>
+                    <div class="developer-tag">ALONIXZ-GROUP • 2026</div>
+                </footer>
+            </main>
+        </div>
+
+    </div><div id="modal-correo-auth" class="modal" style="display: none; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);">
+        <div class="modal-content animate__animated animate__zoomIn" style="width: 100%; max-width: 440px; padding: 24px 28px; border-radius: 24px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08); box-sizing: border-box;">
+            
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 14px;">
+                <div id="correo-modal-icon" style="width: 46px; height: 46px; background: rgba(99, 102, 241, 0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid rgba(99, 102, 241, 0.12); flex-shrink: 0;">🔑</div>
+                <div style="text-align: left;">
+                    <h2 id="correo-modal-title" style="margin: 0 0 2px 0; font-family: system-ui, -apple-system, sans-serif; font-size: 19px; font-weight: 850; color: #0f172a; letter-spacing: -0.5px;">Acceso por Credenciales</h2>
+                    <span style="color: #6366f1; font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">Correo Personal o Institucional</span>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.04), rgba(0, 113, 255, 0.04)); border: 1px solid rgba(245, 158, 11, 0.12); padding: 12px 14px; border-radius: 14px; margin-bottom: 18px; box-sizing: border-box; display: flex; gap: 12px; align-items: flex-start;">
+                <div style="font-size: 15px; margin-top: 1px; filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.2));">⚠️</div>
+                
+                <div style="font-family: system-ui, -apple-system, sans-serif; font-size: 11px; line-height: 1.4; color: #475569; display: flex; flex-direction: column; gap: 6px;">
+                    <div>
+                        <strong style="color: #d97706; font-weight: 750;">Directiva Autónomica:</strong> 
+                        Si presentas bloqueos de administrador mediante el botón nativo de Google, este canal tradicional garantiza tu entrada independiente.
+                    </div>
+                    <div style="border-top: 1px dashed rgba(0, 0, 0, 0.06); padding-top: 6px; font-style: italic; color: #64748b;">
+                        * Cuenta con ligeras limitaciones de datos automatizados (nombre/foto oficial) solucionables en el siguiente paso.
+                    </div>
+                </div>
+            </div>
+
+            <p id="correo-modal-sub" style="margin: 0 0 16px 0; font-family: system-ui, -apple-system, sans-serif; font-size: 12px; color: #64748b; text-align: left;">
+                Ingresa tus credenciales para resguardar tu progreso en Praxis:
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+                <input type="email" id="input-auth-email" placeholder="ejemplo@correo.com o .edu" 
+                       style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 13.5px; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; outline: none; box-sizing: border-box; transition: all 0.2s ease;"
+                       onfocus="this.style.background='#ffffff'; this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.06)';" 
+                       onblur="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+                
+                <input type="password" id="input-auth-password" placeholder="Establecer o ingresar contraseña" 
+                       style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 13.5px; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; outline: none; box-sizing: border-box; transition: all 0.2s ease;"
+                       onfocus="this.style.background='#ffffff'; this.style.borderColor='#6366f1'; this.style.boxShadow='0 0 0 3px rgba(99, 102, 241, 0.06)';" 
+                       onblur="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+            </div>
+
+            <div id="correo-error" class="error-message" style="margin-top: -6px; margin-bottom: 12px; font-size: 11.5px; font-family: system-ui, -apple-system, sans-serif; font-weight: 600; color: #ea4335; display: none; text-align: left;"></div>
+
+            <div class="modal-buttons" style="display: flex; gap: 10px; margin-bottom: 18px;">
+                <button id="btn-close-correo" class="btn" 
+                        style="flex: 1; background: transparent; color: #64748b; border: 1px solid #e2e8f0; padding: 12px; font-size: 13px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.2s ease;"
+                        onmouseover="this.style.background='#f8fafc';" 
+                        onmouseout="this.style.background='transparent';">
+                    Cancelar
+                </button>
+                <button id="btn-submit-correo" class="btn" 
+                        style="flex: 2; background: #0071ff; color: #ffffff; border: none; padding: 12px; font-size: 13px; font-weight: 700; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 113, 255, 0.1);"
+                        onmouseover="this.style.background='#0062dd';" 
+                        onmouseout="this.style.background='#0071ff';">
+                    Acceder al Sistema
+                </button>
+            </div>
+
+            <div style="text-align: center; padding-top: 14px; border-top: 1px solid #f1f5f9; font-family: system-ui, -apple-system, sans-serif;">
+                <span id="txt-switch-auth" style="font-size: 12px; color: #64748b;">¿No tienes una cuenta?</span>
+                <button id="btn-switch-auth" style="background: none; border: none; color: #6366f1; font-weight: 750; cursor: pointer; font-size: 12px; margin-left: 4px; padding: 0; transition: color 0.2s ease;"
+                        onmouseover="this.style.color='#4f46e5';" 
+                        onmouseout="this.style.color='#6366f1';">
+                    Regístrate
+                </button>
+            </div>
+        </div>
+    </div>                                                        
+<div style="position: absolute; top: 0; left: 40px; z-index: 100; width: 115px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border: 1px solid #e2e8f0; border-top: none; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; box-shadow: 0 15px 30px -8px rgba(15, 23, 42, 0.1); padding: 16px 10px 14px 10px; font-family: system-ui, -apple-system, sans-serif; text-align: center; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; animation: slideDownEstandarte 1.2s cubic-bezier(0.16, 1, 0.3, 1);">
+    
+                                                            
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #6366f1, #0071ff); border-top-left-radius: 0; border-top-right-radius: 0;"></div>
+
+                                                            
+    <span style="font-size: 8px; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; line-height: 1;">
+        Desde el 18 de Mayo
+    </span>
+
+                                                            
+    <div style="line-height: 1; margin-bottom: 2px;">
+        <span id="contador-dias-estandarte" style="font-size: 36px; font-weight: 950; color: #0071ff; letter-spacing: -1px; background: linear-gradient(180deg, #0071ff 0%, #4f46e5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; filter: drop-shadow(0 2px 6px rgba(99, 102, 241, 0.1));">
+            --
+        </span>
+    </div>
+
+                                                            
+    <span style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 8px; width: 75%; display: block;">
+        Días
+    </span>
+
+                                                            
+    <p style="margin: 0; font-size: 10px; font-weight: 750; color: #475569; line-height: 1.3; letter-spacing: -0.1px;">
+        Al Servicio del <br>
+        <span style="color: #0f172a; font-weight: 850;">Colegio <br>San Jerónimo</span>
+    </p>
+
+                                                            
+    <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 8px; background: rgba(0, 255, 136, 0.05); padding: 3px 6px; border-radius: 20px; border: 1px solid rgba(0, 255, 136, 0.12); width: fit-content;">
+        <span style="width: 4px; height: 4px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 4px #00ff88;"></span>
+        <span style="font-size: 7.5px; font-weight: 800; color: #00a859; text-transform: uppercase; letter-spacing: 0.2px;">Activo</span>
+    </div>
+</div>
+                                                        
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script type="text/javascript">
+   (function(){
+                                                                          
+      emailjs.init("lvcb_dTbAMzWFjYRg");
+   })();
+</script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInAnonymously, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";                                                               
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+            authDomain: "praxis-79b9a.firebaseapp.com",
+            projectId: "praxis-79b9a",
+            databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+            appId: "1:596083977949:web:71064f89a23f8d9751e712"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        const title = document.getElementById('welcome-title');
+        const sub = document.getElementById('welcome-sub');
+        
+        if (localStorage.getItem('praxis_visited')) {
+            title.innerText = "Bienvenido de nuevo";
+            sub.innerHTML = "Tu progreso te espera. <br>Sincroniza tu cuenta ahora.";
+        } else {
+            localStorage.setItem('praxis_visited', 'true');
+        }
+
+        window.abrirModal = () => document.getElementById('modal-licencia').style.display = 'flex';
+        window.cerrarModal = () => document.getElementById('modal-licencia').style.display = 'none';
+
+                                                                            
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 5000);
+
+                                                                            
+        const loader = document.getElementById('loader');
+        const modalAutoLogin = document.getElementById('modal-autologin');
+        const modalPin = document.getElementById('modal-pin');
+        const detectedEmail = document.getElementById('detected-email');
+        const pinInputs = document.querySelectorAll('.pin-input');
+        const pinError = document.getElementById('pin-error');
+        
+        let usuarioActualValido = null;
+        let pinCorrectoBaseDatos = "";
+                                                                     
+        let popupTimerAlert = null;
+
+        const startLogin = async (action) => {
+                                                                                
+            if (popupTimerAlert) clearTimeout(popupTimerAlert);
+            document.getElementById('loader-popup-warning').style.display = 'none';
+            
+                                                                                
+            loader.style.display = 'flex'; 
+
+                                                                                
+            popupTimerAlert = setTimeout(() => {
+                if (loader.style.display === 'flex') {
+                    document.getElementById('loader-popup-warning').style.display = 'block';
+                }
+            }, 5000);
+
+            try { 
+                await action(); 
+                                                                                    
+                clearTimeout(popupTimerAlert);
+            } catch(e) { 
+                                                                                    
+                loader.style.display = 'none';
+                clearTimeout(popupTimerAlert);
+                console.error("Error en autenticación:", e);
+            }
+        };
+
+        document.getElementById('login-google').onclick = () => startLogin(() => signInWithPopup(auth, provider));
+        document.getElementById('login-guest').onclick = () => startLogin(() => signInAnonymously(auth));
+                                                                            
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                usuarioActualValido = user;
+                
+                                                                                    
+                if (loader.style.display === 'flex') {
+                    await evaluarPerfilProfesor(user);
+                } else {
+                                                                                        
+                    detectedEmail.innerText = user.email ? user.email : "Modo Invitado Anónimo";
+                    modalAutoLogin.style.display = 'flex';
+                }
+            }
+        });
+
+                                                                            
+        async function evaluarPerfilProfesor(user) {
+            modalAutoLogin.style.display = 'none';
+            loader.style.display = 'flex';
+                                                                     
+            if (popupTimerAlert) clearTimeout(popupTimerAlert);
+            try {
+                const snapshot = await get(ref(database, `usuarios/${user.uid}/stats`));
+                
+                if (snapshot.exists()) {
+                    const stats = snapshot.val();
+                    
+                                                                                        
+                    if (stats.rango === "profesor") {
+                        pinCorrectoBaseDatos = stats.pin ? stats.pin.toString() : "";
+                        loader.style.display = 'none';
+                        abrirVentanaPIN();                                                                     
+                        return;
+                    }
+                }
+                                                                                    
+                procederAlMenu();
+
+            } catch (error) {
+                console.error("Error leyendo Realtime Database:", error);
+                procederAlMenu();                                                                     
+            }
+        }
+
+        function abrirVentanaPIN() {
+            pinInputs.forEach(i => i.value = "");
+            pinError.style.display = "none";
+            modalPin.style.display = "flex";
+            pinInputs[0].focus();
+        }
+
+        function procederAlMenu() {
+            modalPin.style.display = "none";
+            loader.style.display = 'flex';
+            setTimeout(() => window.location.replace("menu.html"), 600);
+        }
+
+                                                                            
+        document.getElementById('autologin-continue').onclick = () => {
+            if (usuarioActualValido) evaluarPerfilProfesor(usuarioActualValido);
+        };
+
+        const cerrarSesionLimpia = async () => {
+            modalAutoLogin.style.display = 'none';
+            modalPin.style.display = 'none';
+            if (popupTimerAlert) clearTimeout(popupTimerAlert);
+            loader.style.display = 'flex';
+            try {
+                await signOut(auth);
+                localStorage.removeItem('firebase:authUser:' + firebaseConfig.apiKey + ':[DEFAULT]');
+            } catch (err) {
+                console.error(err);
+            }
+            loader.style.display = 'none';
+        };
+
+        document.getElementById('autologin-cancel').onclick = cerrarSesionLimpia;
+        document.getElementById('btn-cancel-pin').onclick = cerrarSesionLimpia;
+
+                                                                            
+        document.getElementById('btn-verify-pin').onclick = verificarCodigoPIN;
+
+        function verificarCodigoPIN() {
+            let pinIngresado = "";
+            pinInputs.forEach(input => pinIngresado += input.value);
+
+            if (pinIngresado === pinCorrectoBaseDatos && pinCorrectoBaseDatos !== "") {
+                pinError.style.display = "none";
+                procederAlMenu();
+            } else {
+                pinError.style.display = "block";
+                pinInputs.forEach(i => i.value = "");
+                pinInputs[0].focus();
+            }
+        }
+
+                                                                            
+        window.moverPin = function(elemento, index) {
+            if (elemento.value.length === 1 && index < 4) {
+                pinInputs[index].focus();
+            }
+            if (index === 4 && elemento.value.length === 1) {
+                verificarCodigoPIN();                                                                     
+            }
+        }
+
+        window.borrarPin = function(evento, index) {
+            if (evento.key === "Backspace" && pinInputs[index - 1].value === "" && index > 1) {
+                pinInputs[index - 2].focus();
+            }
+        }                                                                     
+document.getElementById('btn-forgot-pin').addEventListener('click', async () => {
+    const user = auth.currentUser;
+    
+    if (!user || !user.email) {
+        alert("❌ Error: No se ha detectado una sesión activa para gestionar el restablecimiento.");
+        return;
+    }
+
+    const databaseInstance = typeof database !== 'undefined' ? database : getDatabase();
+    const btnForgot = document.getElementById('btn-forgot-pin');
+    const textoOriginal = btnForgot.innerText;
+    
+    btnForgot.innerText = "Enviando...";
+    btnForgot.disabled = true;
+
+    const codigoVerificacion = Math.floor(100000 + Math.random() * 900000);
+    const tiempoExpiracion = Date.now() + 10 * 60 * 1000; 
+
+    try {
+                                                                            
+        const securityRef = ref(databaseInstance, `usuarios/${user.uid}/security_reset`);
+        await update(securityRef, {
+            reset_code: codigoVerificacion,
+            expires_at: tiempoExpiracion
+        });
+
+        const templateParams = {
+            to_email: user.email, 
+            to_name: user.displayName || "Docente Praxis",
+            verification_code: codigoVerificacion,
+            system_time: new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' })
+        };
+
+        await emailjs.send('service_i1g7pwu', 'template_gcy5pnd', templateParams);
+
+                                                                            
+        document.getElementById('modal-pin').style.display = 'none';
+        document.getElementById('modal-reset-verify').style.display = 'flex';
+        
+                                                                            
+         CONFIGURAR_EVENTO_VALIDACION(codigoVerificacion, tiempoExpiracion, pinCorrectoBaseDatos, user, databaseInstance, securityRef);
+
+    } catch (error) {
+        console.error("Security Mail Error:", error);
+        alert("❌ Error de comunicación con Alonixz-Guard.");
+    } finally {
+        btnForgot.innerText = textoOriginal;
+        btnForgot.disabled = false;
+    }
+});
+
+                                                                     
+document.getElementById('btn-close-verification').onclick = () => {
+    document.getElementById('modal-reset-verify').style.display = 'none';
+    document.getElementById('modal-pin').style.display = 'flex';                                                                     
+};
+                                                                     
+function CONFIGURAR_EVENTO_VALIDACION(codigoReal, expiracion, pinOriginal, user, dbInst, refSeguridad) {
+    document.getElementById('btn-submit-verification').onclick = async () => {
+        const codigoIngresado = document.getElementById('input-reset-code').value.trim();
+        const pistaPinAnterior = document.getElementById('input-old-hint').value.trim();
+
+                                                                            
+        if (parseInt(codigoIngresado) !== codigoReal) {
+            alert("❌ El código de verificación de 6 dígitos es incorrecto.");
+            return;
+        }
+
+        if (Date.now() > expiracion) {
+            alert("❌ Esta solicitud ha expirado (Límite: 10 minutos). Genere una nueva.");
+            return;
+        }
+
+                                                                            
+        if (pinOriginal !== "") {
+                                                                                
+            if (pistaPinAnterior.length !== 4) {
+                alert("❌ Validación Rechazada: Lo que recuerdas de tu PIN debe tener exactamente 4 dígitos.");
+                return;
+            }
+
+            let identidadAprobada = false;
+            let bitacoraFiltro = "";
+
+                                                                                
+            const valorReal = parseInt(pinOriginal);
+            const valorPista = parseInt(pistaPinAnterior);
+            const difAbsoluta = Math.abs(valorReal - valorPista);
+
+            if (difAbsoluta <= 50) {
+                identidadAprobada = true;
+                bitacoraFiltro = "Aprobado por Capa 1: Proximidad matemática estrecha.";
+            } else {
+                                                                                    
+                let digitosIncorrectos = 0;
+
+                for (let i = 0; i < 4; i++) {
+                    if (pinOriginal[i] !== pistaPinAnterior[i]) {
+                        digitosIncorrectos++;
+                    }
+                }
+
+                                                                                    
+                if (digitosIncorrectos <= 2) {
+                    identidadAprobada = true;
+                    bitacoraFiltro = `Aprobado por Capa 2: Tolerancia aceptada (${digitosIncorrectos} error(es) posicionales).`;
+                } else {
+                    bitacoraFiltro = `Rechazado: El intento difiere en ${digitosIncorrectos} dígitos del original.`;
+                }
+            }
+
+                                                                                
+            if (!identidadAprobada) {
+                console.warn(`[Alonixz-Guard] ${bitacoraFiltro}`);
+                alert("❌ Validación de Identidad Rechazada: Los dígitos estructurados no coinciden con los registros del docente.");
+                return;
+            } else {
+                console.log(`[Alonixz-Guard] ${bitacoraFiltro}`);
+            }
+        }
+
+                                                                            
+        document.getElementById('modal-reset-verify').style.display = 'none';
+        document.getElementById('modal-new-pin').style.display = 'flex';
+
+                                                                            
+        document.getElementById('btn-save-new-pin').onclick = async () => {
+            const nuevoPin = document.getElementById('input-created-pin').value.trim();
+
+            if (nuevoPin && /^\d{4}$/.test(nuevoPin)) {
+                                                                                    
+                const statsRef = ref(dbInst, `usuarios/${user.uid}/stats`);
+                await update(statsRef, { pin: nuevoPin });
+                
+                                                                                    
+                await update(refSeguridad, { reset_code: null, expires_at: null });
+                
+                document.getElementById('modal-new-pin').style.display = 'none';
+                
+                                                                                    
+                procederAlMenu(); 
+            } else {
+                alert("⚠️ Formato Inválido: El PIN institucional debe constar estrictamente de 4 números.");
+            }
+        };
+    };
+}const modalCorreo = document.getElementById('modal-correo-auth');
+        const correoTitle = document.getElementById('correo-modal-title');
+        const correoSub = document.getElementById('correo-modal-sub');
+        const correoIcon = document.getElementById('correo-modal-icon');
+        const btnSubmitCorreo = document.getElementById('btn-submit-correo');
+        const btnSwitchAuth = document.getElementById('btn-switch-auth');
+        const txtSwitchAuth = document.getElementById('txt-switch-auth');
+        const correoError = document.getElementById('correo-error');
+
+        const inputEmail = document.getElementById('input-auth-email');
+        const inputPassword = document.getElementById('input-auth-password');
+
+        let esModoRegistro = false;
+
+        document.getElementById('login-email').onclick = () => {
+            esModoRegistro = false;
+            actualizarInterfazModalCorreo();
+            correoError.style.display = "none";
+            inputEmail.value = "";
+            inputPassword.value = "";
+            modalCorreo.style.display = "flex";
+        };
+
+        document.getElementById('btn-close-correo').onclick = () => {
+            modalCorreo.style.display = "none";
+        };
+
+        btnSwitchAuth.onclick = () => {
+            esModoRegistro = !esModoRegistro;
+            actualizarInterfazModalCorreo();
+        };
+
+        function actualizarInterfazModalCorreo() {
+            correoError.style.display = "none";
+            if (esModoRegistro) {
+                correoIcon.innerText = "✨";
+                correoTitle.innerText = "Crear Cuenta";
+                correoSub.innerText = "Regístrate con tu correo para unirte a Praxis.";
+                btnSubmitCorreo.innerText = "Registrarse y Entrar";
+                txtSwitchAuth.innerText = "¿Ya tienes cuenta?";
+                btnSwitchAuth.innerText = "Inicia Sesión";
+            } else {
+                correoIcon.innerText = "🔑";
+                correoTitle.innerText = "Iniciar Sesión";
+                correoSub.innerText = "Ingresa tus credenciales institucionales para continuar.";
+                btnSubmitCorreo.innerText = "Acceder al Sistema";
+                txtSwitchAuth.innerText = "¿No tienes una cuenta?";
+                btnSwitchAuth.innerText = "Regístrate";
+            }
+        }
+
+    btnSubmitCorreo.onclick = () => {
+            const email = inputEmail.value.trim();
+            const password = inputPassword.value.trim();
+
+            if (!email || !password) {
+                mostrarErrorCorreo("Por favor, completa todos los campos.");
+                return;
+            }
+
+            if (password.length < 6) {
+                mostrarErrorCorreo("La contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            startLogin(async () => {
+                if (esModoRegistro) {
+                    // 1. Crear el usuario en Firebase Authentication
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    // 2. Crear o actualizar el nodo del usuario en la Realtime Database con la bandera
+                    // Usamos 'update' para añadir 'cuenta_correo' sin borrar otros campos si existieran
+                    await update(ref(db, `usuarios/${user.uid}`), {
+                        cuenta_correo: true,
+                        correo: email,
+                        
+                    });
+
+                } else {
+                    // Si solo está iniciando sesión, no alteramos la base de datos
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+                modalCorreo.style.display = "none";
+            }).catch((error) => {
+                console.error("Auth Email Error: ", error.code);
+                switch (error.code) {
+                    case "auth/invalid-credential":
+                        mostrarErrorCorreo("Credenciales incorrectas. Verifica tu correo o contraseña.");
+                        break;
+                    case "auth/email-already-in-use":
+                        mostrarErrorCorreo("El correo electrónico ya está registrado en la plataforma.");
+                        break;
+                    case "auth/invalid-email":
+                        mostrarErrorCorreo("El formato del correo electrónico no es válido.");
+                        break;
+                    case "auth/weak-password":
+                        mostrarErrorCorreo("La contraseña es muy débil.");
+                        break;
+                    default:
+                        mostrarErrorCorreo("Ocurrió un error en el servidor. Inténtalo de nuevo.");
+                }
+            });
+        };
+
+        function mostrarErrorCorreo(mensaje) {
+            correoError.innerText = "⚠️ " + mensaje;
+            correoError.style.display = "block";
+        }document.addEventListener("DOMContentLoaded", () => {
+    function actualizarDiasServicio() {
+                                                                
+        const fechaLanzamiento = new Date("2026-05-18T00:00:00");
+        const fechaActual = new Date();
+
+                                                                
+        const diferenciaMilisegundos = fechaActual - fechaLanzamiento;
+
+                                                                
+        let diasTranscurridos = Math.floor(diferenciaMilisegundos / (1000 * 60 * 60 * 24));
+
+                                                                
+        if (diasTranscurridos < 1) diasTranscurridos = 1;
+
+                                                                
+        const contenedorNumero = document.getElementById("contador-dias-estandarte");
+        if (contenedorNumero) {
+            contenedorNumero.innerText = diasTranscurridos;
+        }
+    }
+
+                                                            
+    actualizarDiasServicio();
+});
+    </script>
+</body>
+</html>

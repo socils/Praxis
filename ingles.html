@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Vocabulario - Learning Languages, Countries & Languages</title>
+  <style>
+    body {
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 40px;
+      flex-wrap: wrap;
+    }
+
+    /* Estilo base de la hoja de cuaderno cuadriculado */
+    .cuaderno-page {
+      width: 450px;
+      background-color: #ffffff;
+      background-image: 
+        linear-gradient(#e1f0fa 1px, transparent 1px), 
+        linear-gradient(90deg, #e1f0fa 1px, transparent 1px);
+      background-size: 16px 16px;
+      border: 2px solid #ccc;
+      padding: 20px;
+      font-family: 'Courier New', Courier, monospace;
+      position: relative;
+      box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    /* Margen rojo vertical de la hoja */
+    .margen-rojo {
+      position: absolute;
+      left: 60px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      border-left: 2px solid #ff9999;
+      z-index: 1;
+    }
+
+    /* Encabezado superior para la fecha tipo block */
+    .header-block {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      padding-left: 50px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .fecha-box {
+      border: 1px solid #777;
+      border-radius: 12px;
+      padding: 4px 15px;
+      font-size: 13px;
+      color: #555;
+      background: #fff;
+    }
+
+    .sello-box {
+      border: 1px solid #777;
+      border-radius: 12px;
+      width: 80px;
+      height: 25px;
+      background: #fff;
+    }
+
+    /* Contenedor del contenido escrito */
+    .contenido {
+      position: relative;
+      z-index: 2;
+      padding-left: 50px;
+      line-height: 24px;
+      font-size: 15px;
+    }
+
+    .titulo-rojo {
+      color: #cc0000;
+      font-weight: bold;
+      font-size: 17px;
+      border-bottom: 1px solid #cc0000;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    /* Estructura de filas simulando lapicero azul */
+    .grid-vocabulario {
+      display: grid;
+      grid-template-columns: 150px 20px 1fr;
+      color: #1a237e; /* Azul lapicero */
+      font-weight: bold;
+    }
+
+    .subtitulo-col {
+      color: #cc0000;
+    }
+
+    .linea-separadora {
+      grid-column: span 3;
+      border-bottom: 1px solid #1a237e;
+      margin: 4px 0 10px 0;
+    }
+
+    .espacio-bloque {
+      grid-column: span 3;
+      margin: 10px 0;
+    }
+
+    .logo-cuaderno {
+      text-align: right;
+      margin-top: 15px;
+      font-size: 10px;
+      color: #a0b0d0;
+      font-weight: bold;
+      padding-right: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cuaderno-page">
+    <div class="margen-rojo"></div>
+    
+    <div class="header-block">
+      <div class="fecha-box">May. Tuesday 19th, 2026</div>
+      <div class="sello-box"></div>
+    </div>
+
+    <div class="contenido">
+      <span class="titulo-rojo">Vocabulary: Learning languages</span>
+      
+      <div class="grid-vocabulario">
+        <span class="subtitulo-col">English</span><span></span><span class="subtitulo-col">Spanish</span>
+        <div class="linea-separadora"></div>
+        
+        <span>- accuracy</span><span>:</span><span>Exactitud / Precisión</span>
+        <span>- accurate</span><span>:</span><span>Exacto / Preciso</span>
+        <span>- essay</span><span>:</span><span>Ensayo / Redacción</span>
+        <span>- exam</span><span>:</span><span>Examen</span>
+        <span>- exercise</span><span>:</span><span>Ejercicio</span>
+        <span>- fluency</span><span>:</span><span>Fluidez</span>
+        <span>- fluent</span><span>:</span><span>Fluido</span>
+        <span>- homework</span><span>:</span><span>Tarea</span>
+        <span>- memorisation</span><span>:</span><span>Memorización</span>
+        <span>- memorise</span><span>:</span><span>Memorizar</span>
+        <span>- mistake</span><span>:</span><span>Error / Equivocación</span>
+        <span>- practice</span><span>:</span><span>Práctica</span>
+        <span>- practise</span><span>:</span><span>Practicar</span>
+        <span>- revise</span><span>:</span><span>Repasar</span>
+        <span>- revision</span><span>:</span><span>Repaso</span>
+        <span>- study</span><span>:</span><span>Estudiar</span>
+        <span>- translate</span><span>:</span><span>Traducir</span>
+        <span>- translation</span><span>:</span><span>Traducción</span>
+      </div>
+    </div>
+    <div class="logo-cuaderno">VERO</div>
+  </div>
+
+  <div class="cuaderno-page">
+    <div class="margen-rojo"></div>
+    
+    <div class="header-block">
+      <div class="fecha-box">May. Tuesday 19th, 2026</div>
+      <div class="sello-box"></div>
+    </div>
+
+    <div class="contenido">
+      <span class="titulo-rojo">Vocabulary: Countries & tongues</span>
+      
+      <div class="grid-vocabulario">
+        <span class="subtitulo-col">Countries</span><span></span><span class="subtitulo-col">Spanish</span>
+        <div class="linea-separadora"></div>
+        
+        <span>- Argentina</span><span>:</span><span>Argentina</span>
+        <span>- Austria</span><span>:</span><span>Austria</span>
+        <span>- Brazil</span><span>:</span><span>Brasil</span>
+        <span>- Bulgaria</span><span>:</span><span>Bulgaria</span>
+        <span>- Egypt</span><span>:</span><span>Egipto</span>
+        <span>- Japan</span><span>:</span><span>Japón</span>
+        <span>- Mexico</span><span>:</span><span>México</span>
+        <span>- Poland</span><span>:</span><span>Polonia</span>
+        <span>- Russia</span><span>:</span><span>Rusia</span>
+        <span>- Switzerland</span><span>:</span><span>Suiza</span>
+        <span>- Thailand</span><span>:</span><span>Tailandia</span>
+        <span>- Turkey</span><span>:</span><span>Turquía</span>
+        
+        <div class="espacio-bloque"></div>
+        
+        <span class="subtitulo-col">Languages</span><span></span><span class="subtitulo-col">Spanish</span>
+        <div class="linea-separadora"></div>
+        
+        <span>- Arabic</span><span>:</span><span>Árabe</span>
+        <span>- Bulgarian</span><span>:</span><span>Búlgaro</span>
+        <span>- French</span><span>:</span><span>Francés</span>
+        <span>- German</span><span>:</span><span>Alemán</span>
+        <span>- Italian</span><span>:</span><span>Italiano</span>
+        <span>- Japanese</span><span>:</span><span>Japonés</span>
+        <span>- Polish</span><span>:</span><span>Polaco</span>
+        <span>- Portuguese</span><span>:</span><span>Portugués</span>
+        <span>- Russian</span><span>:</span><span>Ruso</span>
+        <span>- Spanish</span><span>:</span><span>Español</span>
+        <span>- Thai</span><span>:</span><span>Tailandés</span>
+        <span>- Turkish</span><span>:</span><span>Turco</span>
+      </div>
+    </div>
+    <div class="logo-cuaderno">VERO</div>
+  </div>
+
+</body>
+</html>
