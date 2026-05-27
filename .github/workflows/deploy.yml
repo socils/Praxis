@@ -7,11 +7,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # IMPORTANTE: Esto le da permisos de escritura al trabajo
+    permissions:
+      contents: write 
+
     steps:
       - uses: actions/checkout@v3
+      
       - name: Inyectar API Key
         run: |
           sed -i 's|REEMPLAZAR_CON_SECRET_GITHUB|${{ secrets.GEMINI_API_KEY }}|g' config.js
+      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
