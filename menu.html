@@ -398,14 +398,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
 import { GoogleGenerativeAI } from "@google/generative-ai";
-const p1 = "AIzaSyAoDmlsG-";
-    const p2 = "71IDUxwvv9f";
-    const p3 = "hEONyblsl0ZZmA";
-    
-    const GEMINI_API_KEY = p1 + p2 + p3;
-
-    // Ahora puedes usar GEMINI_API_KEY en tu lógica de Gemini
-    console.log("Sistema listo para conectar con Gemini");
+import { GEMINI_API_KEY } from './config.js';
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
 
