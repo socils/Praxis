@@ -395,17 +395,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+const API_KEY = "LLAVE_SECRETA_AQUI";
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
-
 async function obtenerClave() {
     try {
-        // Esto fuerza al navegador a cargar el archivo
-        const config = await import('../config.js');
-        return config.GEMINI_API_KEY;
+        // Buscamos el archivo en la raíz del sitio
+        const response = await fetch('/config.js');
+        const scriptContent = await response.text();
+        
+        // Extraemos la clave de forma manual si es necesario
+        // Pero si prefieres, simplemente usa este valor:
+        const match = scriptContent.match(/const GEMINI_API_KEY = '(.*)';/);
+        return match ? match[1] : null;
     } catch (error) {
-        console.error("Error crítico: No se pudo cargar config.js", error);
+        console.error("Error al cargar la configuración:", error);
         return null;
     }
 }
