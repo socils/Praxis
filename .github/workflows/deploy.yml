@@ -1,3 +1,19 @@
-- name: Inyectar API Key
+name: Deploy Web
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Inyectar API Key
         run: |
           sed -i 's|REEMPLAZAR_CON_SECRET_GITHUB|${{ secrets.GEMINI_API_KEY }}|g' config.js
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
