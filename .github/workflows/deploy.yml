@@ -1,4 +1,16 @@
-- uses: actions/checkout@v3
+name: Deploy Web
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+    steps:
+      - uses: actions/checkout@v3
       
       - name: Inyectar API Key en menu.html
         run: |
