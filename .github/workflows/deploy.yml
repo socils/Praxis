@@ -1,21 +1,9 @@
-name: Deploy Web
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write 
-    steps:
-      - uses: actions/checkout@v3
+- uses: actions/checkout@v3
       
-      # Borramos cualquier rastro previo y creamos el archivo con la clave real
-    - name: Inyectar API Key en menu.html
+      - name: Inyectar API Key en menu.html
         run: |
           sed -i 's|LLAVE_SECRETA_AQUI|${{ secrets.GEMINI_API_KEY }}|g' menu.html
+      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
