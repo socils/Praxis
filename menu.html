@@ -1399,17 +1399,14 @@ async function checkTeacherPermissions(agendaCode) {
         } else {
             alert("⚠️ El título y la materia son necesarios.");
         }
-    document.getElementById('btn-cancelar-tarea').onclick = () => {
-        
-        actionModal.style.display = "none";
-      
-        document.getElementById('t-titulo').value = "";
-        document.getElementById('t-materia').value = "";
-        document.getElementById('t-desc').value = "";
-        document.getElementById('t-fecha').value = "";
-        document.getElementById('t-url').value = "";
-    };
-    };
+
+    };document.getElementById('btn-cancelar-tarea').onclick = () => {
+
+    actionModal.style.display = "none";
+    
+   
+    document.querySelectorAll('#action-modal input, #action-modal textarea').forEach(el => el.value = "");
+};
 };
 
 vincularEventoConfirmar();
