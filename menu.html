@@ -24,7 +24,7 @@
         </div>
         
         <div class="badge-v1" style="background: #000; color: #fff; padding: 3px 8px; border: 2px solid #0071ff; transform: skewX(-12deg); box-shadow: 4px 4px 0px rgba(0, 113, 255, 0.2); display: flex; flex-direction: column; line-height: 1.1; min-width: 85px; text-align: center;">
-            <span style="font-size: 10px; font-weight: 900; letter-spacing: 0.5px;">V1.0.0</span>
+            <span style="font-size: 10px; font-weight: 900; letter-spacing: 0.5px;">V1.0.5</span>
             <small style="font-size: 7px; color: #00ff88; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2px;">DESPLEGANDO</small>
         </div>
     </div>
@@ -61,7 +61,9 @@
     <img src="megafono.png" alt="" style="width: 20px;"> Noticias y Anuncios
 </div>
 <hr>
-            <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>            <div class="nav-item upcoming"><img src="apoyo.png" alt="" style="width: 20px;"> Lista de Amigos</div> <div class="nav-item upcoming"><img src="corriendo.png" alt="" style="width: 20px;"> Dinamicas</div>
+            <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>            <div class="nav-item upcoming"><img src="apoyo.png" alt="" style="width: 20px;"> Lista de Amigos</div> <div class="nav-item upcoming"><img src="corriendo.png" alt="" style="width: 20px;"> Dinamicas</div><div class="nav-item upcoming" onclick="navegarA('Foro', 'VISTA_FORO')">
+    <img src="foro.png" alt="" style="width: 20px;"> Foro Comunitario
+</div>
             <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Ver espacio de Praxis</div>
           <div class="nav-item"><img src="configuraciones.png" alt="" style="width: 20px;"> Configuraciones</div>
           <hr><div class="nav-item"><img src="marketplace.png" alt="" style="width: 20px;"> Marketplace</div>
@@ -423,7 +425,7 @@ const myKey = getSecureKey();
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, onValue, set, push, get, update, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, onValue, set, push, get, update, runTransaction, query, limitToLast, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 
@@ -1641,20 +1643,31 @@ navItems.forEach(item => {
         const añoActual = fechaRef.getFullYear();
         const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-        const tareasPorFecha = {};
-        todasLasTareas.forEach(tarea => {
-            if (tarea.fecha) {
-                const partes = tarea.fecha.split('/');
-                const d = partes[0].padStart(2, '0');
-                const m = partes[1].padStart(2, '0');
-                let a = partes[2];
-                if (a.length === 2) a = "20" + a;
-                const fechaKey = `${a}-${m}-${d}`;
-                if (!tareasPorFecha[fechaKey]) tareasPorFecha[fechaKey] = [];
-                tareasPorFecha[fechaKey].push(tarea);
-            }
-        });
+       const tareasPorFecha = {};
+todasLasTareas.forEach(tarea => {
+                                                            
+    if (tarea && tarea.fecha) {
+        const partes = tarea.fecha.split('/');
+        
+        if (partes.length === 3) {
+                                                                    
+            let d = partes[0].padStart(2, '0');
+            let m = partes[1].padStart(2, '0');
+            let a = partes[2];
 
+                                                                    
+            if (a.length === 2) {
+                a = "20" + a;
+            }
+
+                                                                    
+            const fechaKey = `${a}-${m}-${d}`;
+            
+            if (!tareasPorFecha[fechaKey]) tareasPorFecha[fechaKey] = [];
+            tareasPorFecha[fechaKey].push(tarea);
+        }
+    }
+});
         const headerHtml = `
             <div class="cal-header-v3">
                 <h2 style="font-family:'Outfit'; font-weight:900; margin:0; font-size: 26px; text-transform: uppercase; letter-spacing: 1px;">
@@ -2535,290 +2548,1185 @@ window.cambiarFiltroAlumno = (scope) => {
             </div>
         </div>
     `;
+}else if (texto.includes("foro")) {
+                                                            
+                                                            
+                                                            
+    if (!document.getElementById("estilos-foro-praxis")) {
+        const styleSheet = document.createElement("style");
+        styleSheet.id = "estilos-foro-praxis";
+        styleSheet.innerText = `
+            .card-vip {
+                background: #ffffff;
+                border: 3px solid #000000;
+                padding: 24px;
+                border-radius: 0px;
+                box-shadow: 8px 8px 0px #000000;
+                transition: transform 0.2s, box-shadow 0.2s;
+                position: relative;
+                overflow: hidden;
+            }
+            .card-vip:hover {
+                transform: translate(-2px, -2px);
+                box-shadow: 10px 10px 0px #000000;
+            }
+            .style-pregunta { border-color: #2563eb; box-shadow: 8px 8px 0px #2563eb; }
+            .style-tarea { border-color: #dc2626; box-shadow: 8px 8px 0px #dc2626; }
+            .style-debate { border-color: #d97706; box-shadow: 8px 8px 0px #d97706; }
+            .style-recurso { border-color: #16a34a; box-shadow: 8px 8px 0px #16a34a; }
+            
+            @keyframes slideUpBrutal {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            .anim-slide-up { animation: slideUpBrutal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+            /* Switch Brutalista para los Checkboxes de Configuración */
+            .lock-checkbox {
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                border: 2px solid #000;
+                background: #fff;
+                cursor: pointer;
+                position: relative;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .lock-checkbox:checked {
+                background: #000;
+            }
+            .lock-checkbox:checked::after {
+                content: "✓";
+                color: #fff;
+                font-size: 11px;
+                font-weight: 900;
+                position: absolute;
+                top: -2px;
+                left: 2px;
+            }/* Contenedor del botón de opciones */
+.opciones-post-container {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-block;
+}
+
+/* Botón de tres puntos */
+.btn-tres-puntos {
+    background: #fff;
+    border: 2px solid #000;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    padding: 2px 8px;
+    box-shadow: 2px 2px 0px #000;
+    transition: all 0.1s;
+}
+.btn-tres-puntos:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #000;
+}
+
+/* Menú desplegable brutalista */
+.menu-desplegable-praxis {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 32px;
+    background: #fff;
+    border: 2px solid #000;
+    box-shadow: 4px 4px 0px #000;
+    z-index: 100;
+    min-width: 120px;
+}
+
+.menu-desplegable-praxis button {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #000;
+}
+
+.menu-desplegable-praxis button:hover {
+    background: #000;
+    color: #fff;
+}
+
+/* Separador interno del menú */
+.menu-desplegable-praxis .separador {
+    border-top: 2px solid #000;
+}
+        `;
+        document.head.appendChild(styleSheet);
+    }
+
+                                                            
+    container.style.display = "block"; 
+    container.style.width = "100%";
+    container.style.padding = "0";
+
+    bannerTitle.innerText = "Foro Comunitario";
+    displayCode.innerText = "FORUM_HUB";
+    navegarA("Foro", "VISTA_FORO");
+
+                                                            
+    container.innerHTML = `
+        <div class="extension-container" style="width: 100%; box-sizing: border-box; margin: 0; padding: 0;">
+            <div style="width: 100%; max-width: 100%; padding: 32px; box-sizing: border-box; color: #1e293b;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 24px; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <h1 style="margin: 0; font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; color: #000;">Foro Comunitario</h1>
+                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #475569; font-weight: 500;">Muro inteligente de consulta y moderación académica</p>
+                    </div>
+                    <div id="display-energia" style="font-size: 13px; font-family: monospace; font-weight: 700; padding: 8px 16px; border: 2px solid #000; background: #fff; box-shadow: 4px 4px 0px #000; transition: all 0.3s ease;">
+                        ⚡ Identificando cuenta...
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-bottom: 32px;">
+                    <button id="tab-vip" class="tab-btn active" style="border: 2px solid #000; background: #000; color: #fff; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 4px 4px 0px #2563eb;">Salón VIP (IA)</button>
+                    <button id="tab-crudos" class="tab-btn" style="border: 2px solid #000; background: #fff; color: #000; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 4px 4px 0px #000;">Dudas en Crudo</button>
+                </div>
+
+                <div style="margin-bottom: 40px; width: 100%;">
+                    <button id="btn-abrir-creador" style="width: 100%; border: 2px solid #000; background: #fff; padding: 18px 24px; font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; text-align: left; box-shadow: 6px 6px 0px #000; transition: all 0.1s;" onmouseover="this.style.transform='translate(-1px,-1px)'; this.style.boxShadow='7px 7px 0px #000';" onmouseout="this.style.transform='none'; this.style.boxShadow='6px 6px 0px #000';">
+                        ¿Tienes alguna duda o tarea? Publica algo en el salón...
+                    </button>
+                </div>
+
+                <div style="width: 100%;">
+                    <h3 id="titulo-feed" style="font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #000; margin-bottom: 20px;">Publicaciones VIP</h3>
+                    <div id="feed-lista" style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+                        <p style="color: #64748b; font-style: italic; font-size: 14px;">Conectando con Praxis Hub...</p>
+                    </div>
+                </div>
+
+                <div id="modal-crear-post" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+                    <div id="modal-content" style="background: #fff; border: 3px solid #000; width: 100%; max-width: 950px; box-shadow: 12px 12px 0px #000; box-sizing: border-box; position: relative; display: flex; flex-direction: row; overflow: hidden; height: auto; max-height: 90vh;">
+                        
+                        <button id="btn-cerrar-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: 2px solid #000; font-size: 12px; font-weight: 900; color: #000; cursor: pointer; padding: 4px 8px; background: #ef4444; box-shadow: 2px 2px 0px #000; z-index: 10;">✕</button>
+                        
+                        <div style="width: 50%; padding: 28px; box-sizing: border-box; border-right: 2px dashed #000; overflow-y: auto;">
+                            <h2 style="margin-top: 0; margin-bottom: 20px; font-size: 18px; font-weight: 900; text-transform: uppercase; color: #000;">Nueva publicación</h2>
+                            
+                            <div style="margin-bottom: 14px;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #000; margin-bottom: 4px;">Título de la entrada</label>
+                                <input type="text" id="t-titulo" placeholder="Ej: Ejercicio de Geometría Plana" style="width: 100%; border: 2px solid #000; padding: 8px 12px; font-size: 14px; box-sizing: border-box; font-weight: 600; outline: none;" />
+                            </div>
+
+                            <div style="margin-bottom: 14px;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #000; margin-bottom: 4px;">Materia o Curso</label>
+                                <input type="text" id="t-materia" placeholder="Ej: Álgebra, Historia" style="width: 100%; border: 2px solid #000; padding: 8px 12px; font-size: 14px; box-sizing: border-box; font-weight: 600; outline: none;" />
+                            </div>
+
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #000; margin-bottom: 4px;">Contenido o duda en crudo</label>
+                                <textarea id="t-desc" placeholder="Escribe tu duda de la forma más clara posible..." style="width: 100%; height: 90px; border: 2px solid #000; padding: 8px 12px; font-size: 14px; font-weight: 500; resize: none; box-sizing: border-box; outline: none;"></textarea>
+                            </div>
+
+                            <div style="margin-bottom: 14px;">
+                                <label style="display: block; font-size: 11px; font-weight: 800; color: #000; margin-bottom: 4px; text-transform: uppercase;">🤖 MOTOR PRAXIS ASSIST</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <select id="select-modelo-ia" style="flex: 1; border: 2px solid #000; padding: 8px; font-size: 13px; font-weight: 700; background: #fff; outline: none; cursor: pointer; box-shadow: 3px 3px 0px #000;">
+                                        <option value="gemini-3.5-flash" selected>Assist 3.5 (Estable) — ⚡ 1.0 Energía</option>
+                                        <option value="gemini-3.1-flash-lite">Assist 3.1 (Rápido) — ⚡ 0.5 Energía</option>
+                                    </select>
+                                    <button id="btn-toggle-config-ia" style="background: #fff; border: 2px solid #000; font-size: 16px; padding: 6px 10px; cursor: pointer; box-shadow: 3px 3px 0px #000; font-weight: bold;" title="Configurar protección de campos">⚙️</button>
+                                </div>
+                            </div>
+
+                            <div id="panel-config-ia" style="display: none; background: #fff; border: 2px solid #000; padding: 12px; margin-bottom: 14px; box-shadow: 4px 4px 0px #000;">
+                                <p style="margin: 0 0 10px 0; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #dc2626;">⚙️ Restricciones de Redacción IA:</p>
+                                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px; font-weight: 700;">
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" id="lock-titulo" class="lock-checkbox"> No modificar el Título original
+                                    </label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" id="lock-materia" class="lock-checkbox"> No modificar el Curso/Materia
+                                    </label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" id="lock-desc" class="lock-checkbox"> No reescribir el Cuerpo/Contenido
+                                    </label>
+                                    <p style="margin: 4px 0 0 0; font-size: 10px; color: #64748b; font-style: italic;">*Nota: La moderación automática de seguridad de Praxis no se puede desactivar por normativa del colegio.</p>
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 2px solid #000; padding: 12px; margin-bottom: 20px; box-shadow: 4px 4px 0px #e2e8f0;">
+                                <label style="display: block; font-size: 10px; font-weight: 800; color: #000; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">✨ Enfoque personalizado para la IA (Opcional)</label>
+                                <input type="text" id="t-indicacion-ia" placeholder="Ej: Estructurado en puntos, directo..." style="width: 100%; border: 2px solid #000; padding: 6px 10px; font-size: 13px; box-sizing: border-box; outline: none;" />
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <button id="btn-mejorar-ia" style="flex: 1; background: #000; color: #fff; border: 2px solid #000; padding: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 3px 3px 0px #a21caf;">Optimizar con IA</button>
+                                <button id="btn-publicar-crudo-directo" style="background: #fff; color: #000; border: 2px solid #000; padding: 10px 14px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 3px 3px 0px #000;">Subir en crudo</button>
+                            </div>
+                        </div>
+
+                        <div style="width: 50%; padding: 28px; box-sizing: border-box; background: #fafafa; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;">
+                            <div id="preview-placeholder" style="text-align: center; color: #94a3b8; padding: 40px 20px;">
+                                <div style="font-size: 28px; margin-bottom: 10px;">✨</div>
+                                <p style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Módulo IA de Praxis</p>
+                                <p style="margin: 4px 0 0 0; font-size: 12px; color: #94a3b8;">Configura tus parámetros y presiona Optimizar para estructurar tu tarjeta VIP.</p>
+                            </div>
+
+                            <div id="preview-container" style="display: none; width: 100%;">
+                                <p style="margin: 0 0 10px 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #a21caf;">✨ Vista Previa Generada:</p>
+                                <div id="preview-card" class="card-vip" style="margin-bottom: 16px; max-height: 240px; overflow-y: auto;">
+                                    <span id="preview-tag" style="background: #000; color: #fff; font-size: 9px; font-weight: 900; padding: 3px 6px; text-transform: uppercase; border: 1px solid #fff;">PROCESANDO...</span>
+                                    <h4 id="preview-titulo" style="margin: 12px 0 6px 0; font-size: 15px; font-weight: 800; color: #000;"></h4>
+                                    <p id="preview-text" style="margin: 0; font-size: 13px; color: #1e293b; line-height: 1.5; white-space: pre-wrap;"></p>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <button id="btn-lanzar-final-vip" style="flex: 2; background: #16a34a; color: #fff; border: 2px solid #000; padding: 12px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 4px 4px 0px #000;">🚀 Publicar en Muro VIP</button>
+                                    <button id="btn-rehacer-ia" style="flex: 1; background: #d97706; color: #fff; border: 2px solid #000; padding: 12px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 4px 4px 0px #000;">🔄 Rehacer (⚡0.5)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+                                                            
+    const displayEnergia = document.getElementById('display-energia');
+    const feedLista = document.getElementById('feed-lista');
+    const tabVip = document.getElementById('tab-vip');
+    const tabCrudos = document.getElementById('tab-crudos');
+    const tituloFeed = document.getElementById('titulo-feed');
+    let vistaActual = "VIP";
+
+    let etiquetaDecididaPorIA = "PREGUNTA";
+    let textoOptimizadoPorIA = "";
+    let estiloAsignadoPorIA = "style-pregunta";
+    let energiaActualUsuario = 0;
+
+                                                            
+    const btnToggleConfig = document.getElementById("btn-toggle-config-ia");
+    const panelConfigIa = document.getElementById("panel-config-ia");
+    btnToggleConfig.onclick = () => {
+        panelConfigIa.style.display = panelConfigIa.style.display === "none" ? "block" : "none";
+    };
+
+    function verificarEInicializarForo(uidUsuario) {
+        const foroRef = ref(db, "foro");
+        get(foroRef).then((snapshot) => {
+            if (!snapshot.exists()) {
+                set(ref(db, "foro/posts_vip/bienvenida_inicial"), {
+                    uid: "sistema", titulo: "¡Bienvenidos al Foro VIP de Praxis!", materia: "General",
+                    texto_final: "Este es el espacio optimizado por IA donde tus dudas se estructuran de forma limpia.",
+                    clase_estilo: "style-pregunta", animacion: "anim-slide-up", apoyos: 0
+                });
+                set(ref(db, "foro/posts_crudos/bienvenida_cruda"), {
+                    uid: "sistema", titulo: "Muro de Dudas Express", materia: "General",
+                    descripcion: "Publica tus consultas rápido y sin filtros directamente en esta sección.", timestamp: Date.now()
+                });
+            }
+            cargarBateriaUsuario(uidUsuario);
+            escucharFeedPublicaciones();
+        });
+    }
+
+    function cargarBateriaUsuario(uidDetectado) {
+        const userNodeRef = ref(db, `usuarios/${uidDetectado}`);
+        onValue(userNodeRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            const esPlus = data.inPlus === true;
+            const maxEnergiaDefinido = esPlus ? 5 : 3;
+            let stats = data.stats || {};
+            let cambioDetectado = false;
+
+            if (stats.max_energy === undefined || (esPlus && stats.max_energy !== 5) || (!esPlus && stats.max_energy === 5)) {
+                stats.max_energy = maxEnergiaDefinido;
+                cambioDetectado = true;
+            }
+            if (stats.energy_ia === undefined) {
+                stats.energy_ia = maxEnergiaDefinido;
+                cambioDetectado = true;
+            }
+
+            if (cambioDetectado) {
+                update(ref(db, `usuarios/${uidDetectado}/stats`), {
+                    energy_ia: stats.energy_ia, max_energy: stats.max_energy
+                });
+            }
+
+            energiaActualUsuario = parseFloat(stats.energy_ia);
+            displayEnergia.innerText = `⚡ ENERGÍA IA: ${energiaActualUsuario} / ${stats.max_energy}`;
+            displayEnergia.style.background = esPlus ? "#fae8ff" : "#e0f2fe"; 
+            displayEnergia.style.boxShadow = esPlus ? "4px 4px 0px #a21caf" : "4px 4px 0px #0369a1";
+        });
+    }
+function escucharFeedPublicaciones() {
+    const rutaFeed = vistaActual === "VIP" ? "foro/posts_vip" : "foro/posts_crudos";
+    onValue(ref(db, rutaFeed), (snapshot) => {
+        feedLista.innerHTML = "";
+        if (!snapshot.exists()) {
+            feedLista.innerHTML = `<p style="color: #64748b; font-style: italic; font-size: 14px;">No hay publicaciones en esta sección aún.</p>`;
+            return;
+        }
+        
+        const uidActual = auth.currentUser ? auth.currentUser.uid : null;
+        const emailActual = auth.currentUser ? auth.currentUser.email : "";
+        const esAdmin = emailActual === "ajuliuszch@gmail.com" || emailActual === "alonsobot080@gmail.com";
+        
+        snapshot.forEach((childSnapshot) => {
+            const postId = childSnapshot.key;
+            const post = childSnapshot.val();
+            const card = document.createElement("div");
+            
+            const listaApoyos = post.apoyos_usuarios || {};
+            const totalApoyos = Object.keys(listaApoyos).length;
+            const yaApoyo = uidActual ? !!listaApoyos[uidActual] : false;
+            
+            const esDuenoDelPost = uidActual && post.uid === uidActual;
+            const puedeBorrarPost = esDuenoDelPost || esAdmin;
+
+                                                                    
+            if (vistaActual === "VIP") {
+                card.className = `card-vip ${post.clase_estilo || 'style-pregunta'} ${post.animacion || 'anim-slide-up'}`;
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-right: 30px;">
+                        <span style="background:#000; color:#fff; font-size:10px; font-weight:900; padding:3px 8px; border:1px solid #000; text-transform:uppercase;">${post.materia}</span>
+                        <span style="font-size:11px; font-weight:700; color:#000; text-transform:uppercase;">✨ ENFOQUE IA</span>
+                    </div>
+                    <!-- Contenedor del Autor del Post VIP -->
+                    <div class="autor-post" style="font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase; margin-bottom: 6px;">👤 Cargando autor...</div>
+                    <h4 style="margin:0 0 8px 0; font-size:18px; font-weight:900; color:#000; padding-right: 30px;">${post.titulo}</h4>
+                    <p style="margin:0 0 16px 0; font-size:14px; color:#1e293b; line-height:1.5; white-space: pre-wrap;">${post.texto_final}</p>
+                    <div style="font-size:12px; font-weight:800; color:#000;">
+                        👍 APOYOS: <span style="background: ${yaApoyo ? '#2563eb' : '#000'}; color: #fff; padding: 2px 6px; font-family: monospace;">${totalApoyos}</span> 
+                    </div>
+                `;
+            } else {
+                card.className = "card-vip anim-slide-up";
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-right: 30px;">
+                        <span style="background:#fff; color:#000; font-size:10px; font-weight:900; padding:3px 8px; border:2px solid #000; text-transform:uppercase;">${post.materia}</span>
+                        <span style="font-size:11px; font-weight:700; color:#64748b;">📝 EN CRUDO</span>
+                    </div>
+                    <!-- Contenedor del Autor del Post Crudo -->
+                    <div class="autor-post" style="font-size: 11px; font-weight: 800; color: #4f46e5; text-transform: uppercase; margin-bottom: 6px;">👤 Cargando autor...</div>
+                    <h4 style="margin:0 0 8px 0; font-size:18px; font-weight:900; color:#000; padding-right: 30px;">${post.titulo}</h4>
+                    <p style="margin:0 0 16px 0; font-size:14px; color:#334155; line-height:1.5;">${post.descripcion}</p>
+                `;
+            }
+
+                                                                    
+            const contenedorAutor = card.querySelector(".autor-post");
+            if (post.uid) {
+                get(ref(db, `usuarios/${post.uid}/apodo`)).then((userSnap) => {
+                    contenedorAutor.innerText = userSnap.exists() ? `👤 POR: ${userSnap.val()}` : "👤 POR: Alumno Praxis";
+                }).catch(() => {
+                    contenedorAutor.innerText = "👤 POR: Alumno Praxis";
+                });
+            } else {
+                contenedorAutor.innerText = "👤 POR: Anónimo";
+            }
+
+                                                                    
+                                                                    
+                                                                    
+            const contenedorOpciones = document.createElement("div");
+            contenedorOpciones.className = "opciones-post-container";
+            
+            let opcionesHTML = `
+                <button class="btn-tres-puntos">⋮</button>
+                <div class="menu-desplegable-praxis">
+                    <button class="opc-apoyar" ${yaApoyo ? 'style="color: #94a3b8; cursor: not-allowed;" disabled' : ''}>
+                        ${yaApoyo ? '✔ Apoyado' : '👍 Apoyar'}
+                    </button>
+                    <button class="opc-responder">💬 Responder</button>
+                    <button class="opc-reportar" style="color: #d97706;">🚨 Reportar</button>
+            `;
+            
+            if (puedeBorrarPost) {
+                opcionesHTML += `<button class="opc-eliminar-post separador" style="color: #ef4444;">🗑 Eliminar</button>`;
+            }
+            opcionesHTML += `</div>`;
+            contenedorOpciones.innerHTML = opcionesHTML;
+
+            const panelRespuestas = document.createElement("div");
+            panelRespuestas.id = `panel-respuestas-${postId}`;
+            panelRespuestas.style.display = "none";
+            panelRespuestas.style.marginTop = "20px";
+            panelRespuestas.style.paddingTop = "16px";
+            panelRespuestas.style.borderTop = "2px dashed #000";
+            panelRespuestas.innerHTML = `
+                <h5 style="margin: 0 0 12px 0; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #000;">💬 Respuestas de la Comunidad:</h5>
+                <div class="lista-comentarios" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                    <p style="font-size: 12px; color: #64748b; font-style: italic; margin: 0;">Cargando respuestas...</p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" class="input-respuesta-texto" placeholder="Escribe tu aporte académico..." style="flex: 1; border: 2px solid #000; padding: 6px 10px; font-size: 13px; font-weight: 600; outline: none;" />
+                    <button class="btn-enviar-respuesta" style="background: #000; color: #fff; border: 2px solid #000; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 2px 2px 0px #000;">Enviar</button>
+                </div>
+            `;
+
+            const btnTresPuntos = contenedorOpciones.querySelector(".btn-tres-puntos");
+            const menuDesplegable = contenedorOpciones.querySelector(".menu-desplegable-praxis");
+
+            btnTresPuntos.onclick = (e) => {
+                e.stopPropagation();
+                document.querySelectorAll(".menu-desplegable-praxis").forEach(m => { if (m !== menuDesplegable) m.style.display = "none"; });
+                menuDesplegable.style.display = menuDesplegable.style.display === "block" ? "none" : "block";
+            };
+
+            contenedorOpciones.querySelector(".opc-apoyar").onclick = () => {
+                menuDesplegable.style.display = "none";
+                if (vistaActual !== "VIP") { alert("Los apoyos están reservados para el Salón VIP."); return; }
+                if (!uidActual) return;
+                set(ref(db, `foro/posts_vip/${postId}/apoyos_usuarios/${uidActual}`), true);
+            };
+
+                                                                    
+            contenedorOpciones.querySelector(".opc-responder").onclick = () => {
+                menuDesplegable.style.display = "none";
+                if (panelRespuestas.style.display === "none") {
+                    panelRespuestas.style.display = "block";
+                    activarEscuchadorDeRespuestas(postId, panelRespuestas.querySelector(".lista-comentarios"), esAdmin, uidActual);
+                } else {
+                    panelRespuestas.style.display = "none";
+                }
+            };
+
+                                                                    
+            if (puedeBorrarPost) {
+                contenedorOpciones.querySelector(".opc-eliminar-post").onclick = () => {
+                    menuDesplegable.style.display = "none";
+                    if (confirm("🚨 ¿Quieres borrar permanentemente este post de Praxis?")) {
+                        remove(ref(db, `${rutaFeed}/${postId}`))
+                        .then(() => remove(ref(db, `foro/respuestas/${postId}`)))
+                        .catch(err => alert("Error al eliminar: " + err.message));
+                    }
+                };
+            }
+
+            const inputRespuesta = panelRespuestas.querySelector(".input-respuesta-texto");
+            const btnEnviarRespuesta = panelRespuestas.querySelector(".btn-enviar-respuesta");
+
+            btnEnviarRespuesta.onclick = () => {
+                const textoRpta = inputRespuesta.value.trim();
+                if (!textoRpta) return;
+                if (!uidActual) { alert("Inicia sesión para responder."); return; }
+
+                const nuevaRptaRef = push(ref(db, `foro/respuestas/${postId}`));
+                set(nuevaRptaRef, {
+                    uid: uidActual,
+                    texto: textoRpta,
+                    timestamp: Date.now()
+                }).then(() => {
+                    inputRespuesta.value = "";
+                }).catch(err => alert("Error: " + err.message));
+            };
+
+            inputRespuesta.onkeydown = (e) => { if (e.key === "Enter") btnEnviarRespuesta.click(); };
+
+            contenedorOpciones.querySelector(".opc-reportar").onclick = () => {
+                menuDesplegable.style.display = "none";
+                const razon = prompt("¿Cuál es el motivo del reporte?:");
+                if (!razon || !razon.trim()) return;
+                const reporteRef = push(ref(db, "foro/reportes"));
+                set(reporteRef, { postId: postId, tipo_muro: vistaActual, reportado_por: uidActual || "Anonimo", motivo: razon.trim(), titulo_post: post.titulo, timestamp: Date.now() })
+                .then(() => alert("🚨 Reporte enviado."));
+            };
+
+            card.appendChild(contenedorOpciones);
+            card.appendChild(panelRespuestas);
+            feedLista.insertBefore(card, feedLista.firstChild);
+        });
+    });
+}
+
+                                                        
+                                                        
+                                                        
+function activarEscuchadorDeRespuestas(postId, contenedorListaDOM, esAdmin, uidActual) {
+    const respuestasRef = ref(db, `foro/respuestas/${postId}`);
+    
+    onValue(respuestasRef, (snapshot) => {
+        contenedorListaDOM.innerHTML = "";
+        if (!snapshot.exists()) {
+            contenedorListaDOM.innerHTML = `<p style="font-size: 12px; color: #94a3b8; font-style: italic; margin: 0;">Sé el primero en responder...</p>`;
+            return;
+        }
+
+        snapshot.forEach((childSnapshot) => {
+            const rptaId = childSnapshot.key;
+            const rpta = childSnapshot.val();
+            
+            const divRpta = document.createElement("div");
+            divRpta.style.background = "#f8fafc";
+            divRpta.style.border = "2px solid #000";
+            divRpta.style.padding = "10px 14px";
+            divRpta.style.fontSize = "13px";
+            divRpta.style.color = "#1e293b";
+            divRpta.style.position = "relative";
+            divRpta.style.display = "flex";
+            divRpta.style.flexDirection = "column";
+            divRpta.style.gap = "4px";
+
+            const spanApodo = document.createElement("span");
+            spanApodo.style.fontSize = "11px";
+            spanApodo.style.fontWeight = "900";
+            spanApodo.style.textTransform = "uppercase";
+            spanApodo.style.color = "#4f46e5";
+            spanApodo.innerText = "👤 Cargando apodo...";
+
+            const pTexto = document.createElement("p");
+            pTexto.style.margin = "0";
+            pTexto.style.fontWeight = "500";
+            pTexto.innerText = rpta.texto;
+
+            divRpta.appendChild(spanApodo);
+            divRpta.appendChild(pTexto);
+
+                                                                    
+            get(ref(db, `usuarios/${rpta.uid}/apodo`)).then((userSnap) => {
+                spanApodo.innerText = userSnap.exists() ? `👤 ${userSnap.val()}` : "👤 Alumno de Praxis";
+            }).catch(() => {
+                spanApodo.innerText = "👤 Alumno de Praxis";
+            });
+
+                                                                    
+            const esDuenoComentario = uidActual && rpta.uid === uidActual;
+            if (esDuenoComentario || esAdmin) {
+                const btnBorrarComentario = document.createElement("button");
+                btnBorrarComentario.innerText = "✕";
+                btnBorrarComentario.style.position = "absolute";
+                btnBorrarComentario.style.top = "8px";
+                btnBorrarComentario.style.right = "8px";
+                btnBorrarComentario.style.background = "none";
+                btnBorrarComentario.style.border = "none";
+                btnBorrarComentario.style.color = "#ef4444";
+                btnBorrarComentario.style.fontWeight = "900";
+                btnBorrarComentario.style.cursor = "pointer";
+                
+                btnBorrarComentario.onclick = () => {
+                    if (confirm("¿Quieres eliminar tu respuesta?")) {
+                        remove(ref(db, `foro/respuestas/${postId}/${rptaId}`))
+                        .catch(err => alert("Error: " + err.message));
+                    }
+                };
+                divRpta.appendChild(btnBorrarComentario);
+            }
+
+            contenedorListaDOM.appendChild(divRpta);
+        });
+
+        contenedorListaDOM.scrollTop = contenedorListaDOM.scrollHeight;
+    });
+}
+
+    tabVip.onclick = () => {
+        tabVip.style.background = "#000"; tabVip.style.color = "#fff"; tabVip.style.boxShadow = "4px 4px 0px #2563eb";
+        tabCrudos.style.background = "#fff"; tabCrudos.style.color = "#000"; tabCrudos.style.boxShadow = "4px 4px 0px #000";
+        tituloFeed.innerText = "Publicaciones VIP"; vistaActual = "VIP"; escucharFeedPublicaciones();
+    };
+    tabCrudos.onclick = () => {
+        tabCrudos.style.background = "#000"; tabCrudos.style.color = "#fff"; tabCrudos.style.boxShadow = "4px 4px 0px #dc2626";
+        tabVip.style.background = "#fff"; tabVip.style.color = "#000"; tabVip.style.boxShadow = "4px 4px 0px #000";
+        tituloFeed.innerText = "Dudas en Crudo Recientes"; vistaActual = "CRUDO"; escucharFeedPublicaciones();
+    };
+
+                                                            
+                                                            
+                                                            
+    const btnMejorarIA = document.getElementById("btn-mejorar-ia");
+    const btnRehacerIA = document.getElementById("btn-rehacer-ia");
+    const selectModeloIa = document.getElementById("select-modelo-ia");
+    
+    const previewPlaceholder = document.getElementById("preview-placeholder");
+    const previewContainer = document.getElementById("preview-container");
+    const previewCard = document.getElementById("preview-card");
+    const btnLanzarVip = document.getElementById("btn-lanzar-final-vip");
+
+  async function ejecutarMotorInteligentePraxis(costoOperacion, modoRehacer = false) {
+    const tit = document.getElementById("t-titulo").value.trim();
+    const mat = document.getElementById("t-materia").value.trim();
+    const desc = document.getElementById("t-desc").value.trim();
+    const indIa = document.getElementById("t-indicacion-ia").value.trim();
+
+    if (!tit || !mat || !desc) { 
+        alert("Completa los datos esenciales para invocar a la IA."); 
+        return; 
+    }
+
+    if (energiaActualUsuario < costoOperacion) {
+        alert(`⚡ Energía insuficiente. Esta operación requiere ${costoOperacion} de energía, pero solo te quedan ${energiaActualUsuario}.`);
+        return;
+    }
+
+    const lockTitulo = document.getElementById("lock-titulo").checked;
+    const lockMateria = document.getElementById("lock-materia").checked;
+    const lockDesc = document.getElementById("lock-desc").checked;
+
+    const modeloSeleccionado = selectModeloIa.value;
+    btnMejorarIA.disabled = true;
+    btnRehacerIA.disabled = true;
+    btnMejorarIA.innerText = "⚡ Descontando energía...";
+
+    try {
+                                                                
+        const nuevaEnergia = Math.max(0, energiaActualUsuario - costoOperacion);
+        await update(ref(db, `usuarios/${auth.currentUser.uid}/stats`), { energy_ia: nuevaEnergia });
+
+        btnMejorarIA.innerText = "✨ Procesando IA...";
+
+                                                                
+        let reglasDeBloqueo = "";
+        if (lockTitulo) reglasDeBloqueo += `\n- REGLA OBLIGATORIA: El título NO se modifica. Devuelve única y estrictamente el texto original sin anteponer la palabra 'Título:' ni nada similar. Texto: "${tit}".`;
+        if (lockMateria) reglasDeBloqueo += `\n- REGLA OBLIGATORIA: La materia NO se modifica. Devuelve única y estrictamente el texto original sin anteponer la palabra 'Materia:' ni 'Curso:'. Texto: "${mat}".`;
+        if (lockDesc) reglasDeBloqueo += `\n- REGLA OBLIGATORIA: El cuerpo/contenido NO se modifica ni se resume. Devuelve única y estrictamente el texto original del alumno, sin anteponer 'Consulta:', 'Mensaje:', ni 'Contenido:'. Texto: "${desc}".`;
+
+        const promptModeracionYDiseno = `Actúas como el software de moderación de contenido y estructuración de diseño para Praxis IA.
+Analiza la siguiente entrada escolar y determina de forma obligatoria lo siguiente:
+
+1. MODERACIÓN: Comprueba si el texto contiene groserías, acoso, spam, insultos o contenido no académico. Responde únicamente "RECHAZADO" si infringe las normas. (Esta regla es obligatoria y nunca se puede omitir).
+2. ETIQUETA: Si es seguro, clasifica la duda estrictamente en una de estas 4 opciones según su naturaleza: PREGUNTA, TAREA, DEBATE, RECURSO.
+3. CONTENIDO: Reescribe la duda para que esté perfectamente estructurada, sin saludos, impecable y académica. REGLA DE ORO: Si hay reglas de bloqueo activas abajo, síguelas textualmente y NO inventes títulos ni pongas etiquetas como "Título de la entrada:" o "Consulta del alumno:". Pón el texto limpio de frente. ${reglasDeBloqueo}
+
+Datos actuales del envío:
+- Curso actual: ${mat}
+- Título actual: ${tit}
+- Mensaje del alumno: ${desc}
+- Indicación extra: ${indIa}
+
+Debes estructurar tu respuesta de forma estricta separando los 3 veredictos mediante tres barras verticales "|||". NO agregues introducciones, textos de relleno, ni bloques de código markdown, responde directo en este formato:
+ETIQUETA|||estilo-clase|||Cuerpo estructurado o el texto bloqueado completamente limpio`;
+
+        const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/${modeloSeleccionado}:generateContent?key=${myKey}`;
+
+        const response = await fetch(urlGemini, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptModeracionYDiseno }] }] })
+        });
+
+        if (!response.ok) throw new Error(`Error en el servidor de Google: ${response.status}`);
+
+        const data = await response.json();
+        if (!data || !data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+            throw new Error("La API de Gemini devolvió un contenido vacío.");
+        }
+
+        let rawText = data.candidates[0].content.parts[0].text.trim();
+                                                                
+        rawText = rawText.replace(/```[a-zA-Z]*/g, "").replace(/```/g, "").trim();
+
+        const partes = rawText.split("|||");
+        
+        if (partes.length < 3) {
+            if (rawText.includes("RECHAZADO")) {
+                etiquetaDecididaPorIA = "RECHAZADO";
+            } else {
+                etiquetaDecididaPorIA = "PREGUNTA";
+                estiloAsignadoPorIA = "style-pregunta";
+                textoOptimizadoPorIA = rawText; 
+            }
+        } else {
+            etiquetaDecididaPorIA = partes[0]?.trim() || "PREGUNTA";
+            const estiloSugerido = partes[1]?.trim() || "style-pregunta";
+            textoOptimizadoPorIA = partes[2]?.trim() || "Error de formato estructural.";
+            estiloAsignadoPorIA = ["style-pregunta", "style-tarea", "style-debate", "style-recurso"].includes(estiloSugerido) ? estiloSugerido : "style-pregunta";
+        }
+
+        if (etiquetaDecididaPorIA.includes("RECHAZADO")) {
+            alert("🚨 Filtro de Moderación: Tu publicación infringe los lineamientos académicos de Praxis y no puede ser publicada.");
+            if (previewContainer) previewContainer.style.display = "none";
+            if (previewPlaceholder) previewPlaceholder.style.display = "block";
+            return;
+        }
+
+                                                                
+                                                                
+        textoOptimizadoPorIA = textoOptimizadoPorIA.replace(/^(título|titulo|consulta del alumno|consulta|contenido|mensaje|curso|materia):\s*/i, "");
+
+        if (previewPlaceholder) previewPlaceholder.style.display = "none";
+        
+        const previewTag = document.getElementById("preview-tag");
+        if (previewTag) previewTag.innerText = etiquetaDecididaPorIA;
+        if (previewCard) previewCard.className = "card-vip " + estiloAsignadoPorIA;
+        
+                                                                
+        if (document.getElementById("preview-titulo")) {
+            document.getElementById("preview-titulo").innerText = lockTitulo ? tit : tit; 
+        }
+        if (document.getElementById("preview-text")) {
+            document.getElementById("preview-text").innerText = lockDesc ? desc : textoOptimizadoPorIA;
+        }
+
+        if (previewContainer) previewContainer.style.display = "block";
+
+    } catch (e) {
+        console.error("Error crítico capturado en Praxis Assist:", e);
+        alert("Hubo un problema al procesar la solicitud: " + e.message);
+    } finally {
+        btnMejorarIA.disabled = false;
+        btnRehacerIA.disabled = false;
+        btnMejorarIA.innerText = "Optimizar con IA";
+    }
+}
+
+    btnMejorarIA.onclick = () => {
+        const costoCalculado = selectModeloIa.value === "gemini-3.5-flash" ? 1.0 : 0.5;
+        ejecutarMotorInteligentePraxis(costoCalculado, false);
+    };
+
+    btnRehacerIA.onclick = () => {
+        ejecutarMotorInteligentePraxis(0.5, true);
+    };
+
+                                                            
+    btnLanzarVip.onclick = () => {
+        const tit = document.getElementById("t-titulo").value.trim();
+        const mat = document.getElementById("t-materia").value.trim();
+
+        const nuevoPostVipRef = push(ref(db, "foro/posts_vip"));
+        set(nuevoPostVipRef, {
+            uid: auth.currentUser.uid,
+            titulo: tit,
+            materia: mat,
+            texto_final: textoOptimizadoPorIA, 
+            clase_estilo: estiloAsignadoPorIA,  
+            animacion: "anim-slide-up",        
+            apoyos: 0
+        }).then(() => {
+            document.getElementById("btn-cerrar-modal").click();
+        }).catch(err => alert("Error Firebase: " + err.message));
+    };
+
+                                                            
+    document.getElementById("btn-publicar-crudo-directo").onclick = () => {
+        const tit = document.getElementById("t-titulo").value.trim();
+        const mat = document.getElementById("t-materia").value.trim();
+        const desc = document.getElementById("t-desc").value.trim();
+
+        if (!tit || !mat || !desc) { alert("Llena los campos principales."); return; }
+
+        const nuevoPostCrudoRef = push(ref(db, "foro/posts_crudos"));
+        set(nuevoPostCrudoRef, {
+            uid: auth.currentUser.uid, titulo: tit, materia: mat, descripcion: desc, timestamp: Date.now()
+        }).then(() => {
+            document.getElementById("btn-cerrar-modal").click();
+        }).catch(err => alert("Error al subir: " + err.message));
+    };
+
+                                                            
+    if (auth.currentUser) {
+        verificarEInicializarForo(auth.currentUser.uid);
+    } else {
+        const desubscribirAuth = onAuthStateChanged(auth, (usuarioActivo) => {
+            if (usuarioActivo) {
+                verificarEInicializarForo(usuarioActivo.uid);
+                desubscribirAuth(); 
+            } else {
+                displayEnergia.innerText = "⚠️ Sesión no detectada";
+                displayEnergia.style.background = "#ef4444";
+            }
+        });
+    }
+
+                                                            
+    const modal = document.getElementById('modal-crear-post');
+    const btnAbrir = document.getElementById('btn-abrir-creador');
+    const btnCerrar = document.getElementById('btn-cerrar-modal');
+
+    btnAbrir.onclick = () => {
+        modal.style.display = 'flex';
+        modal.style.background = 'rgba(0, 0, 0, 0.4)';
+        modal.style.backdropFilter = 'blur(4px)';
+    };
+
+    btnCerrar.onclick = () => {
+        modal.style.display = 'none';
+        document.getElementById('t-titulo').value = "";
+        document.getElementById('t-materia').value = "";
+        document.getElementById('t-desc').value = "";
+        document.getElementById('t-indicacion-ia').value = "";
+        document.getElementById("lock-titulo").checked = false;
+        document.getElementById("lock-materia").checked = false;
+        document.getElementById("lock-desc").checked = false;
+        panelConfigIa.style.display = "none";
+        if (previewContainer) previewContainer.style.display = "none";
+        if (previewPlaceholder) previewPlaceholder.style.display = "block";
+    };
+
+    modal.onclick = (e) => { if (e.target === modal) btnCerrar.onclick(); };
 }else if (texto.includes("pendientes")) {
     bannerTitle.innerText = "Panel de Tareas";
     displayCode.innerText = "DASHBOARD";
     navegarA("Tareas Pendientes", "VISTA_PENDIENTES");
-                                                                    
+     container.style.display = "block"; 
+    container.style.width = "100%";
+    container.style.padding = "0";
+                                                                
+                                                            
     container.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:200px;">
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:200px; font-family:system-ui, sans-serif;">
             <div class="spinner"></div>
-            <p style="font-family:system-ui, sans-serif; font-size:0.9rem; color:#a0aec0; margin-top:15px;">Organizando tu cronograma...</p>
+            <p style="font-size:0.95rem; color:#a0aec0; margin-top:15px; font-weight:500; letter-spacing: 0.5px;">Organizando tu cronograma...</p>
         </div>`;
     
-    const controlsContainer = document.createElement('div');
-    controlsContainer.style.marginBottom = "20px";
-    controlsContainer.innerHTML = `
-        <button id="btn-classroom-sync" class="btn-classroom" style="display:inline-flex; align-items:center; gap:10px; background:#10b981; color:white; border:none; padding:12px 24px; border-radius:14px; font-weight:700; font-size:0.95rem; cursor:pointer; transition:all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); box-shadow:0 4px 12px rgba(16, 185, 129, 0.2);">
-            <span>📅</span> Sincronizar con Classroom
-        </button>
-    `;
-    container.parentNode.insertBefore(controlsContainer, container);
+                                                            
+    function execRender() {
+        const activeContainer = document.getElementById('tareas-container') || container;
+        if (!activeContainer) {
+            console.warn("Praxis-Guard: Contenedor 'tareas-container' no encontrado. Cancelando renderizado.");
+            return; 
+        }
 
-    document.getElementById('btn-classroom-sync').onclick = async () => {
-        const user = auth.currentUser;
-        if (!user) return alert("Inicia sesión en Praxis primero.");
+        obtenerTodasLasTareas((todasLasTareas) => {
+            const currentContainer = document.getElementById('tareas-container') || container;
+            if (!currentContainer) return;
 
-        const btn = document.getElementById('btn-classroom-sync');
-        btn.innerText = "Abriendo Google...";
-        btn.disabled = true;
+                                                                    
+            currentContainer.innerHTML = ""; 
 
-        try {
-            if (typeof gapi === "undefined" || typeof google === "undefined") {
-                alert("Las librerías de Google aún no se han cargado. Inténtalo de nuevo en unos segundos.");
-                btn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
-                btn.disabled = false;
-                return;
-            }
-
-            if (!gapi.client.classroom) {
-                await new Promise((resolve) => gapi.load('client', resolve));
-                await gapi.client.init({});
-                await gapi.client.load('https://classroom.googleapis.com/$discovery/rest?version=v1');
-            }
-
-            const tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: '596083977949-bscfdfkeajrnh3ouiqgk4qh7p6fseah5.apps.googleusercontent.com', 
-                scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
-                callback: async (resp) => {
-                    if (resp.error || !resp.access_token) {
-                        alert("Acceso denegado o cancelación por parte del usuario.");
-                        btn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
-                        btn.disabled = false;
-                        return;
+                                                                    
+            let dashboardHTML = `
+                <style>
+                    @keyframes fadeInUp {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
                     }
                     
-                    btn.innerText = "Sincronizando tareas...";
-                    
-                    try {
-                        const cursosResp = await gapi.client.classroom.courses.list({ courseStates: 'ACTIVE' });
-                        const cursos = cursosResp.result.courses || [];
-                        let totalSincronizadas = 0;
-
-                        if (cursos.length === 0) {
-                            alert("No se encontraron cursos activos en tu cuenta de Classroom.");
-                            btn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
-                            btn.disabled = false;
-                            return;
-                        }
-
-                        for (const curso of cursos) {
-                            const tareasResp = await gapi.client.classroom.courses.courseWork.list({ courseId: curso.id });
-                            const tareas = tareasResp.result.courseWork || [];
-
-                            for (const tarea of tareas) {
-                                if (tarea.workType === 'ASSIGNMENT' || tarea.workType === 'SHORT_ANSWER_QUESTION') {
-                                    let fechaFormateada = "";
-                                    if (tarea.dueDate) {
-                                        const d = tarea.dueDate.day;
-                                        const m = tarea.dueDate.month;
-                                        const a = tarea.dueDate.year;
-                                        fechaFormateada = `${d < 10 ? '0' + d : d}/${m < 10 ? '0' + m : m}/${a}`;
-                                    }
-
-                                    await update(ref(db, `usuarios/${user.uid}/tareas_classroom/${tarea.id}`), {
-                                        titulo: tarea.title,
-                                        descripcion: tarea.description || "Sincronizado de Classroom",
-                                        fecha: fechaFormateada || "10/10/2026",
-                                        materia: curso.name,
-                                        timestamp: tarea.creationTime ? new Date(tarea.creationTime).getTime() : Date.now(),
-                                        tipo: "Enlace Externo",
-                                        autor: "Google Classroom"
-                                    });
-                                    totalSincronizadas++;
-                                }
-                            }
-                        }
-                        
-                        alert(`¡Éxito total! Se han conectado e importado ${totalSincronizadas} tareas desde Google Classroom.`);
-                        execRender();
-                    } catch (apiErr) {
-                        console.error(apiErr);
-                        alert("Error al obtener los datos de Classroom. Verifica tus permisos.");
-                    } finally {
-                        btn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
-                        btn.disabled = false;
+                    .dashboard-section {
+                        margin-bottom: 35px;
+                        opacity: 0;
+                        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                        font-family: system-ui, -apple-system, sans-serif;
                     }
+                    
+                    .section-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        margin-bottom: 16px;
+                        padding-bottom: 10px;
+                        border-bottom: 2px solid #f1f5f9;
+                    }
+                    
+                    .section-title {
+                        font-size: 1.15rem;
+                        font-weight: 700;
+                        color: #1e293b;
+                        letter-spacing: -0.3px;
+                    }
+                    
+                    .section-badge {
+                        font-size: 0.75rem;
+                        font-weight: 700;
+                        padding: 3px 10px;
+                        border-radius: 20px;
+                        color: #ffffff;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    }
+                    
+                    .empty-msg {
+                        font-size: 0.85rem;
+                        color: #94a3b8;
+                        padding: 20px;
+                        background: #f8fafc;
+                        border-radius: 14px;
+                        border: 2px dashed #e2e8f0;
+                        text-align: center;
+                    }
+                    
+                    .task-mini-card {
+                        background: #ffffff;
+                        border-radius: 16px;
+                        padding: 18px;
+                        margin-bottom: 14px;
+                        box-shadow: 0 4px 18px rgba(0,0,0,0.015);
+                        border: 1px solid #f1f5f9;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        cursor: pointer;
+                        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                        will-change: transform, box-shadow;
+                    }
+                    
+                    .task-mini-card:hover {
+                        transform: translateX(8px) scale(1.01);
+                        background: #ffffff;
+                        border-color: #e2e8f0;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+                    }
+                    
+                    .task-date-badge {
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                        color: #475569;
+                        background: #f1f5f9;
+                        padding: 6px 14px;
+                        border-radius: 10px;
+                        transition: background-color 0.2s ease;
+                    }
+                    
+                    .task-mini-card:hover .task-date-badge {
+                        background: #e2e8f0;
+                    }
+
+                    .btn-classroom {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 10px;
+                        background: #10b981;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 14px;
+                        font-weight: 700;
+                        font-size: 0.95rem;
+                        cursor: pointer;
+                        transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+                        margin-bottom: 25px;
+                    }
+
+                    .btn-classroom:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+                        background: #059669;
+                    }
+
+                    .btn-classroom:active {
+                        transform: translateY(1px);
+                    }
+
+                    .btn-classroom:disabled {
+                        background: #a7f3d0;
+                        cursor: not-allowed;
+                        transform: none;
+                        box-shadow: none;
+                    }
+                </style>
+                
+                <div style="padding: 10px 0;">
+                    <button id="btn-classroom-sync" class="btn-classroom">
+                        <span>📅</span> Sincronizar con Classroom
+                    </button>
+                </div>
+                <div style="padding-bottom: 24px;">
+            `;
+
+                                                                    
+            const ahora = new Date();
+            const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).getTime();
+            const unaSemanaDespues = hoy + (7 * 24 * 60 * 60 * 1000);
+
+            const bloqueHoy = [];
+            const bloqueSemana = [];
+            const bloqueTodas = [];
+            const bloqueRevision = [];
+
+                                                                    
+            todasLasTareas.forEach(t => {
+                if (!t.fecha) {
+                    bloqueRevision.push(t);
+                    return;
+                }
+
+                const partes = t.fecha.split("/");
+                if (partes.length !== 3) {
+                    bloqueRevision.push(t);
+                    return;
+                }
+
+                const dia = parseInt(partes[0], 10);
+                const mes = parseInt(partes[1], 10) - 1;
+                let anio = parseInt(partes[2], 10);
+                if (anio < 100) anio += 2000;                                                         
+                
+                const fechaTarea = new Date(anio, mes, dia).getTime();
+
+                if (isNaN(fechaTarea) || fechaTarea < hoy) {
+                    bloqueRevision.push(t);
+                } else if (fechaTarea === hoy) {
+                    bloqueHoy.push(t);
+                } else if (fechaTarea <= unaSemanaDespues) {
+                    bloqueSemana.push(t);
+                } else {
+                    bloqueTodas.push(t);
                 }
             });
 
-            tokenClient.requestAccessToken({ prompt: 'consent' });
+            const secciones = [
+                { titulo: "Tareas de Hoy", items: bloqueHoy, color: "#ef4444" },
+                { titulo: "Esta Semana", items: bloqueSemana, color: "#3b82f6" },
+                { titulo: "Próximos Objetivos", items: bloqueTodas, color: "#10b981" },
+                { titulo: "Por Revisar o Vencidas", items: bloqueRevision, color: "#f59e0b" }
+            ];
 
-        } catch (err) {
-            console.error(err);
-            alert("Error crítico en el proceso de vinculación.");
-            btn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
-            btn.disabled = false;
-        }
-    };
-
-   function execRender() {
-                                                                                                                                                                             
-    const activeContainer = document.getElementById('tareas-container') || container;
-    if (!activeContainer) {
-        console.warn("Praxis-Guard: Contenedor 'tareas-container' no encontrado. Cancelando renderizado.");
-        return; 
-    }
-
-    obtenerTodasLasTareas((todasLasTareas) => {
-                                                                                                                                                                                 
-        const currentContainer = document.getElementById('tareas-container') || container;
-        if (!currentContainer) return;
-
-        currentContainer.innerHTML = "";                                                                                                                                                                          
-        
-        const ahora = new Date();
-        const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).getTime();
-        const unaSemanaDespues = hoy + (7 * 24 * 60 * 60 * 1000);
-
-        const bloqueHoy = [];
-        const bloqueSemana = [];
-        const bloqueTodas = [];
-        const bloqueRevision = [];
-
-        todasLasTareas.forEach(t => {
-            if (!t.fecha) {
-                bloqueRevision.push(t);
-                return;
-            }
-
-            const partes = t.fecha.split("/");
-            if (partes.length !== 3) {
-                bloqueRevision.push(t);
-                return;
-            }
-
-            const dia = parseInt(partes[0]);
-            const mes = parseInt(partes[1]) - 1;
-            const anio = parseInt(partes[2]);
-            const fechaTarea = new Date(anio, mes, dia).getTime();
-
-            if (isNaN(fechaTarea)) {
-                bloqueRevision.push(t);
-                return;
-            }
-
-            if (fechaTarea < hoy) {
-                bloqueRevision.push(t);
-            } else if (fechaTarea === hoy) {
-                bloqueHoy.push(t);
-                bloqueTodas.push(t);
-            } else if (fechaTarea > hoy && fechaTarea <= unaSemanaDespues) {
-                bloqueSemana.push(t);
-                bloqueTodas.push(t);
-            } else {
-                bloqueTodas.push(t);
-            }
-        });
-
-        const secciones = [
-            { titulo: "Tareas de Hoy", items: bloqueHoy, color: "#ef4444" },
-            { titulo: "Esta Semana", items: bloqueSemana, color: "#3b82f6" },
-            { titulo: "Todos los Próximos Objetivos", items: bloqueTodas, color: "#10b981" },
-            { titulo: "Por Revisar o Vencidas", items: bloqueRevision, color: "#f59e0b" }
-        ];
-
-        let dashboardHTML = `
-            <style>
-                @keyframes containerFade {
-                    from { opacity: 0; transform: translateY(16px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .dashboard-section {
-                    margin-bottom: 40px;
-                    animation: containerFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    font-family: system-ui, sans-serif;
-                }
-                .section-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    margin-bottom: 16px;
-                    padding-bottom: 8px;
-                    border-bottom: 1px solid #f1f5f9;
-                }
-                .section-title {
-                    font-size: 1.1rem;
-                    font-weight: 600;
-                    color: #1e293b;
-                }
-                .section-badge {
-                    font-size: 0.75rem;
-                    font-weight: 700;
-                    padding: 2px 8px;
-                    border-radius: 20px;
-                    color: #ffffff;
-                }
-                .empty-msg {
-                    font-size: 0.85rem;
-                    color: #94a3b8;
-                    padding: 16px;
-                    background: #f8fafc;
-                    border-radius: 12px;
-                    border: 1px dashed #e2e8f0;
-                }
-                .task-mini-card {
-                    background: #ffffff;
-                    border-radius: 14px;
-                    padding: 18px;
-                    margin-bottom: 12px;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease;
-                    will-change: transform;
-                }
-                .task-mini-card:hover {
-                    transform: translateX(6px) scale(1.005);
-                    background: #f8fafc;
-                }
-            </style>
-            <div style="padding: 24px 0;">
-        `;
-
-        secciones.forEach((sec, idx) => {
-            dashboardHTML += `
-                <div class="dashboard-section" style="animation-delay: ${idx * 0.08}s;">
-                    <div class="section-header">
-                        <span class="section-title">${sec.titulo}</span>
-                        <span class="section-badge" style="background: ${sec.color}">${sec.items.length}</span>
-                    </div>
-            `;
-
-            if (sec.items.length === 0) {
-                dashboardHTML += `<div class="empty-msg">No hay tareas asignadas a este bloque.</div>`;
-            } else {
-                sec.items.forEach(task => {
-                    dashboardHTML += `
-                        <div class="task-mini-card">
-                            <div>
-                                <div style="font-weight: 600; font-size: 0.95rem; color: #1e293b;">${task.titulo || 'Sin título'}</div>
-                                <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">${task.materia || 'General'} — ${task.descripcion || 'Sin especificaciones'}</div>
-                            </div>
-                            <div style="font-size: 0.8rem; font-weight: 600; color: #475569; background: #f1f5f9; padding: 6px 12px; border-radius: 8px;">
-                                ${task.fecha || 'Sin fecha'}
-                            </div>
+                                                                    
+            secciones.forEach((sec, idx) => {
+                                                                        
+                dashboardHTML += `
+                    <div class="dashboard-section" style="animation-delay: ${idx * 0.12}s;">
+                        <div class="section-header">
+                            <span class="section-title">${sec.titulo}</span>
+                            <span class="section-badge" style="background: ${sec.color}">${sec.items.length}</span>
                         </div>
-                    `;
-                });
-            }
+                `;
+
+                if (sec.items.length === 0) {
+                    dashboardHTML += `<div class="empty-msg">No hay tareas pendientes en este bloque.</div>`;
+                } else {
+                    sec.items.forEach(task => {
+                                                                                
+                        const tituloEscapado = (task.titulo || 'Sin título').replace(/'/g, "\\'");
+                        const descEscapada = (task.descripcion || 'Sin especificaciones').replace(/'/g, "\\'");
+                        const fechaEscapada = (task.fecha || 'Sin fecha').replace(/'/g, "\\'");
+
+                        dashboardHTML += `
+                            <div class="task-mini-card" onclick="verDetalleTareaV3('${tituloEscapado}', '${descEscapada}', '${fechaEscapada}')">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.98rem; color: #1e293b;">${task.titulo || 'Sin título'}</div>
+                                    <div style="font-size: 0.82rem; color: #64748b; margin-top: 5px; font-weight: 400;">
+                                        <span style="color:#475569; font-weight:600;">${task.materia || 'General'}</span> — ${task.descripcion || 'Sin especificaciones'}
+                                    </div>
+                                </div>
+                                <div class="task-date-badge">
+                                    ${task.fecha || 'Sin fecha'}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                dashboardHTML += `</div>`;
+            });
 
             dashboardHTML += `</div>`;
-        });
-
-        dashboardHTML += `</div>`;
-        
-                                                                                                                                                                                 
-        if (currentContainer) {
+            
+                                                                    
             currentContainer.innerHTML = dashboardHTML;
-        }
-    });
-} execRender();
+
+                                                                    
+            const syncBtn = document.getElementById('btn-classroom-sync');
+            if (syncBtn) {
+                syncBtn.onclick = async () => {
+                    const user = auth.currentUser;
+                    if (!user) return alert("Inicia sesión en Praxis primero.");
+
+                    syncBtn.innerText = "Abriendo Google...";
+                    syncBtn.disabled = true;
+
+                    try {
+                        if (typeof gapi === "undefined" || typeof google === "undefined") {
+                            alert("Las librerías de Google aún no se han cargado. Inténtalo de nuevo en unos segundos.");
+                            syncBtn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
+                            syncBtn.disabled = false;
+                            return;
+                        }
+
+                        if (!gapi.client.classroom) {
+                            await new Promise((resolve) => gapi.load('client', resolve));
+                            await gapi.client.init({});
+                            await gapi.client.load('https://classroom.googleapis.com/$discovery/rest?version=v1');
+                        }
+
+                        const tokenClient = google.accounts.oauth2.initTokenClient({
+                            client_id: '596083977949-bscfdfkeajrnh3ouiqgk4qh7p6fseah5.apps.googleusercontent.com', 
+                            scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
+                            callback: async (resp) => {
+                                if (resp.error || !resp.access_token) {
+                                    alert("Acceso denegado o cancelación por parte del usuario.");
+                                    syncBtn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
+                                    syncBtn.disabled = false;
+                                    return;
+                                }
+                                
+                                syncBtn.innerText = "Sincronizando tareas...";
+                                
+                                try {
+                                    const cursosResp = await gapi.client.classroom.courses.list({ courseStates: 'ACTIVE' });
+                                    const cursos = cursosResp.result.courses || [];
+                                    let totalSincronizadas = 0;
+
+                                    if (cursos.length === 0) {
+                                        alert("No se encontraron cursos activos en tu cuenta de Classroom.");
+                                        syncBtn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
+                                        syncBtn.disabled = false;
+                                        return;
+                                    }
+
+                                    for (const curso of cursos) {
+                                        const tareasResp = await gapi.client.classroom.courses.courseWork.list({ courseId: curso.id });
+                                        const tareas = tareasResp.result.courseWork || [];
+
+                                        for (const tarea of tareas) {
+                                            if (tarea.workType === 'ASSIGNMENT' || tarea.workType === 'SHORT_ANSWER_QUESTION') {
+                                                let fechaFormateada = "";
+                                                if (tarea.dueDate) {
+                                                    const d = tarea.dueDate.day;
+                                                    const m = tarea.dueDate.month;
+                                                    const a = tarea.dueDate.year;
+                                                    fechaFormateada = `${d < 10 ? '0' + d : d}/${m < 10 ? '0' + m : m}/${a}`;
+                                                }
+
+                                                await update(ref(db, `usuarios/${user.uid}/tareas_classroom/${tarea.id}`), {
+                                                    titulo: tarea.title,
+                                                    descripcion: tarea.description || "Sincronizado de Classroom",
+                                                    fecha: fechaFormateada || "10/10/2026",
+                                                    materia: curso.name,
+                                                    timestamp: tarea.creationTime ? new Date(tarea.creationTime).getTime() : Date.now(),
+                                                    tipo: "Enlace Externo",
+                                                    autor: "Google Classroom"
+                                                });
+                                                totalSincronizadas++;
+                                            }
+                                        }
+                                    }
+                                    
+                                    alert(`¡Éxito total! Se han conectado e importado ${totalSincronizadas} tareas desde Google Classroom.`);
+                                    execRender();                                                         
+                                } catch (apiErr) {
+                                    console.error(apiErr);
+                                    alert("Error al obtener los datos de Classroom. Verifica tus permisos.");
+                                } finally {
+                                    syncBtn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
+                                    syncBtn.disabled = false;
+                                }
+                            }
+                        });
+
+                        tokenClient.requestAccessToken({ prompt: 'consent' });
+
+                    } catch (err) {
+                        console.error(err);
+                        alert("Error crítico en el proceso de vinculación.");
+                        syncBtn.innerHTML = `<span>📅</span> Sincronizar con Classroom`;
+                        syncBtn.disabled = false;
+                    }
+                };
+            }
+        });
+    } 
+    
+                                                            
+    execRender();
 }else if (texto.includes("marketplace") || texto.includes("tienda")) {
     bannerTitle.innerText = "Mercado de Praxis";
     displayCode.innerText = "MARKETPLACE";
     navegarA("Marketplace", "VISTA_MARKET");
+ container.style.display = "block"; 
+    container.style.width = "100%";
+    container.style.padding = "0";
 
     container.innerHTML = `
         <style>
@@ -3061,7 +3969,10 @@ window.cambiarFiltroAlumno = (scope) => {
 }else if (texto.includes("mis compras") || texto.includes("historial")) {
     bannerTitle.innerText = "Historial de Canjes";
     displayCode.innerText = "MIS_PEDIDOS";
-    
+     container.style.display = "block"; 
+    container.style.width = "100%";
+    container.style.padding = "0";
+
     container.innerHTML = `
         <style>
             /* Animaciones y Clases del Historial */
@@ -6440,7 +7351,7 @@ window.actualizarPin = async function() {
         btnDescargar.style.display = "block";
         console.error("Error:", err);
     });
-};const VERSION_LOCAL = "1.0.0";
+};const VERSION_LOCAL = "1.0.5";
 
 function iniciarRastreoVersiones() {
     const versionRef = ref(db, 'config/version_actual');
@@ -7604,19 +8515,25 @@ PraxisPlusManager.comprarCofre = async function(tipo, precio) {
             }
         }
     }
-};onAuthStateChanged(auth, (user) => {
+};auth.onAuthStateChanged((user) => {
     if (user) {
-        
         const userRef = ref(db, `usuarios/${user.uid}`);
 
         onValue(userRef, (snapshot) => {
             const userData = snapshot.val() || {};
+            const stats = userData.stats || {};                                                         
             const esPlus = userData.inplus === true;
 
-                                                                 
+                                                                    
             PraxisVisualManager.aplicarInterfazPlus(esPlus);
 
-                                                                 
+                                                                    
+                                                                    
+            if (stats.racha !== undefined) {
+                asegurarEnergiaPorRango(user.uid, stats);
+            }
+
+                                                                    
             if (esPlus && window.PraxisDailyManager) {
                 PraxisDailyManager.listenToStatsRealtime(user.uid);
             }
@@ -8329,7 +9246,7 @@ ${tareasTexto}`
 }window.abrirModalConstruccion = () => {
     const modal = document.createElement('div');
     modal.id = 'modal-construccion';
-    // Estilo del fondo (overlay)
+                                                            
     modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; backdrop-filter: blur(5px);";
     
     modal.innerHTML = `
@@ -8410,7 +9327,27 @@ ${tareasTexto}`
                                                                                                                                                                                  
         cargarFotoPerfilDesdeFirebase();
     }
-});
+});function obtenerMaxEnergyPorRango(racha) {
+    if (racha >= 1000) return 20.5;                                                         
+    if (racha >= 80) return 10.5;                                                           
+    if (racha >= 60) return 7.0;                                                            
+    if (racha >= 30) return 5.0;                                                            
+    if (racha >= 15) return 4.0;                                                            
+    if (racha >= 7) return 3.5;                                                             
+    return 3.0;                                                                             
+}async function asegurarEnergiaPorRango(uid, stats) {
+    const rangoCorrectoMax = obtenerMaxEnergyPorRango(stats.racha);
+    
+                                                            
+    if (stats.max_energy !== rangoCorrectoMax) {
+        await update(ref(db, `usuarios/${uid}/stats`), {
+            max_energy: rangoCorrectoMax,
+                                                                    
+            energy_ia: rangoCorrectoMax 
+        });
+        console.log(`⚡ Energía ajustada automáticamente a: ${rangoCorrectoMax}`);
+    }
+}
 /**
  * =======================================================================
  * 🔒 ALONIXZ-GROUP                                                                      
