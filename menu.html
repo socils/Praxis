@@ -61,7 +61,7 @@
     <img src="megafono.png" alt="" style="width: 20px;"> Noticias y Anuncios
 </div>
 <hr>
-            <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>            <div class="nav-item upcoming"><img src="apoyo.png" alt="" style="width: 20px;"> Lista de Amigos</div>
+            <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>            <div class="nav-item upcoming"><img src="apoyo.png" alt="" style="width: 20px;"> Lista de Amigos</div> <div class="nav-item upcoming"><img src="corriendo.png" alt="" style="width: 20px;"> Dinamicas</div>
             <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Ver espacio de Praxis</div>
           <div class="nav-item"><img src="configuraciones.png" alt="" style="width: 20px;"> Configuraciones</div>
           <hr><div class="nav-item"><img src="marketplace.png" alt="" style="width: 20px;"> Marketplace</div>
@@ -398,31 +398,27 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
-/**
- * Reconstructor de clave cifrada
- * Utiliza un diccionario de mapeo con códigos de 3 dígitos
- */
+
 function getSecureKey() {
-    // 1. Diccionario de traducción (números aleatorios de 3 dígitos)
-    const _d = {
-        "101": "A", "102": "Q", "103": ".", "104": "b", "105": "8",
-        "106": "R", "107": "N", "108": "6", "109": "J", "110": "T",
-        "111": "K", "112": "-", "113": "v", "114": "L", "115": "m",
-        "116": "z", "117": "h", "118": "c", "119": "O", "120": "X",
-        "121": "k", "122": "r", "123": "u", "124": "U", "125": "n",
-        "126": "q", "127": "9", "128": "P", "129": "f", "130": "E",
-        "131": "o", "132": "V", "133": "i", "134": "C", "135": "x",
-        "136": "l", "137": "g"
-    };
 
-    // 2. Secuencia cifrada (tu clave mapeada con los códigos de 3 dígitos)
-    const _s = [101,102,103,101,104,105,106,107,108,109,109,107,110,111,112,113,114,115,116,117,118,119,120,121,122,104,123,124,125,126,127,128,129,116,130,131,132,133,134,135,109,136,137];
+const _d = {
+    "48": "0", "49": "1", "50": "2", "51": "3", "52": "4", "53": "5", "54": "6", "55": "7", "56": "8", "57": "9",
+    "65": "A", "66": "B", "67": "C", "68": "D", "69": "E", "70": "F", "71": "G", "72": "H", "73": "I", "74": "J",
+    "75": "K", "76": "L", "77": "M", "78": "N", "79": "O", "80": "P", "81": "Q", "82": "R", "83": "S", "84": "T",
+    "85": "U", "86": "V", "87": "W", "88": "X", "89": "Y", "90": "Z",
+    "97": "a", "98": "b", "99": "c", "100": "d", "101": "e", "102": "f", "103": "g", "104": "h", "105": "i", "106": "j",
+    "107": "k", "108": "l", "109": "m", "110": "n", "111": "o", "112": "p", "113": "q", "114": "r", "115": "s", "116": "t",
+    "117": "u", "118": "v", "119": "w", "120": "x", "121": "y", "122": "z",
+    "45": "-", "46": ".", "95": "_", "47": "/", "61": "="
+};
 
-    // 3. Reconstrucción segura
+
+const _s = [65, 81, 46, 65, 98, 56, 82, 78, 54, 73, 103, 97, 95, 76, 84, 122, 104, 54, 76, 111, 87, 67, 57, 52, 105, 102, 120, 74, 111, 106, 109, 70, 82, 70, 101, 48, 89, 67, 50, 73, 79, 120, 78, 75, 71, 90, 101, 55, 115, 118, 45, 86, 119];
+
     return _s.map(code => _d[code]).join('');
 }
 
-// Úsalo en tu fetch así:
+
 const myKey = getSecureKey();
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -1314,9 +1310,9 @@ async function checkTeacherPermissions(agendaCode) {
 
         btnIA.disabled = true;
             btnIA.innerText = "Procesando...";
-    const API_KEY = GEMINI_API_KEY;
+
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${API_KEY}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${myKey}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -1403,6 +1399,16 @@ async function checkTeacherPermissions(agendaCode) {
         } else {
             alert("⚠️ El título y la materia son necesarios.");
         }
+    document.getElementById('btn-cancelar-tarea').onclick = () => {
+        
+        actionModal.style.display = "none";
+      
+        document.getElementById('t-titulo').value = "";
+        document.getElementById('t-materia').value = "";
+        document.getElementById('t-desc').value = "";
+        document.getElementById('t-fecha').value = "";
+        document.getElementById('t-url').value = "";
+    };
     };
 };
 
@@ -2508,6 +2514,30 @@ window.cambiarFiltroAlumno = (scope) => {
             }
         }
     });
+}else if (texto.includes("dinamicas")) {
+    bannerTitle.innerText = "Centro de Dinámicas";
+    displayCode.innerText = "DYNAMICS_HUB";
+    navegarA("Dinámicas", "VISTA_DINAMICAS");
+    
+    container.innerHTML = `
+        <div class="extension-container" style="padding: 20px;">
+            <h1>Explora tus Ecosistemas</h1>
+            <p>Módulos de interacción y dinámicas activas.</p>
+            
+            <div class="grid-modules" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+                <div class="card-module" onclick="abrirModalConstruccion()" style="cursor: pointer; border: 1px solid var(--border); padding: 20px; border-radius: 12px; background: #f8fafc; border-style: dashed; opacity: 0.9;">
+                    <span class="badge" style="background: #94a3b8; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">En desarrollo</span>
+                    <h3 style="margin: 10px 0; color: #475569;">Mundial de Figuritas</h3>
+                    <p style="font-size: 14px; color: #64748b;">Por el momento no está disponible, estamos trabajando en ello para que tengas la mejor presentación.</p>
+                </div>
+
+                <div class="card-module" style="border: 1px solid var(--border); padding: 20px; border-radius: 12px; background: #f8fafc; border-style: dashed; opacity: 0.7;">
+                    <h3 style="margin: 10px 0; color: #475569;">Próximamente</h3>
+                    <p style="font-size: 14px; color: #64748b;">Más dinámicas en camino...</p>
+                </div>
+            </div>
+        </div>
+    `;
 }else if (texto.includes("pendientes")) {
     bannerTitle.innerText = "Panel de Tareas";
     displayCode.innerText = "DASHBOARD";
@@ -8299,7 +8329,40 @@ ${tareasTexto}`
             btnSave.style.background = '#6366f1';
         }
     };
-}function cargarFotoPerfilDesdeFirebase() {
+}window.abrirModalConstruccion = () => {
+    const modal = document.createElement('div');
+    modal.id = 'modal-construccion';
+    // Estilo del fondo (overlay)
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:9999; backdrop-filter: blur(5px);";
+    
+    modal.innerHTML = `
+        <div style="background:white; padding:40px; border-radius:20px; text-align:center; max-width:450px; position:relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);">
+            
+            <div style="position:absolute; top:0; left:0; width:100%; height:15px; background: repeating-linear-gradient(45deg, #f7d51d, #f7d51d 20px, #000 20px, #000 40px);"></div>
+
+            <div style="font-size: 70px; margin-top: 15px; display: inline-block; animation: martillo 0.8s infinite alternate-reverse;">🔨</div>
+            
+            <h2 style="margin: 20px 0; color: #1e293b; font-weight: 800;">¡ZONA EN CONSTRUCCIÓN!</h2>
+            <p style="color:#64748b; line-height: 1.6;">Estamos reforzando los cimientos de esta dinámica. Trabajamos duro para que tengas la mejor presentación posible.</p>
+            
+            <button onclick="this.parentElement.parentElement.remove()" style="margin-top:25px; padding:12px 30px; cursor:pointer; background:#f7d51d; border:none; border-radius:8px; font-weight:bold; font-size:14px; transition: 0.3s;">ENTENDIDO</button>
+
+            <div style="position:absolute; bottom:0; left:0; width:100%; height:15px; background: repeating-linear-gradient(45deg, #f7d51d, #f7d51d 20px, #000 20px, #000 40px);"></div>
+        </div>
+
+        <style>
+            @keyframes martillo { 
+                0% { transform: rotate(-25deg) translateY(0); } 
+                100% { transform: rotate(25deg) translateY(-10px); } 
+            }
+            @keyframes bounceIn {
+                0% { transform: scale(0.3); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        </style>
+    `;
+    document.body.appendChild(modal);
+};function cargarFotoPerfilDesdeFirebase() {
     const auth = getAuth();
     const user = auth.currentUser;
     const contenedor = document.getElementById('contenedor-foto-perfil');
