@@ -9094,20 +9094,31 @@ btnResumirIA.addEventListener("click", async () => {
         const respuesta = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+body: JSON.stringify({
                 contents: [{
                     parts: [{
                         text: `Actúa como el asistente de optimización académica de Praxis. Tu respuesta debe iniciar obligatoriamente con la frase exacta: "Hola, soy el asistente de Praxis impulsado por Gemini. Esta es una función beta, aquí tienes un resumen de tus tareas y de cómo puedes realizarlas."
 
-Analiza el listado de actividades y genera el reporte utilizando únicamente el siguiente formulario limpio, sin agregar notas sobre errores, soporte, ni instrucciones internas:
+Analiza el listado de actividades provisto y evalúa su coherencia, urgencia y complejidad. 
+Si detectas tareas que sean aleatorias, de prueba, con texto sin sentido (ej. "asdasd", "qwerty") o que carezcan de un objetivo claro, agrúpalas estrictamente al final en una sección llamada "Tareas sin razón alguna o tema indefinido". No les asignes prioridad alta, media ni baja.
+
+Genera el reporte utilizando únicamente el siguiente formulario limpio, sin agregar notas sobre errores, soporte, markdown innecesario ni instrucciones internas:
 
 Hola, soy el asistente de Praxis impulsado por Gemini. Esta es una función beta, aquí tienes un resumen de tus tareas y de cómo puedes realizarlas.
 
-He detectado tareas en: [Lista de materias o asignaturas encontradas].
+📋 LISTA DE TAREAS Y PRIORIDAD:
+• [Nombre de la Tarea Coherente] - Importancia: [Alta/Media/Baja] (Breve razón de su prioridad)
+(Sigue listando detalladamente cada una de las tareas válidas encontradas)
+
+⚠️ TAREAS SIN RAZÓN ALGUNA O TEMA INDEFINIDO:
+• [Nombre o texto de la tarea sin sentido] - (Motivo: Instrucciones indefinidas o contenido aleatorio)
+(Si no hay tareas sin sentido, escribe: Ninguna)
+
+He detectado tareas en: [Lista de materias o asignaturas válidas encontradas].
 Por: [Breve explicación de los temas principales o entregas pendientes].
 
 Pasos para solucionarlas:
-1. [Primer consejo de organización o por cuál actividad empezar].
+1. [Primer consejo de organización o por cuál actividad empezar según su importancia].
 2. [Estrategia para avanzar con las demás asignaturas].
 3. [Tip rápido para optimizar tu tiempo].
 
