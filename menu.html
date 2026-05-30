@@ -1794,25 +1794,38 @@ todasLasTareas.forEach(tarea => {
 
                                                                          
     const noticiasDB = [
+        // --- NUEVA ENTRADA: PRAXIS ASSISTANT ---
+        {
+            esSuper: true,
+            fecha: "30/05/26",
+            titulo: "Lanzamiento: Praxis Assistant (Beta)",
+            categoria: "SYSTEM",
+            cuerpo: "Hemos inicializado el subsistema 'Praxis Assistant', un motor basado en inteligencia artificial diseñado para actuar como asesor académico personalizado. Este núcleo ha sido integrado con una terminal de depuración de bajo nivel, permitiendo un flujo de trabajo técnico más eficiente y controlado directamente desde el core de la plataforma.",
+            parches: ["Inicialización de matrices neuronales", "Integración con Firebase Core v10", "Terminal de comandos con privilegios root (sudo)", "Advertencia de estabilidad (Beta)"],
+            icono: "🤖"
+        },
+        // --- NOTICIA ANTERIOR: OPTIMIZACIÓN ---
         {
             esSuper: true,
             fecha: "21/05/26",
             titulo: "Optimización de Seguridad y Accesibilidad",
             categoria: "UPDATE",
-            cuerpo: "Se ha implementado con éxito la mejora del sistema de inicio de sesión (login) para garantizar un acceso más rápido y protegido al entorno. Asimismo, a partir de ahora, los usuarios pueden interactuar directamente con los códigos de la agenda para visualizarlos de forma independiente. Esta función ha sido diseñada con el objetivo de facilitar su consulta en formato físico dentro del aula, asegurando que ningún estudiante quede desinformado o excluido de las actividades y planificaciones programadas para su respectiva clase.",
-            parches: ["Optimización del módulo de autenticación", "Sincronización de agenda institucional", "Prevención de exclusión informativa en el aula"],
+            cuerpo: "Se ha implementado con éxito la mejora del sistema de inicio de sesión (login) para garantizar un acceso más rápido y protegido al entorno. Asimismo, los usuarios ahora pueden interactuar directamente con los códigos de la agenda para visualizarlos de forma independiente.",
+            parches: ["Optimización del módulo de autenticación", "Sincronización de agenda institucional", "Prevención de exclusión informativa"],
             icono: "⚙️"
         },
+        // --- NOTICIA ANTERIOR: CENTRAL DE NEXOS ---
         {
             esSuper: false,
-            esFeature: true,                                                                                                                                                                                    
+            esFeature: true,
             fecha: "16/05/26",
             titulo: "Despliegue: Central de Nexos",
             categoria: "FEATURE",
             cuerpo: "Se ha inyectado el nuevo ecosistema de interacción social. Ahora puedes vincular a tus rivales mediante credenciales únicas UID para comparar estadísticas, monitorizar dinámicas mutuas y transferir flujos de puntos en tiempo real.",
-            parches: ["Canal bidireccional mediante Firebase", "Desafío Cíclico Cooperativo (Meta 1,000 PTS)", "Multiplicador de Red por nivel de nexo", "Copiado rápido de credencial Praxis Core"],
+            parches: ["Canal bidireccional mediante Firebase", "Desafío Cíclico Cooperativo", "Multiplicador de Red"],
             icono: "👥"
         },
+        // --- NOTICIA ANTERIOR: LANZAMIENTO ---
         {
             esSuper: false,
             fecha: "18/05/26",
@@ -1821,15 +1834,6 @@ todasLasTareas.forEach(tarea => {
             cuerpo: "La plataforma educativa Praxis inicia operaciones oficialmente para toda la comunidad estudiantil. ¡Bienvenidos a la nueva era del aprendizaje colaborativo!",
             parches: ["Despliegue de Servidores V3", "Ranking Global Activado", "Sincronización con Firebase"],
             icono: "🚀"
-        },
-        {
-            esSuper: false,
-            fecha: "12/05/26",
-            titulo: "Ajustes de Interfaz V3",
-            categoria: "UPDATE",
-            cuerpo: "Hemos rediseñado el calendario y el centro de noticias para usar el nuevo estilo Neo-Brutalista de Praxis.",
-            parches: ["Mejora de alineación en móviles", "Modales de tareas optimizados"],
-            icono: "🎨"
         }
     ];
 
