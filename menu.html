@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" href="praxis.png">
 
 </head>
-gia<body>
+<body>
 
     <header class="top-bar">
 <div class="header-left" style="display: flex; align-items: center; gap: 15px;">
@@ -208,7 +208,7 @@ gia<body>
     <div style="background: #ffffff; border: 4px solid #000000; box-shadow: 8px 8px 0px #000000; position: relative; user-select: none;">
         
         <div id="popup-drag-handle" style="background: #000000; color: #ffffff; padding: 6px 12px; font-size: 10px; font-weight: 900; cursor: move; display: flex; align-items: center; justify-content: space-between;">
-            <span><img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> SYS_BROADCAST</span>
+            <span>⚡ SYS_BROADCAST                                                                             
             <button id="btn-close-popup" style="background: #ffffff; color: #000000; border: 2px solid #ffffff; font-family: 'JetBrains Mono', monospace; font-weight: 900; font-size: 11px; padding: 0px 6px; cursor: pointer; transition: 0.1s;">
                 X
             </button>
@@ -2688,7 +2688,7 @@ window.cambiarFiltroAlumno = (scope) => {
                         <p style="margin: 4px 0 0 0; font-size: 13px; color: #475569; font-weight: 500;">Muro inteligente de consulta y moderación académica</p>
                     </div>
                     <div id="display-energia" style="font-size: 13px; font-family: monospace; font-weight: 700; padding: 8px 16px; border: 2px solid #000; background: #fff; box-shadow: 4px 4px 0px #000; transition: all 0.3s ease;">
-                        <img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> Identificando cuenta...
+                        ⚡ Identificando cuenta...
                     </div>
                 </div>
                 
@@ -2737,8 +2737,8 @@ window.cambiarFiltroAlumno = (scope) => {
                                 <label style="display: block; font-size: 11px; font-weight: 800; color: #000; margin-bottom: 4px; text-transform: uppercase;">🤖 MOTOR PRAXIS ASSIST</label>
                                 <div style="display: flex; gap: 8px; align-items: center;">
                                     <select id="select-modelo-ia" style="flex: 1; border: 2px solid #000; padding: 8px; font-size: 13px; font-weight: 700; background: #fff; outline: none; cursor: pointer; box-shadow: 3px 3px 0px #000;">
-                                        <option value="gemini-3.5-flash" selected>Assist 3.5 (Estable) — <img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> 1.0 Energía</option>
-                                        <option value="gemini-3.1-flash-lite">Assist 3.1 (Rápido) — <img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> 0.5 Energía</option>
+                                        <option value="gemini-3.5-flash" selected>Assist 3.5 (Estable) — ⚡ 1.0 Energía</option>
+                                        <option value="gemini-3.1-flash-lite">Assist 3.1 (Rápido) — ⚡ 0.5 Energía</option>
                                     </select>
                                     <button id="btn-toggle-config-ia" style="background: #fff; border: 2px solid #000; font-size: 16px; padding: 6px 10px; cursor: pointer; box-shadow: 3px 3px 0px #000; font-weight: bold;" title="Configurar protección de campos">⚙️</button>
                                 </div>
@@ -2864,7 +2864,7 @@ window.cambiarFiltroAlumno = (scope) => {
             }
 
             energiaActualUsuario = parseFloat(stats.energy_ia);
-            displayEnergia.innerText = `<img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> ENERGÍA DE IA: ${energiaActualUsuario} / ${stats.max_energy}`;
+            displayEnergia.innerText = `⚡ ENERGÍA DE IA: ${energiaActualUsuario} / ${stats.max_energy}`;
             displayEnergia.style.background = esPlus ? "#fae8ff" : "#e0f2fe"; 
             displayEnergia.style.boxShadow = esPlus ? "4px 4px 0px #a21caf" : "4px 4px 0px #0369a1";
         });
@@ -3165,7 +3165,7 @@ function activarEscuchadorDeRespuestas(postId, contenedorListaDOM, esAdmin, uidA
     }
 
     if (energiaActualUsuario < costoOperacion) {
-        alert(`<img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> Energía insuficiente. Esta operación requiere ${costoOperacion} de energía, pero solo te quedan ${energiaActualUsuario}.`);
+        alert(`⚡ Energía insuficiente. Esta operación requiere ${costoOperacion} de energía, pero solo te quedan ${energiaActualUsuario}.`);
         return;
     }
 
@@ -3176,7 +3176,7 @@ function activarEscuchadorDeRespuestas(postId, contenedorListaDOM, esAdmin, uidA
     const modeloSeleccionado = selectModeloIa.value;
     btnMejorarIA.disabled = true;
     btnRehacerIA.disabled = true;
-    btnMejorarIA.innerText = "<img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> Descontando energía...";
+    btnMejorarIA.innerText = "⚡ Descontando energía...";
 
     try {
                                                                 
@@ -4893,7 +4893,7 @@ else if (texto.includes("cuenta de google") || texto.includes("perfil")) {
                 progressBar.style.background = "#00E676";
                 alertZone.innerHTML = `
                     <div style="background: #e8f5e9; border: 4px solid #00c853; padding: 15px; box-shadow: 4px 4px 0px #000; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
-                        <span style="background: #00c853; color: #fff; padding: 2px 6px; font-weight: 900; margin-right: 10px;"><img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> PURGA CONCLUIDA</span>
+                        <span style="background: #00c853; color: #fff; padding: 2px 6px; font-weight: 900; margin-right: 10px;">⚡ PURGA CONCLUIDA</span>
                         Se aplicaron los protocolos de limpieza. Datos críticos como <strong style="color:#00c853">inplus</strong> e <strong>insignias</strong> fueron blindados. Las agendas y registros secundarios se eliminaron con éxito.
                     </div>
                 `;
@@ -9345,7 +9345,7 @@ ${tareasTexto}`
                                                                     
             energy_ia: rangoCorrectoMax 
         });
-        console.log(`<img src="energia.png" alt="Energía" style="width: 16px; height: 16px;"> Energía ajustada automáticamente a: ${rangoCorrectoMax}`);
+        console.log(`⚡ Energía ajustada automáticamente a: ${rangoCorrectoMax}`);
     }
 }
 /**
