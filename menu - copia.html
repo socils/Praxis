@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+</head>
+<body>
+
+    <header class="top-bar">
+<div class="header-left">
+    <button class="menu-btn" id="btn-toggle-sidebar"><img src="menu.png" style="width: 33px"></button>
+    <div class="logo-wrapper" style="position: relative; display: flex; align-items: center;">
+        <div class="logo"><img src="praxis.png" alt="" style="width: 45px;">Praxis</div>
+        <div class="badge-beta">
+            <span>BETA</span>
+            <small>by Alonixz</small>
+        </div>
+    </div>
+</div>
+        <div class="header-right">
+            <button class="btn-header-apoyo" onclick="window.location.href='apoyo.html'">
+        <span style="font-size: 16px;">🤝</span>
+        <span style="color: white;">Apóyanos</span>
+    </button>
+            <div class="action-menu">
+                <button class="add-btn" id="btn-plus">+</button>
+                <div class="dropdown-content" id="plus-dropdown">
+                    <a href="#" id="open-join">Unirse a una agenda</a>
+                    <a href="#" id="open-create">Crear agenda</a>
+                </div>
+            </div>
+            <div class="code-display" id="display-code">...</div>
+           <div id="user-info" style="display: flex; align-items: center; gap: 10px;">
+    <span id="user-name" style="font-size: 14px; color: #5f6368; font-weight: 500;"></span>
+    <img id="user-photo" src="" alt="A" class="user-avatar" style="border: 1px solid #dadce0; object-fit: cover; width: 32px; height: 32px; border-radius: 50%;">
+</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="nav-item active"><img src="pagina-de-inicio.png" alt="" style="width: 20px;"> Inicio</div>
+            <div class="nav-item"><img src="calendario.png" alt="" style="width: 20px;"> Calendario</div>
+            <div class="nav-item"><img src="pendiente.png" alt="" style="width: 20px;"> Pendientes</div>
+            <hr>
+            <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>
+            <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Sincronizar Drive</div>
+            <a href="centro-de-admins.html" id="admin-link" style="display: none; color: #ff4d4d; font-weight: 800;">
+    🛡️ Panel de Fundador
+</a>
+            <hr>
+            <div class="nav-item logout" id="btn-logout"><img src="cerrar-sesion.png" alt="" style="width: 20px;"> Salir</div>
+        </nav>
+
+        <main class="content" id="main-content">
+            <div class="banner">
+                <h1 id="banner-title">Cargando...</h1>
+                <p>Gestión académica Praxis</p>
+            </div>
+
+            <div id="status-message"></div>
+            <div class="task-grid" id="task-container"></div>
+        </main>
+    </div>
+
+    <div id="action-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Acción</h2>
+            <input type="text" id="modal-input">
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="btn-close-modal">Cancelar</button>
+                <button class="btn-confirm" id="btn-action-confirm">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getDatabase, 
+    ref, 
+    onValue, 
+    set, 
+    push, 
+    get, 
+    update 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9738f534"
+    };
+
+let tokenClient;
+let gapiInited = false;
+let gsisInited = false;
+
+const cargarGoogleAPI = () => {
+  
+    const scriptGapi = document.createElement('script');
+    scriptGapi.src = "https://apis.google.com/js/api.js";
+    scriptGapi.onload = () => {
+        gapi.load('client', async () => {
+            await gapi.client.init({
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+            });
+            gapiInited = true;
+        });
+    };
+    document.head.appendChild(scriptGapi);
+
+  
+    const scriptGsi = document.createElement('script');
+    scriptGsi.src = "https://accounts.google.com/gsi/client";
+    scriptGsi.onload = () => {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: '596083977949-bscfdfkeajrnh3ouiqgk4qh7p6fseah5.apps.googleusercontent.com',
+            scope: 'https://www.googleapis.com/auth/drive.file',
+            callback: '',
+        });
+        gsisInited = true;
+    };
+    document.head.appendChild(scriptGsi);
+};
+cargarGoogleAPI();
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    // --- Lógica de Anuncios Inteligentes ---
+let fechaAnuncioActual = 0;
+
+onValue(ref(db, 'config/anuncio_global'), (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.mensaje) {
+        fechaAnuncioActual = data.fecha;
+        
+        // Comprobar si es un anuncio nuevo comparando con el almacenamiento local
+        const ultimoLeido = localStorage.getItem('ultimo_anuncio_fecha');
+
+        if (ultimoLeido !== fechaAnuncioActual.toString()) {
+            mostrarModal(data.mensaje);
+        }
+    }
+});
+
+function mostrarModal(mensaje) {
+    document.getElementById('texto-anuncio-modal').innerText = mensaje;
+    document.getElementById('modal-anuncio').style.display = 'flex';
+}
+
+// Hacemos que la función de cerrar sea accesible desde el botón del HTML
+window.cerrarModalAnuncio = () => {
+    document.getElementById('modal-anuncio').style.display = 'none';
+    localStorage.setItem('ultimo_anuncio_fecha', fechaAnuncioActual);
+};
+    
+    const auth = getAuth(app);
+
+    const displayCode = document.getElementById('display-code');
+    const bannerTitle = document.getElementById('banner-title');
+    const container = document.getElementById('task-container');
+    const statusMsg = document.getElementById('status-message');
+    const sidebar = document.getElementById('sidebar');
+
+function obtenerRango(racha, email) {
+        // RANGO HACKER (Nivel máximo del sistema)
+    if (racha >= 1000) {
+        return { nombre: "ROOT_HACKER", clase: "rango-hacker", avatar: "avatar-hacker" };
+    }
+    // Caso especial Administrador
+    if (racha >= 100 || email === "ajuliuszch@gmail.com") {
+        return { nombre: "ADMIN", clase: "rango-admin", avatar: "avatar-admin" };
+    }
+
+    if (racha >= 80) return { nombre: "OBSIDIANA", clase: "rango-obsidiana", avatar: "avatar-obsidiana" };
+    if (racha >= 60) return { nombre: "DIAMANTE", clase: "rango-diamante", avatar: "avatar-diamante" };
+    if (racha >= 30) return { nombre: "ORO", clase: "rango-oro", avatar: "avatar-oro" };
+    if (racha >= 15) return { nombre: "PLATA", clase: "rango-plata", avatar: "avatar-plata" };
+    if (racha >= 7) return { nombre: "BRONCE", clase: "rango-bronce", avatar: "avatar-bronce" };
+    
+    return null; // No hay rango si es menor a 7
+};
+onAuthStateChanged(auth, async (user) => {
+    const userInfoDiv = document.getElementById('user-info'); 
+
+    if (user) {
+        const isGuest = user.isAnonymous;
+
+        // 1. LÓGICA DE ADMINISTRADOR
+        const miCorreoAdmin = "ajuliuszch@gmail.com";
+        const adminBtn = document.getElementById('admin-link');
+        if (!isGuest && user.email === miCorreoAdmin && adminBtn) {
+            adminBtn.style.display = 'flex';
+        }
+
+        // 2. PREPARAR DATOS
+        const nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
+        const fotoDisplay = isGuest 
+            ? "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png" 
+            : (user.photoURL || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png");
+
+        // 3. SINCRONIZACIÓN
+        if (!isGuest) {
+            const userRef = ref(db, 'usuarios/' + user.uid);
+            update(userRef, {
+                nombre: nombreDisplay,
+                correo: user.email,
+                foto: fotoDisplay,
+                ultimaConexion: Date.now()
+            });
+            
+            gestionarRachaUsuario(user.uid);
+            cargarAgenda(user.uid);      
+            cargarListaSidebar(user.uid); 
+        } else {
+            bloquearFuncionesInvitado();
+        }
+
+        // 4. RENDERIZAR INTERFAZ (Con soporte para Rangos)
+        // Nota: El rango se actualizará visualmente cuando gestionarRachaUsuario termine
+        userInfoDiv.innerHTML = `
+            ${!isGuest ? `
+            <div id="streak-container" style="display: flex; align-items: center; margin-right: 15px; font-weight: bold; color: #f4b400;">
+                <span id="streak-count">0</span>
+                <span style="font-size: 18px; margin-left: 4px;">🔥</span>
+            </div>` : ''}
+            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <span id="user-name-display" style="margin-right: 10px; font-size: 14px; color: #5f6368; font-weight: 700; display: flex; align-items: center;">
+                    ${nombreDisplay}
+                </span>
+            </div>
+            <img id="user-avatar-display" src="${fotoDisplay}" alt="User" 
+                 style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #dadce0; object-fit: cover; transition: all 0.3s ease;">
+        `;
+
+        // Pequeño truco: Observar cuando cambie el número de racha para poner el rango
+      if (!isGuest) {
+const observer = new MutationObserver(() => {
+    const streakElement = document.getElementById('streak-count');
+    const racha = parseInt(streakElement.innerText);
+    const rango = obtenerRango(racha, user.email);
+    
+    const nameSpan = document.getElementById('user-name-display');
+    const avatarImg = document.getElementById('user-avatar-display');
+
+    // --- AÑADE ESTO AQUÍ ---
+    // Si el banner dice "SIN AGENDA", forzamos a que se actualice con la nueva racha
+    if (displayCode.innerText === "SIN AGENDA") {
+        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", racha);
+    }
+    // -----------------------
+
+    if (rango) {
+        nameSpan.innerHTML = `${nombreDisplay} <span id="badge-rango" class="rango-tag ${rango.clase}">${rango.nombre}</span>`;
+        avatarImg.className = ""; 
+        avatarImg.classList.add(rango.avatar);
+    } else {
+        nameSpan.innerHTML = nombreDisplay;
+        avatarImg.className = "";
+    }
+});
+    
+    // Configuración importante para que detecte cambios de texto
+    observer.observe(document.getElementById('streak-count'), { 
+        childList: true, 
+        characterData: true, 
+        subtree: true 
+    });
+}
+        
+    } else {
+        window.location.href = "login.html";
+    }
+});
+
+// Función para aplicar restricciones de invitado
+function bloquearFuncionesInvitado() {
+    // 1. Ocultar el botón "+" (Alonixz-Cloud / Agendas)
+    const btnPlus = document.getElementById('btn-plus');
+    if (btnPlus) {
+        btnPlus.style.display = "none"; // Desaparece el botón de crear/unirse
+    }
+
+    // 2. Deshabilitar Drive y Cuenta en el Sidebar
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        const texto = item.innerText.toLowerCase();
+        // Bloqueamos Drive y la info de Cuenta porque requieren Google
+        if (texto.includes("drive") || texto.includes("cuenta")) {
+            item.style.opacity = "0.4";
+            item.style.filter = "grayscale(1)";
+            item.style.cursor = "not-allowed";
+            item.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                alert("❌ Función deshabilitada: El Chat, Drive y la Gestión de Agendas requieren una cuenta de Google vinculada.");
+            };
+        }
+    });
+
+    // 3. Banner de Advertencia (Mensaje de incompatibilidad)
+    const statusMsg = document.getElementById('status-message');
+    if (statusMsg) {
+        statusMsg.innerHTML = `
+            <div style="background: #fee2e2; border: 2px solid #ef4444; color: #b91c1c; padding: 20px; border-radius: 16px; margin-bottom: 25px; text-align: center;">
+                <strong style="font-size: 18px;">⚠️ Modo Invitado Activo</strong>
+                <p style="margin: 10px 0; font-size: 14px;">
+                    Las funciones de <b>Chat</b>, <b>Drive</b> y <b>Alonixz-Cloud</b> no son compatibles con este modo. 
+                    Tus datos no se guardarán.
+                </p>
+                <button onclick="window.location.href='login.html'" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+                    Iniciar sesión con Google
+                </button>
+            </div>
+        `;
+    }
+
+    // 4. Limpiar el código de acceso para evitar confusiones
+    const displayCode = document.getElementById('display-code');
+    if (displayCode) displayCode.innerText = "MODO INVITADO";
+};
+
+  
+onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
+    const enMantenimiento = snapshot.val();
+   
+    if (enMantenimiento === true) {
+        window.location.href = "mantenimiento.html";
+    }
+});
+function cargarAgenda(currentUserUid) {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    
+    const banner = document.querySelector('.banner');
+    const oldAdminBtn = document.getElementById('admin-publish-btn');
+    if (oldAdminBtn) oldAdminBtn.remove();
+    
+    if (code) {
+        const agendaRef = ref(db, 'agendas/' + code);
+        
+        onValue(agendaRef, (snapshot) => {
+            const data = snapshot.val();
+            container.innerHTML = "";
+            statusMsg.innerHTML = "";
+            
+            const currentBtn = document.getElementById('admin-publish-btn');
+            if(currentBtn) currentBtn.remove();
+
+            if (data) {
+                bannerTitle.innerText = data.nombre || "Agenda sin nombre";
+                displayCode.innerHTML = `Código de acceso: <span style="color:#1a73e8; font-weight:bold;">${code.toUpperCase()}</span>`;
+
+                const esDuenio = data.owner === currentUserUid;
+
+                if (esDuenio) {
+                    const adminBtn = document.createElement('button');
+                    adminBtn.id = 'admin-publish-btn';
+                    adminBtn.innerHTML = "<img src='anadir.png' width='20px' height='20px'> Publicar Nueva Tarea";
+                    adminBtn.className = "btn-confirm"; 
+                    adminBtn.style.marginTop = "15px";
+                    adminBtn.onclick = () => abrirModalTarea(code); 
+                    banner.appendChild(adminBtn);
+                }
+
+                // --- INICIO SECCIÓN DE CHAT DE CLASE ---
+                const chatContainer = document.createElement('div');
+                chatContainer.className = 'card'; 
+                chatContainer.style.marginBottom = "25px";
+                chatContainer.innerHTML = `
+                    <div class="card-header" style="border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                        <h3 style="margin:0; font-size: 16px; color: var(--p-600);">💬 Tablón de la Clase</h3>
+                    </div>
+                    <div id="lista-mensajes-${code}" style="max-height: 200px; overflow-y: auto; padding: 15px 5px; scroll-behavior: smooth;">
+                        <p style="text-align:center; color: #999; font-size: 13px;">Cargando mensajes...</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <input type="text" id="input-chat-${code}" placeholder="Comparte algo con tu clase..." 
+                               style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 20px; font-size: 14px; outline: none;">
+                        <button class="btn-confirm" onclick="enviarMensajeClase('${code}')" 
+                                style="border-radius: 50%; width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <span><img src="enviar.png" style="width: 20px;"></span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(chatContainer);
+                escucharChatClase(code); 
+                // --- FIN SECCIÓN DE CHAT DE CLASE ---
+
+                if (data.tareas) {
+                    Object.keys(data.tareas).reverse().forEach(id => {
+                        const t = data.tareas[id];
+                        if (id === 'inicio') return;
+
+                        const btnEliminar = esDuenio 
+                            ? `<button class="btn-delete" onclick="eliminarTarea('${code}', '${id}')" title="Eliminar tarea"><img src="papelera-de-reciclaje.png"style="width: 15px;"></button>` 
+                            : "";
+
+                        container.innerHTML += `
+                            <div class="card">
+                                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <div>
+                                        <h3>${t.titulo}</h3>
+                                        <span>${t.materia}</span>
+                                    </div>
+                                    ${btnEliminar}
+                                </div>
+                                <div class="card-body"><p>${t.descripcion}</p></div>
+                                <div class="card-footer"><span>Entrega: ${t.fecha}</span></div>
+                            </div>`;
+                    });
+                }
+            } else {
+                mostrarEstadoVacio("La agenda " + code + " no existe.");
+            }
+        });
+    } else {
+        mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
+    }
+};
+
+// FUNCIÓN PARA ELIMINAR (Agrégala al final de tu script)
+window.eliminarTarea = async (agendaCode, tareaId) => {
+    if (confirm("¿Seguro que quieres borrar esta tarea?")) {
+        try {
+            const tareaRef = ref(db, `agendas/${agendaCode}/tareas/${tareaId}`);
+            await set(tareaRef, null); // En Firebase, null elimina el dato
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+        }
+    }
+};function aplicarTemaPorRango(rangoNombre) {
+    const body = document.body;
+    // Limpiamos temas anteriores
+    body.classList.remove('tema-diamante', 'tema-obsidiana', 'tema-hacker');
+
+    if (rangoNombre === "DIAMANTE") {
+        body.classList.add('tema-diamante');
+    } else if (rangoNombre === "OBSIDIANA") {
+        body.classList.add('tema-obsidiana');
+    } else if (rangoNombre === "ROOT_HACKER") { // O el nombre que le des al nivel 1000
+        body.classList.add('tema-hacker');
+    }
+}
+function mostrarEstadoVacio(msg, rachaReal = 0) {
+    displayCode.innerText = "SIN AGENDA";
+    bannerTitle.innerText = "Bienvenido a Praxis";
+    
+    const rachaActual = parseInt(rachaReal);
+    const userEmail = auth.currentUser ? auth.currentUser.email : "";
+
+    const niveles = [
+        { nombre: "BRONCE", dias: 7, clase: "rango-bronce", color: "#cd7f32" },
+        { nombre: "PLATA", dias: 15, clase: "rango-plata", color: "#c0c0c0" },
+        { nombre: "ORO", dias: 30, clase: "rango-oro", color: "#ffd700" },
+        { nombre: "DIAMANTE", dias: 60, clase: "rango-diamante", color: "#b9f2ff" },
+        { nombre: "OBSIDIANA", dias: 80, clase: "rango-obsidiana", color: "#3a0052" }
+    ];
+
+    // Identificar rango actual
+    let rangoActualIdx = -1;
+    for (let i = niveles.length - 1; i >= 0; i--) {
+        if (rachaActual >= niveles[i].dias) {
+            rangoActualIdx = i;
+            break;
+        }
+    }
+
+    let htmlContenido = "";
+
+    // LÓGICA PARA RANGOS ESPECIALES (Admin y Hacker)
+    if (userEmail === "ajuliuszch@gmail.com") {
+        // Mensaje para el Administrador
+        htmlContenido = `
+            <div style="padding: 25px; border-radius: 20px; background: #f0f7ff; border: 2px solid #1a73e8; flex: 1;">
+                <h3 style="color: #1a73e8; margin: 0; font-size: 18px;">Hola Administrador</h3>
+                <p style="color: #4285f4; font-size: 13px; margin-top: 5px; font-weight: bold;">Sistema bajo control total.</p>
+                <span class="rango-tag rango-admin" style="margin-top: 10px; display: inline-block;">FUNDADOR</span>
+            </div>`;
+    } else if (rachaActual >= 1000) {
+        // Mensaje para el Hacker
+        htmlContenido = `
+            <div style="padding: 25px; border-radius: 20px; background: #000; border: 2px solid #0f0; flex: 1;">
+                <h3 style="color: #0f0; margin: 0; font-size: 18px; font-family: monospace;">¿Cómo es posible eso?</h3>
+                <p style="color: #0f0; opacity: 0.7; font-size: 12px; margin-top: 5px;">Has vulnerado los límites del tiempo.</p>
+                <span class="rango-tag rango-hacker" style="margin-top: 10px; display: inline-block;">ROOT_HACKER</span>
+            </div>`;
+    } else {
+        // LÓGICA DE PROGRESO NORMAL (Bronce a Obsidiana)
+        let htmlActual = "";
+        if (rangoActualIdx !== -1) {
+            const actual = niveles[rangoActualIdx];
+            htmlActual = `
+                <div style="padding: 15px; border-radius: 16px; background: #f8f9fa; border: 1px solid #eee; flex: 1;">
+                    <p style="font-size: 9px; color: #70757a; margin-bottom: 8px; font-weight: 800;">TU NIVEL</p>
+                    <span class="rango-tag ${actual.clase}">${actual.nombre}</span>
+                </div>`;
+        }
+
+        // Si ya es Obsidiana o superior, ya no mostramos "Siguiente"
+        if (rangoActualIdx < niveles.length - 1) {
+            const siguienteIdx = rangoActualIdx + 1;
+            const siguiente = niveles[siguienteIdx];
+            const diasFaltantes = siguiente.dias - rachaActual;
+            const progreso = (rachaActual / siguiente.dias) * 100;
+
+            const htmlSiguiente = `
+                <div style="padding: 15px; border-radius: 16px; background: white; border: 1px dashed #cbd5e0; flex: 1;">
+                    <p style="font-size: 9px; color: #70757a; margin-bottom: 8px; font-weight: 800;">SIGUIENTE</p>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 13px; font-weight: 900; color: ${siguiente.color}; opacity: 0.15; letter-spacing: 2px;">${siguiente.nombre}</span>
+                        <span style="font-size: 11px; color: #1a73e8; font-weight: 800;">-${diasFaltantes} días</span>
+                    </div>
+                    <div style="width: 100%; height: 5px; background: #eee; border-radius: 10px; margin-top: 10px; overflow: hidden;">
+                        <div style="width: ${progreso}%; height: 100%; background: ${siguiente.color}; transition: width 1s;"></div>
+                    </div>
+                </div>`;
+            htmlContenido = htmlActual + htmlSiguiente;
+        } else {
+            // Si es Obsidiana, solo mostramos su tarjeta centrada
+            htmlContenido = htmlActual;
+        }
+    }
+
+    statusMsg.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <div style="background: white; padding: 30px; border-radius: 32px; border: 1px solid #f1f3f4; margin-bottom: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <div style="display: flex; gap: 15px; align-items: stretch; justify-content: center; flex-wrap: wrap;">
+                    ${htmlContenido}
+                </div>
+            </div>
+            <img src="nohayagendas.png" style="width: 100%; max-width: 300px; margin-bottom: 20px;">
+            <h2 style="font-size: 18px; color: #3c4043;">${msg}</h2>
+        </div>`;
+}
+// BOTÓN DE TRES RAYAS (Sidebar Toggle)
+const btnToggle = document.getElementById('btn-toggle-sidebar');
+const mainContent = document.getElementById('main-content');
+
+btnToggle.onclick = () => {
+    sidebar.classList.toggle('collapsed');
+    
+    // Opcional: Ajustar el margen del contenido principal al colapsar
+    if (sidebar.classList.contains('collapsed')) {
+        mainContent.style.marginLeft = "0";
+    } else {
+        mainContent.style.marginLeft = "250px"; // Ajusta según el ancho de tu sidebar
+    }
+};
+
+// CERRAR SESIÓN
+const btnLogout = document.getElementById('btn-logout');
+
+if (btnLogout) {
+    btnLogout.addEventListener('click', (e) => {
+        e.preventDefault(); // Evita cualquier comportamiento por defecto
+        signOut(auth).then(() => {
+            window.location.href = "login.html";
+        }).catch((error) => {
+            console.error("Error al salir:", error);
+        });
+    });
+}
+
+    const btnPlus = document.getElementById('btn-plus');
+    const dropdown = document.getElementById('plus-dropdown');
+    const modal = document.getElementById('action-modal');
+    const modalInput = document.getElementById('modal-input');
+    let currentMode = "";
+
+    btnPlus.onclick = (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('show');
+    };
+
+    document.getElementById('open-join').onclick = (e) => {
+        e.preventDefault();
+        currentMode = "join";
+        document.getElementById('modal-title').innerText = "Unirse a la agenda";
+        modalInput.placeholder = "Escribe el código existente...";
+        modalInput.value = "";
+        modal.style.display = "flex";
+        dropdown.classList.remove('show');
+    };
+
+document.getElementById('open-create').onclick = (e) => {
+    e.preventDefault();
+    currentMode = "create";
+    document.getElementById('modal-title').innerText = "Crear nueva clase";
+    modalInput.placeholder = "Nombre del aula o materia...";
+    modalInput.value = "";
+    modal.style.display = "flex";
+    dropdown.classList.remove('show');
+};
+
+    document.getElementById('btn-close-modal').onclick = () => {
+        modal.style.display = "none";
+    };
+
+ document.getElementById('btn-action-confirm').onclick = async () => {
+    const val = modalInput.value.trim();
+    if (!val) return;
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    if (currentMode === "create") {
+        const codigoSecreto = generarCodigoAleatorio();
+        
+        // Referencia 1: La agenda global (donde están las tareas)
+        const agendaRef = ref(db, 'agendas/' + codigoSecreto);
+        // Referencia 2: El "llavero" del usuario (para que la vea en su menú)
+        const userAgendaRef = ref(db, `usuarios/${user.uid}/mis_agendas/${codigoSecreto}`);
+
+        try {
+            // Guardamos la agenda completa
+            await set(agendaRef, {
+                nombre: val,
+                owner: user.uid,
+                tareas: {
+                    inicio: { titulo: "Bienvenido", materia: "Sistema", descripcion: "Muro creado", fecha: "Hoy" }
+                }
+            });
+
+            // Guardamos el acceso directo en el perfil del usuario
+            await set(userAgendaRef, {
+                nombre: val,
+                rol: "creador"
+            });
+
+            window.location.href = `menu.html?code=${codigoSecreto}`;
+        } catch (error) { console.error(error); }
+
+    } else {
+        // MODO UNIRSE: Buscamos si existe y la añadimos al perfil
+        const codigo = val.toUpperCase();
+        const agendaRef = ref(db, 'agendas/' + codigo);
+
+        // Usamos "get" para revisar una sola vez
+      
+        
+        const snapshot = await get(agendaRef);
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            await set(ref(db, `usuarios/${user.uid}/mis_agendas/${codigo}`), {
+                nombre: data.nombre,
+                rol: "estudiante"
+            });
+            window.location.href = `menu.html?code=${codigo}`;
+        } else {
+            alert("Código no encontrado.");
+        }
+    }
+};
+
+    window.onclick = () => {
+        dropdown.classList.remove('show');
+    };function abrirModalTarea(code) {
+    const modal = document.getElementById('action-modal');
+    const modalContent = document.querySelector('.modal-content');
+
+    // Cambiamos el contenido del modal para el formulario de tareas
+    modalContent.innerHTML = `
+        <h2>Publicar Tarea</h2>
+        <input type="text" id="t-titulo" placeholder="Título (ej: Tarea de Fracciones)" style="width:90%; margin:10px 0; padding:10px;">
+        <input type="text" id="t-materia" placeholder="Materia (ej: Matemática)" style="width:90%; margin:10px 0; padding:10px;">
+        <textarea id="t-desc" placeholder="Descripción" style="width:90%; margin:10px 0; padding:10px; height:80px;"></textarea>
+        <input type="text" id="t-fecha" placeholder="Fecha de entrega" style="width:90%; margin:10px 0; padding:10px;">
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="document.getElementById('action-modal').style.display='none'">Cancelar</button>
+            <button class="btn-confirm" id="btn-save-task">Publicar Ahora</button>
+        </div>
+    `;
+    
+    modal.style.display = "flex";
+
+    // Evento para guardar en Firebase
+    document.getElementById('btn-save-task').onclick = async () => {
+        const titulo = document.getElementById('t-titulo').value.trim();
+        const materia = document.getElementById('t-materia').value.trim();
+        const descripcion = document.getElementById('t-desc').value.trim();
+        const fecha = document.getElementById('t-fecha').value.trim();
+
+        if (titulo && materia) {
+            // Referencia a la lista de tareas de esa agenda
+            const tareasRef = ref(db, 'agendas/' + code + '/tareas');
+            
+            // Creamos una nueva posición con ID único usando push()
+            const nuevaTareaRef = push(tareasRef);
+
+            await set(nuevaTareaRef, {
+                titulo: titulo,
+                materia: materia,
+                descripcion: descripcion,
+                fecha: fecha
+            });
+
+            modal.style.display = "none";
+            // No hace falta recargar, onValue actualizará la lista automáticamente
+        } else {
+            alert("Por favor completa el título y la materia.");
+        }
+    };}
+// --- LÓGICA DE NAVEGACIÓN DEL SIDEBAR ---
+
+const navItems = document.querySelectorAll('.nav-item');
+
+navItems.forEach(item => {
+    item.onclick = (e) => {
+        // Ignorar el click si es el botón de Cerrar Sesión (ya tiene su propia lógica)
+        if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
+
+        // 1. Efecto Visual de Selección
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+
+        // 2. Obtener el texto para identificar la sección
+        const texto = item.innerText.toLowerCase();
+        const container = document.getElementById('task-container');
+        const bannerTitle = document.getElementById('banner-title');
+        const adminControls = document.getElementById('admin-controls');
+
+        // Limpiamos los controles de admin al cambiar de sección para evitar errores
+        if (adminControls) adminControls.innerHTML = "";
+
+        // 3. Switch de Navegación (Single Page Application style)
+        if (texto.includes("inicio")) {
+            // En lugar de reload(), llamamos a cargarAgenda() para que sea instantáneo
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (code) {
+                cargarAgenda(auth.currentUser.uid);
+            } else {
+                mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
+            }
+        } 
+        
+       // --- DENTRO DE navItems.forEach ---
+
+else if (texto.includes("calendario")) {
+    bannerTitle.innerText = "Calendario Académico";
+    container.innerHTML = "<p style='text-align:center;'>Organizando fechas...</p>";
+    obtenerTodasLasTareas((todasLasTareas) => {
+        // Ordenar por fecha (asumiendo formato YYYY-MM-DD o similar)
+        todasLasTareas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+        renderizarVistaLista(todasLasTareas, "calendario");
+    });
+}
+
+else if (texto.includes("pendientes")) {
+    bannerTitle.innerText = "Tareas Pendientes";
+    container.innerHTML = "<p style='text-align:center;'>Buscando tareas...</p>";
+    obtenerTodasLasTareas((todasLasTareas) => {
+        // Filtrar tareas cuya fecha sea hoy o futura
+        const hoy = new Date().setHours(0,0,0,0);
+        const pendientes = todasLasTareas.filter(t => new Date(t.fecha) >= hoy);
+        renderizarVistaLista(pendientes, "pendientes");
+    });
+}
+        else if (texto.includes("cuenta de google")) {
+            const user = auth.currentUser;
+            bannerTitle.innerText = "Información de Perfil";
+            container.innerHTML = `
+                <div class="card" style="max-width: 450px; margin: 20px auto; text-align: center; padding: 30px;">
+                    <div style="position: relative; display: inline-block;">
+                        <img src="${user.photoURL}" style="border-radius: 50%; width: 120px; border: 4px solid #e8f0fe;">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background: #34a853; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>
+                    </div>
+                    <h2 style="margin-top: 15px; color: #202124;">${user.displayName}</h2>
+                    <p style="color: #5f6368; margin-bottom: 20px;">${user.email}</p>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    <p style="font-size: 13px; color: #1a73e8; font-weight: 500;">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/avatar_circle_blue_512dp.png" width="16" style="vertical-align: middle; margin-right: 5px;">
+                        Cuenta vinculada con Praxis Cloud
+                    </p>
+                </div>`;
+        }
+else if (texto.includes("sincronizar drive")) {
+    bannerTitle.innerText = "Mi Biblioteca Digital";
+    
+    container.innerHTML = `
+        <div class="drive-explorer" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 20px; border: 1px solid #eee; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="margin: 0; color: #1a73e8; font-size: 20px;">Recursos en la Nube</h2>
+                    <p style="margin: 5px 0 0 0; color: #5f6368; font-size: 13px;">Explora tus materiales de estudio del San Jerónimo.</p>
+                </div>
+                <button id="btn-auth-drive" style="background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold;">
+                    CONECTAR DRIVE
+                </button>
+            </div>
+
+            <div id="drive-content" style="display: none;">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="drive-search" placeholder="Buscar fichas, exámenes, tareas..." style="flex: 1; padding: 12px 20px; border-radius: 50px; border: 1px solid #dadce0; outline: none; font-size: 14px;">
+                    <button id="btn-search" style="background: #f1f3f4; border: none; padding: 0 20px; border-radius: 50px; cursor: pointer;">🔍</button>
+                </div>
+
+                <div id="files-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+                    </div>
+            </div>
+        </div>
+    `;
+
+    const btnAuth = document.getElementById('btn-auth-drive');
+    const driveContent = document.getElementById('drive-content');
+    const filesList = document.getElementById('files-list');
+
+    btnAuth.onclick = () => {
+        tokenClient.callback = async (resp) => {
+            if (resp.error) throw resp;
+            btnAuth.innerText = "✅ Sincronizado";
+            btnAuth.style.background = "#e8f0fe";
+            btnAuth.style.color = "#1967d2";
+            driveContent.style.display = "block";
+
+            // FUNCION: Listar archivos PDF recientes del colegio
+            const listarArchivos = async (query = "") => {
+                filesList.innerHTML = "<p>Buscando materiales...</p>";
+                
+                // Buscamos solo PDFs y archivos de texto para que sea académico
+                const q = query ? `name contains '${query}' and mimeType != 'application/vnd.google-apps.folder'` : "mimeType = 'application/pdf'";
+                
+                const response = await gapi.client.drive.files.list({
+                    q: q,
+                    pageSize: 8,
+                    fields: 'files(id, name, thumbnailLink, webViewLink)'
+                });
+
+                const files = response.result.files;
+                filesList.innerHTML = "";
+                
+                if (files && files.length > 0) {
+                    files.forEach(file => {
+                        filesList.innerHTML += `
+                            <div onclick="window.open('${file.webViewLink}', '_blank')" style="background: white; padding: 15px; border-radius: 15px; border: 1px solid #eee; text-align: center; cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='#1a73e8'">
+                                <div style="font-size: 30px; margin-bottom: 10px;">📄</div>
+                                <div style="font-size: 11px; font-weight: bold; color: #3c4043; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</div>
+                                <div style="font-size: 9px; color: #1a73e8; margin-top: 5px;">Abrir Recurso</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    filesList.innerHTML = "<p style='font-size: 12px; color: #666;'>No se encontraron materiales.</p>";
+                }
+            };
+
+            listarArchivos(); // Carga inicial
+            
+            document.getElementById('btn-search').onclick = () => {
+                const term = document.getElementById('drive-search').value;
+                listarArchivos(term);
+            };
+        };
+        tokenClient.requestAccessToken({prompt: 'consent'});
+    };
+}
+    // Dentro de navItems.forEach(item => { ... })
+item.onclick = (e) => {
+    if (item.id === 'btn-logout' || item.classList.contains('logout')) return;
+
+    navItems.forEach(nav => nav.classList.remove('active'));
+    item.classList.add('active');
+
+    const texto = item.innerText.toLowerCase();
+    const container = document.getElementById('task-container');
+    const bannerTitle = document.getElementById('banner-title');
+    
+    // --- ESTO SOLUCIONA EL PROBLEMA DEL BOTÓN PEGADO ---
+    // 1. Buscamos cualquier botón de publicación anterior y lo eliminamos
+    const oldAdminBtn = document.getElementById('admin-publish-btn');
+    if (oldAdminBtn) {
+        oldAdminBtn.remove();
+    }
+
+    // 2. Limpiamos el código de acceso y mensajes para que el banner esté vacío
+    document.getElementById('display-code').innerText = "";
+    container.innerHTML = ""; 
+    document.getElementById('status-message').innerHTML = ""; 
+    // --------------------------------------------------
+
+if (texto.includes("inicio")) {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    
+    // Obtenemos la racha que ya cargó gestionarRachaUsuario
+    const rachaActual = parseInt(document.getElementById('streak-count')?.innerText) || 0;
+
+    if (code) {
+        cargarAgenda(auth.currentUser.uid);
+    } else {
+        // PASAMOS LA RACHA AQUÍ
+        mostrarEstadoVacio("Ingresa un código para ver tu agenda.", rachaActual);
+    }
+}
+    // ... resto de tus else if (calendario, pendientes, etc.)
+};
+}
+     // Cerramos el sidebar automáticamente en móviles tras elegir una opción
+if (window.innerWidth <= 768) {
+    sidebar.classList.remove('active'); // Quitamos 'active' para que se esconda
+    if (overlay) {
+        overlay.style.display = 'none'; // Ocultamos la capa oscura
+    }
+}
+    });function generarCodigoAleatorio(longitud = 6) {
+    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Eliminamos 'I', 'O', '0', '1' para evitar confusiones
+    let resultado = '';
+    for (let i = 0; i < longitud; i++) {
+        resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+    return `PX-${resultado}`; // Prefijo para que sepa que es de Praxis
+}
+// Función global para eliminar una tarea específica
+window.eliminarTarea = async (agendaCode, tareaId) => {
+    if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
+        try {
+            // Referencia exacta a la tarea dentro de la agenda
+            const tareaRef = ref(db, `agendas/${agendaCode}/tareas/${tareaId}`);
+            
+            // En Firebase, poner el valor en null elimina el nodo
+            await set(tareaRef, null);
+            
+            // No hace falta recargar, onValue actualizará la vista automáticamente
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+            alert("No se pudo eliminar la tarea.");
+        }
+    }
+}; function cargarListaSidebar(uid) {
+    const misAgendasRef = ref(db, `usuarios/${uid}/mis_agendas`);
+    const sidebar = document.getElementById('sidebar');
+
+    onValue(misAgendasRef, (snapshot) => {
+        const agendas = snapshot.val();
+        
+        // Buscamos o creamos un contenedor para no borrar el "Inicio", "Calendario", etc.
+        let listaDinamica = document.getElementById('lista-agendas-scroll');
+        if (!listaDinamica) {
+            listaDinamica = document.createElement('div');
+            listaDinamica.id = 'lista-agendas-scroll';
+            // Lo insertamos antes del botón de Salir
+            sidebar.insertBefore(listaDinamica, document.getElementById('btn-logout').previousElementSibling);
+        }
+
+        listaDinamica.innerHTML = '<hr><p style="font-size:10px; color:gray; margin-left:20px;">MIS CLASES</p>';
+
+        if (agendas) {
+            Object.keys(agendas).forEach(id => {
+                const item = document.createElement('div');
+                item.className = 'nav-item';
+                item.innerHTML = `<img src="pagina-de-inicio.png" style="width:20px; filter:grayscale(1);"> ${agendas[id].nombre}`;
+                item.onclick = () => window.location.href = `menu.html?code=${id}`;
+                listaDinamica.appendChild(item);
+            });
+        }
+    });
+} ;window.toggleMobileMenu = () => {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('active');
+    overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+};
+async function obtenerTodasLasTareas(callback) {
+    const user = auth.currentUser;
+    const misAgendasRef = ref(db, `usuarios/${user.uid}/mis_agendas`);
+    const snapshot = await get(misAgendasRef);
+    const misAgendas = snapshot.val();
+    
+    if (!misAgendas) {
+        renderizarVacio();
+        return;
+    }
+
+    let tareasAcumuladas = [];
+    const promesas = Object.keys(misAgendas).map(async (code) => {
+        const agendaSnap = await get(ref(db, `agendas/${code}`));
+        const agendaData = agendaSnap.val();
+        if (agendaData && agendaData.tareas) {
+            Object.keys(agendaData.tareas).forEach(id => {
+                if(id !== 'inicio') { // Ignorar la tarea de bienvenida
+                    tareasAcumuladas.push({
+                        ...agendaData.tareas[id],
+                        agendaNombre: agendaData.nombre,
+                        agendaId: code
+                    });
+                }
+            });
+        }
+    });
+
+    await Promise.all(promesas);
+    callback(tareasAcumuladas);
+}
+
+function renderizarVistaLista(lista, tipo) {
+    container.innerHTML = "";
+    if (lista.length === 0) {
+        renderizarVacio();
+        return;
+    }
+
+    lista.forEach(t => {
+        container.innerHTML += `
+            <div class="card" onclick="window.location.href='menu.html?code=${t.agendaId}'" style="cursor:pointer;">
+                <div class="card-header">
+                    <div>
+                        <h3 style="font-size:16px;">${t.titulo}</h3>
+                        <small style="color:var(--p-600)">${t.agendaNombre} • ${t.materia}</small>
+                    </div>
+                </div>
+                <div class="card-body"><p>${t.descripcion.substring(0, 100)}...</p></div>
+                <div class="card-footer">
+                    <span class="${tipo === 'pendientes' ? 'tag-warning' : ''}">
+                        📅 Entrega: ${t.fecha}
+                    </span>
+                </div>
+            </div>`;
+    });
+}
+
+function renderizarVacio() {
+    container.innerHTML = `
+        <div class="empty-state">
+            <img src="https://www.gstatic.com/classroom/empty_states_home.png">
+            <h2>No hay tareas aquí</h2>
+            <p>Todo está al día por ahora.</p>
+        </div>`;
+}
+// --- SCRIPT DE ACTUALIZACIÓN PRAXIS (BETA v1.1) ---
+(function() {
+    // 1. Verificar si el usuario ya pidió no ver la actualización
+    if (localStorage.getItem('praxis_update_hidden') === 'true') return;
+
+    // 2. Inyección de Estilos Críticos
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .update-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); z-index: 5000;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .update-card {
+            background: white; width: 90%; max-width: 500px;
+            border-radius: 16px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .cache-warning {
+            background: #fff3e0; color: #e65100; padding: 12px;
+            border-radius: 8px; font-size: 13px; margin: 15px 0;
+            border: 1px solid #ffe0b2; line-height: 1.4;
+        }
+        .compare-box {
+            display: flex; gap: 10px; margin: 15px 0;
+        }
+        .side {
+            flex: 1; padding: 12px; border-radius: 10px; font-size: 12px;
+        }
+        .side-old { background: #fce8e6; color: #d93025; border: 1px solid #f5c2c7; }
+        .side-new { background: #e6f4ea; color: #188038; border: 1px solid #badbcc; }
+        .update-footer {
+            margin-top: 20px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .btn-update-ok {
+            background: #1a73e8; color: white; border: none; padding: 12px;
+            border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;
+        }
+        .no-show-label {
+            font-size: 12px; color: #5f6368; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 3. Creación de la Estructura del Modal
+    const overlay = document.createElement('div');
+    overlay.className = 'update-overlay';
+    overlay.innerHTML = `
+        <div class="update-card">
+            <h2 style="color: #202124; margin: 0;">¡Praxis se ha actualizado!</h2>
+            <p style="color: #5f6368; font-size: 14px; margin-top: 8px;">Hemos optimizado la interfaz para dispositivos móviles y escritorio.</p>
+            
+            <img src="actu1.png" style="width: 100%; max-width: 400px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd;">
+
+            <div class="cache-warning">
+                <b>⚠️ ¡Importante para ver los cambios!</b><br>
+                Presiona <b>Ctrl + F5</b> (o Cmd + Shift + R en Mac) para limpiar la memoria de tu navegador y cargar el nuevo diseño.
+            </div>
+
+            <div class="compare-box">
+                <div class="side side-old">
+                    <b>Antes</b><br>Botones desalineados.
+                </div>
+                <div class="side side-new">
+                    <b>Ahora</b><br>Interfaz fluida y limpia.
+                </div>
+            </div>
+
+            <div class="update-footer">
+                <button class="btn-update-ok" id="close-update-btn">Entendido y Actualizado</button>
+                <label class="no-show-label">
+                    <input type="checkbox" id="no-show-check"> No volver a mostrar esta versión             shift+p
+                </label>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // 4. Lógica de Cierre y Persistencia
+    const closeBtn = document.getElementById('close-update-btn');
+    const noShowCheck = document.getElementById('no-show-check');
+
+    closeBtn.onclick = () => {
+        if (noShowCheck.checked) {
+            localStorage.setItem('praxis_update_hidden', 'true');
+        }
+        overlay.remove();
+    };
+})();
+(function() {
+    let keys = {};
+    window.addEventListener('keydown', (e) => {
+        keys[e.key.toLowerCase()] = true;
+        // Atajo: Shift + P (Performance)
+        if (e.shiftKey && keys['p']) {
+            activarInspectorExperimental();
+        }
+    });
+    window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+    function activarInspectorExperimental() {
+        const yaAcepto = localStorage.getItem('praxis_perf_exp');
+        
+        // Alerta nativa (Para evitar errores de librerías externas)
+        if (!yaAcepto) {
+            const confirmar = confirm("🧪 [ALONIXZ LABS]\n\nEstás activando el 'Inspector de Rendimiento Experimental'.\nEsta función analizará la carga de Praxis.\n\n¿Deseas continuar?");
+            if (confirmar) {
+                localStorage.setItem('praxis_perf_exp', 'true');
+                mostrarReporte();
+            }
+        } else {
+            mostrarReporte();
+        }
+    }
+
+    function mostrarReporte() {
+        // Obtenemos datos reales de navegación del navegador
+        const [navigation] = performance.getEntriesByType('navigation');
+        const cargaTotal = (navigation.duration / 1000).toFixed(2);
+        
+        const reporte = document.createElement('div');
+        reporte.id = 'perf-report';
+        reporte.innerHTML = `
+            <div style="background: #202124; color: #34a853; padding: 15px; border-radius: 12px; font-family: monospace; font-size: 12px; border: 1px solid #34a853;">
+                <b style="color: white;">> ALONIXZ_PERF_REPORT:</b><br><br>
+                [ESTADO]: OPTIMIZADO<br>
+                [CARGA_TOTAL]: ${cargaTotal}s<br>
+                [DOM_READY]: ${navigation.domInteractive.toFixed(0)}ms<br>
+                [PROTOCOL]: ${window.location.protocol}<br><br>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; border: 1px solid white; color: white; cursor: pointer; padding: 3px 10px;">Cerrar terminal</button>
+            </div>
+        `;
+        
+        Object.assign(reporte.style, {
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            zIndex: '10002', width: '280px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+        });
+
+        document.body.appendChild(reporte);
+    }
+})();// Asegúrate de importar estas funciones si usas módulos (ESM)
+// import { ref, get, update } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-database.js";
+
+async function gestionarRachaUsuario(uid) {
+    // 1. Verificación de seguridad: si no hay base de datos o uid, cancelamos silenciosamente
+    if (!db || !uid) return;
+
+    try {
+        const rachaRef = ref(db, `usuarios/${uid}/stats`);
+        const snapshot = await get(rachaRef);
+        
+        // Obtenemos datos o valores por defecto
+        const stats = snapshot.exists() ? snapshot.val() : { racha: 0, ultimaConexion: "" };
+        
+        // Usamos la fecha local de Arequipa/Juliaca (Perú) para evitar desfases
+        const hoy = new Date().toLocaleDateString('en-CA'); 
+        const ultima = stats.ultimaConexion;
+
+        // Si ya registró racha hoy, solo pintamos el número y salimos
+        if (ultima === hoy) {
+            const el = document.getElementById('streak-count');
+            if (el) el.innerText = stats.racha;
+            return;
+        }
+
+        let nuevaRacha = 1; // Por defecto empezamos en 1 si es nuevo
+
+        if (ultima) {
+            const ultimaDate = new Date(ultima + "T00:00:00");
+            const hoyDate = new Date(hoy + "T00:00:00");
+            const diffMilisegundos = hoyDate - ultimaDate;
+            const diffDias = Math.round(diffMilisegundos / (1000 * 60 * 60 * 24));
+
+            if (diffDias === 1) {
+                nuevaRacha = (stats.racha || 0) + 1; // Consecutivo
+            } else {
+                nuevaRacha = 1; // Se pasó el tiempo, reinicia
+            }
+        }
+
+        // Guardar en Alonixz-Cloud (Firebase)
+        // Usamos update para no borrar otros datos que tengas en 'stats'
+        await update(rachaRef, {
+            racha: nuevaRacha,
+            ultimaConexion: hoy
+        });
+
+        // Actualizar la interfaz solo si los elementos existen
+        const elCount = document.getElementById('streak-count');
+        if (elCount) elCount.innerText = nuevaRacha;
+
+    } catch (error) {
+        // El error se queda en consola para ti, pero no activa el Guardian
+        console.warn("Praxis Racha Log:", error.message);
+    }// Dentro de gestionarRachaUsuario, después de elCount.innerText = nuevaRacha;
+if (displayCode.innerText === "SIN AGENDA") {
+    mostrarEstadoVacio("Ingresa un código para ver tu agenda.", nuevaRacha);
+}
+}window.enviarMensajeClase = async (code) => {
+    const input = document.getElementById(`input-chat-${code}`);
+    const texto = input.value.trim();
+    const user = auth.currentUser;
+
+    if (!texto || !user) return;
+
+    try {
+        const chatRef = ref(db, `agendas/${code}/chat`);
+        await push(chatRef, {
+            autor: user.displayName || "Usuario",
+            foto: user.photoURL || "",
+            texto: texto,
+            uid: user.uid,
+            timestamp: Date.now()
+        });
+        input.value = "";
+    } catch (e) { console.error("Error en chat:", e); }
+};
+
+function escucharChatClase(code) {
+    const lista = document.getElementById(`lista-mensajes-${code}`);
+    const chatRef = ref(db, `agendas/${code}/chat`);
+
+    onValue(chatRef, (snapshot) => {
+        if (!lista) return;
+        const data = snapshot.val();
+        lista.innerHTML = "";
+
+        if (data) {
+            Object.values(data).forEach(msg => {
+                const esMio = msg.uid === auth.currentUser.uid;
+                lista.innerHTML += `
+                    <div style="display: flex; justify-content: ${esMio ? 'flex-end' : 'flex-start'}; margin-bottom: 12px;">
+                        <div style="display: flex; flex-direction: ${esMio ? 'row-reverse' : 'row'}; gap: 8px; max-width: 85%;">
+                            <img src="${msg.foto}" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #eee;">
+                            <div style="background: ${esMio ? 'var(--p-100)' : '#f1f3f4'}; padding: 8px 12px; border-radius: 12px; border: 1px solid ${esMio ? 'var(--p-200)' : '#e0e0e0'};">
+                                <div style="font-size: 10px; font-weight: bold; color: ${esMio ? 'var(--p-700)' : '#5f6368'}; margin-bottom: 2px;">
+                                    ${esMio ? 'Tú' : msg.autor}
+                                </div>
+                                <div style="font-size: 13px; color: var(--text-dark); line-height: 1.4;">${msg.texto}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            lista.scrollTop = lista.scrollHeight;
+        } else {
+            lista.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>No hay mensajes. ¡Inicia la conversación!</p>";
+        }
+    });
+}/**
+ * Praxis Adaptive Script v1.0
+ * Desarrollado por Alonso - Alonixz-Group
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const menuBtn = document.getElementById('btn-toggle-sidebar');
+    const content = document.querySelector('.content');
+
+    // 1. Manejo del Menú Mobile (Drawer)
+    if (menuBtn) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    // Cerrar menú al hacer clic fuera (en el contenido)
+    content.addEventListener('click', () => {
+        if (sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    // 2. Adaptación de Interfaz según Dispositivo
+    const checkDevice = () => {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // Optimizar racha para móviles
+            const streak = document.getElementById('streak-container');
+            if (streak) streak.style.padding = "4px 8px";
+            
+            // Colapsar sidebar por defecto
+            sidebar.classList.remove('collapsed');
+        }
+    };
+
+    // Ejecutar al cargar y al cambiar tamaño
+    window.addEventListener('resize', checkDevice);
+    checkDevice();
+
+    // 3. Efecto Scrolled para el Header (Glassmorphism Dinámico)
+    window.addEventListener('scroll', () => {
+        const topBar = document.querySelector('.top-bar');
+        if (window.scrollY > 20) {
+            topBar.classList.add('scrolled');
+        } else {
+            topBar.classList.remove('scrolled');
+        }
+    });
+});
+</script><div id="modal-anuncio" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 24px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 40px; margin-bottom: 15px;">📢</div>
+        <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 10px; color: #1a73e8;">Aviso de Praxis</h2>
+        <p id="texto-anuncio-modal" style="color: #5f6368; line-height: 1.6; margin-bottom: 25px; font-size: 15px;"></p>
+        <button onclick="cerrarModalAnuncio()" style="background: #1a73e8; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s;">Entendido</button>
+    </div>
+</div>
+
+<style>
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
+</body>
+</html>

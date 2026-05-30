@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo | Praxis Consejo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>.modal {
+    transition: opacity 0.3s ease;
+}
+        :root {
+            --primary: #1a73e8;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --accent: #6366f1;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            color: var(--text);
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .main-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: transform 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .main-btn:active { transform: scale(0.98); }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 40px 0 15px 5px;
+        }
+
+        .item-card {
+            background: white;
+            padding: 20px;
+            border-radius: 24px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 32px;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { padding: 15px 20px; font-size: 12px; color: #94a3b8; font-weight: 800; text-align: left; background: #f8fafc; }
+        
+        .id-badge {
+            font-size: 10px;
+            color: #1a73e8;
+            background: #e8f0fe;
+            padding: 2px 6px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 4px;
+            cursor: pointer;
+            font-weight: 700;
+        }.poll-result-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        margin-top: 5px;
+        overflow: hidden;
+    }
+    .poll-progress {
+        height: 100%;
+        background: var(--accent);
+        transition: width 0.5s ease;
+    }
+    .agenda-card {
+        background: #ffffff;
+        border: 2px solid #000; /* Estilo Digital Brutalism */
+        box-shadow: 5px 5px 0px #000;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+    .point-badge {
+        background: #fef08a;
+        color: #854d0e;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 13px;
+    }.nav-container {
+        padding: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-scanner-link {
+        background: #0071ff; /* Azul sistema */
+        color: #fff;
+        border: 4px solid #000;
+        padding: 20px 40px;
+        font-size: 18px;
+        font-weight: 950;
+        text-transform: uppercase;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 10px 10px 0px #000;
+        transition: 0.1s;
+        cursor: pointer;
+    }
+
+    .btn-scanner-link:active {
+        transform: translate(5px, 5px);
+        box-shadow: 5px 5px 0px #000;
+    }
+
+    .btn-scanner-link i {
+        font-size: 24px;
+    }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <button onclick="window.location.href='menu.html'" style="border:none; background:#f1f5f9; padding:10px; border-radius:12px; cursor:pointer;">🏠</button>
+        <h1 style="font-size: 18px; margin: 0; font-weight: 800;">Panel del Consejo</h1>
+    </div>
+    <div id="admin-status" style="font-size: 12px; color: #16a34a; font-weight: 600;">● Admin Activo</div>
+</header>
+
+<div class="container">
+    <div class="nav-container">
+    <a href="lector.html" class="btn-scanner-link">
+        <span>📷 Abrir Lector QR</span>
+    </a>
+</div><!-- Botón de Acceso a Registros -->
+<a href="registro.html" class="btn-brutalista">
+    <span class="btn-text">EXPLORADOR DE REGISTROS</span>
+    <span class="btn-icon">📂</span>
+</a>
+
+<style>
+    .btn-brutalista {
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        background-color: #34a853; /* Verde Praxis */
+        color: #000;
+        text-decoration: none;
+        font-family: 'Courier New', monospace;
+        font-weight: 900;
+        font-size: 18px;
+        padding: 15px 30px;
+        border: 4px solid #000;
+        box-shadow: 8px 8px 0px #000;
+        transition: all 0.1s;
+        position: relative;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    /* Efecto al pasar el mouse */
+    .btn-brutalista:hover {
+        background-color: #fbbc05; /* Cambio a amarillo para resaltar */
+        box-shadow: 4px 4px 0px #000;
+        transform: translate(2px, 2px);
+    }
+
+    /* Efecto al hacer clic */
+    .btn-brutalista:active {
+        box-shadow: 0px 0px 0px #000;
+        transform: translate(8px, 8px);
+    }
+
+    .btn-icon {
+        font-size: 24px;
+        filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.2));
+    }
+
+    /* Estilo para pantallas pequeñas */
+    @media (max-width: 480px) {
+        .btn-brutalista {
+            font-size: 14px;
+            padding: 10px 20px;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div style="font-size: 24px;">📣</div>
+            <div id="count-com" style="font-size: 20px; font-weight: 800;">0</div>
+            <div style="font-size: 12px; color: #64748b;">Comunicados</div>
+        </div>
+        <div class="stat-card">
+            <div style="font-size: 24px;">📊</div>
+            <div id="count-enc" style="font-size: 20px; font-weight: 800;">0</div>
+            <div style="font-size: 12px; color: #64748b;">Encuestas</div>
+        </div>
+    </div>
+
+    <button class="main-btn" onclick="abrirModal('comunicado')">
+        <span>➕</span> Publicar Comunicado
+    </button>
+    <button class="main-btn" onclick="abrirModal('encuesta')" style="background: var(--accent);">
+        <span>📈</span> Crear Nueva Encuesta
+    </button>
+
+    <!-- Sección de Premiación -->
+    <div class="praxis-points-box" style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 25px; border-radius: 28px; margin-top: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+            <span style="font-size: 24px;">🏆</span>
+            <h3 style="margin: 0; font-size: 18px; color: #1e3a8a; font-weight: 800;">Premiación Praxis</h3>
+        </div>
+        <p style="font-size: 13px; color: #1e40af; margin-bottom: 15px;">Otorga puntos de mérito directamente a los IDs del directorio.</p>
+        
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="praxis-uid" placeholder="ID (Pegar aquí)" style="flex: 2; padding: 14px; border-radius: 14px; border: 1px solid #dbeafe; outline: none;">
+            <input type="number" id="praxis-amt" placeholder="Cant." style="flex: 1; padding: 14px; border-radius: 14px; border: 1px solid #dbeafe; outline: none;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="puntosPraxis(true)" style="flex: 1; padding: 15px; border-radius: 16px; border: none; background: #1a73e8; color: white; font-weight: 800; cursor: pointer;">Otorgar</button>
+            <button onclick="puntosPraxis(false)" style="flex: 1; padding: 15px; border-radius: 16px; border: 1px solid #dbeafe; background: white; color: #1e40af; font-weight: 700; cursor: pointer;">Retirar</button>
+        </div>
+    </div><!-- Sección de Gestión de Agendas -->
+<div class="agenda-points-box" style="background: #fdf2f8; border: 1px solid #fbcfe8; padding: 25px; border-radius: 28px; margin-top: 20px; border: 2px solid #000; box-shadow: 6px 6px 0px #000;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+        <span style="font-size: 24px;">📔</span>
+        <h3 style="margin: 0; font-size: 18px; color: #9d174d; font-weight: 800;">Banco de Puntos: Agendas</h3>
+    </div>
+    <p style="font-size: 13px; color: #be185d; margin-bottom: 15px;">Gestiona el saldo acumulado de las agendas mediante su código oficial.</p>
+    
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="agenda-cod" placeholder="Código (Ej: PX-Z2X2EF)" style="flex: 2; padding: 14px; border-radius: 14px; border: 2px solid #000; outline: none; font-family: 'Outfit', sans-serif; font-weight: 700;">
+        <input type="number" id="agenda-amt" placeholder="Cant." style="flex: 1; padding: 14px; border-radius: 14px; border: 2px solid #000; outline: none; font-weight: 700;">
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="puntosAgenda(true)" style="flex: 1; padding: 15px; border-radius: 16px; border: 2px solid #000; background: #ec4899; color: white; font-weight: 800; cursor: pointer; box-shadow: 3px 3px 0px #000;">Cargar</button>
+        <button onclick="puntosAgenda(false)" style="flex: 1; padding: 15px; border-radius: 16px; border: 2px solid #000; background: white; color: #9d174d; font-weight: 700; cursor: pointer; box-shadow: 3px 3px 0px #000;">Debitar</button>
+    </div>
+</div>
+
+    <div class="section-title">Directorio de Estudiantes</div>
+    <div style="background: white; border-radius: 28px; border: 1px solid #e2e8f0; overflow: hidden; margin-bottom: 30px;">
+        <div style="padding: 15px 20px; background: #fafafa; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+            <span style="font-size: 12px; font-weight: 800; color: #64748b;">REGISTRO ALONIXZ-CLOUD</span>
+            <span id="count-users" style="color: var(--primary); font-weight: 800; font-size: 12px;">0 Usuarios</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ESTUDIANTE</th>
+                        <th>ACTIVIDAD</th>
+                        <th style="text-align: right;">PUNTOS</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body">
+                    <tr><td colspan="3" style="text-align:center; padding:30px; color:#94a3b8;">Sincronizando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section-title">Actividad Reciente</div>
+    <div id="lista-actividad"></div>
+    <div class="section-title">Agendas Activas (Sincronizadas)</div>
+    <div id="lista-agendas">
+        <p style="font-size: 12px; color: #94a3b8; padding-left: 5px;">Cargando bancos de puntos...</p>
+    </div>
+
+    <!-- SECCIÓN DE RESULTADOS DE ENCUESTAS -->
+    <div class="section-title">Resultados de Encuestas</div>
+    <div id="resultados-encuestas"></div>
+    <div class="section-title">Logística y Suministros</div>
+<div class="marketplace-manager" style="background: #fff; border: 4px solid #000; box-shadow: 12px 12px 0px #000; padding: 30px; border-radius: 4px; margin-top: 20px;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 4px solid #000; padding-bottom: 15px;">
+        <span style="font-size: 32px;">📦</span>
+        <h3 style="margin: 0; font-size: 22px; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: -1px;">Registrar Nuevo Artículo</h3>
+    </div>
+    
+    <div style="display: grid; gap: 20px;">
+        <!-- Nombre del Producto -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Nombre del ítem</label>
+            <input type="text" id="prod-nombre" placeholder="Ej: Membresía Praxis Premium" 
+                   style="padding: 15px; border: 3px solid #000; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 16px; outline: none; background: #f8fafc;">
+        </div>
+
+        <!-- Descripción -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Descripción del beneficio</label>
+            <textarea id="prod-desc" placeholder="Detalla qué incluye este producto o servicio..." 
+                      style="padding: 15px; border: 3px solid #000; font-family: 'Outfit', sans-serif; font-weight: 600; min-height: 80px; resize: vertical; background: #f8fafc;"></textarea>
+        </div>
+        
+        <!-- Precio y Stock -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Costo (Créditos)</label>
+                <input type="number" id="prod-precio" placeholder="000" 
+                       style="padding: 15px; border: 3px solid #000; font-weight: 900; font-size: 20px; color: #1a73e8; background: #e8f0fe;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-weight: 800; font-size: 12px; text-transform: uppercase;">Stock Inicial</label>
+                <input type="number" id="prod-stock" placeholder="Unidades" 
+                       style="padding: 15px; border: 3px solid #000; font-weight: 900; font-size: 20px; background: #fff;">
+            </div>
+        </div>
+
+        <button onclick="subirProducto()" class="btn-post-market">
+            <span style="position: relative; z-index: 2;">DESPLEGAR EN MARKETPLACE</span>
+        </button>
+    </div>
+</div>
+
+<style>
+    .btn-post-market {
+        padding: 20px;
+        background: #00ff88; /* Color Neón Praxis */
+        color: #000;
+        border: 4px solid #000;
+        font-weight: 950;
+        font-size: 16px;
+        cursor: pointer;
+        position: relative;
+        transition: 0.1s;
+        margin-top: 10px;
+        box-shadow: 6px 6px 0px #000;
+    }
+    .btn-post-market:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0px #000;
+        background: #00e67a;
+    }
+    .btn-post-market:active {
+        transform: translate(4px, 4px);
+        box-shadow: 0px 0px 0px #000;
+    }
+</style><div class="plus-manager" style="background: #1a0b2e; border: 4px solid #8A2BE2; box-shadow: 12px 12px 0px #000; padding: 30px; border-radius: 4px; margin-top: 30px; color: white;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #8A2BE2; padding-bottom: 15px;">
+        <span style="font-size: 32px;">💎</span>
+        <h3 style="margin: 0; font-size: 22px; font-weight: 900; text-transform: uppercase;">Activar Suscripción Plus</h3>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        <label style="font-size: 11px; font-weight: 800; color: #DA70D6; text-transform: uppercase;">ID del Estudiante</label>
+        <input type="text" id="plus-uid" placeholder="Pegar UID aquí..." 
+               style="padding: 15px; border: 2px solid #8A2BE2; background: #000; color: #00ff88; font-family: 'JetBrains Mono', monospace; outline: none;">
+        
+        <label style="font-size: 11px; font-weight: 800; color: #DA70D6; text-transform: uppercase;">Fecha y Hora de Expiración</label>
+        <input type="datetime-local" id="plus-expira" 
+               style="padding: 15px; border: 2px solid #8A2BE2; background: #000; color: #fff; font-family: 'Outfit', sans-serif; outline: none;">
+
+        <button onclick="activarPlusDefinitivo()" class="btn-plus-full">
+            CONFIRMAR ACTIVACIÓN PLUS
+        </button>
+    </div>
+</div>
+</div>
+
+<!-- Modales -->
+<div id="modal-editor" class="modal">
+    <div class="modal-content">
+        <h2 id="modal-titulo" style="margin: 0 0 20px 0;"></h2>
+        <div id="form-comunicado">
+            <input type="text" id="com-tit" placeholder="Título" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; box-sizing: border-box;">
+            <textarea id="com-msg" placeholder="Mensaje..." style="width: 100%; height: 100px; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: inherit; box-sizing: border-box;"></textarea>
+        </div>
+        <div id="form-encuesta" style="display: none;">
+            <input type="text" id="enc-pre" placeholder="Pregunta" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-sizing: border-box;">
+            <div id="ops-container"></div>
+            <button onclick="addOp()" style="background:none; border:1px dashed #cbd5e1; width:100%; padding:10px; border-radius:12px; color:#64748b; cursor:pointer;">+ Opción</button>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button onclick="cerrarModal()" style="flex: 1; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">Cerrar</button>
+            <button onclick="guardar()" style="flex: 2; padding: 14px; border-radius: 16px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: 700;">Publicar</button>
+        </div>
+    </div>
+</div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, get, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9738f534"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let modoActual = '';
+    const STAFF = ["ajuliuszch@gmail.com", "alonsobot080@gmail.com"];
+
+    onAuthStateChanged(auth, (user) => {
+        if (user && STAFF.includes(user.email)) {
+            cargarTodo();
+        } else {
+            alert("Acceso Restringido");
+            window.location.href = "menu.html";
+        }
+    });
+
+    window.abrirModal = (tipo) => {
+        modoActual = tipo;
+        document.getElementById('modal-editor').style.display = 'flex';
+        document.getElementById('modal-titulo').innerText = tipo === 'comunicado' ? 'Nuevo Comunicado' : 'Nueva Encuesta';
+        document.getElementById('form-comunicado').style.display = tipo === 'comunicado' ? 'block' : 'none';
+        document.getElementById('form-encuesta').style.display = tipo === 'encuesta' ? 'block' : 'none';
+        
+        if(tipo === 'encuesta') {
+            document.getElementById('ops-container').innerHTML = '';
+            addOp(); addOp();
+        }
+    };
+
+    window.cerrarModal = () => document.getElementById('modal-editor').style.display = 'none';
+
+    window.addOp = () => {
+        const cont = document.getElementById('ops-container');
+        const i = document.createElement('input');
+        i.className = 'op-input';
+        i.placeholder = `Opción ${cont.children.length + 1}`;
+        i.style = "width: 100%; margin-bottom: 8px; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; box-sizing: border-box;";
+        cont.appendChild(i);
+    };
+
+    window.guardar = async () => {
+        const nodoPrincipal = modoActual === 'comunicado' ? 'comunicados' : 'encuestas';
+        const nuevaRef = push(ref(db, nodoPrincipal));
+        
+        let data = { 
+            fecha: new Date().toISOString(), 
+            autor: auth.currentUser.email 
+        };
+
+        if(modoActual === 'comunicado') {
+            data.titulo = document.getElementById('com-tit').value;
+            data.msg = document.getElementById('com-msg').value;
+            if(!data.titulo || !data.msg) return alert("Completa todos los campos");
+        } else {
+            data.pre = document.getElementById('enc-pre').value;
+            const opcionesNodo = {}; 
+            const inputs = document.querySelectorAll('.op-input');
+            let contador = 0;
+
+            inputs.forEach(input => {
+                const nombreOpcion = input.value.trim();
+                if(nombreOpcion !== "") {
+                    const claveSegura = nombreOpcion.replace(/[.#$[\]]/g, "");
+                    opcionesNodo[claveSegura] = 0; 
+                    contador++;
+                }
+            });
+
+            data.ops = opcionesNodo;
+            if(!data.pre || contador < 2) return alert("La encuesta requiere pregunta y al menos 2 opciones.");
+        }
+
+        try {
+            await set(nuevaRef, data);
+            cerrarModal();
+        } catch (error) {
+            alert("No se pudo conectar con Firebase");
+        }
+    };
+
+    window.puntosPraxis = async (sumar) => {
+        const uid = document.getElementById('praxis-uid').value.trim();
+        const val = parseInt(document.getElementById('praxis-amt').value);
+        if(!uid || isNaN(val)) return alert("Datos inválidos");
+
+        const userRef = ref(db, `usuarios/${uid}`);
+        try {
+            const snap = await get(userRef);
+            const user = snap.val();
+            if(!user) return alert("Usuario no encontrado");
+            
+            const actual = user.stats?.puntos || 0;
+            const nuevo = sumar ? actual + val : Math.max(0, actual - val);
+            const nombre = user.nombre || "Estudiante";
+
+            await update(ref(db, `usuarios/${uid}/stats`), { puntos: nuevo });
+            
+            await push(ref(db, 'comunicados'), {
+                titulo: "🏆 Premiación",
+                msg: `${sumar ? 'Otorgados' : 'Retirados'} ${val} puntos a ${nombre}.`,
+                fecha: new Date().toISOString()
+            });
+            
+            alert("Operación exitosa");
+            document.getElementById('praxis-uid').value = "";
+        } catch (e) {
+            alert("Error al actualizar puntos");
+        }
+    };
+
+    function cargarDirectorio() {
+        onValue(ref(db, 'usuarios'), (snap) => {
+            const tbody = document.getElementById('tabla-usuarios-body');
+            const countUsers = document.getElementById('count-users');
+            tbody.innerHTML = "";
+            if(!snap.exists()) return;
+            
+            const usersData = snap.val();
+            if(countUsers) countUsers.innerText = `${Object.keys(usersData).length} Usuarios`;
+            
+            Object.entries(usersData).forEach(([uid, u]) => {
+                const nombre = u.nombre || "Usuario Praxis";
+                const foto = u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+                const puntos = u.stats?.puntos || 0;
+                const racha = u.stats?.racha || 0;
+                
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px 15px; display: flex; align-items: center; gap: 12px;">
+                            <img src="${foto}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px;">${nombre}</div>
+                                <div onclick="copyID('${uid}')" style="font-size: 10px; color: #1a73e8; cursor: pointer;">ID: ${uid.substring(0, 10)}... 📋</div>
+                            </div>
+                        </td>
+                        <td style="padding: 15px; font-size: 12px;">${racha} 🔥</td>
+                        <td style="padding: 15px; text-align: right;">
+                            <span style="background: #f0fdf4; color: #166534; padding: 6px 12px; border-radius: 10px; font-weight: 900;">${puntos} PTS</span>
+                            <button onclick="activarPlusDefinitivo('${uid}')" style="margin-left:8px; font-size:10px; cursor:pointer;">+PLUS</button>
+                        </td>
+                    </tr>`;
+            });
+        });
+    }
+
+    function cargarActividad() {
+        onValue(ref(db), (snap) => {
+            const list = document.getElementById('lista-actividad');
+            const data = snap.val();
+            list.innerHTML = "";
+            let items = [];
+            if(data.comunicados) Object.entries(data.comunicados).forEach(([k,v]) => items.push({...v, tipo:'com'}));
+            if(data.encuestas) Object.entries(data.encuestas).forEach(([k,v]) => items.push({...v, tipo:'enc'}));
+            
+            items.sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = item.tipo === 'com' ? `<h4>${item.titulo}</h4><p>${item.msg}</p>` : `<h4>Encuesta: ${item.pre}</h4>`;
+                list.appendChild(card);
+            });
+        });
+    }
+
+    window.copyID = (id) => {
+        document.getElementById('praxis-uid').value = id;
+        navigator.clipboard.writeText(id);
+        alert("ID copiado");
+    };
+
+    function cargarAgendas() {
+        onValue(ref(db, 'agendas'), (snapshot) => {
+            const container = document.getElementById('lista-agendas');
+            container.innerHTML = "";
+            snapshot.forEach((child) => {
+                const data = child.val();
+                const card = document.createElement('div');
+                card.className = 'agenda-card';
+                card.innerHTML = `<span>${child.key}</span><h4>${data.nombre}</h4><div class="point-badge">${data.bancoPuntos || 0} PTS</div>`;
+                container.appendChild(card);
+            });
+        });
+    }
+
+    function cargarResultadosEncuestas() {
+        onValue(ref(db, 'encuestas'), (snapshot) => {
+            const container = document.getElementById('resultados-encuestas');
+            container.innerHTML = "";
+            snapshot.forEach((child) => {
+                const enc = child.val();
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `<h4>${enc.pre}</h4>`;
+                container.appendChild(card);
+            });
+        });
+    }
+
+    window.puntosAgenda = async (sumar) => {
+        const codigo = document.getElementById('agenda-cod').value.trim().toUpperCase();
+        const cantidad = parseInt(document.getElementById('agenda-amt').value);
+        if(!codigo || isNaN(cantidad)) return alert("Datos inválidos");
+
+        const agendaRef = ref(db, `agendas/${codigo}`);
+        try {
+            const snap = await get(agendaRef);
+            if(!snap.exists()) return alert("Agenda no existe");
+            const saldoActual = snap.val().bancoPuntos || 0;
+            const nuevoSaldo = sumar ? saldoActual + cantidad : Math.max(0, saldoActual - cantidad);
+            await update(agendaRef, { bancoPuntos: nuevoSaldo });
+            alert("Agenda actualizada");
+        } catch (e) { alert("Error"); }
+    };
+
+    window.subirProducto = async () => {
+        const nombre = document.getElementById('prod-nombre').value.trim();
+        const descripcion = document.getElementById('prod-desc').value.trim();
+        const costo = parseInt(document.getElementById('prod-precio').value);
+        const stock = parseInt(document.getElementById('prod-stock').value);
+
+        if(!nombre || isNaN(costo)) return alert("Datos incompletos");
+        try {
+            await push(ref(db, 'marketplace/productos'), {
+                nombre, descripcion, costo, stock, 
+                fechaRegistro: new Date().toISOString(),
+                autor: auth.currentUser.email,
+                estado: "disponible"
+            });
+            alert("Producto publicado");
+        } catch (e) { alert("Error de publicación"); }
+    };
+
+    window.validarBoletaQR = async (idBoleta) => {
+        const boletaRef = ref(db, `historial_compras/${idBoleta}`);
+        try {
+            const snap = await get(boletaRef);
+            if(snap.exists()) {
+                const data = snap.val();
+                if(data.estado === 'canjeado') return alert("Boleta ya usada");
+                await update(boletaRef, {
+                    estado: 'canjeado',
+                    fechaCanje: new Date().toLocaleString(),
+                    validadoPor: auth.currentUser.email
+                });
+                alert("Canje exitoso");
+            }
+        } catch (e) { alert("Error de validación"); }
+    };
+
+    window.activarPlusDefinitivo = async function(uidUsuario) {
+        const userStatsRef = ref(db, `usuarios/${uidUsuario}/stats`);
+        try {
+            const snap = await get(userStatsRef);
+            const actual = snap.exists() ? (snap.val().puntos || 0) : 0;
+            await update(userStatsRef, {
+                puntos: actual + 500,
+                isPlus: true,
+                rango: "Estudiante Plus",
+                ultimaModificacion: serverTimestamp()
+            });
+            alert("Protocolo Praxis Plus: +500 PTS acreditados");
+        } catch (e) { alert("Error en activación Plus"); }
+    };
+
+    function cargarTodo() {
+        cargarDirectorio();
+        cargarActividad();
+        cargarAgendas();
+        cargarResultadosEncuestas();
+    }
+
+    window.cerrarSeguridad = () => {
+        document.getElementById('modal-seguridad').style.display = 'none';
+    };
+
+    window.onload = () => {
+        if (sessionStorage.getItem('avisoVisto')) {
+            document.getElementById('modal-seguridad').style.display = 'none';
+        } else {
+            sessionStorage.setItem('avisoVisto', 'true');
+        }
+    };
+</script><!-- Modal de Advertencia de Seguridad -->
+<div id="modal-seguridad" class="modal" style="display: flex;"> <!-- Se muestra al cargar -->
+    <div class="modal-content" style="border: 3px solid #1a73e8; box-shadow: 10px 10px 0px rgba(26, 115, 232, 0.2);">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="background: #e8f0fe; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 2px solid #1a73e8;">
+                <span style="font-size: 30px; font-weight: 800; color: #1a73e8;">i</span>
+            </div>
+        </div>
+        <h2 style="font-size: 18px; text-align: center; color: #1e293b; margin-bottom: 15px;">Aviso del Creador de la Plataforma</h2>
+        <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: justify;">
+            Estimado <b>Consejo Estudiantil</b>: Se les hace saber que si un estudiante les envía una captura de sus puntos, esta información <b>podría estar modificada</b>. 
+            <br><br>
+            Aunque nuestro sistema cuenta con alta seguridad en la base de datos, la interfaz visual puede ser "maquillada" (modificada) localmente mediante la opción de <i>"Inspeccionar elemento"</i> del navegador.
+            <br><br>
+            <span style="color: #1a73e8; font-weight: 700;">Recomendación:</span> Siempre verifiquen la validez de los puntos directamente desde este panel administrativo antes de otorgar cualquier premio.
+        </p>
+        <button onclick="cerrarSeguridad()" style="width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);">
+            Entendido, verificaré siempre
+        </button>
+    </div>
+</div>
+</body>
+</html>

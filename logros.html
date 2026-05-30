@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Hitos de la Plataforma</title>
+    <link rel="icon" href="praxis.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --dark: #0f172a;
+            --accent: #34a853;
+            --gray: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #fff;
+            color: var(--dark);
+            padding: 60px 8%;
+        }
+
+        .header {
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .header h1 { font-family: 'Outfit'; font-size: 50px; letter-spacing: -2px; }
+        .header p { color: var(--gray); font-size: 18px; margin-top: 10px; }
+
+        /* --- LINEA DE TIEMPO / LOGROS DEL PROYECTO --- */
+        .timeline {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .milestone {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 40px;
+            border-radius: 40px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .milestone:hover {
+            transform: scale(1.02);
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+
+        .status-tag {
+            background: var(--accent);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .icon-wrap {
+            width: 70px; height: 70px;
+            background: var(--dark);
+            color: white;
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px;
+            flex-shrink: 0;
+        }
+
+        .content h3 { font-family: 'Outfit'; font-size: 24px; margin-bottom: 8px; }
+        .content p { color: var(--gray); font-size: 15px; line-height: 1.6; }
+
+        .date-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .milestone { flex-direction: column; text-align: center; }
+            .icon-wrap { margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <span class="status-tag">Trayectoria</span>
+        <h1>Logros de la Plataforma</h1>
+        <p>La evolución tecnológica de Praxis: del concepto a la realidad.</p>
+    </div>
+
+    <div class="timeline">
+
+        <div class="milestone">
+            <div class="icon-wrap">☁️</div>
+            <div class="content">
+                <span class="date-label">MAYO 2026</span>
+                <h3>Conexión Total Alonixz Cloud</h3>
+                <p>Integración exitosa de la infraestructura con Firebase, permitiendo una base de datos en tiempo real con latencia mínima para toda la comunidad.</p>
+            </div>
+        </div>
+
+        <div class="milestone">
+            <div class="icon-wrap">🔐</div>
+            <div class="content">
+                <span class="date-label">ABRIL 2026</span>
+                <h3>Autenticación Unificada (Google)</h3>
+                <p>Implementación del sistema OAuth 2.0. Logramos que el registro sea 100% funcional y seguro a través de cuentas de Google institucional/personal.</p>
+            </div>
+        </div>
+
+        <div class="milestone" style="opacity: 0.7;">
+            <div class="icon-wrap" style="background: #64748b;">🧬</div>
+            <div class="content">
+                <span class="date-label">DICIEMBRE 2025</span>
+                <h3>El Origen: Praxis Primitivo</h3>
+                <p>Desarrollo del primer núcleo de código (Kernel) que permitía la visualización de documentos. Fue la semilla que reemplazó a EduSolve.</p>
+            </div>
+        </div>
+
+        <div class="milestone" style="opacity: 0.5;">
+            <div class="icon-wrap" style="background: #94a3b8;">📂</div>
+            <div class="content">
+                <span class="date-label">HISTÓRICO</span>
+                <h3>Legado EduSolve</h3>
+                <p>Consolidación de la primera base de datos compartida entre estudiantes. El aprendizaje obtenido aquí permitió construir la robustez de Praxis.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer style="margin-top: 60px; text-align: center;">
+        <a href="index.html" style="color: var(--primary); font-weight: 800; text-decoration: none;">← Volver al inicio</a>
+    </footer>
+
+</body>
+</html>

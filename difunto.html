@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control Avanzado — Gloria Eterna</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%23050505' stroke='%23b39152' stroke-width='10'/><path d='M 74 30 L 30 30 L 30 70 L 74 70 L 74 50 L 50 50' fill='none' stroke='%23b39152' stroke-width='14' stroke-linecap='square' stroke-linejoin='miter'/></svg>">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-main: #0b0c10;
+            --bg-surface: #1f2833;
+            --bg-input: #151a22;
+            --gold: #c5a059;
+            --gold-light: rgba(197, 160, 89, 0.15);
+            --text-main: #c5c6c7;
+            --text-title: #ffffff;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-active: #c5a059;
+            --notification-red: #ea4335;
+            --success-green: #34a853;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 1600px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* BARRA SUPERIOR NAV */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            padding: 1.2rem 2rem;
+            border-radius: 14px;
+        }
+
+        .navbar-brand h1 {
+            color: var(--text-title);
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-brand p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 0.1rem;
+        }
+
+        /* Botón de Email estilo Gmail */
+        .gmail-button-wrapper {
+            position: relative;
+        }
+
+        .gmail-btn {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-title);
+            padding: 0.8rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .gmail-btn:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .email-counter {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background-color: var(--notification-red);
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid var(--bg-surface);
+            display: none; /* Se muestra dinámicamente si hay > 0 */
+        }
+
+        /* CUERPO DEL PANEL */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .card-panel {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2.2rem 1.8rem;
+        }
+
+        .sticky-side {
+            position: sticky;
+            top: 2rem;
+        }
+
+        h2 {
+            color: var(--text-title);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.8rem;
+        }
+
+        /* Formulario (Difuntos) */
+        .form-group { margin-bottom: 1.4rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.45);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-title);
+            padding: 0.85rem 1rem;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--border-active);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #c5a059, #a38042);
+            color: #0b0c10;
+            border: none;
+            padding: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        /* Herramientas de Masa (JSON) */
+        .json-tools {
+            display: flex;
+            gap: 10px;
+            margin-top: 0.5rem;
+        }
+        .btn-json {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 0.6rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-json:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Buscador e Interfaz Derecha */
+        .content-area { display: flex; flex-direction: column; gap: 1.5rem; }
+        .top-controls {
+            display: flex;
+            gap: 1rem;
+        }
+        .search-wrapper { position: relative; flex: 1; }
+        .search-bar {
+            width: 100%;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-title);
+            padding: 1.1rem 1.1rem 1.1rem 3.2rem;
+            border-radius: 12px;
+            outline: none;
+        }
+        .search-wrapper i { position: absolute; left: 1.3rem; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.35); }
+
+        /* Tabla Principal (Ubicaciones) */
+        .table-container {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1.1rem 1.4rem; font-size: 0.95rem; }
+        th { background-color: rgba(0, 0, 0, 0.15); color: var(--text-title); border-bottom: 1px solid var(--border-subtle); }
+        td { border-bottom: 1px solid rgba(255, 255, 255, 0.02); }
+        .td-name { color: var(--text-title); font-weight: 500; }
+        .td-code { color: var(--gold); font-weight: 600; font-family: monospace; }
+        
+        .badge {
+            display: inline-flex;
+            padding: 0.25rem 0.65rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .badge.nicho { background-color: var(--gold-light); color: var(--gold); }
+        .badge.mantenimiento { background-color: var(--gold-light); color: var(--gold); }
+        .badge.urgente { background-color: rgba(234, 67, 53, 0.15); color: #ea4335; }
+
+        /* MODAL RESPUESTAS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-window {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            width: 90%;
+            max-width: 750px;
+            height: 80vh;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-window { transform: translateY(0); }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--text-title);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal-body-scroll {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Items del buzón */
+        .mail-item {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 1.2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .mail-content-left {
+            flex: 1;
+        }
+
+        .mail-subject {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mail-text {
+            font-size: 0.92rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            background: rgba(0,0,0,0.15);
+            padding: 0.7rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--gold);
+        }
+
+        .mail-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.2rem;
+        }
+
+        .mail-details {
+            font-size: 0.82rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 15px;
+            color: rgba(255,255,255,0.4);
+        }
+        .mail-details span i { color: var(--gold); margin-right: 4px; }
+
+        /* Botón Hecho / Leído */
+        .btn-read-action {
+            background-color: rgba(52, 168, 83, 0.1);
+            border: 1px solid rgba(52, 168, 83, 0.3);
+            color: var(--success-green);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-read-action:hover {
+            background-color: var(--success-green);
+            color: #0b0c10;
+        }
+
+        @media (max-width: 1100px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .sticky-side { position: relative; top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <h1>Sistema de Gestión Unificado</h1>
+                <p>Ubicaciones y Control de Espacios — Gloria Eterna</p>
+            </div>
+            
+            <div class="gmail-button-wrapper">
+                <button id="openMailBtn" class="gmail-btn">
+                    <i class="fa-regular fa-envelope"></i>
+                    <span>Respuestas</span>
+                </button>
+                <div class="email-counter" id="badgeCounter">0</div>
+            </div>
+        </nav>
+
+        <div class="main-layout">
+            
+            <aside class="card-panel sticky-side">
+                <h2>Ingresar Ubicación</h2>
+                <form id="formDifunto">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del Difunto</label>
+                        <input type="text" id="nombre" placeholder="Ej. Juan Carlos Pérez" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo de Espacio</label>
+                        <select id="tipo">
+                            <option value="Nicho">Nicho</option>
+                            <option value="Mausoleo">Mausoleo</option>
+                            <option value="Tumba Tierra">Tumba Tierra</option>
+                            <option value="Columbario">Columbario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pabellon">Pabellón / Sector</label>
+                        <input type="text" id="pabellon" placeholder="Ej. San José" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="numero">Código Interno / Número</label>
+                        <input type="text" id="numero" placeholder="Ej. 124-B" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="fila">Fila / Piso / Nivel</label>
+                        <input type="text" id="fila" placeholder="Ej. Piso 3 / Fila B" required autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn-submit">Guardar Registro</button>
+                </form>
+
+                <div class="json-tools">
+                    <button class="btn-json" id="btnImportar"><i class="fa-solid fa-file-import"></i> Carga Masa (JSON)</button>
+                    <button class="btn-json" id="btnExportar"><i class="fa-solid fa-file-export"></i> Copia JSON</button>
+                </div>
+                <input type="file" id="fileJsonPicker" accept=".json" style="display: none;">
+            </aside>
+
+            <main class="content-area">
+                <div class="top-controls">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="buscador" class="search-bar" placeholder="Buscar ubicaciones por nombre, sector o código..." autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre del Difunto</th>
+                                <th>Tipo</th>
+                                <th>Pabellón / Sector</th>
+                                <th>Código Interno</th>
+                                <th>Fila / Nivel</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaDifuntos">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.25); padding: 3rem 0;">
+                                    <i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> Sincronizando datos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="mailModal">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-inbox" style="color: var(--gold);"></i> Bandeja de Respuestas No Leídas</h3>
+                <button class="close-modal-btn" id="closeMailBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body-scroll" id="mailBoxBody">
+                </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhLqQ1tjx5Mc15chMcVBKNY7Li80q_dQg",
+            authDomain: "gloria-eterna-86972.firebaseapp.com",
+            databaseURL: "https://gloria-eterna-86972-default-rtdb.firebaseio.com",
+            projectId: "gloria-eterna-86972",
+            storageBucket: "gloria-eterna-86972.firebasestorage.app",
+            messagingSenderId: "933559161364",
+            appId: "1:933559161364:web:2a007e0678a6c4bcd90d01",
+            measurementId: "G-8BGT16Z10C"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        const difuntosRef = ref(database, 'difuntos');
+        const consultasRef = ref(database, 'consultas_emergencia');
+
+        const form = document.getElementById('formDifunto');
+        const lista = document.getElementById('listaDifuntos');
+        const buscador = document.getElementById('buscador');
+        const badgeCounter = document.getElementById('badgeCounter');
+        const mailBoxBody = document.getElementById('mailBoxBody');
+        
+        const btnImportar = document.getElementById('btnImportar');
+        const btnExportar = document.getElementById('btnExportar');
+        const fileJsonPicker = document.getElementById('fileJsonPicker');
+
+        let cacheDifuntos = {};
+
+        // 1. ESCUCHAR TABLA PRINCIPAL (Difuntos)
+        onValue(difuntosRef, (snapshot) => {
+            lista.innerHTML = "";
+            if (snapshot.exists()) {
+                cacheDifuntos = snapshot.val();
+                const llaves = Object.keys(cacheDifuntos);
+
+                llaves.reverse().forEach((key) => {
+                    const difunto = cacheDifuntos[key];
+                    const badgeClass = difunto.tipo === 'Nicho' ? 'badge nicho' : 'badge';
+
+                    const filaHTML = document.createElement('tr');
+                    filaHTML.innerHTML = `
+                        <td class="td-name">${difunto.nombre || '—'}</td>
+                        <td><span class="${badgeClass}">${difunto.tipo || 'Nicho'}</span></td>
+                        <td>${difunto.pabellon || '—'}</td>
+                        <td class="td-code">${difunto.numero || '—'}</td>
+                        <td>${difunto.fila || '—'}</td>
+                    `;
+                    lista.appendChild(filaHTML);
+                });
+            } else {
+                lista.innerHTML = `<tr><td colspan="5" style="text-align: center; color: rgba(255,255,255,0.25); padding: 3rem 0;">No hay ubicaciones registradas.</td></tr>`;
+            }
+        });
+
+        // 2. ESCUCHAR CONSULTAS NO LEÍDAS (Buzón de Respuestas)
+        onValue(consultasRef, (snapshot) => {
+            mailBoxBody.innerHTML = "";
+            if (snapshot.exists()) {
+                const datos = snapshot.val();
+                const llaves = Object.keys(datos);
+                
+                // Filtrar solo las consultas donde 'leido' no sea true
+                const pendientes = llaves.filter(key => datos[key].leido !== true);
+                
+                // Mostrar o esconder número rojo según los pendientes reales
+                if (pendientes.length > 0) {
+                    badgeCounter.textContent = pendientes.length;
+                    badgeCounter.style.display = "flex";
+                } else {
+                    badgeCounter.style.display = "none";
+                }
+
+                if (pendientes.length === 0) {
+                    mailBoxBody.innerHTML = `<p style="text-align:center; opacity:0.4; padding: 2rem 0;">¡Excelente! No tienes respuestas pendientes de revisión.</p>`;
+                    return;
+                }
+
+                // Renderizar de más nuevo a más viejo las no leídas
+                pendientes.reverse().forEach((key) => {
+                    const consulta = datos[key];
+                    const catLower = (consulta.categoria || 'consulta').toLowerCase();
+                    const badgeClass = catLower === 'mantenimiento' ? 'badge mantenimiento' : (catLower === 'urgente' ? 'badge urgente' : 'badge');
+
+                    let fechaFormateada = "—";
+                    if(consulta.timestamp) {
+                        try {
+                            const d = new Date(consulta.timestamp);
+                            fechaFormateada = d.toLocaleString('es-ES', { hour12: true, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        } catch(e) { fechaFormateada = consulta.timestamp; }
+                    }
+
+                    const mailHTML = document.createElement('div');
+                    mailHTML.className = 'mail-item';
+                    mailHTML.innerHTML = `
+                        <div class="mail-content-left">
+                            <div class="mail-subject">
+                                <span>${consulta.remitente ? consulta.remitente.toUpperCase() : 'ANÓNIMO'}</span>
+                                <span class="${badgeClass}">${catLower}</span>
+                            </div>
+                            <div class="mail-text">${consulta.anotaciones || 'Sin anotaciones.'}</div>
+                        </div>
+                        <div class="mail-footer">
+                            <div class="mail-details">
+                                <span><i class="fa-solid fa-phone"></i> ${consulta.telefono || '—'}</span>
+                                <span><i class="fa-solid fa-clock"></i> ${fechaFormateada}</span>
+                            </div>
+                            <button class="btn-read-action" data-id="${key}">
+                                <i class="fa-solid fa-check"></i> Marcar leído
+                            </button>
+                        </div>
+                    `;
+                    mailBoxBody.appendChild(mailHTML);
+                });
+
+                // Asignar eventos a los botones de "Marcar leído"
+                document.querySelectorAll('.btn-read-action').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idConsulta = this.getAttribute('data-id');
+                        // Actualizar en Firebase agregando el campo leido: true
+                        const consultaIndividualRef = ref(database, `consultas_emergencia/${idConsulta}`);
+                        update(consultaIndividualRef, { leido: true })
+                        .catch(err => console.error("Error al marcar como leído:", err));
+                    });
+                });
+
+            } else {
+                badgeCounter.style.display = "none";
+                mailBoxBody.innerHTML = `<p style="text-align:center; opacity:0.4; padding: 2rem 0;">Bandeja vacía.</p>`;
+            }
+        });
+
+        // INGRESO INDIVIDUAL (DIFUNTOS)
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre').value.trim();
+            const tipo = document.getElementById('tipo').value;
+            const pabellon = document.getElementById('pabellon').value.trim();
+            const numero = document.getElementById('numero').value.trim();
+            const fila = document.getElementById('fila').value.trim();
+
+            push(difuntosRef, { nombre, tipo, pabellon, numero, fila })
+            .then(() => form.reset())
+            .catch(err => console.error("Error:", err));
+        });
+
+        /* ============================================================
+           HERRAMIENTAS DE CARGA MASIVA Y EXPORTACIÓN (JSON)
+           ============================================================ */
+        
+        // Exportar Copia de seguridad
+        btnExportar.addEventListener('click', () => {
+            if (Object.keys(cacheDifuntos).length === 0) {
+                alert("No hay registros en la tabla para exportar.");
+                return;
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cacheDifuntos, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "respaldo_difuntos_gloria_eterna.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        });
+
+        // Lanzar selector de archivo para importar en masa
+        btnImportar.addEventListener('click', () => fileJsonPicker.click());
+
+        fileJsonPicker.addEventListener('change', function(e) {
+            const archivo = e.target.files[0];
+            if (!archivo) return;
+
+            const lector = new FileReader();
+            lector.onload = function(evt) {
+                try {
+                    const jsonCargado = JSON.parse(evt.target.result);
+                    
+                    // Validar si viene en formato de array [] o de objeto {}
+                    const listaAInsertar = Array.isArray(jsonCargado) ? jsonCargado : Object.values(jsonCargado);
+                    
+                    if (listaAInsertar.length === 0) {
+                        alert("El archivo JSON está vacío.");
+                        return;
+                    }
+
+                    if (confirm(`¿Estás seguro de que deseas subir ${listaAInsertar.length} registros en masa a Firebase?`)) {
+                        let promesas = listaAInsertar.map(item => {
+                            return push(difuntosRef, {
+                                nombre: item.nombre || "Sin Nombre",
+                                tipo: item.tipo || "Nicho",
+                                pabellon: item.pabellon || "General",
+                                numero: item.numero || "—",
+                                fila: item.fila || "—"
+                            });
+                        });
+
+                        Promise.all(promesas).then(() => {
+                            alert("¡Carga masiva completada con éxito!");
+                            fileJsonPicker.value = ""; // reset picker
+                        }).catch(err => {
+                            alert("Ocurrió un error al subir los datos masivos.");
+                            console.error(err);
+                        });
+                    }
+                } catch(error) {
+                    alert("Error: El archivo seleccionado no es un JSON válido. Revisa su estructura.");
+                }
+            };
+            lector.readAsText(archivo);
+        });
+
+        // FILTRO DE BÚSQUEDA
+        buscador.addEventListener('input', function(e) {
+            const termino = e.target.value.toLowerCase();
+            const filas = lista.getElementsByTagName('tr');
+            for (let i = 0; i < filas.length; i++) {
+                const textoFila = filas[i].textContent.toLowerCase();
+                filas[i].style.display = textoFila.includes(termino) ? '' : 'none';
+            }
+        });
+
+        // APERTURA / CIERRE DEL MODAL
+        const mailModal = document.getElementById('mailModal');
+        document.getElementById('openMailBtn').addEventListener('click', () => mailModal.classList.add('active'));
+        document.getElementById('closeMailBtn').addEventListener('click', () => mailModal.classList.remove('active'));
+    </script>
+</body>
+</html>

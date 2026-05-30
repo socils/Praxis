@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Core Marketplace Engine</title>
+    <style>
+        :root { 
+            --bg-deep: #020617; --bg-card: #0f172a; --accent: #2563eb; 
+            --accent-glow: rgba(37, 99, 235, 0.4); --text-main: #f1f5f9; 
+            --text-muted: #94a3b8; --border-dim: #1e293b; --success: #22c55e; 
+            --error: #ef4444; --font-head: 'Plus Jakarta Sans', sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-deep); color: var(--text-main); font-family: var(--font-head); line-height: 1.6; }
+        .mesh-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 10% 20%, #1e1b4b 0%, #020617 90%); z-index: -1; pointer-events: none; }
+        .app-shell { max-width: 1300px; margin: 0 auto; padding: 40px; }
+        .header-canvas { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.5); padding: 30px; border-radius: 28px; border: 1px solid var(--border-dim); backdrop-filter: blur(20px); margin-bottom: 50px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .brand-title { font-size: 2.5rem; letter-spacing: -2px; font-weight: 800; }
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 30px; padding: 10px; }
+        .card-component { background: var(--bg-card); border: 1px solid var(--border-dim); border-radius: 24px; padding: 32px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .card-component:hover { transform: translateY(-12px); border-color: var(--accent); box-shadow: 0 20px 40px var(--accent-glow); }
+        .status-pill { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: inline-block; }
+        .status-av { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .status-res { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+        .btn-core { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 20px; transition: 0.3s; text-transform: uppercase; }
+        .btn-core:hover { background: #1d4ed8; filter: brightness(1.1); }
+        .btn-core:disabled { background: #334155; cursor: not-allowed; opacity: 0.6; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .modal-card { background: var(--bg-card); padding: 40px; border-radius: 24px; width: 90%; max-width: 500px; border: 1px solid var(--border-dim); box-shadow: 0 40px 60px rgba(0,0,0,0.5); }
+        .chat-viewport { height: 250px; background: #020617; border-radius: 16px; margin: 20px 0; padding: 15px; overflow-y: auto; border: 1px solid var(--border-dim); font-size: 0.9rem; }
+        .input-field { width: 100%; background: var(--bg-deep); border: 1px solid var(--border-dim); padding: 15px; border-radius: 12px; color: white; }
+        .btn-cancel { background: transparent; border: none; color: var(--text-muted); width: 100%; margin-top: 15px; cursor: pointer; }
+        .msg { margin-bottom: 10px; padding: 8px; border-radius: 8px; }
+        #status-panel { background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border-dim); color: var(--text-muted); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="mesh-bg"></div>
+    <div class="app-shell">
+        <header class="header-canvas">
+            <h1 class="brand-title">PRAXIS<span style="color:var(--accent);">CORE</span></h1>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div id="status-panel">Cargando identidad...</div>
+                <button class="btn-core" style="margin-top:0; width:auto; padding: 10px 20px;" onclick="openModal('modal-notif')">NOTIFICACIONES</button>
+                <button class="btn-core" style="margin-top:0; width:auto; padding: 10px 20px; background: var(--success);" onclick="openModal('modal-upload')">+ SUBIR</button>
+            </div>
+        </header>
+        <div id="grid-root" class="market-grid"></div>
+    </div>
+
+    <div id="modal-upload" class="modal-overlay">
+        <div class="modal-card">
+            <h2>REGISTRAR NUEVO ACTIVO</h2>
+            <input type="text" id="up-nombre" class="input-field" placeholder="Nombre de la figurita">
+            <input type="number" id="up-numero" class="input-field" placeholder="Número" style="margin-top:10px;">
+            <button class="btn-core" style="margin-top:20px;" onclick="registrarFigurita()">PUBLICAR EN MARKET</button>
+            <button onclick="closeModal('modal-upload')" class="btn-cancel">CANCELAR</button>
+        </div>
+    </div>
+
+    <div id="modal-trade" class="modal-overlay">
+        <div class="modal-card">
+            <h2>COORDINACIÓN DE RECOJO</h2>
+            <p style="color:var(--text-muted);">Establece los detalles logísticos con el otro usuario.</p>
+            <div id="chat-stream" class="chat-viewport"></div>
+            <input type="text" id="chat-input" class="input-field" placeholder="Enviar mensaje...">
+            <button class="btn-core" onclick="sendMessage()">ENVIAR MENSAJE</button>
+            <button onclick="closeModal('modal-trade')" class="btn-cancel">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="modal-notif" class="modal-overlay">
+        <div class="modal-card">
+            <h2>ACTIVIDAD RECIENTE</h2>
+            <div id="notif-list" style="margin-top:20px;"></div>
+            <button onclick="closeModal('modal-notif')" class="btn-core">CERRAR</button>
+        </div>
+    </div>
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        // Configuración oficial integrada correctamente
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+            authDomain: "praxis-79b9a.firebaseapp.com",
+            projectId: "praxis-79b9a",
+            databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+            storageBucket: "praxis-79b9a.firebasestorage.app",
+            messagingSenderId: "596083977949",
+            appId: "1:596083977949:web:71064f89a23f8d9738f534"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+// 1. Guardián de sesión: redirige si no hay usuario
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        // Si no hay sesión, envía al login inmediatamente
+        window.location.href = "login.html";
+    } else {
+        // Si hay sesión, el usuario está detectado y listo
+        console.log("Usuario autenticado:", user.uid);
+        
+        // Aquí cargas la lógica de tu aplicación porque ya sabes que 'user' existe
+        // Ejemplo: renderMarket();
+        // Ejemplo: cargarApodo(user.uid);
+    }
+});
+        // El resto de la lógica permanece igual...
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                onValue(ref(db, `usuarios/${user.uid}/apodo`), (snap) => {
+                    const statusPanel = document.getElementById('status-panel');
+                    if (statusPanel) statusPanel.innerHTML = `Hola, <b>${snap.val() || 'Agente'}</b>`;
+                });
+                renderMarket();
+            }
+        });
+
+        function renderMarket() {
+            const grid = document.getElementById('grid-root');
+            if(!grid) return;
+            onValue(ref(db, 'dinamicas/figuritas'), (snap) => {
+                grid.innerHTML = '';
+                snap.forEach(c => {
+                    const f = c.val();
+                    const isAvailable = f.estado !== 'reservado';
+                    const card = document.createElement('div');
+                    card.className = 'card-component';
+                    card.innerHTML = `
+                        <span class="status-pill ${isAvailable ? 'status-av' : 'status-res'}">${isAvailable ? 'Disponible' : 'Reservado'}</span>
+                        <h2 style="margin:15px 0;">${f.nombre}</h2>
+                        <p style="font-family:monospace; font-size:1.8rem; font-weight:800;">#${f.numero}</p>
+                        <button class="btn-core" onclick="openTrade('${f.nombre}')" ${!isAvailable ? 'disabled' : ''}>${isAvailable ? 'Iniciar Trato' : 'No disponible'}</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+        window.openTrade = (nombre) => {
+            document.getElementById('modal-trade').style.display = 'flex';
+            document.querySelector('#modal-trade h2').innerText = `TRATO: ${nombre.toUpperCase()}`;
+        };
+       window.registrarFigurita = () => {
+    const nombre = document.getElementById('up-nombre').value;
+    const numero = document.getElementById('up-numero').value;
+    const user = auth.currentUser; // Obtenemos el usuario actual
+
+    // 1. Verificar si el usuario está autenticado
+    if (!user) {
+        alert("Error: Debes estar autenticado para publicar.");
+        return;
+    }
+
+    // 2. Verificar que los campos tengan valor
+    if (nombre && numero) {
+        // 3. Incluir el campo 'propietario_id' que tus reglas EXIGEN
+        push(ref(db, 'dinamicas/figuritas'), {
+            nombre: nombre,
+            numero: numero,
+            propietario_id: user.uid, // <--- ESTO ES OBLIGATORIO SEGÚN TUS REGLAS
+            estado: 'disponible',
+            timestamp: Date.now()
+        }).then(() => {
+            alert("Publicado con éxito");
+            closeModal('modal-upload');
+        }).catch((error) => {
+            console.error("Error al escribir en Firebase:", error);
+            alert("Acceso denegado: Revisa que tu usuario sea válido.");
+        });
+    } else {
+        alert("Completa todos los campos.");
+    }
+};
+        window.sendMessage = () => {
+            const input = document.getElementById('chat-input');
+            const stream = document.getElementById('chat-stream');
+            if (input.value.trim() !== "") {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'msg';
+                msgDiv.innerHTML = `<b>Tú:</b> ${input.value}`;
+                stream.appendChild(msgDiv);
+                stream.scrollTop = stream.scrollHeight;
+                input.value = '';
+            }
+        };
+        window.onclick = (event) => {
+            document.querySelectorAll('.modal-overlay').forEach(m => { if (event.target == m) m.style.display = 'none'; });
+        };
+    </script>
+</body>
+</html>
