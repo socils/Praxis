@@ -9368,7 +9368,340 @@ ${tareasTexto}`
         });
         console.log(`⚡ Energía ajustada automáticamente a: ${rangoCorrectoMax}`);
     }
+}// ==========================================================
+// ESTRUCTURA BASE DE LA TERMINAL OCULTA (SOLO INTERFAZ)
+// ==========================================================
+
+// 1. Crear e inyectar el contenedor de la Terminal de forma dinámica
+const terminalOverlay = document.createElement('div');
+terminalOverlay.id = 'praxis-terminal';
+terminalOverlay.style = `
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95); 
+    color: #00ff88;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    z-index: 99999; 
+    display: none; 
+    flex-direction: column;
+    padding: 25px; 
+    box-sizing: border-box; 
+    font-size: 14px;
+`;
+
+terminalOverlay.innerHTML = `
+    <div style="border-bottom: 2px dashed #00ff88; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; user-select: none;">
+        <span>📟 PRAXIS__CORE // TERMINAL DE COMANDOS</span>
+        <span style="color: #ff3366; cursor: pointer; font-weight: bold;" id="close-term-btn">[ESC PARA CERRAR]</span>
+    </div>
+    <div id="terminal-output" style="flex: 1; overflow-y: auto; margin-bottom: 15px; white-space: pre-wrap; line-height: 1.5;"></div>
+    <div style="display: flex; align-items: center; background: #111; border: 2px solid #00ff88; padding: 10px; border-radius: 6px;">
+        <span style="margin-right: 10px; font-weight: bold; user-select: none;">praxis@root:~$</span>
+        <input type="text" id="terminal-input" style="flex: 1; background: none; border: none; color: #00ff88; font-family: inherit; font-size: 14px; outline: none;" autocomplete="off">
+    </div>
+`;
+document.body.appendChild(terminalOverlay);
+
+const outputDiv = document.getElementById('terminal-output');
+const inputField = document.getElementById('terminal-input');
+
+// Función básica para imprimir texto en la pantalla de la terminal
+function printLog(text, color = '#00ff88') {
+    outputDiv.innerHTML += `<div style="color: ${color};">${text}</div>`;
+    outputDiv.scrollTop = outputDiv.scrollHeight;
 }
+
+// Mensaje inicial del sistema al cargar por primera vez
+printLog("Ecosistema Praxis Core cargado correctamente.");
+printLog("Consola en modo de espera... lista para recibir parámetros.", "#00b0ff");
+
+// 2. Control de apertura/cierre con combinaciones de teclas
+window.addEventListener('keydown', (e) => {
+    // Abre y cierra con Ctrl + Y
+    if (e.ctrlKey && e.key.toLowerCase() === 'y') {
+        e.preventDefault(); // Evita cualquier comportamiento nativo por si acaso
+        toggleTerminal();
+    }
+    
+    // Cierra con la tecla Escape (Esc) si la terminal está visible
+    if (e.key === 'Escape' && terminalOverlay.style.display === 'flex') {
+        toggleTerminal();
+    }
+});
+
+// Cierre al hacer clic en el botón de la esquina
+document.getElementById('close-term-btn').onclick = toggleTerminal;
+
+function toggleTerminal() {
+    const isOpen = terminalOverlay.style.display === 'flex';
+    terminalOverlay.style.display = isOpen ? 'none' : 'flex';
+    
+    // Si se abre, pone el foco automáticamente en el input para empezar a escribir
+    if (!isOpen) {
+        inputField.focus();
+    }
+}
+// Asegúrate de tener 'set' importado de Firebase junto a ref y get:
+// import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-database.js";
+
+// 3. Procesador Técnico de Comandos (Ecosistema Praxis Core - Blindado Firebase v10)
+inputField.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+        const fullCommand = inputField.value.trim();
+        inputField.value = ''; // Limpia la línea de entrada inmediatamente
+        
+        if (!fullCommand) return;
+
+        // Hace eco en la terminal de la orden ingresada
+        printLog(`praxis@root:~$ ${fullCommand}`, '#ffffff');
+        
+        // Formateo base para evaluar prefijos de comandos estructurados sin alterar mayúsculas internas
+        const comandoNormalizado = fullCommand.toLowerCase().replace(/\s+/g, ' ');
+
+        // =======================================================================
+        // 1. COMANDO SECRETO 1: Acceso Administrativo -> token adminpanel password=[...]
+        // =======================================================================
+        if (comandoNormalizado.startsWith('token adminpanel password=')) {
+            const match = fullCommand.match(/password=\s*\[(.*?)\]/i);
+            const claveIngresada = match ? match[1] : null;
+
+            if (claveIngresada === null) {
+                printLog("❌ ERROR: Sintaxis incorrecta. Uso requerido: token adminpanel password=[tu_contraseña]", "#ff3366");
+                return;
+            }
+
+            printLog("⏳ Conectando con los nodos de seguridad de Praxis Core...", "#ffeb3b");
+
+            try {
+                const baseDatosInstancia = (typeof db !== 'undefined') ? db : (window.db || null);
+
+                if (!baseDatosInstancia) {
+                    printLog("❌ ERROR INTERNO: Instancia 'db' de Firebase no accesible en este contexto.", "#ff3366");
+                    return;
+                }
+
+                if (typeof ref !== 'function' || typeof get !== 'function') {
+                    printLog("❌ ERROR INTERNO: Las funciones 'ref' o 'get' de Firebase no están disponibles.", "#ff3366");
+                    return;
+                }
+
+                const dbRef = ref(baseDatosInstancia, 'config/tokens/comando_administrativo_password');
+                const snapshot = await get(dbRef);
+
+                if (!snapshot.exists()) {
+                    printLog("❌ ERROR: El nodo no existe en las rutas de Firebase.", "#ff3366");
+                    return;
+                }
+
+                const tokenSeguroDinamico = snapshot.val();
+                const tokenFormateado = String(tokenSeguroDinamico).trim();
+
+                if (claveIngresada.trim() === tokenFormateado) {
+                    printLog("🔓 ACCESO PRIVILEGIADO CONCEDIDO. Validando firma del Fundador...", "#00ff88");
+                    printLog("Abriendo canal seguro y redirigiendo al panel...", "#00b0ff");
+                    
+                    setTimeout(() => {
+                        window.location.href = "centro-de-admins.html";
+                    }, 1200);
+                } else {
+                    printLog("❌ ERROR: Credenciales inválidas. Intento de intrusión registrado.", "#ff3366");
+                }
+
+            } catch (error) {
+                console.error("DETALLE COMPLETO DEL FALLO (ADMIN):", error);
+                printLog(`❌ ERROR DE CONEXIÓN: ${error.name} - ${error.message}`, "#ff3366");
+            }
+            
+            return; 
+        }
+
+        // =======================================================================
+        // 2. COMANDO SECRETO 2: Reclamo Global Único -> reclaim code=[...]
+        // =======================================================================
+        if (comandoNormalizado.startsWith('reclaim code=')) {
+            const matchCode = fullCommand.match(/code=\s*\[(.*?)\]/i);
+            const codigoReclamado = matchCode ? matchCode[1] : null;
+
+            if (codigoReclamado === null || codigoReclamado.trim() === "") {
+                printLog("❌ ERROR: Sintaxis incorrecta. Uso requerido: reclaim code=[tu_codigo]", "#ff3366");
+                return;
+            }
+
+            const codigoLimpio = codigoReclamado.trim();
+            printLog("⏳ Conectando con la base de datos de Praxis Core...", "#ffeb3b");
+
+            try {
+                const baseDatosInstancia = (typeof db !== 'undefined') ? db : (window.db || null);
+                const usuarioActual = (typeof auth !== 'undefined') ? auth.currentUser : (window.auth?.currentUser || null);
+
+                if (!baseDatosInstancia) {
+                    printLog("❌ ERROR INTERNO: Instancia 'db' no accesible.", "#ff3366");
+                    return;
+                }
+
+                // Obligatorio estar logeado para saber a qué UID asignarle el código
+                if (!usuarioActual) {
+                    printLog("❌ ACCESO DENEGADO: Debes iniciar sesión para reclamar códigos.", "#ff3366");
+                    return;
+                }
+
+                if (typeof ref !== 'function' || typeof get !== 'function' || typeof set !== 'function') {
+                    printLog("❌ ERROR INTERNO: Funciones modulares de Firebase incompletas.", "#ff3366");
+                    return;
+                }
+
+                const uid = usuarioActual.uid;
+
+                // PASO 1: Verificar si el usuario ya reclamó este código anteriormente
+                const rutaHistorialUser = `usuarios/${uid}/promos/${codigoLimpio}`;
+                const refHistorial = ref(baseDatosInstancia, rutaHistorialUser);
+                const snapshotHistorial = await get(refHistorial);
+
+                if (snapshotHistorial.exists()) {
+                    printLog(`❌ ERROR: Ya has reclamado el código [${codigoLimpio}] anteriormente. ¡Solo un uso permitido!`, "#ff3366");
+                    return;
+                }
+
+                // PASO 2: Verificar si el código existe globalmente en el sistema
+                const rutaGlobalCodigo = `config/codigos_promocionales/${codigoLimpio}`;
+                const refGlobal = ref(baseDatosInstancia, rutaGlobalCodigo);
+                printLog(`🛰️ Verificando autenticidad del código...`, "#00b0ff");
+                const snapshotGlobal = await get(refGlobal);
+
+                if (!snapshotGlobal.exists()) {
+                    printLog("❌ ERROR: El código promocional no es válido o no existe.", "#ff3366");
+                    return;
+                }
+
+                const recompensaEfectiva = snapshotGlobal.val();
+
+                // PASO 3: Quemar/Bloquear el código guardándolo en el perfil del usuario
+                printLog("🔒 Asegurando recompensa en tu cuenta...", "#ffeb3b");
+                await set(refHistorial, {
+                    recompensa: recompensaEfectiva,
+                    reclamadoEl: new Date().toISOString()
+                });
+
+                printLog(`🎉 ¡CÓDIGO APLICADO CON ÉXITO!`, "#00ff88");
+                printLog(`🎁 Recompensa asignada: [${recompensaEfectiva}]`, "#ffeb3b");
+                printLog("Sincronización de perfil completada.", "#00b0ff");
+
+            } catch (error) {
+                console.error("DETALLE COMPLETO DEL FALLO (RECLAIM):", error);
+                printLog(`❌ ERROR DE CONEXIÓN: ${error.name} - ${error.message}`, "#ff3366");
+            }
+
+            return; 
+        }
+
+     // =======================================================================
+        // 3. PROCESADOR PARA EL RESTO DE COMANDOS CONVENCIONALES
+        // =======================================================================
+        const args = fullCommand.split(' ');
+        const command = args[0].toLowerCase();
+
+        switch (command) {
+            case 'help':
+                printLog("📌 COMANDOS DISPONIBLES DE PRAXIS__CORE:", "#00b0ff");
+                printLog("  help          - Muestra este panel de asistencia técnica.");
+                printLog("  sysinfo       - Despliega el estado y versión del sistema.");
+                printLog("  userinfo      - Consulta la firma del usuario logeado.");
+                printLog("  server status - Realiza una prueba de latencia con la DB.");
+                printLog("  version       - Despliega el log de actualizaciones de la plataforma.");
+                printLog("  assistant     - Inicializa el entorno cuántico de Praxis Assistant.");
+                printLog("  sudo mode     - Alterna los privilegios visuales del prompt.");
+                printLog("  clear         - Limpia el búfer de líneas de la pantalla.");
+                break;
+
+           case 'assistant':
+    printLog("🤖 [SYSTEM]: Inicializando subrutinas de Praxis Assistant...", "#00ff88");
+    printLog("🧬 [SYSTEM]: Cargando matrices neuronales y base de conocimiento...", "#00b0ff");
+    printLog("⚡ [SYSTEM]: Canal de datos abierto de forma segura.", "#ffeb3b");
+    
+    // Aviso de estado Beta: Gestión de expectativas profesional
+    printLog("⚠️ [BETA STATUS]: Praxis Assistant se encuentra en fase de pruebas (v1.0.5).", "#ff007f");
+    printLog("   Algunas respuestas o funciones pueden presentar optimizaciones pendientes.", "#888888");
+    
+    // Efecto de delay para darle realismo técnico antes de redireccionar
+    setTimeout(() => {
+        printLog("🚀 [SYSTEM]: Redirección inminente. Ejecutando handshake...", "#00ff88");
+        setTimeout(() => {
+            window.location.href = "praxis_assistant.html";
+        }, 800);
+    }, 1500); // 1.5s permiten leer la advertencia Beta sin ralentizar la experiencia
+    break;
+
+            case 'sysinfo':
+                printLog("[SYS] CORE_STATUS: OPERATIONAL", "#00ff88");
+                printLog(`[SYS] DOMAIN: ${window.location.hostname || 'Localhost'}`);
+                printLog("[SYS] ENGINE_VERSION: v1.0.5-beta");
+                printLog(`[SYS] DRIVER: Firebase Realtime DB v10 (Modular)`);
+                break;
+
+            case 'userinfo':
+                const usr = (typeof auth !== 'undefined') ? auth.currentUser : (window.auth?.currentUser || null);
+                if (usr) {
+                    printLog("👤 PERFIL DE PRAXIS DETECTADO:", "#00ff88");
+                    printLog(`  > Nombre: ${usr.displayName || 'Estudiante Anon'}`, "#ffffff");
+                    printLog(`  > Email: ${usr.email}`, "#ffffff");
+                    printLog(`  > UID: ${usr.uid}`, "#00b0ff");
+                } else {
+                    printLog("❌ ERROR: No se detectó ninguna sesión activa. Inicia sesión en el login.", "#ff3366");
+                }
+                break;
+
+            case 'server':
+                if (args[1] === 'status') {
+                    printLog("📡  Iniciando traza de ping hacia subnodos de Firebase...", "#ffeb3b");
+                    const startPing = Date.now();
+                    try {
+                        const baseDatosInstancia = (typeof db !== 'undefined') ? db : (window.db || null);
+                        await get(ref(baseDatosInstancia, '.info/connected'));
+                        const endPing = Date.now() - startPing;
+                        printLog(`🟢 CONEXIÓN ESTABLE: Respondido en ${endPing}ms. Nodos en línea.`, "#00ff88");
+                    } catch {
+                        printLog("🔴 TIME OUT: Error al medir la latencia del servidor central.", "#ff3366");
+                    }
+                } else {
+                    printLog("❌ Sintaxis incompleta. Quizás quisiste decir: 'server status'", "#ff3366");
+                }
+                break;
+
+            case 'version':
+                printLog("📦 LOG DE CAMBIOS - PRAXIS PLATFORM v1.0.5-beta:", "#ffeb3b");
+                printLog("  • Sincronización completa con Firebase Realtime Database v10.");
+                printLog("  • Implementación de terminal de comandos oculta de depuración.");
+                printLog("  • Módulo de códigos promocionales globales únicos por cuenta.");
+                printLog("  • Enrutamiento dinámico protegido para el rol Founder.");
+                break;
+
+            case 'sudo':
+                if (args[1] === 'mode') {
+                    printLog("⚡ Concediendo privilegios estéticos locales a root...", "#00ff88");
+                    const promptLabel = document.querySelector('.terminal-prompt-label') || null;
+                    if (promptLabel) {
+                        promptLabel.textContent = "sudo@root:#";
+                        promptLabel.style.color = "#ff3366";
+                    }
+                    printLog("Modo de superusuario simulado activado.", "#00b0ff");
+                } else {
+                    printLog("❌ Uso: 'sudo mode'", "#ff3366");
+                }
+                break;
+
+            case 'clear':
+                outputDiv.innerHTML = '';
+                break;
+
+            default:
+                printLog("❌ Comando no reconocido. Escribe 'help' para ver la lista.", '#ff3366');
+                break;
+        }
+    }
+});
 /**
  * =======================================================================
  * 🔒 ALONIXZ-GROUP                                                                      

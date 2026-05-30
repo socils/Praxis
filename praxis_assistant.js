@@ -1,6 +1,6 @@
 /**
  * =========================================================================
- * PRAXIS CORE ASSISTANT SYSTEM - ENGINE v3.0 (EDICIÓN INTEGRADA)
+ * PRAXIS CORE ASSISTANT SYSTEM - ENGINE v3.1 (EDICIÓN ULTRA BLINDADA)
  * Desarrollado para: Praxis Platform
  * Autor original: Alonso (Fundador de Alonixz-Group)
  * Infraestructura: Firebase Realtime Database, Auth & Google Generative AI
@@ -9,7 +9,7 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, get, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // ==========================================
@@ -24,6 +24,10 @@ const firebaseConfig = {
     messagingSenderId: "596083977949",
     appId: "1:596083977949:web:71064f89a23f8d9738f534"
 };
+
+// Memoria y persistencia de sesiones de chat (Límite: 3)
+let idChatActual = null; 
+let listaChatsActivos = {}; 
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
@@ -43,9 +47,9 @@ let currentUid = null;
 let misAgendasData = {}; 
 let allowDataContext = true; 
 
-// Historiales de conversación (Conversación fluida independiente)
+// Historiales de conversación
 let chatHistory = []; 
-let searchChatHistory = []; // Memoria persistente para re-preguntas en la ventana de búsqueda
+let searchChatHistory = []; 
 
 // El array plano unificado que alimenta tu buscador interactivo
 let tasksList = [];
@@ -53,7 +57,6 @@ let tasksList = [];
 // ==========================================
 // REFERENCIAS AUTOMÁTICAS DE LA INTERFAZ UI
 // ==========================================
-// Panel Principal del Chat
 const chatBox = document.getElementById('chatBox');
 const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
@@ -61,14 +64,12 @@ const modelSelect = document.getElementById('modelSelect');
 const middlePlaceholder = document.getElementById('middlePlaceholder');
 const chatScrollContainer = chatBox ? chatBox.parentElement : null;
 
-// Modales y Controles de Autenticación / Créditos
 const authModal = document.getElementById('authModal');
 const googleAuthBtn = document.getElementById('googleAuthBtn');
 const creditsModal = document.getElementById('creditsModal');
 const openCreditsBtn = document.getElementById('openCreditsBtn');
 const closeCreditsBtn = document.getElementById('closeCreditsBtn');
 
-// Modal de Búsqueda Global Integrada (Atajos de tu código nativo)
 const searchModal = document.getElementById("search-modal");
 const searchInput = document.getElementById("search-input");
 const searchResults = document.getElementById("search-results");
@@ -76,6 +77,28 @@ const btnResumirIA = document.getElementById("btn-resumir-ia");
 const searchIAEngine = document.getElementById("search-ia-engine");
 const searchIAStatus = document.getElementById("search-ia-status");
 const searchIAResponseBox = document.getElementById("search-ia-response-box");
+
+// Elementos de la barra lateral para su control
+const toggleSidebarBtn = document.getElementById("toggleSidebarBtn");
+const chatSidebar = document.getElementById("chatSidebar");
+const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+function toggleSidebar() {
+    if (chatSidebar) {
+        chatSidebar.classList.toggle("expanded");
+    }
+}
+
+if (toggleSidebarBtn) {
+    toggleSidebarBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleSidebar();
+    });
+}
+
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener("click", toggleSidebar);
+}
 
 // ==========================================
 // 1. RECONSTRUCCIÓN CRIPTOGRÁFICA DEL TOKEN SEGURO
@@ -109,10 +132,12 @@ if (openCreditsBtn && creditsModal) {
 if (closeCreditsBtn && creditsModal) {
     closeCreditsBtn.addEventListener('click', () => creditsModal.style.display = 'none');
 }
-
 function appendMessage(text, sender) {
     if (!chatBox) return null;
     
+    // Forzar conversión a string por seguridad y limpiar basura del búfer
+    let cleanText = String(text).replace(/\[object Object\]/g, "").replace(/undefined/g, "").trim();
+
     if (middlePlaceholder && middlePlaceholder.style.opacity !== '0') {
         middlePlaceholder.style.opacity = '0';
         setTimeout(() => middlePlaceholder.style.display = 'none', 500);
@@ -120,7 +145,17 @@ function appendMessage(text, sender) {
 
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', sender);
-    msgDiv.innerText = text;
+    
+    // Si el remitente es la IA, renderiza el Markdown y las tablas como HTML real
+    if (sender === 'model' || sender === 'assistant') {
+        msgDiv.innerHTML = typeof formatearTextoIACompleto === "function" 
+            ? formatearTextoIACompleto(cleanText) 
+            : cleanText;
+    } else {
+        // Para el usuario, texto plano seguro
+        msgDiv.innerText = cleanText;
+    }
+    
     chatBox.appendChild(msgDiv);
     
     if (chatScrollContainer) {
@@ -128,13 +163,12 @@ function appendMessage(text, sender) {
     }
     return msgDiv;
 }
-
 // ==========================================
-// 3. ENLACE DE FIREBASE AUTH Y ESCANEO EN TIEMPO REAL
+// 3. ENLACE DE FIREBASE AUTH Y SCONEO
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        currentUid = user.uid;
+        currentUid = String(user.uid); 
         if (authModal) authModal.style.display = 'none';
         console.log("UID Verificado en Praxis:", currentUid);
 
@@ -154,7 +188,6 @@ onAuthStateChanged(auth, async (user) => {
                 await set(userRef, currentUserData);
             }
 
-            // Llamar a la carga síncrona transversal de tareas
             fetchAllUserTasks();
 
         } catch (error) {
@@ -171,7 +204,6 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// Función centralizada encargada de mapear los dos universos de datos
 function fetchAllUserTasks() {
     if (!currentUid) return;
 
@@ -181,7 +213,7 @@ function fetchAllUserTasks() {
     get(userAgendasRef).then((snapshot) => {
         if (snapshot.exists()) {
             const promises = [];
-            misAgendasData = {}; // Reset estructurado
+            misAgendasData = {}; 
 
             snapshot.forEach((agendaSnapshot) => {
                 const agendaId = agendaSnapshot.key;
@@ -192,24 +224,25 @@ function fetchAllUserTasks() {
                     if (tasksSnapshot.exists()) {
                         const tareasBD = tasksSnapshot.val();
                         
-                        // Guardar datos en el formato estructurado de árbol para el chat principal
                         misAgendasData[agendaId] = {
-                            detalles: { nombre: agendaName },
+                            detalles: { nombre: String(agendaName) },
                             tareas: tareasBD
                         };
 
-                        // Guardar en la matriz plana para el buscador instantáneo
                         tasksSnapshot.forEach((taskSnapshot) => {
-                            tasksList.push({
-                                id: taskSnapshot.key,
-                                agendaId: agendaId,
-                                agendaNombre: agendaName,
-                                ...taskSnapshot.val()
-                            });
+                            // Validar que no procese el nodo de control 'inicio' en el buscador global
+                            if (taskSnapshot.key !== 'inicio') {
+                                tasksList.push({
+                                    id: taskSnapshot.key,
+                                    agendaId: agendaId,
+                                    agendaNombre: String(agendaName),
+                                    ...taskSnapshot.val()
+                                });
+                            }
                         });
                     } else {
                         misAgendasData[agendaId] = {
-                            detalles: { nombre: agendaName },
+                            detalles: { nombre: String(agendaName) },
                             tareas: "Sin tareas registradas"
                         };
                     }
@@ -220,7 +253,10 @@ function fetchAllUserTasks() {
             return Promise.all(promises).then(() => {
                 console.log("Sincronización completa. Buscador indexado:", tasksList);
                 console.log("Árbol mapeado de agendas:", misAgendasData);
+                cargarEstructuraChats();
             });
+        } else {
+            cargarEstructuraChats();
         }
     }).catch((error) => {
         console.error("Fallo de mapeo asíncrono en Praxis Core:", error);
@@ -244,79 +280,158 @@ if (googleAuthBtn) {
 window.toggleDataContext = function(checkbox) {
     allowDataContext = checkbox.checked;
     console.log("Permiso de transferencia de contexto:", allowDataContext);
-};
-
-// Auxiliar: Transformador de tareas para blindar la estructura interna de Firebase en el chat
+};// Auxiliar: Transformador de tareas para blindar la estructura interna de Firebase en el chat
 function serializarTareasParaIA(agendasObjeto) {
-    if (!agendasObjeto || Object.keys(agendasObjeto).length === 0) {
-        return "No hay tareas registradas en el sistema actualmente.";
+    if (!agendasObjeto || typeof agendasObjeto !== 'object' || Object.keys(agendasObjeto).length === 0) {
+        return "No tienes tareas registradas en el sistema actualmente.";
     }
 
     let textoEstructurado = "";
+    
     for (const codigoAgenda in agendasObjeto) {
-        const nodoAgenda = agendasObjeto[codigoAgenda];
-        textoEstructurado += `\n--- AGENDA: ${nodoAgenda.detalles?.nombre || codigoAgenda} ---\n`;
+        if (!Object.prototype.hasOwnProperty.call(agendasObjeto, codigoAgenda)) continue;
         
+        const nodoAgenda = agendasObjeto[codigoAgenda];
+        if (!nodoAgenda || typeof nodoAgenda !== 'object') continue;
+
+        const nombreAgenda = nodoAgenda.detalles?.nombre || codigoAgenda;
         const tareas = nodoAgenda.tareas;
-        if (!tareas || tareas === "Sin tareas registradas" || Object.keys(tareas).length === 0) {
-            textoEstructurado += "  (Esta agenda no tiene tareas pendientes registradas)\n";
+        
+        if (!tareas || tareas === "Sin tareas registradas" || typeof tareas !== 'object' || Object.keys(tareas).length === 0) {
             continue;
         }
 
+        let textoTareasAgenda = "";
         let contador = 1;
+        
         for (const idTarea in tareas) {
+            if (!Object.prototype.hasOwnProperty.call(tareas, idTarea)) continue;
+            
+            // Exclusión de nodos inicializadores automáticos del sistema
+            if (idTarea === 'inicio' || idTarea === 'detalles' || idTarea === 'config') continue;
+
             const t = tareas[idTarea];
-            textoEstructurado += `  ${contador}. [${(t.estado || 'Pendiente').toUpperCase()}] Título: ${t.titulo || t.name || 'Sin título'} | Materia: ${t.materia || 'General'}\n`;
-            textoEstructurado += `     - Entrega: ${t.fecha || t.fechaEntrega || 'No especificada'}\n`;
-            textoEstructurado += `     - Indicaciones: ${t.descripcion || t.desc || 'Sin detalles'}\n`;
-            contador++;
+            
+            // Aseguramos que el nodo de la tarea sea un objeto puro con sus campos definidos
+            if (t && typeof t === 'object' && !Array.isArray(t)) {
+                const titulo = t.titulo || t.name || t.nombre || '';
+                const materia = t.materia || 'General';
+                const fecha = t.fecha || t.fechaEntrega || 'No especificada';
+                const descripcion = t.descripcion || t.desc || 'Sin detalles';
+                const estado = (t.estado || 'Pendiente').toUpperCase();
+
+                // Conversión forzada a String plano e higienizado
+                const strTitulo = String(titulo).trim();
+                const strMateria = String(materia).trim();
+                const strFecha = String(fecha).trim();
+                const strDesc = String(descripcion).trim();
+
+                if (strTitulo === "" || strTitulo === "[object Object]") continue;
+
+                textoTareasAgenda += `  ${contador}. [${estado}] Título: ${strTitulo} | Materia: ${strMateria}\n`;
+                textoTareasAgenda += `     - Entrega: ${strFecha}\n`;
+                textoTareasAgenda += `     - Indicaciones: ${strDesc}\n`;
+                contador++;
+            }
+        }
+
+        if (contador > 1) {
+            textoEstructurado += `\n--- AGENDA: ${nombreAgenda} ---\n` + textoTareasAgenda;
         }
     }
-    return textoEstructurado;
+    
+    return textoEstructurado.trim() === "" ? "No tienes tareas académicas pendientes." : textoEstructurado;
 }
-
 // ==========================================
-// 4. CHAT PRINCIPAL: CONTROL INTERACTIVO
+// 4. CHAT PRINCIPAL: CONTROL INTERACTIVO (VERSIÓN ULTRA-BLINDADA)
+// ==========================================
+// ==========================================
+// 4. CHAT PRINCIPAL: CONTROL INTERACTIVO (VERSIÓN INTEGRAL BLINDADA)
 // ==========================================
 async function handleSend() {
     const queryText = userInput.value.trim();
     if (!queryText) return;
 
+    if (!currentUid) {
+        alert("Debes iniciar sesión para interactuar con Praxis Assistant.");
+        return;
+    }
+
+    const cantidadChats = Object.keys(listaChatsActivos || {}).length;
+    
+    if (cantidadChats >= 3 && !idChatActual) {
+        const memoryAlert = document.getElementById("memoryAlert");
+        if (memoryAlert) memoryAlert.style.display = "block";
+        
+        const errorMsg = appendMessage("⚠️ Al parecer la memoria está llena. Elimina un chat en el panel para continuar.", "assistant");
+        if (errorMsg) {
+            errorMsg.style.color = "#ff007f";
+            errorMsg.style.fontWeight = "bold";
+        }
+        return;
+    }
+
+    // Mostrar el mensaje limpio en la UI
     appendMessage(queryText, 'user');
     userInput.value = '';
 
     const loadingMsg = appendMessage('Praxis Assist está memorizando y procesando...', 'assistant');
 
     const key = getSecureKey();
-    const selectedModel = modelSelect ? modelSelect.value : "gemini-1.5-flash"; 
+    const selectedModel = modelSelect ? modelSelect.value : "gemini-1.5-flash-8b"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${key}`;
 
-    let promptFinal = queryText;
-    
-    if (allowDataContext && currentUid) {
+    // AÑADIR PREGUNTA LIMPIA AL HISTORIAL REAL (Esto evita que se guarde basura en Firebase)
+    chatHistory.push({
+        role: "user",
+        parts: [{ text: queryText }]
+    });
+
+    // CLONACIÓN PROFUNDA EXCLUSIVA PARA LA API (Aísla la memoria RAM)
+    let historialParaEnviarAPI = JSON.parse(JSON.stringify(chatHistory));
+
+    // Si está permitido, inyectamos el contexto académico SOLO al final del clon efímero
+    if (allowDataContext && misAgendasData) {
         const listadoTareasTexto = serializarTareasParaIA(misAgendasData);
         
         let contextMessage = "\n\n[INFORMACIÓN CRÍTICA DEL ALUMNO - DATOS EXTRAÍDOS DE PRAXIS]:\n";
-        contextMessage += `ID Estudiante: ${currentUid}\n`;
+        contextMessage += `ID Estudiante: ${String(currentUid)}\n`;
         contextMessage += `TAREAS REALES ENCONTRADAS:\n${listadoTareasTexto}\n\n`;
-        contextMessage += "REGLA DE RESPUESTA BINDANTE: No ignores los datos de arriba. Está estrictamente prohibido inventar o asumir tareas de bienvenida o inducción. Si el alumno te pregunta qué tareas tiene, lee la lista anterior, extrae sus nombres reales, y muéstraselas detalladamente. Si la lista dice que no hay tareas, indícale con honestidad que no registra deberes escolares pendientes.";
+        contextMessage += "REGLA DE RESPUESTA BINDANTE: No ignores los datos de arriba. Queda estrictamente prohibido inventar tareas o usar la palabra o marcador '[object Object]'. Si el alumno te pregunta qué tareas tiene, lee la lista anterior, extrae sus nombres reales de las materias y muéstraselas detalladamente de forma muy limpia. Si la lista está vacía, indícaselo con honestidad.";
         
-        promptFinal += contextMessage;
+        historialParaEnviarAPI[historialParaEnviarAPI.length - 1].parts[0].text += contextMessage;
     }
 
-    chatHistory.push({
-        role: "user",
-        parts: [{ text: promptFinal }]
-    });
+   try {
+        // REGLAS ESTRICTAS DE RESPUESTA PARA EL COMPORTAMIENTO DE GEMINI
+        const instruccionesDelSistema = 
+            "Eres Praxis Assist, la IA oficial de la plataforma educativa Praxis, desarrollada por Alonso (fundador de Alonixz-Group) sobre la infraestructura de Firebase. Tu rol es el de un asesor académico avanzado, directo y eficiente. Mantienes un tono profesional, fresco y colaborativo.\n\n" +
+            "REGLAS DE FORMATO OBLIGATORIAS QUE DEBES SEGUIR BAJO CUALQUIER CIRCUNSTANCIA:\n" +
+            "1. PROHIBICIÓN ABSOLUTA DE LATEX: Queda terminantemente prohibido usar delimitadores de dólar '$' o '$$' para encerrar variables, fórmulas o ecuaciones matemáticas. Tampoco utilices estructuras con barra invertida como \\frac, \\sum o \\bar.\n" +
+            "2. FORMATO MATEMÁTICO PERMITIDO: Escribe los símbolos y las variables en texto plano legible o usando caracteres Unicode estándar directamente en la línea de texto. Ejemplo:\n" +
+            "   - Media Aritmética: x̄ = (Σ (Xi * fi)) / N\n" +
+            "   - Mediana: Me = Li + [ ((N/2) - Fi-1) / fi ] * A\n" +
+            "   - Moda: Mo = Li + [ d1 / (d1 + d2) ] * A\n" +
+            "3. FORMATO DE TABLAS ESTRICTO: Cuando presentes distribuciones de frecuencias, datos estadísticos o clasificaciones por intervalos, utiliza ÚNICAMENTE el formato de tablas nativo de Markdown mediante barras verticales '|' y guiones divisores. Es OBLIGATORIO que dejes un salto de línea en blanco antes y un salto de línea en blanco después de toda la estructura de la tabla para que no se corrompa el renderizado en la interfaz. Ejemplo:\n" +
+            "   | Intervalo | Xi | fi | Fi |\n" +
+            "   | :--- | :---: | :---: | :---: |\n" +
+            "   | [10 - 20) | 15 | 4 | 4 |\n" +
+            "4. CONTROL DE ENTRADA: Queda estrictamente prohibido imprimir la cadena '[object Object]' o 'undefined'. Si detectas que un dato extraído del contexto del alumno no es legible o viene vacío, omítelo por completo.";
 
-    try {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: chatHistory, 
+                contents: historialParaEnviarAPI.map(h => ({
+                    role: h.role,
+                    parts: h.parts.map(p => ({ text: String(p.text) }))
+                })), 
                 systemInstruction: {
-                    parts: [{ text: "Eres Praxis Assist, la IA oficial de la plataforma educativa Praxis, desarrollada por Alonso (fundador de Alonixz-Group) sobre la infraestructura de Firebase. Tu rol es el de un asesor académico avanzado, directo y eficiente. No eres frío ni robótico; mantienes un tono intermedio, profesional, fresco y colaborativo. Tu prioridad absoluta es explicar conceptos complejos de forma sumamente sencilla y estructurada, usando los datos de sus agendas cuando sea necesario." }]
+                    parts: [{ text: instruccionesDelSistema }]
+                },
+                generationConfig: {
+                    temperature: 0.3, // Una temperatura baja reduce la variabilidad y asegura el cumplimiento estricto de las reglas
+                    topP: 0.95
                 }
             })
         });
@@ -325,12 +440,33 @@ async function handleSend() {
         
         if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
             const botResponse = data.candidates[0].content.parts[0].text;
-            loadingMsg.innerText = botResponse;
+            
+            loadingMsg.remove(); // Eliminamos el "procesando..."
+            appendMessage(botResponse, 'model'); // Renderizamos el nuevo mensaje de forma limpia a través de marked
 
+            // Almacenar respuesta purificada en memoria de sesión
             chatHistory.push({
                 role: "model",
                 parts: [{ text: botResponse }]
             });
+
+            if (!idChatActual) {
+                const chatsRef = ref(db, `usuarios/${currentUid}/chats_guardados`);
+                const nuevoChatRef = push(chatsRef); 
+                idChatActual = nuevoChatRef.key;
+            }
+            
+            // Guardar en Firebase el historial PURO sin inyecciones pesadas de contexto
+            const chatEspecificoRef = ref(db, `usuarios/${currentUid}/chats_guardados/${idChatActual}`);
+            await set(chatEspecificoRef, {
+                ultimaModificacion: new Date().toISOString(),
+                historial: chatHistory
+            });
+
+            if (typeof cargarEstructuraChats === "function") {
+                cargarEstructuraChats();
+            }
+
         } else {
             loadingMsg.innerText = "Error. El sistema no pudo procesar esta estructura de datos.";
             chatHistory.pop();
@@ -341,245 +477,203 @@ async function handleSend() {
         chatHistory.pop();
     }
 }
-
 if (sendBtn) sendBtn.addEventListener('click', handleSend);
 if (userInput) {
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSend();
     });
-}
-
-// ==========================================
-// 5. MODAL DE BÚSQUEDA GLOBAL (SISTEMA INTEGRADO DESDE INTERRUPCIÓN)
-// ==========================================
-
-// Atrapada de Control de Atajos de Teclado (Ctrl + K) con Limpieza de Interfaz nativa de tu script
-window.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        if (searchModal) {
-            const isHidden = searchModal.classList.toggle("hidden");
-            if (!isHidden) {
-                if (searchInput) searchInput.value = "";
-                if (searchResults) searchResults.innerHTML = "";
-                
-                if (searchIAResponseBox) {
-                    searchIAResponseBox.style.display = "none";
-                    searchIAResponseBox.innerText = "";
-                }
-                if (searchIAEngine) searchIAEngine.style.display = "none";
-                
-                searchChatHistory = []; // Reset de memoria de análisis
-                if (searchInput) searchInput.focus();
-                fetchAllUserTasks(); // Recarga de contingencia instantánea
-            }
-        }
-    }
-});
-
-// Evento de filtrado nativo en el input por Título o Asignatura
-if (searchInput && searchResults) {
-    searchInput.addEventListener("input", (e) => {
-        const queryStr = e.target.value.toLowerCase().trim();
-        searchResults.innerHTML = "";
-
-        if (queryStr === "") return;
-
-        const filtered = tasksList.filter(task => {
-            const title = (task.titulo || "").toLowerCase();
-            const subject = (task.materia || "").toLowerCase();
-            return title.includes(queryStr) || subject.includes(queryStr);
-        });
-
-        if (filtered.length === 0) {
-            const noResults = document.createElement("div");
-            noResults.style.padding = "20px";
-            noResults.style.textAlign = "center";
-            noResults.style.color = "#a0aec0";
-            noResults.style.fontSize = "0.9rem";
-            noResults.textContent = "No se encontraron tareas con ese nombre";
-            searchResults.appendChild(noResults);
-            return;
-        }
-
-        filtered.forEach(task => {
-            const item = document.createElement("div");
-            item.classList.add("search-item");
-            item.innerHTML = `
-                <div class="search-item-header">
-                    <span class="search-item-title">${task.titulo || 'Sin título'}</span>
-                    <span class="search-item-subject">${task.materia || 'General'}</span>
-                </div>
-                <div class="search-item-desc">${task.descripcion || 'Sin descripción'}</div>
-                <div style="font-size: 0.75rem; color: #a0aec0; margin-top: 2px;">Agenda: ${task.agendaNombre}</div>
-            `;
-
-            item.addEventListener("click", () => {
-                if (searchModal) searchModal.classList.add("hidden");
-                if (typeof window.onTaskSelected === "function") {
-                    window.onTaskSelected(task);
-                }
-            });
-
-            searchResults.appendChild(item);
-        });
-    });
-}
-
-// Botón de Resumen con IA del Buscador con tu Plantilla Estricta Obligatoria
-if (btnResumirIA) {
-    btnResumirIA.addEventListener("click", async () => {
-        if (tasksList.length === 0) {
-            if (searchIAResponseBox) {
-                searchIAResponseBox.innerText = "No tienes tareas registradas en tus agendas actuales para poder generar un resumen.";
-                searchIAResponseBox.style.display = "block";
-            }
-            return;
-        }
-
-        // Bloqueos visuales nativos de tu UI
-        btnResumirIA.disabled = true;
-        if (searchIAResponseBox) searchIAResponseBox.style.display = "none";
-        if (searchIAEngine) searchIAEngine.style.display = "flex";
-
-        // Animación simulada de sincronización tal cual la definiste
-        if (searchIAStatus) searchIAStatus.innerText = "Sincronizando hilos de tareas...";
-        await new Promise(r => setTimeout(r, 600));
-        if (searchIAStatus) searchIAStatus.innerText = "Estructurando resumen con Gemini...";
-
-        // Formatear mapeado limpio lineal de tareas
-        const tareasTexto = tasksList.map((t, idx) => {
-            return `${idx + 1}. [${t.materia || 'General'}] ${t.titulo || 'Sin título'}: ${t.descripcion || 'Sin descripción'} (Agenda: ${t.agendaNombre})`;
-        }).join("\n");
-
-        const key = getSecureKey();
-        const urlEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
-
-        // Obtener entrada de usuario para permitir chat interactivo continuo sobre el resumen
-        const consultaUsuario = (searchInput && searchInput.value.trim()) || "Genera mi reporte de actividades pendientes.";
-
-        let promptActual = `${consultaUsuario}\n\n[LISTADO DE ACTIVIDADES A EVALUAR]:\n${tareasTexto}`;
-
-        // Empaquetar mensaje en el historial del buscador
-        searchChatHistory.push({
-            role: "user",
-            parts: [{ text: promptActual }]
-        });
-
-        try {
-            const respuesta = await fetch(urlEndpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: searchChatHistory, // Enviamos el array completo para habilitar memoria de re-preguntas
-                    systemInstruction: {
-                        parts: [{ text: `Actúa como el asistente de optimización académica de Praxis, desarrollado por Alonso. Tu respuesta inicial debe comenzar obligatoriamente con la frase exacta: "Hola, soy el asistente de Praxis impulsado por Gemini. Esta es una función beta, aquí tienes un resumen de tus tareas y de cómo puedes realizarlas."
-
-Analiza el listado de actividades provisto por el usuario y genera el reporte estructurándolo estrictamente bajo el siguiente esquema limpio, sin añadir comentarios de soporte ni advertencias técnicas:
-
-Hola, soy el asistente de Praxis impulsado por Gemini. Esta es una función beta, aquí tienes un resumen de tus tareas y de cómo puedes realizarlas.
-
-He detectado tareas en: [Lista concisa de materias encontradas].
-Por: [Breve resumen ejecutivo de las temáticas o entregas principales].
-
-Pasos para solucionarlas:
-1. [Consejo de organización o por cuál actividad prioritaria comenzar].
-2. [Estrategia lógica para avanzar con las materias restantes].
-3. [Tip técnico para optimizar tu tiempo de estudio].
-
-Puedes revisar el estado completo de tus actividades en la plataforma principal visitando: socils.github.io/Praxis/menu` }]
-                    }
-                })
-            });
-
-            const data = await respuesta.json();
-
-            if (data.error) {
-                if (searchIAResponseBox) {
-                    searchIAResponseBox.innerHTML = `<b>[ERROR DE SISTEMA]:</b> No se pudo procesar el resumen.`;
-                    searchIAResponseBox.style.display = "block";
-                }
-                searchChatHistory.pop();
-                return;
-            }
-if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-    const resultadoIA = data.candidates[0].content.parts[0].text;
-    
-    if (searchIAResponseBox) {
-        // Renderizado con el formateador completo de Markdown
-    searchIAResponseBox.innerHTML = marked.parse(resultadoIA);
-        searchIAResponseBox.style.display = "block";
-    }
-    if (searchIAEngine) searchIAEngine.style.display = "none";
-
-    searchChatHistory.push({
-        role: "model",
-        parts: [{ text: resultadoIA }]
-    });
-}
-
-        } catch (err) {
-            console.error(err);
-            if (searchIAEngine) searchIAEngine.style.display = "none";
-            if (searchIAResponseBox) {
-                searchIAResponseBox.innerText = "Error de red al intentar conectar con el módulo de análisis.";
-                searchIAResponseBox.style.display = "block";
-            }
-            searchChatHistory.pop();
-        } finally {
-            btnResumirIA.disabled = false;
-        }
-    });
-}
-
-// Interceptación de la tecla Enter en el input para re-preguntar de forma fluida a la IA del buscador
-if (searchInput) {
-    searchInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            if ((searchIAResponseBox && searchIAResponseBox.style.display === "block") || searchInput.value.startsWith("/")) {
-                e.preventDefault(); 
-                if (btnResumirIA) btnResumirIA.click();
-            }
-        }
-    });
 }function formatearTextoIACompleto(texto) {
     if (!texto) return "";
 
-    // 1. Escapar HTML para evitar que el código se rompa o haya inyecciones
-    let html = texto
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    // 1. LIMPIEZA DE SEGURIDAD: Convertimos todo a string y eliminamos basura
+    let textoLimpio = String(texto)
+        .replace(/\[object Object\]/g, "")
+        .replace(/undefined/g, "")
+        .trim();
 
-    // 2. Líneas divisorias (---) -> Convertir en etiquetas <hr>
-    html = html.replace(/^---$/gm, "<hr class='praxis-hr'>");
+    try {
+        const renderer = new marked.Renderer();
 
-    // 3. Encabezados principales (## Título) -> Convertir en <h2>
-    html = html.replace(/^##\s+(.+)$/gm, "<h2 class='praxis-h2'>$1</h2>");
+        // 2. CONFIGURACIÓN DE MARCADO: Habilitamos las tablas explícitamente
+        marked.setOptions({
+            renderer: renderer,
+            breaks: true,
+            gfm: true,
+            tables: true // <--- ¡ESTA ES LA CLAVE QUE FALTABA!
+        });
 
-    // 4. Encabezados secundarios (### Título) -> Convertir en <h3>
-    html = html.replace(/^###\s+(.+)$/gm, "<h3 class='praxis-h3'>$1</h3></h3>");
+        // 3. RENDERIZADO: Usamos marked.parse en lugar de marked.parse(textoLimpio) directamente
+        return marked.parse(textoLimpio);
 
-    // 5. Negrita + Itálica de tres asteriscos (***texto***) -> <b><i>texto</i></b>
-    html = html.replace(/\*\*\*([\s\S]*?)\*\*\*/g, "<b><i>$1</i></b>");
-
-    // 6. Negritas normales de dos asteriscos (**texto**) -> <b>texto</b>
-    html = html.replace(/\*\*([\s\S]*?)\*\*/g, "<b>$1</b>");
-
-    // 7. Listas con viñetas (Líneas que inician con * o -)
-    html = html.replace(/^\s*[\-\*]\s+(.+)$/gm, "<li class='praxis-li'>$1</li>");
-
-    // 8. Envolver bloques de líneas <li> consecutivas en un <ul> para mantener orden
-    // (Opcional, pero ayuda a que los estilos de lista no se rompan)
-    html = html.replace(/(<li class='praxis-li'>.*<\/li>)/g, "<ul class='praxis-ul'>$1</ul>");
-    // Limpieza de etiquetas ul duplicadas consecutivas
-    html = html.replace(/<\/ul>\s*<ul class='praxis-ul'>/g, "");
-
-    // 9. Preservar los saltos de línea convirtiendo los \n restantes en <br>
-    html = html.replace(/\n/g, "<br>");
-
-    // Limpieza de saltos de línea dobles innecesarios alrededor de bloques estructurales
-    html = html.replace(/(<\/h2>|<\/h3>|<\/hr>|<\/ul>)<br>/g, "$1");
-
-    return html;
+    } catch (error) {
+        console.error("Error en renderizado:", error);
+        return textoLimpio;
+    }
 }
+window.formatearTextoIACompleto = formatearTextoIACompleto;
+// ==========================================
+// 7. PERSISTENCIA DE CHATS (MÁXIMO 3)
+// ==========================================
+async function cargarEstructuraChats() {
+    if (!currentUid) return;
+    
+    const chatsRef = ref(db, `usuarios/${currentUid}/chats_guardados`);
+    try {
+        const snapshot = await get(chatsRef);
+        const listaChatsGuardados = document.getElementById("listaChatsGuardados");
+        const memoryAlert = document.getElementById("memoryAlert");
+        
+        if (!listaChatsGuardados) return;
+        listaChatsGuardados.innerHTML = ""; 
+        
+        let cantidadChats = 0;
+
+        if (snapshot.exists()) {
+            listaChatsActivos = snapshot.val();
+            cantidadChats = Object.keys(listaChatsActivos).length;
+            
+            if (cantidadChats >= 3 && !idChatActual) {
+                if (memoryAlert) memoryAlert.style.display = "block";
+                if (userInput) {
+                    userInput.disabled = true;
+                    userInput.placeholder = "Memoria llena. Elimina un chat para continuar...";
+                }
+                if (sendBtn) sendBtn.disabled = true;
+            } else {
+                if (memoryAlert) memoryAlert.style.display = "none";
+                if (userInput) {
+                    userInput.disabled = false;
+                    userInput.placeholder = "Pregúntale a la IA de Praxis...";
+                }
+                if (sendBtn) sendBtn.disabled = false;
+            }
+
+            for (const chatId in listaChatsActivos) {
+                if (!Object.prototype.hasOwnProperty.call(listaChatsActivos, chatId)) continue;
+                const infoChat = listaChatsActivos[chatId];
+                
+                let tituloPestana = "Conversación vacía";
+                if (infoChat.historial && infoChat.historial[0] && infoChat.historial[0].parts && infoChat.historial[0].parts[0]) {
+                    const textoSucio = String(infoChat.historial[0].parts[0].text);
+                    tituloPestana = textoSucio.split("[INFORMACIÓN CRÍTICA")[0].trim().substring(0, 22) + "...";
+                }
+                
+                const esActivo = idChatActual === chatId;
+                
+                const itemChat = document.createElement("div");
+                itemChat.style.cssText = `display: flex; justify-content: space-between; align-items: center; background: ${esActivo ? 'rgba(0, 255, 102, 0.05)' : '#0f0f0f'}; border: 1px solid ${esActivo ? '#00ff66' : '#1a1a1a'}; padding: 10px; border-radius: 8px; margin-bottom: 8px; transition: all 0.2s ease;`;
+                
+                const btnCargar = document.createElement("div");
+                btnCargar.innerText = tituloPestana;
+                btnCargar.style.cssText = `color: ${esActivo ? '#00ff66' : '#ccc'}; cursor: pointer; font-size: 0.8rem; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: ${esActivo ? 'bold' : 'normal'};`;
+                btnCargar.onclick = () => {
+                    switchChatSession(chatId);
+                    if (window.innerWidth <= 768) toggleSidebar(); 
+                };
+                
+                const btnEliminar = document.createElement("button");
+                btnEliminar.innerText = "✕";
+                btnEliminar.style.cssText = "background: transparent; border: none; color: #ff007f; cursor: pointer; font-weight: bold; font-size: 0.8rem; padding: 0 4px; opacity: 0.6; transition: opacity 0.2s;";
+                btnEliminar.onmouseover = () => btnEliminar.style.opacity = "1";
+                btnEliminar.onmouseout = () => btnEliminar.style.opacity = "0.6";
+                btnEliminar.onclick = (e) => {
+                    e.stopPropagation(); 
+                    eliminarChatSession(chatId);
+                };
+                
+                itemChat.appendChild(btnCargar);
+                itemChat.appendChild(btnEliminar);
+                listaChatsGuardados.appendChild(itemChat);
+            }
+        } else {
+            listaChatsActivos = {};
+            if (memoryAlert) memoryAlert.style.display = "none";
+            
+            const emptyNotice = document.createElement("div");
+            emptyNotice.innerText = "No hay chats guardados.";
+            emptyNotice.style.cssText = "color: #444; font-size: 0.75rem; text-align: center; margin-top: 15px; font-style: italic;";
+            listaChatsGuardados.appendChild(emptyNotice);
+        }
+    } catch (error) {
+        console.error("Fallo al procesar el menú lateral de Praxis:", error);
+    }
+}
+// Función B: Alternar e inyectar el historial cargado en el chatBox principal
+function switchChatSession(chatId) {
+    idChatActual = chatId;
+    
+    // Rompemos la referencia de memoria RAM clonando el objeto a fondo
+    if (listaChatsActivos[chatId] && listaChatsActivos[chatId].historial) {
+        chatHistory = JSON.parse(JSON.stringify(listaChatsActivos[chatId].historial));
+    } else {
+        chatHistory = [];
+    }
+    
+    if (chatBox) {
+        chatBox.innerHTML = "";
+        if (middlePlaceholder) middlePlaceholder.style.display = "none";
+
+       chatHistory.forEach(msg => {
+            if (!msg.parts || !msg.parts[0]) return;
+            
+            let cleanText = String(msg.parts[0].text).split("[INFORMACIÓN CRÍTICA DEL ALUMNO")[0].trim();
+            // Filtro de seguridad fulminante
+            cleanText = cleanText.replace(/\[object Object\]/g, "").replace(/undefined/g, "").trim();
+            
+            if (cleanText) {
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('message', msg.role === 'user' ? 'user' : 'assistant');
+                msgDiv.innerHTML = (msg.role === 'model' || msg.role === 'assistant') 
+                    ? formatearTextoIACompleto(cleanText) 
+                    : cleanText;
+                chatBox.appendChild(msgDiv);
+            }
+        });
+        
+        if (chatScrollContainer) {
+            chatScrollContainer.scrollTop = chatScrollContainer.scrollHeight;
+        }
+    }
+    cargarEstructuraChats();
+}
+
+async function eliminarChatSession(chatId) {
+    if (!currentUid) return;
+    const chatRef = ref(db, `usuarios/${currentUid}/chats_guardados/${chatId}`);
+    await remove(chatRef);
+    
+    if (idChatActual === chatId) {
+        idChatActual = null;
+        chatHistory = [];
+        if (chatBox) chatBox.innerHTML = "";
+        if (middlePlaceholder) {
+            middlePlaceholder.style.display = "block";
+            middlePlaceholder.style.opacity = "1";
+        }
+    }
+    cargarEstructuraChats();
+}
+
+const btnNuevoChat = document.getElementById("btnNuevoChat");
+if (btnNuevoChat) {
+    btnNuevoChat.addEventListener("click", () => {
+        const cantidadChats = Object.keys(listaChatsActivos || {}).length;
+        
+        if (cantidadChats >= 3) {
+            alert("No puedes crear un nuevo chat. Has alcanzado el límite máximo de 3 ranuras de memoria.");
+            return;
+        }
+        
+        idChatActual = null;
+        chatHistory = [];
+        if (chatBox) chatBox.innerHTML = "";
+        if (middlePlaceholder) {
+            middlePlaceholder.style.display = "block";
+            middlePlaceholder.style.opacity = "1";
+        }
+        cargarEstructuraChats();
+        if (window.innerWidth <= 768) toggleSidebar();
+    });
+}
+
+window.cargarEstructuraChats = cargarEstructuraChats;
