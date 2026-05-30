@@ -9057,36 +9057,44 @@ document.addEventListener("DOMContentLoaded", () => {
                                                                                                                                                                              
                                                                                                                                                                              
                                                                                                                                                                              
-    btnResumirIA.addEventListener("click", async () => {
-                                                                                                                                                                                 
-        if (tasksList.length === 0) {
-            searchIAResponseBox.innerText = "No tienes tareas registradas en tus agendas actuales para poder generar un resumen.";
-            searchIAResponseBox.style.display = "block";
-            return;
-        }
+btnResumirIA.addEventListener("click", async () => {
 
-        btnResumirIA.disabled = true;
-        searchIAResponseBox.style.display = "none";
-        searchIAEngine.style.display = "flex";
+    const hoy = new Date().toISOString().split('T')[0]; 
+    const ultimoUso = localStorage.getItem("praxis_ia_ultimo_uso");
 
-        searchIAStatus.innerText = "Sincronizando hilos de tareas...";
-        await new Promise(r => setTimeout(r, 600));
-        searchIAStatus.innerText = "Estructurando resumen con Gemini 3.5...";
+    if (ultimoUso === hoy) {
+        searchIAResponseBox.innerText = "Ya has utilizado tu resumen de IA por el día de hoy. ¡Vuelve mañana para optimizar tus nuevas tareas!";
+        searchIAResponseBox.style.display = "block";
+        return;
+    }
+                                                                                                                                                                                                                                                                        
+    if (tasksList.length === 0) {
+        searchIAResponseBox.innerText = "No tienes tareas registradas en tus agendas actuales para poder generar un resumen.";
+        searchIAResponseBox.style.display = "block";
+        return;
+    }
 
-                                                                                                                                                                                 
-        const tareasTexto = tasksList.map((t, idx) => {
-            return `${idx + 1}. [${t.materia || 'General'}] ${t.titulo || 'Sin título'}: ${t.descripcion || 'Sin descripción'} (Agenda: ${t.agendaNombre})`;
-        }).join("\n");
+    btnResumirIA.disabled = true;
+    searchIAResponseBox.style.display = "none";
+    searchIAEngine.style.display = "flex";
 
+    searchIAStatus.innerText = "Sincronizando hilos de tareas...";
+    await new Promise(r => setTimeout(r, 600));
+    searchIAStatus.innerText = "Estructurando resumen con Gemini Lite..."; 
 
+                                                                                                                                                                                                                                                                        
+    const tareasTexto = tasksList.map((t, idx) => {
+        return `${idx + 1}. [${t.materia || 'General'}] ${t.titulo || 'Sin título'}: ${t.descripcion || 'Sin descripción'} (Agenda: ${t.agendaNombre})`;
+    }).join("\n");
 
-        try {
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${myKey}`;
+    try {
+       
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-lite:generateContent?key=${myKey}`;
 
-            const respuesta = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({
+        const respuesta = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
                 contents: [{
                     parts: [{
                         text: `Actúa como el asistente de optimización académica de Praxis. Tu respuesta debe iniciar obligatoriamente con la frase exacta: "Hola, soy el asistente de Praxis impulsado por Gemini. Esta es una función beta, aquí tienes un resumen de tus tareas y de cómo puedes realizarlas."
@@ -9107,34 +9115,36 @@ Puedes revisar el estado completo de tus actividades en la plataforma principal 
 
 Lista de tareas a evaluar:
 ${tareasTexto}`
-                        }]
                     }]
-                })
-            });
+                }]
+            })
+        });
 
-            const data = await respuesta.json();
+        const data = await respuesta.json();
 
-            if (data.error) {
-                searchIAResponseBox.innerHTML = `<b>[ERROR DE SISTEMA]:</b> No se pudo procesar el resumen.`;
-                searchIAResponseBox.style.display = "block";
-                return;
-            }
-
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-                const resultadoIA = data.candidates[0].content.parts[0].text;
-                searchIAResponseBox.innerText = resultadoIA;
-                searchIAEngine.style.display = "none";
-                searchIAResponseBox.style.display = "block";
-            }
-
-        } catch (err) {
-            searchIAEngine.style.display = "none";
-            searchIAResponseBox.innerText = "Error de red al intentar conectar con el módulo de análisis.";
+        if (data.error) {
+            searchIAResponseBox.innerHTML = `<b>[ERROR DE SISTEMA]:</b> No se pudo procesar el resumen.`;
             searchIAResponseBox.style.display = "block";
-        } finally {
-           btnResumirIA.disabled = false;
+            return;
         }
-    });
+
+        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+            const resultadoIA = data.candidates[0].content.parts[0].text;
+            searchIAResponseBox.innerText = resultadoIA;
+            searchIAEngine.style.display = "none";
+            searchIAResponseBox.style.display = "block";
+
+            localStorage.setItem("praxis_ia_ultimo_uso", hoy);
+        }
+
+    } catch (err) {
+        searchIAEngine.style.display = "none";
+        searchIAResponseBox.innerText = "Error de red al intentar conectar con el módulo de análisis.";
+        searchIAResponseBox.style.display = "block";
+    } finally {
+        btnResumirIA.disabled = false;
+    }
+});
 });function solicitarConfiguracionFoto() {
                                                             
     if (!auth.currentUser || auth.currentUser.isAnonymous) return;

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis Assistant // Core Firebase Premium</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+/* Estilos para el contenedor de respuestas de la IA */
+#search-ia-response-box b {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Bloques de fórmulas matemáticas procesadas */
+.math-block-fallback {
+    background: #1a202c; /* Fondo oscuro integrado */
+    border-left: 3px solid #3182ce; /* Línea de acento azul */
+    padding: 10px;
+    margin: 10px 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: #edf2f7;
+    text-align: center;
+    border-radius: 4px;
+}
+
+/* Fórmulas incrustadas en el mismo párrafo */
+.math-inline-fallback {
+    background: #2d3748;
+    padding: 2px 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: #f7fafc;
+    border-radius: 3px;
+}/* Títulos ## */
+.praxis-h2 {
+    font-size: 1.4rem;
+    color: #3182ce; /* Azul de acento */
+    margin-top: 18px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+/* Subtítulos ### */
+.praxis-h3 {
+    font-size: 1.15rem;
+    color: #e2e8f0;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+/* Líneas divisorias --- */
+.praxis-hr {
+    border: none;
+    border-top: 2px solid #4a5568; /* Línea fina y sólida */
+    margin: 15px 0;
+}
+
+/* Listas ordenadas */
+.praxis-ul {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.praxis-li {
+    margin-bottom: 4px;
+    color: #cbd5e0;
+}
+
+/* Negritas en general */
+#search-ia-response-box b {
+    color: #ffffff;
+    font-weight: 700;
+}
+        body {
+            background-color: #050505;
+            color: #e5e5e5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* Contenedor Completo Full Screen */
+        .assistant-container {
+            width: 100%;
+            height: 100vh;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Encabezado con Toques de Luz Neón Sutiles */
+        .assistant-header {
+            background: #0f0f0f;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .brand-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-title span {
+            color: #00ff66;
+            font-size: 0.75rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; text-shadow: 0 0 8px #00ff66; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Selector de Modelos Estilo Neón */
+        .model-selector {
+            background: #141414;
+            color: #00ff66;
+            border: 1px solid #00ff66;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .model-selector:hover {
+            background: #00ff66;
+            color: #000000;
+            box-shadow: 0 0 15px #00ff66;
+        }
+
+        /* Área de Chat */
+        .chat-box {
+            flex: 1;
+            padding: 40px 24px;
+            overflow-y: auto;
+            background: #050505;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Contenedor del flujo de mensajes */
+        .chat-wrapper {
+            max-width: 750px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            z-index: 2;
+        }
+
+        /* DISEÑO DE FRASES EN EL MEDIO */
+        .middle-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+
+        .middle-placeholder h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .middle-placeholder p {
+            font-size: 1rem;
+            color: #888888;
+            line-height: 1.5;
+        }
+
+        .middle-placeholder span.neon-glow-text {
+            color: #00ff66;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.6);
+            font-weight: bold;
+        }
+
+        /* Burbujas de Mensajes Estilo Premium Neón */
+        .message {
+            max-width: 80%;
+            padding: 16px 22px;
+            border-radius: 16px;
+            font-size: 0.98rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .message.assistant {
+            background: #111111;
+            color: #f5f5f5;
+            align-self: flex-start;
+            border-left: 3px solid #ff007f;
+            box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);
+        }
+
+        .message.user {
+            background: rgba(0, 255, 102, 0.08);
+            color: #ffffff;
+            align-self: flex-end;
+            border: 1px solid #00ff66;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);
+        }
+
+        /* Zona de Entrada de Texto Integrada */
+        .input-outer-container {
+            background: #050505;
+            padding: 20px 24px 30px 24px;
+            position: relative;
+        }
+
+        .input-area {
+            max-width: 750px;
+            width: 100%;
+            margin: 0 auto;
+            background: #0f0f0f;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border: 1px solid #1a1a1a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
+        }
+
+        .input-area:focus-within {
+            border-color: #00ff66;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+        }
+
+        .input-area input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            padding: 12px 8px;
+            font-size: 0.98rem;
+            outline: none;
+        }
+
+        .input-area input::placeholder {
+            color: #555555;
+        }
+
+        .input-area button {
+            background: #00ff66; 
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .input-area button:hover {
+            background: #26ff82;
+            box-shadow: 0 0 18px #00ff66;
+            transform: translateY(-1px);
+        }
+
+        /* BOTÓN DE CRÉDITOS OCULTO */
+        .hidden-credits-trigger {
+            position: absolute;
+            bottom: 5px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: #121212;
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+            z-index: 5;
+        }
+
+        .hidden-credits-trigger:hover {
+            color: #ff007f;
+            text-shadow: 0 0 8px #ff007f;
+        }
+
+        /* Modal de Créditos */
+        .credits-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .credits-content {
+            background: #0f0f0f;
+            border: 2px solid #ff007f;
+            box-shadow: 0 0 30px rgba(255, 0, 127, 0.4);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+
+        .credits-content h2 {
+            color: #ff007f;
+            text-shadow: 0 0 10px #ff007f;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .credits-content p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #cccccc;
+            margin-bottom: 15px;
+        }
+
+        .credits-content .highlight {
+            color: #00ff66;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0,255,102,0.5);
+        }
+
+        .close-credits {
+            background: #ff007f;
+            color: #ffffff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(255,0,127,0.3);
+            transition: background 0.2s;
+        }
+
+        .close-credits:hover {
+            background: #ff3399;
+            box-shadow: 0 0 15px #ff007f;
+        }
+    </style>
+</head><div class="assistant-container">
+        <!-- Encabezado con Selector de IA (Nombres Actualizados) -->
+        <div class="assistant-header">
+            <div class="brand-title">PRAXIS ASSISTANT <span>● CORE</span></div>
+            <select class="model-selector" id="modelSelect">
+                <option value="gemini-3.5-flash">Assistant 3.5 Estable (Recomendado)</option>
+                <option value="gemini-3.1-flash-lite">3.1 Versión Rápida</option>
+            </select>
+        </div>
+
+        <!-- Contenedor del Chat -->
+        <div class="chat-box">
+            <!-- FRASE CENTRAL ESTILO NEÓN -->
+            <div class="middle-placeholder" id="middlePlaceholder">
+                <h1>¿En qué trabajamos hoy?</h1>
+                <p>Suelta el dato en la barra de abajo y lo resolvemos <span class="neon-glow-text">al ojo</span>.</p>
+            </div>
+
+            <!-- Contenedor de Mensajes Activos -->
+            <div class="chat-wrapper" id="chatBox">
+                <!-- Los mensajes dinámicos se renderizarán aquí -->
+            </div>
+        </div>
+
+        <!-- Inputs de consulta -->
+        <div class="input-outer-container">
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Pregúntale a la IA de Praxis..." autocomplete="off">
+                <button id="sendBtn">Enviar</button>
+            </div>
+            
+            <!-- BOTÓN DE CRÉDITOS OCULTO (Camuflado abajo a la derecha) -->
+            <button class="hidden-credits-trigger" id="openCreditsBtn">SYS_CREDITS</button>
+        </div><div class="share-data-container" style="max-width: 750px; margin: 0 auto 12px auto; background: #0f0f0f; border: 1px solid #1a1a1a; padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 8px; height: 8px; background-color: #00ff66; border-radius: 50%; box-shadow: 0 0 8px #00ff66;"></div>
+        <div>
+            <p style="margin: 0; font-size: 0.88rem; font-weight: 600; color: #ffffff;">Sincronizar Ecosistema Praxis</p>
+            <p style="margin: 2px 0 0 0; font-size: 0.72rem; color: #777777;">Permite al asistente consultar tus agendas guardadas y tareas en tiempo real.</p>
+        </div>
+    </div>
+    <label style="position: relative; display: inline-block; width: 44px; height: 22px; cursor: pointer;">
+        <input type="checkbox" id="shareDataToggle" checked onchange="toggleDataContext(this)" style="opacity: 0; width: 0; height: 0;">
+        <span class="slider" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #222; border: 1px solid #444; transition: .3s; border-radius: 22px;"></span>
+    </label>
+</div>
+
+<style>
+    /* Animación del Switch Deslizable */
+    #shareDataToggle:checked + .slider {
+        background-color: rgba(0, 255, 102, 0.1);
+        border-color: #00ff66;
+        box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+    }
+    #shareDataToggle:checked + .slider:before {
+        transform: translateX(20px);
+        background-color: #00ff66;
+        box-shadow: 0 0 8px #00ff66;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #666;
+        transition: .3s;
+        border-radius: 50%;
+    }/* Estilos dentro de la caja de respuesta de la IA en Praxis */
+#search-ia-response-box strong {
+    color: #ffffff; /* Resalta las negritas en blanco brillante */
+    font-weight: 700;
+}
+
+#search-ia-response-box h3 {
+    font-size: 1.2rem;
+    color: #3182ce; /* Azul de acento para los títulos principales (###) */
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#search-ia-response-box ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+#search-ia-response-box li {
+    margin-bottom: 5px;
+    color: #e2e8f0;
+}
+
+#search-ia-response-box hr {
+    border: none;
+    border-top: 1px solid #4a5568;
+    margin: 15px 0;
+}
+</style>
+    </div>
+
+    <!-- VENTANA EMERGENTE DE CRÉDITOS -->
+    <div class="credits-modal" id="creditsModal">
+        <div class="credits-content">
+            <h2>SISTEMA PRAXIS</h2>
+            <p>Plataforma diseñada y desarrollada en su totalidad por el fundador de Alonixz-Group: <span class="highlight">Alonso</span>.</p>
+            <p>Infraestructura de Inteligencia Artificial integrada usando a <span class="highlight">Gemini</span> como el motor lógico principal.</p>
+            <button class="close-credits" id="closeCreditsBtn">Cerrar</button>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="module" src="./praxis_assistant.js"></script><div class="credits-modal" id="authModal" style="display: none; z-index: 200;">
+    <div class="credits-content" style="border-color: #00ff66; box-shadow: 0 0 30px rgba(0, 255, 102, 0.3);">
+        <h2 style="color: #00ff66; text-shadow: 0 0 10px #00ff66;">ACCESO REQUERIDO</h2>
+        <p>Para interactuar con el ecosistema de **Praxis Assistant**, necesitas iniciar sesión o registrar tu cuenta estudiantil.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+            <button class="close-credits" onclick="window.location.href='login.html'" style="background: #00ff66; color: #000; box-shadow: 0 0 10px rgba(0,255,102,0.3); width: 100%;">
+                Ir al Panel de Login
+            </button>
+            <button class="close-credits" id="googleAuthBtn" style="background: #111; color: #fff; border: 1px solid #444; width: 100%;">
+                Continuar con Google
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
