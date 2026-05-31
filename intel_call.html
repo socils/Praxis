@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intel Call PRO | Advanced System</title>
+    <style>
+        /* --- ESTILOS DE ALTO RENDIMIENTO (500+ LÍNEAS) --- */
+        :root {
+            --bg: #050505; --panel: #111; --accent: #00ff88;
+            --msg-me: #005c4b; --msg-other: #1a1a1a; --text: #e0e0e0;
+        }
+
+        body { 
+            margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; 
+            background: radial-gradient(circle at center, #1a1a1a, #000);
+            height: 100vh; display: flex; justify-content: center; align-items: center; 
+            overflow: hidden; color: var(--text);
+        }
+
+        #container { 
+            width: 100%; max-width: 420px; height: 92vh; background: var(--bg); 
+            border-radius: 30px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,255,136,0.15); border: 1px solid #333;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- LOGIN ANIMADO --- */
+        #login-overlay { 
+            padding: 40px; display: flex; flex-direction: column; height: 100%;
+            justify-content: center; align-items: center; text-align: center;
+        }
+        .glow-text { 
+            font-size: 2.5em; font-weight: bold; color: var(--accent);
+            text-shadow: 0 0 20px rgba(0,255,136,0.5); margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        .field { 
+            width: 100%; padding: 15px; margin: 10px 0; background: #222;
+            border: 1px solid #444; border-radius: 12px; color: white;
+        }
+
+        /* --- CHAT Y MENSAJES --- */
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .msg-wrap { display: flex; width: 100%; animation: zoomIn 0.5s ease-out; }
+        .msg-wrap.me { justify-content: flex-end; }
+        
+        .msg-bubble { 
+            padding: 12px 18px; border-radius: 20px; max-width: 75%; 
+            position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .me .msg-bubble { background: var(--msg-me); border-bottom-right-radius: 4px; }
+        .other .msg-bubble { background: var(--msg-other); border-bottom-left-radius: 4px; border: 1px solid #333; }
+        
+        .img-thumb { 
+            max-width: 200px; border-radius: 10px; margin-top: 8px; cursor: pointer;
+            transition: 0.4s; border: 2px solid transparent;
+        }
+        .img-thumb:hover { border-color: var(--accent); transform: scale(1.03); }
+
+        /* --- CONTROLES Y ANIMACIONES --- */
+        .controls { 
+            padding: 20px; background: #0a0a0a; border-top: 1px solid #333;
+            display: flex; gap: 10px; align-items: center;
+        }
+        
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* Lightbox mejorado */
+        #lb { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div id="login-overlay">
+        <div class="glow-text">INTEL CALL</div>
+        <input class="field" id="em" placeholder="Email">
+        <input class="field" type="password" id="pw" placeholder="Password">
+        <div id="reg-ui" style="display:none; width:100%">
+            <input class="field" id="nk" placeholder="Nickname">
+            <input type="file" id="fi" accept="image/*" class="field">
+        </div>
+        <button class="field" style="background:var(--accent); color:black; font-weight:bold; cursor:pointer;" onclick="authAction()">CONECTAR</button>
+        <p style="cursor:pointer; text-decoration:underline;" onclick="document.getElementById('reg-ui').style.display='block'">Crear cuenta nueva</p>
+    </div>
+
+    <div id="chat-ui" style="display:none; flex-direction:column; height:100%;">
+        <div id="chat"></div>
+        <div class="controls">
+            <label for="img-in" style="font-size:24px; cursor:pointer;">📎</label>
+            <input type="file" id="img-in" style="display:none" accept="image/*">
+            <input class="field" style="margin:0" id="txt-in" placeholder="Mensaje...">
+            <button onclick="send()" style="padding:10px 20px; border-radius:12px; background:var(--accent); border:none; cursor:pointer;">➤</button>
+        </div>
+    </div>
+</div>
+
+<div id="lb" onclick="this.style.display='none'"><img id="lb-img" style="max-width:90%; border-radius:20px;"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    const config = { 
+        apiKey: "AIzaSyCnXpJt53dyFA8rsHAchNu-Mv6zV0-1fC4",
+        authDomain: "intel-call.firebaseapp.com",
+        projectId: "intel-call",
+        storageBucket: "intel-call.firebasestorage.app",
+        messagingSenderId: "799942738742",
+        appId: "1:799942738742:web:8d836f3b004b88c8d06997"
+    };
+
+    const app = initializeApp(config);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let user = null;
+
+    window.authAction = async () => {
+        const email = document.getElementById('em').value;
+        const pass = document.getElementById('pw').value;
+        if(document.getElementById('reg-ui').style.display === 'block') {
+            const file = document.getElementById('fi').files[0];
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const c = await createUserWithEmailAndPassword(auth, email, pass);
+                await set(ref(db, 'usuarios/'+c.user.uid), { apodo: document.getElementById('nk').value, foto: reader.result });
+            };
+            reader.readAsDataURL(file);
+        } else {
+            await signInWithEmailAndPassword(auth, email, pass);
+        }
+    };
+
+    onAuthStateChanged(auth, async (u) => {
+        if(u) {
+            const snap = await get(ref(db, 'usuarios/'+u.uid));
+            user = { ...u, profile: snap.val() };
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('chat-ui').style.display = 'flex';
+            loadMsgs();
+        }
+    });
+
+    window.send = () => {
+        const text = document.getElementById('txt-in').value;
+        const file = document.getElementById('img-in').files[0];
+        const process = (img) => {
+            push(ref(db, 'mensajes'), { uid: user.uid, texto: text, img, apodo: user.profile.apodo, foto: user.profile.foto });
+            document.getElementById('txt-in').value = "";
+        };
+        if(file) {
+            const reader = new FileReader();
+            reader.onloadend = () => process(reader.result);
+            reader.readAsDataURL(file);
+        } else if(text) { process(null); }
+    };
+
+ function loadMsgs() {
+    const chat = document.getElementById('chat');
+    onChildAdded(ref(db, 'mensajes'), (snap) => {
+        const m = snap.val();
+        const isMe = m.uid === user.uid;
+        
+        // Creamos el contenedor
+        const div = document.createElement('div');
+        div.className = `msg-wrap ${isMe ? 'me' : 'other'}`;
+        
+        // Generamos la parte de la imagen solo si el campo 'imagen' existe y tiene contenido
+        let imgHtml = '';
+        if (m.imagen && m.imagen.startsWith('data:image')) {
+            imgHtml = `<br><img src="${m.imagen}" class="img-thumb" onclick="openLb('${m.imagen}')">`;
+        }
+
+        div.innerHTML = `
+            ${!isMe ? `<img src="${m.foto}" style="width:30px; height:30px; border-radius:50%; margin-right:8px; border:2px solid var(--accent)">` : ''}
+            <div class="msg-bubble">
+                <strong style="color:var(--accent); font-size:0.8em">${m.apodo || 'Anónimo'}</strong><br>
+                ${m.texto || ''}
+                ${imgHtml}
+            </div>
+        `;
+        
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    });
+}
+
+    window.openLb = (src) => {
+        document.getElementById('lb-img').src = src;
+        document.getElementById('lb').style.display = 'flex';
+    };
+</script>
+</body>
+</html>
