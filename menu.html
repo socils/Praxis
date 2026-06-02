@@ -982,89 +982,197 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
         }
     }
 };
-function mostrarEstadoVacio(msg, rachaReal = 0) {
+function mostrarEstadoVacio(msg) {
     if (displayCode.innerText !== "SIN AGENDA") return;
 
     bannerTitle.innerText = "Bienvenido a Praxis";
-    
-    const rachaActual = parseInt(rachaReal);
-    const userEmail = auth.currentUser ? auth.currentUser.email : "";
+                                                                    
+    container.style.display = "block"; 
+    container.style.width = "100%";
+    container.style.padding = "0";
 
-    const niveles = [
-        { nombre: "BRONCE", dias: 7, clase: "rango-bronce", color: "#cd7f32" },
-        { nombre: "PLATA", dias: 15, clase: "rango-plata", color: "#c0c0c0" },
-        { nombre: "ORO", dias: 30, clase: "rango-oro", color: "#ffd700" },
-        { nombre: "DIAMANTE", dias: 60, clase: "rango-diamante", color: "#b9f2ff" },
-        { nombre: "OBSIDIANA", dias: 80, clase: "rango-obsidiana", color: "#3a0052" }
-    ];
+    // 1. Inyección de estilos limpia (Flecha integrada en el texto con animación pasiva)
+    if (!document.getElementById("praxis-empty-state-styles")) {
+        const styleSheet = document.createElement("style");
+        styleSheet.id = "praxis-empty-state-styles";
+        styleSheet.innerText = `
+            @keyframes scaleUpFade {
+                from { opacity: 0; transform: scale(0.97) translateY(15px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            @keyframes pulsoBordePasivo {
+                0% { border-color: rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.01); }
+                50% { border-color: rgba(0, 0, 0, 0.12); box-shadow: 0 10px 35px rgba(0, 0, 0, 0.03); }
+                100% { border-color: rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.01); }
+            }
+            @keyframes brilloTextoPasivo {
+                0% { opacity: 0.5; }
+                50% { opacity: 0.8; letter-spacing: 1.8px; }
+                100% { opacity: 0.5; }
+            }
+         
+            .empty-state-wrapper {
+                text-align: center;
+                padding: 40px 20px;
+                max-width: 850px;
+                margin: 0 auto;
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                animation: scaleUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .empty-state-plus-btn {
+                background: var(--p-600);
+                border: 2px solid white;
+                color: #ffffff !important;
+                font-weight: 800;
+                width: 55px;
+                height: 55px;
+                border-radius: 16px;
+                font-size: 2.2rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                z-index: 10;
+                margin-bottom: 35px;
+                user-select: none;
+            }
+            .empty-state-plus-btn:hover {
+                background: var(--p-800);
+                transform: rotate(90deg) scale(1.1);
+                box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
+            }
 
-    let rangoActualIdx = -1;
-    for (let i = niveles.length - 1; i >= 0; i--) {
-        if (rachaActual >= niveles[i].dias) {
-            rangoActualIdx = i;
-            break;
-        }
+            .dashboard-info-container {
+                display: flex;
+                gap: 20px;
+                align-items: stretch;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-bottom: 35px;
+                width: 100%;
+            }
+            .info-card-panel {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(0, 0, 0, 0.06);
+                border-radius: 24px;
+                padding: 28px;
+                flex: 1;
+                min-width: 280px;
+                text-align: left;
+                animation: pulsoBordePasivo 4s ease-in-out infinite;
+                transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+            }
+            .info-card-panel.panel-secundario {
+                animation-delay: 2s;
+            }
+            .info-card-panel:hover {
+                transform: translateY(-4px);
+                border-color: rgba(0, 0, 0, 0.15);
+                box-shadow: 0 15px 35px rgba(26, 28, 36, 0.06);
+            }
+            .info-tag-tech {
+                font-family: monospace;
+                font-size: 10px;
+                font-weight: 800;
+                color: #727685;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                display: inline-block;
+                margin-bottom: 14px;
+                animation: brilloTextoPasivo 3s ease-in-out infinite;
+            }
+            .info-card-panel h3 {
+                font-size: 19px;
+                font-weight: 700;
+                color: #1a1c24;
+                margin-bottom: 10px;
+                letter-spacing: -0.3px;
+            }
+            .info-desc {
+                font-size: 13.5px;
+                color: #4a4d59;
+                line-height: 1.6;
+            }
+
+            .msg-group-container {
+                max-width: 700px;
+                margin-top: 5px;
+            }
+            .empty-state-msg {
+                font-size: 22px;
+                color: #1a1c24;
+                font-weight: 700;
+                letter-spacing: -0.4px;
+                line-height: 1.4;
+                margin-bottom: 12px;
+            }
+            
+            /* Contenedor del mensaje explicativo limpio */
+            .empty-state-instruction {
+                font-size: 14.5px;
+                color: #626573;
+                font-weight: 600;
+                line-height: 1.5;
+            }
+            
+        /* Animación pasiva para que la flecha se mueva sutilmente hacia la derecha */
+@keyframes flotarFlechaDerecha {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+
+/* Clase específica para controlar la flecha nativa */
+.inline-arrow {
+    display: inline-block;
+    color: var(--p-600);
+    font-weight: 800;
+    margin-right: 6px;
+    animation: flotarFlechaDerecha 2s ease-in-out infinite;
+}
+        `;
+        document.head.appendChild(styleSheet);
     }
 
-    let htmlContenido = "";
+    // 2. Bloques informativos coherentes
+    const infoAdicionalHTML = `
+        <div class="info-card-panel">
+            <span class="info-tag-tech">SISTEMA DE ACCESOS</span>
+            <h3>¿No encuentras tus clases?</h3>
+            <p class="info-desc">Verifica si has iniciado sesión con la cuenta correcta. Es posible que tus asignaciones estén vinculadas a tu correo institucional o personal.</p>
+        </div>
+        
+        <div class="info-card-panel panel-secundario">
+            <span class="info-tag-tech">SISTEMA DE AGENDAS</span>
+            <h3>Organiza tu entorno</h3>
+            <p class="info-desc">Para empezar a visualizar contenido aquí, puedes unirte a una agenda existente mediante un código de invitación o crear una agenda nueva para tu sección.</p>
+        </div>`;
 
-    if (userEmail === "ajuliuszch@gmail.com") {
-        htmlContenido = `
-            <div style="padding: 25px; border-radius: 20px; background: #f0f7ff; border: 2px solid #1a73e8; flex: 1;">
-                <h3 style="color: #1a73e8; margin: 0; font-size: 18px;">Hola Administrador</h3>
-                <p style="color: #4285f4; font-size: 13px; margin-top: 5px; font-weight: bold;">Sistema bajo control total.</p>
-                <span class="rango-tag rango-admin" style="margin-top: 10px; display: inline-block;">FUNDADOR</span>
-            </div>`;
-    } else if (rachaActual >= 1000) {
-        htmlContenido = `
-            <div style="padding: 25px; border-radius: 20px; background: #000; border: 2px solid #0f0; flex: 1;">
-                <h3 style="color: #0f0; margin: 0; font-size: 18px; font-family: monospace;">¿Cómo es posible eso?</h3>
-                <p style="color: #0f0; opacity: 0.7; font-size: 12px; margin-top: 5px;">Has vulnerado los límites del tiempo.</p>
-                <span class="rango-tag rango-hacker" style="margin-top: 10px; display: inline-block;">ROOT_HACKER</span>
-            </div>`;
-    } else {
-        let htmlActual = "";
-        if (rangoActualIdx !== -1) {
-            const actual = niveles[rangoActualIdx];
-            htmlActual = `
-                <div style="padding: 15px; border-radius: 16px; background: #f8f9fa; border: 1px solid #eee; flex: 1;">
-                    <p style="font-size: 9px; color: #70757a; margin-bottom: 8px; font-weight: 800;">TU NIVEL</p>
-                    <span class="rango-tag ${actual.clase}">${actual.nombre}</span>
-                </div>`;
-        }
-
-        if (rangoActualIdx < niveles.length - 1) {
-            const siguienteIdx = rangoActualIdx + 1;
-            const siguiente = niveles[siguienteIdx];
-            const diasFaltantes = siguiente.dias - rachaActual;
-            const progreso = (rachaActual / siguiente.dias) * 100;
-
-            const htmlSiguiente = `
-                <div style="padding: 15px; border-radius: 16px; background: white; border: 1px dashed #cbd5e0; flex: 1;">
-                    <p style="font-size: 9px; color: #70757a; margin-bottom: 8px; font-weight: 800;">SIGUIENTE</p>
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <span style="font-size: 13px; font-weight: 900; color: ${siguiente.color}; opacity: 0.15; letter-spacing: 2px;">${siguiente.nombre}</span>
-                        <span style="font-size: 11px; color: #1a73e8; font-weight: 800;">-${diasFaltantes} días</span>
-                    </div>
-                    <div style="width: 100%; height: 5px; background: #eee; border-radius: 10px; margin-top: 10px; overflow: hidden;">
-                        <div style="width: ${progreso}%; height: 100%; background: ${siguiente.color}; transition: width 1s;"></div>
-                    </div>
-                </div>`;
-            htmlContenido = htmlActual + htmlSiguiente;
-        } else {
-            htmlContenido = htmlActual;
-        }
-    }
-
+  // 3. Estructura con el botón '+' integrado directamente dentro de la instrucción
     container.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <div style="background: white; padding: 30px; border-radius: 32px; border: 1px solid #f1f3f4; margin-bottom: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
-                <div style="display: flex; gap: 15px; align-items: stretch; justify-content: center; flex-wrap: wrap;">
-                    ${htmlContenido}
-                </div>
+        <div class="empty-state-wrapper">
+            <div class="dashboard-info-container">
+                ${infoAdicionalHTML}
             </div>
-            <img src="nohayagendas.png" style="width: 100%; max-width: 300px; margin-bottom: 20px;">
-            <h2 style="font-size: 18px; color: #3c4043;">${msg}</h2>
+            
+            <div class="msg-group-container">
+                <h2 class="empty-state-msg">${msg}</h2>
+                <p class="empty-state-instruction" style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    
+                    Aprieta el botón parecido a este <span class="inline-arrow">➔</span>
+                    <span class="empty-state-plus-btn" style="width: 32px; height: 32px; font-size: 1.2rem; border-radius: 8px; margin: 0; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);"><span>+</span></span> 
+                    arriba en el menú para crear o unirse a nuevas agendas.
+                </p>
+            </div>
         </div>`;
 }
 const btnToggle = document.getElementById('btn-toggle-sidebar');
