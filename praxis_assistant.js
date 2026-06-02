@@ -416,7 +416,7 @@ async function handleSend() {
             "   | Intervalo | Xi | fi | Fi |\n" +
             "   | :--- | :---: | :---: | :---: |\n" +
             "   | [10 - 20) | 15 | 4 | 4 |\n" +
-            "4. CONTROL DE ENTRADA: Queda estrictamente prohibido imprimir la cadena '[object Object]' o 'undefined'. Si detectas que un dato extraído del contexto del alumno no es legible o viene vacío, omítelo por completo.";
+            "4. CONTROL DE ENTRADA: Queda estrictamente prohibido imprimir la cadena '[object Object]' o 'undefined'. Si detectas que un dato extraído del contexto del alumno no es legible o viene vacío, omítelo por completo y una cosa mas si detectas errores o inconsistencias en las tareas del usuario hasle saber de eso y no lo tomes como una tarea real.";
 
         const response = await fetch(url, {
             method: 'POST',
