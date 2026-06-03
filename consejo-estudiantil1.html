@@ -442,54 +442,72 @@
 </div>
 </div>
 
-</div><div class="card" style="margin-top: 25px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
-                    <span style="font-size: 24px;">🎟️</span>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text);">Registrar Códigos</h3>
-                </div>
-                
-                <div style="background: #fdf2f8; border: 1px dashed #f472b6; padding: 12px; margin-bottom: 20px; border-radius: 12px;">
-                    <p style="margin: 0; font-size: 11px; font-weight: 800; color: #db2777; text-transform: uppercase;">
-                        Optimización del núcleo:
-                    </p>
-                    <p style="margin: 3px 0 0 0; font-size: 11px; color: #475569; line-height: 1.4;">
-                        Se sugiere programar un volumen menor a 50 unidades por secuencia para balancear el tráfico del comando de reclamos.
-                    </p>
-                </div>
+<!-- Modales -->
+<div id="modal-editor" class="modal">
+    <div class="modal-content">
+        <h2 id="modal-titulo" style="margin: 0 0 20px 0;"></h2>
+        <div id="form-comunicado">
+            <input type="text" id="com-tit" placeholder="Título" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; box-sizing: border-box;">
+            <textarea id="com-msg" placeholder="Mensaje..." style="width: 100%; height: 100px; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: inherit; box-sizing: border-box;"></textarea>
+        </div>
+        <div id="form-encuesta" style="display: none;">
+            <input type="text" id="enc-pre" placeholder="Pregunta" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-sizing: border-box;">
+            <div id="ops-container"></div>
+            <button onclick="addOp()" style="background:none; border:1px dashed #cbd5e1; width:100%; padding:10px; border-radius:12px; color:#64748b; cursor:pointer;">+ Opción</button>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button onclick="cerrarModal()" style="flex: 1; padding: 14px; border-radius: 16px; border: 1px solid #e2e8f0; background: white; cursor: pointer;">Cerrar</button>
+            <button onclick="guardar()" style="flex: 2; padding: 14px; border-radius: 16px; border: none; background: var(--primary); color: white; cursor: pointer; font-weight: 700;">Publicar</button>
+        </div>
+    </div><div class="card-admin-promo" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 25px; border-radius: 16px; margin-top: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); color: #1e293b; display: block !important;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+        <span style="font-size: 24px;">🎟️</span>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #1e293b;">Registrar Códigos Promocionales</h3>
+    </div>
+    
+    <div style="background: #fdf2f8; border: 1px dashed #f472b6; padding: 12px; margin-bottom: 20px; border-radius: 8px;">
+        <p style="margin: 0; font-size: 11px; font-weight: 600; color: #db2777; text-transform: uppercase; letter-spacing: 0.3px;">
+            Nota de optimización del núcleo:
+        </p>
+        <p style="margin: 3px 0 0 0; font-size: 11px; color: #475569; line-height: 1.4;">
+            Se sugiere programar un volumen menor a 50 unidades por secuencia y distribuir los identificadores en zonas asignadas para balancear el tráfico del comando de reclamos.
+        </p>
+    </div>
 
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Identificador del Código</label>
-                        <input type="text" id="promo-id" placeholder="Ej: promo65" 
-                               style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; box-sizing: border-box; font-family: inherit;">
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Tipo de Beneficio</label>
-                        <select id="promo-tipo" onchange="window.actualizarPlaceholderPremio()"
-                                style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; cursor: pointer; background: white; box-sizing: border-box; font-family: inherit;">
-                            <option value="PUNTOS">Sistema de Puntos (PTS)</option>
-                            <option value="PLUS">Suscripción Complementaria (PLUS)</option>
-                        </select>
-                    </div>
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Identificador del Código</label>
+            <input type="text" id="promo-id" placeholder="Ej: promo65" 
+                   style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: sans-serif; outline: none; background: #ffffff; color: #000000; box-sizing: border-box;">
+        </div>
+        
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Tipo de Beneficio</label>
+            <select id="promo-tipo" onchange="actualizarPlaceholderPremio()"
+                    style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: sans-serif; outline: none; cursor: pointer; background: #ffffff; color: #000000; box-sizing: border-box;">
+                <option value="PUNTOS">Sistema de Puntos (PTS)</option>
+                <option value="PLUS">Suscripción Complementaria (PLUS)</option>
+            </select>
+        </div>
 
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Especificación del Premio</label>
-                        <input type="text" id="promo-premio" placeholder="Ej: 30 pts" 
-                               style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; box-sizing: border-box; font-family: inherit;">
-                    </div>
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Especificación del Premio</label>
+            <input type="text" id="promo-premio" placeholder="Ej: 30 pts" 
+                   style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: sans-serif; outline: none; background: #ffffff; color: #000000; box-sizing: border-box;">
+        </div>
 
-                    <div>
-                        <label style="display: block; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; text-transform: uppercase;">Existencias Disponibles (Stock)</label>
-                        <input type="number" id="promo-stock" value="10" min="1" 
-                               style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; box-sizing: border-box; font-family: inherit;">
-                    </div>
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">Existencias Disponibles (Stock)</label>
+            <input type="number" id="promo-stock" value="10" min="1" 
+                   style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: sans-serif; outline: none; background: #ffffff; color: #000000; box-sizing: border-box;">
+        </div>
 
-                    <button onclick="window.registrarCodigoSistema()" style="width: 100%; padding: 14px; background: var(--primary); border: none; color: white; font-weight: 800; border-radius: 12px; cursor: pointer; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Inyectar Código en Servidor
-                    </button>
-                </div>
-            </div>
+        <button onclick="registrarCodigoSistema()" style="width: 100%; padding: 14px; background: #1a73e8; border: none; color: white; font-weight: 600; border-radius: 8px; cursor: pointer; margin-top: 10px; font-family: sans-serif;">
+            Inyectar Código en Servidor
+        </button>
+    </div>
+</div>
+</div>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, set, onValue, get, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -712,7 +730,7 @@
             const snap = await get(agendaRef);
             if(!snap.exists()) return alert("Agenda no existe");
             const saldoActual = snap.val().bancoPuntos || 0;
-            const nuevoSaldo = sumar ? saldoActual + candy : Math.max(0, saldoActual - cantidad);
+            const nuevoSaldo = sumar ? saldoActual + cantidad : Math.max(0, saldoActual - cantidad);
             await update(agendaRef, { bancoPuntos: nuevoSaldo });
             alert("Agenda actualizada");
         } catch (e) { alert("Error"); }
@@ -752,118 +770,42 @@
             }
         } catch (e) { alert("Error de validación"); }
     };
+window.activarPlusDefinitivo = async function(uidUsuario) {
+    if (!uidUsuario || uidUsuario.trim() === "") {
+        alert("ERROR: UID de usuario no válido.");
+        return;
+    }
 
-    window.activarPlusDefinitivo = async function(uidUsuario) {
-        if (!uidUsuario || uidUsuario.trim() === "") {
-            alert("ERROR: UID de usuario no válido.");
-            return;
-        }
+    // Definición de las referencias usando la instancia local 'db' del archivo
+    const refInPlus = ref(db, `usuarios/${uidUsuario}/inplus`);
+    const refPlusExpira = ref(db, `usuarios/${uidUsuario}/plusExpira`);
+    const refRango = ref(db, `usuarios/${uidUsuario}/stats/rango`);
 
-        const refInPlus = ref(db, `usuarios/${uidUsuario}/inPlus`);
-        const refPlusExpira = ref(db, `usuarios/${uidUsuario}/plusExpira`);
-        const refRango = ref(db, `usuarios/${uidUsuario}/stats/rango`);
+    try {
+        // Cálculo automático del límite de cobertura (30 días a partir de hoy)
+        const fechaExpiracion = new Date();
+        fechaExpiracion.setDate(fechaExpiracion.getDate() + 30);
 
-        try {
-            const fechaExpiracion = new Date();
-            fechaExpiracion.setDate(fechaExpiracion.getDate() + 30);
-
-            const dia = String(fechaExpiracion.getDate()).padStart(2, '0');
-            const mes = String(fechaExpiracion.getMonth() + 1).padStart(2, '0');
-            const anio = fechaExpiracion.getFullYear();
-            const hora = String(fechaExpiracion.getHours()).padStart(2, '0');
-            const minutos = String(fechaExpiracion.getMinutes()).padStart(2, '0');
-            
-            const fechaFormateadaPraxis = `${dia}/${mes}/${anio} ${hora}:${minutos}`;
-
-            await set(refInPlus, true);
-            await set(refPlusExpira, fechaFormateadaPraxis);
-            await set(refRango, "Estudiante Plus");
-
-            alert("Suscripción Plus activada correctamente.");
-
-        } catch (e) {
-            console.error("Error en proceso de actualización:", e);
-            alert("Error en activación Plus");
-        }
-    };
-
-    // =======================================================================
-    // EXPOSICIÓN GLOBAL DE LOS CÓDIGOS PROMOCIONALES (FIXEADO)
-    // =======================================================================
-    window.actualizarPlaceholderPremio = function() {
-        const tipo = document.getElementById("promo-tipo").value;
-        const inputPremio = document.getElementById("promo-premio");
-        if (!inputPremio) return;
+        const dia = String(fechaExpiracion.getDate()).padStart(2, '0');
+        const mes = String(fechaExpiracion.getMonth() + 1).padStart(2, '0');
+        const anio = fechaExpiracion.getFullYear();
+        const hora = String(fechaExpiracion.getHours()).padStart(2, '0');
+        const minutos = String(fechaExpiracion.getMinutes()).padStart(2, '0');
         
-        if (tipo === "PUNTOS") {
-            inputPremio.placeholder = "Ej: 30 pts o 30 puntos";
-        } else {
-            inputPremio.placeholder = "Ej: plus por 4 dias o plus por 2 meses";
-        }
-    };
+        const fechaFormateadaPraxis = `${dia}/${mes}/${anio} ${hora}:${minutos}`;
 
-    window.registrarCodigoSistema = async function() {
-        const inputId = document.getElementById("promo-id");
-        const inputTipo = document.getElementById("promo-tipo");
-        const inputPremio = document.getElementById("promo-premio");
-        const inputStock = document.getElementById("promo-stock");
+        // Escritura de las nuevas propiedades en la base de datos
+        await set(refInPlus, true);
+        await set(refPlusExpira, fechaFormateadaPraxis);
+        await set(refRango, "Estudiante Plus");
 
-        if (!inputId || !inputTipo || !inputPremio || !inputStock) {
-            alert("ERROR: Componentes del gestor ausentes.");
-            return;
-        }
+        alert("Suscripción Plus activada correctamente.");
 
-        const idCodigo = inputId.value.trim().replace(/[\s\[\]]/g, ""); 
-        const tipoBeneficio = inputTipo.value;
-        let textoPremio = inputPremio.value.trim();
-        const cantidadStock = parseInt(inputStock.value, 10);
-
-        if (!idCodigo) {
-            alert("ERROR: El identificador del código es obligatorio.");
-            return;
-        }
-
-        if (!textoPremio) {
-            alert("ERROR: La especificación del premio no puede quedar vacía.");
-            return;
-        }
-
-        if (isNaN(cantidadStock) || cantidadStock <= 0) {
-            alert("ERROR: Volumen de existencias no válido.");
-            return;
-        }
-
-        textoPremio = textoPremio.replace(/[\[\]]/g, ""); 
-        const formatoNormalizado = textoPremio.toLowerCase();
-
-        if (tipoBeneficio === "PUNTOS") {
-            if (!formatoNormalizado.includes("pt") && !formatoNormalizado.includes("punto")) {
-                console.warn("Sintaxis de puntos no explícita.");
-            }
-        } else if (tipoBeneficio === "PLUS") {
-            if (!formatoNormalizado.includes("plus")) {
-                textoPremio = `Plus por ${textoPremio}`;
-            }
-        }
-
-        const valorEstructuradoDB = `${textoPremio} [${cantidadStock}]`;
-
-        try {
-            const rutaDestinoCodigo = `config/codigos_promocionales/${idCodigo}`;
-            await set(ref(db, rutaDestinoCodigo), valorEstructuradoDB);
-
-            alert("Código promocional registrado con éxito.");
-
-            inputId.value = "";
-            inputPremio.value = "";
-            inputStock.value = "10";
-            window.actualizarPlaceholderPremio();
-
-        } catch (error) {
-            console.error("Excepción en la carga de parámetros globales:", error);
-            alert("Error de comunicación con el servidor.");
-        }
-    };
+    } catch (e) {
+        console.error("Error en proceso de actualización:", e);
+        alert("Error en activación Plus");
+    }
+};
 
     function cargarTodo() {
         cargarDirectorio();
@@ -882,7 +824,96 @@
         } else {
             sessionStorage.setItem('avisoVisto', 'true');
         }
-    };
+    };// =======================================================================
+// GESTIÓN DE CONTROL: Registro Manual de Códigos Promocionales
+// =======================================================================
+function actualizarPlaceholderPremio() {
+    const tipo = document.getElementById("promo-tipo").value;
+    const inputPremio = document.getElementById("promo-premio");
+    if (!inputPremio) return;
+    
+    if (tipo === "PUNTOS") {
+        inputPremio.placeholder = "Ej: 30 pts o 30 puntos";
+    } else {
+        inputPremio.placeholder = "Ej: plus por 4 dias o plus por 2 meses";
+    }
+}
+
+async function registrarCodigoSistema() {
+    const inputId = document.getElementById("promo-id");
+    const inputTipo = document.getElementById("promo-tipo");
+    const inputPremio = document.getElementById("promo-premio");
+    const inputStock = document.getElementById("promo-stock");
+
+    if (!inputId || !inputTipo || !inputPremio || !inputStock) {
+        alert("ERROR: Componentes del gestor ausentes.");
+        return;
+    }
+
+    // Normalización de entradas
+    const idCodigo = inputId.value.trim().replace(/[\s\[\]]/g, ""); 
+    const tipoBeneficio = inputTipo.value;
+    let textoPremio = inputPremio.value.trim();
+    const cantidadStock = parseInt(inputStock.value, 10);
+
+    // Validaciones de consistencia
+    if (!idCodigo) {
+        alert("ERROR: El identificador del código es obligatorio.");
+        return;
+    }
+
+    if (!textoPremio) {
+        alert("ERROR: La especificación del premio no puede quedar vacía.");
+        return;
+    }
+
+    if (isNaN(cantidadStock) || cantidadStock <= 0) {
+        alert("ERROR: Volumen de existencias no válido.");
+        return;
+    }
+
+    // Adaptación de cadenas para procesamiento posterior
+    textoPremio = textoPremio.replace(/[\[\]]/g, ""); 
+    const formatoNormalizado = textoPremio.toLowerCase();
+
+    if (tipoBeneficio === "PUNTOS") {
+        if (!formatoNormalizado.includes("pt") && !formatoNormalizado.includes("punto")) {
+            console.warn("Sintaxis de puntos no explícita.");
+        }
+    } else if (tipoBeneficio === "PLUS") {
+        if (!formatoNormalizado.includes("plus")) {
+            textoPremio = `Plus por ${textoPremio}`;
+        }
+    }
+
+    // Empaquetamiento del string con formato de control indexado
+    const valorEstructuradoDB = `${textoPremio} [${cantidadStock}]`;
+
+    try {
+        // Validación de referencias modulares
+        if (typeof ref !== 'function' || typeof set !== 'function') {
+            alert("ERROR INTERNO: Dependencias de Firebase incompletas.");
+            return;
+        }
+
+        const rutaDestinoCodigo = `config/codigos_promocionales/${idCodigo}`;
+
+        // Escritura en el backend
+        await set(ref(db, rutaDestinoCodigo), valorEstructuradoDB);
+
+        alert("Código promocional registrado con éxito.");
+
+        // Restablecimiento de los controles de la interfaz
+        inputId.value = "";
+        inputPremio.value = "";
+        inputStock.value = "10";
+        actualizarPlaceholderPremio();
+
+    } catch (error) {
+        console.error("Excepción en la carga de parámetros globales:", error);
+        alert("Error de comunicación con el servidor.");
+    }
+}
 </script><!-- Modal de Advertencia de Seguridad -->
 <div id="modal-seguridad" class="modal" style="display: flex;"> <!-- Se muestra al cargar -->
     <div class="modal-content" style="border: 3px solid #1a73e8; box-shadow: 10px 10px 0px rgba(26, 115, 232, 0.2);">

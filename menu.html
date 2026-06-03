@@ -387,6 +387,48 @@
         0% { transform: scale(0.5); opacity: 1; }
         100% { transform: scale(1.8); opacity: 0; }
     }
+</style><div id="panel-notificacion-ia" style="display: none; position: fixed; bottom: 25px; right: 25px; z-index: 5000; width: 350px; font-family: 'Outfit', sans-serif; animation: popupEntrada 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;">
+    <div id="alerta-ia-caja" style="background: #ffffff; border: 3px solid #000000; box-shadow: 8px 8px 0px #000000; border-radius: 16px; padding: 20px; position: relative; overflow: hidden;">
+        
+        <div id="alerta-ia-linea" style="position: absolute; top: 0; left: 0; height: 6px; width: 100%; background: #ef4444; animation: pulsoLinea 2s infinite ease-in-out;"></div>
+        
+        <div style="display: flex; gap: 14px; align-items: flex-start; margin-top: 5px;">
+            <div id="alerta-ia-icono" style="font-size: 28px; animation: flotarIcono 1.5s infinite ease-in-out;">🚨</div>
+            <div style="flex: 1;">
+                <h4 id="alerta-ia-titulo" style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #000000;">
+                    Alerta del Sistema
+                </h4>
+                <p id="alerta-ia-mensaje" style="margin: 0; font-size: 12px; color: #475569; line-height: 1.4; font-weight: 600;">
+                    Detectando anomalías en los canales redundantes...
+                </p>
+                <div id="alerta-ia-tag" style="display: inline-block; margin-top: 10px; font-size: 9px; font-weight: 900; background: #000000; color: #ffffff; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px;">
+                    Estado: Monitoreando
+                </div>
+            </div>
+            <button onclick="cerrarAlertaIAVisual()" style="background: none; border: none; font-size: 16px; cursor: pointer; font-weight: 800; color: #000000; padding: 0 4px;">✕</button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes popupEntrada {
+    0% { transform: translateY(100px) scale(0.8); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes popupSalida {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(50px) scale(0.9); opacity: 0; }
+}
+@keyframes pulsoLinea {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+@keyframes flotarIcono {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-4px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
 </style><script type="importmap">
   {
     "imports": {
@@ -1243,15 +1285,13 @@ document.getElementById('open-create').onclick = (e) => {
     input.value = "";
     actionModal.style.display = "flex";
 };
-
 // =========================================================================
-// DECODIFICADOR SEGURO ESTRICTO - FIREBASE V10 MODULAR
+// DECODIFICADOR SEGURO ESTRICTO - AUTO-LIMPIABLE DE FÁBRICA (V10 MODULAR)
 // =========================================================================
 
-// 🔥 INICIALIZACIÓN GLOBAL AUTO-EJECUTABLE ADAPTATIVA PARA V10
 (async () => {
     try {
-        // Diccionario de decodificación ASCII
+        // Diccionario de decodificación ASCII estándar del ecosistema
         const _d = {
             "48": "0", "49": "1", "50": "2", "51": "3", "52": "4", "53": "5", "54": "6", "55": "7", "56": "8", "57": "9",
             "65": "A", "66": "B", "67": "C", "68": "D", "69": "E", "70": "F", "71": "G", "72": "H", "73": "I", "74": "J",
@@ -1263,48 +1303,90 @@ document.getElementById('open-create').onclick = (e) => {
             "45": "-", "46": ".", "95": "_", "47": "/", "61": "="
         };
 
-        // 🛰️ CAPTURA AUTOMÁTICA DE INSTANCIA DE BASE DE DATOS
-        // Busca en tu entorno si la variable se llama db, database, baseDatosInstancia o si está en window
+        // Captura e inicialización de dependencias de Firebase v10
         const dbReal = (typeof db !== 'undefined') ? db : 
                        (typeof database !== 'undefined') ? database : 
                        (typeof baseDatosInstancia !== 'undefined') ? baseDatosInstancia : 
                        (window.db || window.database || null);
 
-        // Captura de funciones modulares de Firebase v10
         const realRef = (typeof ref !== 'undefined') ? ref : (window.ref || null);
         const realGet = (typeof get !== 'undefined') ? get : (window.get || null);
+        const realSet = (typeof set !== 'undefined') ? set : (window.set || null);
 
-        if (!dbReal || !realRef || !realGet) {
-            console.warn("⚠️ [Core Seguridad]: Firebase v10 no se ha inicializado completamente aún. Reintentando en 1 segundo...");
-            // Pequeño fallback por si los scripts cargan a destiempo
-            setTimeout(async () => {
-                const retryDb = typeof db !== 'undefined' ? db : (typeof database !== 'undefined' ? database : (typeof baseDatosInstancia !== 'undefined' ? baseDatosInstancia : null));
-                const retryRef = typeof ref !== 'undefined' ? ref : null;
-                const retryGet = typeof get !== 'undefined' ? get : null;
-                if(retryDb && retryRef && retryGet) {
-                    const snapshot = await retryGet(retryRef(retryDb, "config/API_KEYS/gemini"));
-                    if (snapshot.exists()) {
-                        window.myKey = snapshot.val().split(',').map(n => _d[n.trim()] || '').join('');
-                        console.log("🔒 Protocolo API Gemini cargado con éxito (Asíncrono en diferido).");
-                    }
-                }
-            }, 1000);
+        if (!dbReal || !realRef || !realGet || !realSet) {
+            console.warn("⚠️ [Core Seguridad]: Inicializando dependencias de base de datos...");
             return;
         }
 
-        // Ejecución directa si las variables ya estaban listas
-        const refKey = realRef(dbReal, "config/API_KEYS/gemini");
-        const snapshot = await realGet(refKey);
+        // Definición de las rutas del almacén y sus respectivas banderas de error
+        const configuracionCanales = [
+            { id: 0, ruta: "config/API_KEYS/gemini", bandera: "config/ERROR_gemini" },           // Canal Principal
+            { id: 1, ruta: "config/API_KEYS/gemini_respaldo1", bandera: "config/ERROR1_gemini" }, // Respaldo 1
+            { id: 2, ruta: "config/API_KEYS/gemini_respaldo2", bandera: "config/ERROR2_gemini" }  // Respaldo 2 (Definitivo)
+        ];
 
-        if (snapshot.exists()) {
-            const dataCruda = snapshot.val();
-            window.myKey = dataCruda.split(',').map(num => _d[num.trim()] || '').join('');
-            console.log("🔒 Protocolo de seguridad API Gemini inicializado en entorno global.");
-        } else {
-            console.error("❌ [Core Seguridad]: Nodo config/API_KEYS/gemini no encontrado.");
+        let llaveCargadaCorrectamente = false;
+        let indiceLlaveActiva = -1;
+
+        // 🔍 FASE 1: Análisis y Conmutación de Canales
+        for (let i = 0; i < configuracionCanales.length; i++) {
+            const canal = configuracionCanales[i];
+            
+            try {
+                const snapshot = await realGet(realRef(dbReal, canal.ruta));
+
+                if (snapshot.exists() && snapshot.val()) {
+                    const dataCruda = snapshot.val().toString().trim();
+                    
+                    // Reconstrucción de la cadena plana
+                    const llaveDecodificada = dataCruda.split(',').map(num => _d[num.trim()] || '').join('');
+
+                    // Auditoría estricta de formato Google Gemini
+                    if (!llaveDecodificada.startsWith("AIza") || llaveDecodificada.length < 35) {
+                        throw new TypeError("GEMINI_KEY_INVALID_FORMAT");
+                    }
+
+                    // Si pasa el filtro, se monta en la ventana y marcamos el éxito
+                    window.myKey = llaveDecodificada;
+                    console.log(`🔒 [Core Seguridad]: Llave funcional establecida desde [${canal.ruta}].`);
+                    llaveCargadaCorrectamente = true;
+                    indiceLlaveActiva = i;
+                    break; 
+
+                } else {
+                    throw new TypeError("GEMINI_KEY_INVALID_FORMAT");
+                }
+
+            } catch (error) {
+                if (error.message === "GEMINI_KEY_INVALID_FORMAT") {
+                    console.error(`🚨 [Fallo Gemini]: Error detectado en la llave de [${canal.ruta}].`);
+                    // Encendemos la bandera de error de este canal que acaba de fallar
+                    await realSet(realRef(dbReal, canal.bandera), true);
+                    
+                    if (i === 2) {
+                        console.error("💀 [CRITICAL CORE]: Caída generalizada. Ninguna credencial de Gemini responde.");
+                    }
+                } else {
+                    console.warn(`[Info Red]: Salto pasivo por latencia en la ruta [${canal.ruta}].`);
+                }
+            }
         }
+
+        // 🔄 FASE 2: AUTO-RESTABLECIMIENTO DE FÁBRICA
+        // Si una llave se recuperó, limpiamos automáticamente las banderas de los canales posteriores
+        if (llaveCargadaCorrectamente) {
+            for (let i = 0; i < configuracionCanales.length; i++) {
+                // Si el canal actual está activo o está después del activo, su error debe ser FALSE
+                if (i >= indiceLlaveActiva) {
+                    const canalALimpiar = configuracionCanales[i];
+                    await realSet(realRef(dbReal, canalALimpiar.bandera), false);
+                }
+            }
+            console.log("✨ [Ecosistema Limpio]: Estados de error actualizados según el estado de fábrica.");
+        }
+
     } catch (e) {
-        console.error("❌ Error crítico en el cargador global de llaves:", e);
+        console.error("❌ Error en el enrutador marcador de llaves:", e);
     }
 })();
 function vincularEventoConfirmar() {
@@ -7855,7 +7937,109 @@ window.enviarApelacion = function(uid) {
             boleta.style.width = '';
         }
     }
+};// =========================================================================
+// MONITOREO DINÁMICO REACTIVO DE ERRORES DE IA (GEMINI CORE)
+// =========================================================================
+
+function inicializarRastreadorErroresIA() {
+    // Referencia al nodo raíz donde viven las banderas de error
+    const refConfig = ref(db, 'config');
+
+    // Escuchador dinámico en tiempo real
+    onValue(refConfig, (snapshot) => {
+        if (!snapshot.exists()) return;
+        
+        const data = snapshot.val();
+        
+        const errorPrincipal = data.ERROR_gemini === true;
+        const errorRespaldo1 = data.ERROR1_gemini === true;
+        const errorRespaldo2 = data.ERROR2_gemini === true;
+
+        // Evaluación de severidad jerárquica
+        if (errorRespaldo2) {
+            // COLAPSO CRÍTICO DEFINITIVO (Ninguna llave sirve)
+            desplegarAlertaIA({
+                titulo: "💀 COLAPSO TOTAL IA",
+                mensaje: "El motor principal y todos los servidores de respaldo han fallado. Praxis AI deshabilitado temporalmente.",
+                colorLinea: "#ef4444", // Rojo puro
+                colorTag: "#7f1d1d",
+                icono: "☣️",
+                tagText: "CRITICAL_NUCLEO_DOWN"
+            });
+        } 
+        else if (errorRespaldo1) {
+            // SEGUNDA FALLA SECUENCIAL (Saltó al respaldo 2)
+            desplegarAlertaIA({
+                titulo: "⚠️ ERROR: RESPALDO 01 CAÍDO",
+                mensaje: "Canal de contingencia primario corrompido. Conmutando tráfico hacia la última línea de defensa.",
+                colorLinea: "#f97316", // Naranja
+                colorTag: "#c2410c",
+                icono: "📡",
+                tagText: "FALLBACK_LEVEL_02"
+            });
+        } 
+        else if (errorPrincipal) {
+            // PRIMERA FALLA (Saltó al respaldo 1)
+            desplegarAlertaIA({
+                titulo: "🎟️ FALLO EN LLAVE PRINCIPAL",
+                mensaje: "Se detectó desconfiguración en el token base. Canal auxiliar activado correctamente.",
+                colorLinea: "#eab308", // Amarillo
+                colorTag: "#854d0e",
+                icono: "⚡",
+                tagText: "FALLBACK_LEVEL_01"
+            });
+        } else {
+            // ECOSISTEMA COMPLETAMENTE NORMALIZADO
+            ocultarAlertaIAVisual();
+        }
+    });
+}
+
+function desplegarAlertaIA(config) {
+    const contenedor = document.getElementById("panel-notificacion-ia");
+    const linea = document.getElementById("alerta-ia-linea");
+    const icono = document.getElementById("alerta-ia-icono");
+    const titulo = document.getElementById("alerta-ia-titulo");
+    const mensaje = document.getElementById("alerta-ia-mensaje");
+    const tag = document.getElementById("alerta-ia-tag");
+
+    if (!contenedor) return;
+
+    // Inyección de parámetros dinámicos
+    titulo.innerText = config.titulo;
+    mensaje.innerText = config.mensaje;
+    icono.innerText = config.icono;
+    tag.innerText = config.tagText;
+    
+    linea.style.background = config.colorLinea;
+    tag.style.background = config.colorTag;
+
+    // Despliegue con reinicio de animación
+    contenedor.style.display = "block";
+    contenedor.style.animation = 'none';
+    contenedor.offsetHeight; // Truco de reflujo de renderizado para reiniciar animación CSS
+    contenedor.style.animation = "popupEntrada 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both";
+}
+
+window.cerrarAlertaIAVisual = function() {
+    const contenedor = document.getElementById("panel-notificacion-ia");
+    if (!contenedor) return;
+    
+    contenedor.style.animation = "popupSalida 0.3s ease-in both";
+    setTimeout(() => {
+        contenedor.style.display = "none";
+    }, 300);
 };
+
+function ocultarAlertaIAVisual() {
+    const contenedor = document.getElementById("panel-notificacion-ia");
+    if (contenedor && contenedor.style.display !== "none") {
+        window.cerrarAlertaIAVisual();
+    }
+}
+
+// 🚀 Activar el rastreador de alertas al cargar la página
+inicializarRastreadorErroresIA();
 function activarRastreadorPuntos(uid) {
     const puntosRef = ref(db, `usuarios/${uid}/stats/puntos`);
     
