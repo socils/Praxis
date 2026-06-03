@@ -723,22 +723,86 @@
             }
         } catch (e) { alert("Error de validación"); }
     };
+// =======================================================================
+// GESTIÓN DE SUSCRIPCIONES: Activación Manual de Estado Plus
+// =======================================================================
+async function activarPlusDefinitivo() {
+    // Captura de elementos del DOM
+    const inputUid = document.getElementById("plus-uid");
+    const inputFecha = document.getElementById("plus-expira");
 
-    window.activarPlusDefinitivo = async function(uidUsuario) {
-        const userStatsRef = ref(db, `usuarios/${uidUsuario}/stats`);
-        try {
-            const snap = await get(userStatsRef);
-            const actual = snap.exists() ? (snap.val().puntos || 0) : 0;
-            await update(userStatsRef, {
-                puntos: actual + 500,
-                isPlus: true,
-                rango: "Estudiante Plus",
-                ultimaModificacion: serverTimestamp()
-            });
-            alert("Protocolo Praxis Plus: +500 PTS acreditados");
-        } catch (e) { alert("Error en activación Plus"); }
-    };
+    if (!inputUid || !inputFecha) {
+        if (typeof printLog === 'function') printLog("❌ ERROR: Componentes del gestor no encontrados.", "#ff3366");
+        return;
+    }
 
+    const uidDestino = inputUid.value.trim();
+    const fechaSeleccionada = inputFecha.value;
+
+    // Validaciones iniciales de formulario
+    if (!uidDestino) {
+        if (typeof printLog === 'function') printLog("❌ ERROR: El UID del estudiante es obligatorio.", "#ff3366");
+        return;
+    }
+
+    if (!fechaSeleccionada) {
+        if (typeof printLog === 'function') printLog("❌ ERROR: Debes definir una fecha y hora de expiración.", "#ff3366");
+        return;
+    }
+
+    if (typeof printLog === 'function') printLog("⏳ Conectando con los servicios de asignación...", "#ffeb3b");
+
+    try {
+        // Inicialización adaptativa del entorno de base de datos
+        const baseDatosInstancia = (typeof db !== 'undefined') ? db : (window.db || null);
+
+        if (!baseDatosInstancia) {
+            if (typeof printLog === 'function') printLog("❌ ERROR INTERNO: Instancia 'db' no disponible.", "#ff3366");
+            return;
+        }
+
+        if (typeof ref !== 'function' || typeof set !== 'function') {
+            if (typeof printLog === 'function') printLog("❌ ERROR INTERNO: Dependencias estructurales incompletas.", "#ff3366");
+            return;
+        }
+
+        // Formateo manual de fecha al estándar nativo del ecosistema (DD/MM/YYYY HH:mm)
+        const dateObj = new Date(fechaSeleccionada);
+        
+        const dia = String(dateObj.getDate()).padStart(2, '0');
+        const mes = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const anio = dateObj.getFullYear();
+        const hora = String(dateObj.getHours()).padStart(2, '0');
+        const minutos = String(dateObj.getMinutes()).padStart(2, '0');
+        
+        const fechaFormateadaPraxis = `${dia}/${mes}/${anio} ${hora}:${minutos}`;
+
+        // Definición de rutas en los nodos del perfil de usuario
+        const rutaInPlus = `usuarios/${uidDestino}/inplus`;
+        const rutaPlusExpira = `usuarios/${uidDestino}/plusExpira`;
+
+        if (typeof printLog === 'function') printLog("🔒 Modificando registros de membresía en Praxis Core...", "#00b0ff");
+
+        // Escritura atómica en el backend
+        await set(ref(baseDatosInstancia, rutaInPlus), true);
+        await set(ref(baseDatosInstancia, rutaPlusExpira), fechaFormateadaPraxis);
+
+        // Notificación de éxito y limpieza de campos
+        if (typeof printLog === 'function') {
+            printLog(`🎟️ [Membresías]: Estado Plus asignado correctamente al usuario [${uidDestino}].`, "#00ff88");
+            printLog(`📅 Expiración establecida: ${fechaFormateadaPraxis}`, "#00ff88");
+        }
+        
+        inputUid.value = "";
+        inputFecha.value = "";
+
+    } catch (error) {
+        console.error("Fallo en proceso de actualización de privilegios:", error);
+        if (typeof printLog === 'function') {
+            printLog(`❌ ERROR DE TRANSACCIÓN: ${error.name} - ${error.message}`, "#ff3366");
+        }
+    }
+}
     function cargarTodo() {
         cargarDirectorio();
         cargarActividad();
