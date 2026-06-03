@@ -1288,6 +1288,9 @@ document.getElementById('open-create').onclick = (e) => {
 // =========================================================================
 // DECODIFICADOR SEGURO ESTRICTO - AUTO-LIMPIABLE DE FÁBRICA (V10 MODULAR)
 // =========================================================================
+// =========================================================================
+// DECODIFICADOR SEGURO ESTRICTO - PROCESADOR REDUNDANTE CORREGIDO
+// =========================================================================
 
 (async () => {
     try {
@@ -1328,9 +1331,10 @@ document.getElementById('open-create').onclick = (e) => {
         let llaveCargadaCorrectamente = false;
         let indiceLlaveActiva = -1;
 
-        // 🔍 FASE 1: Análisis y Conmutación de Canales
+        // 🔍 FASE 1: Análisis canal por canal sin romper el bucle
         for (let i = 0; i < configuracionCanales.length; i++) {
             const canal = configuracionCanales[i];
+            let canalValido = false;
             
             try {
                 const snapshot = await realGet(realRef(dbReal, canal.ruta));
@@ -1338,55 +1342,49 @@ document.getElementById('open-create').onclick = (e) => {
                 if (snapshot.exists() && snapshot.val()) {
                     const dataCruda = snapshot.val().toString().trim();
                     
-                    // Reconstrucción de la cadena plana
+                    // Reconstrucción de la cadena plana descifrando los códigos ASCII
                     const llaveDecodificada = dataCruda.split(',').map(num => _d[num.trim()] || '').join('');
 
-                    // Auditoría estricta de formato Google Gemini
-                    if (!llaveDecodificada.startsWith("AIza") || llaveDecodificada.length < 35) {
-                        throw new TypeError("GEMINI_KEY_INVALID_FORMAT");
+                    // Validación de longitud y consistencia básica (Evita llaves corruptas o vacías)
+                    if (llaveDecodificada.length >= 35 && !llaveDecodificada.includes('undefined')) {
+                        window.myKey = llaveDecodificada;
+                        console.log(`🔒 [Core Seguridad]: Llave funcional establecida desde [${canal.ruta}].`);
+                        llaveCargadaCorrectamente = true;
+                        indiceLlaveActiva = i;
+                        canalValido = true;
                     }
-
-                    // Si pasa el filtro, se monta en la ventana y marcamos el éxito
-                    window.myKey = llaveDecodificada;
-                    console.log(`🔒 [Core Seguridad]: Llave funcional establecida desde [${canal.ruta}].`);
-                    llaveCargadaCorrectamente = true;
-                    indiceLlaveActiva = i;
-                    break; 
-
-                } else {
-                    throw new TypeError("GEMINI_KEY_INVALID_FORMAT");
                 }
+            } catch (errorRed) {
+                console.warn(`[Info Red]: Latencia en la ruta [${canal.ruta}].`);
+            }
 
-            } catch (error) {
-                if (error.message === "GEMINI_KEY_INVALID_FORMAT") {
-                    console.error(`🚨 [Fallo Gemini]: Error detectado en la llave de [${canal.ruta}].`);
-                    // Encendemos la bandera de error de este canal que acaba de fallar
-                    await realSet(realRef(dbReal, canal.bandera), true);
-                    
-                    if (i === 2) {
-                        console.error("💀 [CRITICAL CORE]: Caída generalizada. Ninguna credencial de Gemini responde.");
-                    }
-                } else {
-                    console.warn(`[Info Red]: Salto pasivo por latencia en la ruta [${canal.ruta}].`);
-                }
+            // ACCIÓN BASADA EN LA VALIDEZ DEL CANAL ACTUAL
+            if (canalValido) {
+                // Si este canal sirvió, salimos del bucle para empezar a trabajar con él
+                break;
+            } else {
+                // Si falló, marcamos su error específico en Firebase y el bucle sigue al siguiente respaldo
+                console.error(`🚨 [Fallo Gemini]: Error de formato o ausencia en [${canal.ruta}]. Marcando bandera...`);
+                await realSet(realRef(dbReal, canal.bandera), true);
             }
         }
 
-        // 🔄 FASE 2: AUTO-RESTABLECIMIENTO DE FÁBRICA
-        // Si una llave se recuperó, limpiamos automáticamente las banderas de los canales posteriores
+        // 🔄 FASE 2: RETORNO DE FÁBRICA / AUTO-RESTABLECIMIENTO
+        // Si el sistema encontró una llave sana, reajusta las banderas sobrantes a FALSE automáticamente
         if (llaveCargadaCorrectamente) {
             for (let i = 0; i < configuracionCanales.length; i++) {
-                // Si el canal actual está activo o está después del activo, su error debe ser FALSE
                 if (i >= indiceLlaveActiva) {
                     const canalALimpiar = configuracionCanales[i];
                     await realSet(realRef(dbReal, canalALimpiar.bandera), false);
                 }
             }
-            console.log("✨ [Ecosistema Limpio]: Estados de error actualizados según el estado de fábrica.");
+            console.log("✨ [Ecosistema Limpio]: Estados de error reiniciados. Praxis operando de fábrica.");
+        } else {
+            console.error("💀 [CRITICAL CORE]: Caída generalizada. Ninguna credencial de Gemini responde.");
         }
 
     } catch (e) {
-        console.error("❌ Error en el enrutador marcador de llaves:", e);
+        console.error("❌ Error catastrófico en el enrutador marcador de llaves:", e);
     }
 })();
 function vincularEventoConfirmar() {
