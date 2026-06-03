@@ -9672,9 +9672,8 @@ inputField.addEventListener('keydown', async (e) => {
             
             return; 
         }
-
-        // =======================================================================
-        // 2. COMANDO SECRETO 2: Reclamo Global Único -> reclaim code=[...]
+// =======================================================================
+        // 2. COMANDO: Reclamo de Código -> reclaim code=[...]
         // =======================================================================
         if (comandoNormalizado.startsWith('reclaim code=')) {
             const matchCode = fullCommand.match(/code=\s*\[(.*?)\]/i);
@@ -9697,20 +9696,19 @@ inputField.addEventListener('keydown', async (e) => {
                     return;
                 }
 
-                // Obligatorio estar logeado para saber a qué UID asignarle el código
                 if (!usuarioActual) {
                     printLog("❌ ACCESO DENEGADO: Debes iniciar sesión para reclamar códigos.", "#ff3366");
                     return;
                 }
 
-                if (typeof ref !== 'function' || typeof get !== 'function' || typeof set !== 'function') {
-                    printLog("❌ ERROR INTERNO: Funciones modulares de Firebase incompletas.", "#ff3366");
+                if (typeof ref !== 'function' || typeof get !== 'function' || typeof set !== 'function' || typeof runTransaction !== 'function') {
+                    printLog("❌ ERROR INTERNO: Dependencias de base de datos incompletas.", "#ff3366");
                     return;
                 }
 
                 const uid = usuarioActual.uid;
 
-                // PASO 1: Verificar si el usuario ya reclamó este código anteriormente
+                // Validación de historial de uso por el usuario
                 const rutaHistorialUser = `usuarios/${uid}/promos/${codigoLimpio}`;
                 const refHistorial = ref(baseDatosInstancia, rutaHistorialUser);
                 const snapshotHistorial = await get(refHistorial);
@@ -9720,31 +9718,66 @@ inputField.addEventListener('keydown', async (e) => {
                     return;
                 }
 
-                // PASO 2: Verificar si el código existe globalmente en el sistema
+                // Validación global y procesamiento de disponibilidad
                 const rutaGlobalCodigo = `config/codigos_promocionales/${codigoLimpio}`;
                 const refGlobal = ref(baseDatosInstancia, rutaGlobalCodigo);
                 printLog(`🛰️ Verificando autenticidad del código...`, "#00b0ff");
-                const snapshotGlobal = await get(refGlobal);
+                
+                let recompensaEfectiva = "";
+                
+                try {
+                    const resultadoTransaccion = await runTransaction(refGlobal, (valorActual) => {
+                        if (valorActual === null) return valorActual;
 
-                if (!snapshotGlobal.exists()) {
-                    printLog("❌ ERROR: El código promocional no es válido o no existe.", "#ff3366");
+                        const stringValor = String(valorActual);
+                        const matchStock = stringValor.match(/\[(\d+)\]$/);
+
+                        if (matchStock) {
+                            const stockActual = parseInt(matchStock[1], 10);
+
+                            if (stockActual <= 0) {
+                                return; 
+                            }
+
+                            const nuevoStock = stockActual - 1;
+                            return stringValor.replace(/\[\d+\]$/, `[${nuevoStock}]`);
+                        } else {
+                            // Inicialización automática de existencias por defecto
+                            return `${stringValor} [9]`;
+                        }
+                    });
+
+                    if (!resultadoTransaccion.committed) {
+                        const snapReintento = await get(refGlobal);
+                        if (!snapReintento.exists()) {
+                            printLog("❌ ERROR: El código promocional no es válido o no existe.", "#ff3366");
+                        } else {
+                            printLog("📦 ERROR: ¡Este código promocional se ha agotado por completo!", "#ff3366");
+                        }
+                        return;
+                    }
+
+                    // Extracción del valor original de la recompensa
+                    const snapshotGlobal = await get(refGlobal);
+                    const valorParaProcesar = snapshotGlobal.val();
+                    
+                    // Limpieza de parámetros de control en el string para el procesamiento posterior
+                    recompensaEfectiva = String(valorParaProcesar).replace(/\s*\[\d+\]$/, '').trim();
+
+                } catch (errorTransaccion) {
+                    console.error("Error en proceso de asignación:", errorTransaccion);
+                    printLog("❌ ERROR: Falla de sincronización al procesar la solicitud.", "#ff3366");
                     return;
                 }
 
-                const recompensaEfectiva = snapshotGlobal.val();
-// =======================================================================
-                // PASO 3: Quemar/Bloquear el código guardándolo en el perfil del usuario
-                // =======================================================================
+                // Registro de la transacción en el perfil de usuario y ejecución del flujo del sistema
                 printLog("🔒 Asegurando recompensa en tu cuenta...", "#ffeb3b");
-                
-                // Guardamos el código y su texto original en la base de datos
                 await set(refHistorial, recompensaEfectiva);
 
-                // 🔥 ACTUALIZACIÓN: Añadimos 'printLog' al final para que recompensas.js pueda usarlo
                 await ejecutarFlujoEntregaRecompensa(uid, codigoLimpio, recompensaEfectiva, baseDatosInstancia, ref, get, set, printLog);
 
             } catch (error) {
-                console.error("DETALLE COMPLETO DEL FALLO (RECLAIM):", error);
+                console.error("Fallo general en ejecución de comando:", error);
                 printLog(`❌ ERROR DE CONEXIÓN: ${error.name} - ${error.message}`, "#ff3366");
             }
 
