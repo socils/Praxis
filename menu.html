@@ -401,27 +401,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 let logsDeSistema = "Sistemas operativos y estables. No se detectan fallos de redundancia.";
 let idErrorActual = "000";
 
-function getSecureKey() {
-
-const _d = {
-    "48": "0", "49": "1", "50": "2", "51": "3", "52": "4", "53": "5", "54": "6", "55": "7", "56": "8", "57": "9",
-    "65": "A", "66": "B", "67": "C", "68": "D", "69": "E", "70": "F", "71": "G", "72": "H", "73": "I", "74": "J",
-    "75": "K", "76": "L", "77": "M", "78": "N", "79": "O", "80": "P", "81": "Q", "82": "R", "83": "S", "84": "T",
-    "85": "U", "86": "V", "87": "W", "88": "X", "89": "Y", "90": "Z",
-    "97": "a", "98": "b", "99": "c", "100": "d", "101": "e", "102": "f", "103": "g", "104": "h", "105": "i", "106": "j",
-    "107": "k", "108": "l", "109": "m", "110": "n", "111": "o", "112": "p", "113": "q", "114": "r", "115": "s", "116": "t",
-    "117": "u", "118": "v", "119": "w", "120": "x", "121": "y", "122": "z",
-    "45": "-", "46": ".", "95": "_", "47": "/", "61": "="
-};
 
 
-const _s = [65, 81, 46, 65, 98, 56, 82, 78, 54, 73, 103, 97, 95, 76, 84, 122, 104, 54, 76, 111, 87, 67, 57, 52, 105, 102, 120, 74, 111, 106, 109, 70, 82, 70, 101, 48, 89, 67, 50, 73, 79, 120, 78, 75, 71, 90, 101, 55, 115, 118, 45, 86, 119];
-
-    return _s.map(code => _d[code]).join('');
-}
-
-
-const myKey = getSecureKey();
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -1263,7 +1244,69 @@ document.getElementById('open-create').onclick = (e) => {
     actionModal.style.display = "flex";
 };
 
+// =========================================================================
+// DECODIFICADOR SEGURO ESTRICTO - FIREBASE V10 MODULAR
+// =========================================================================
 
+// 🔥 INICIALIZACIÓN GLOBAL AUTO-EJECUTABLE ADAPTATIVA PARA V10
+(async () => {
+    try {
+        // Diccionario de decodificación ASCII
+        const _d = {
+            "48": "0", "49": "1", "50": "2", "51": "3", "52": "4", "53": "5", "54": "6", "55": "7", "56": "8", "57": "9",
+            "65": "A", "66": "B", "67": "C", "68": "D", "69": "E", "70": "F", "71": "G", "72": "H", "73": "I", "74": "J",
+            "75": "K", "76": "L", "77": "M", "78": "N", "79": "O", "80": "P", "81": "Q", "82": "R", "83": "S", "84": "T",
+            "85": "U", "86": "V", "87": "W", "88": "X", "89": "Y", "90": "Z",
+            "97": "a", "98": "b", "99": "c", "100": "d", "101": "e", "102": "f", "103": "g", "104": "h", "105": "i", "106": "j",
+            "107": "k", "108": "l", "109": "m", "110": "n", "111": "o", "112": "p", "113": "q", "114": "r", "115": "s", "116": "t",
+            "117": "u", "118": "v", "119": "w", "120": "x", "121": "y", "122": "z",
+            "45": "-", "46": ".", "95": "_", "47": "/", "61": "="
+        };
+
+        // 🛰️ CAPTURA AUTOMÁTICA DE INSTANCIA DE BASE DE DATOS
+        // Busca en tu entorno si la variable se llama db, database, baseDatosInstancia o si está en window
+        const dbReal = (typeof db !== 'undefined') ? db : 
+                       (typeof database !== 'undefined') ? database : 
+                       (typeof baseDatosInstancia !== 'undefined') ? baseDatosInstancia : 
+                       (window.db || window.database || null);
+
+        // Captura de funciones modulares de Firebase v10
+        const realRef = (typeof ref !== 'undefined') ? ref : (window.ref || null);
+        const realGet = (typeof get !== 'undefined') ? get : (window.get || null);
+
+        if (!dbReal || !realRef || !realGet) {
+            console.warn("⚠️ [Core Seguridad]: Firebase v10 no se ha inicializado completamente aún. Reintentando en 1 segundo...");
+            // Pequeño fallback por si los scripts cargan a destiempo
+            setTimeout(async () => {
+                const retryDb = typeof db !== 'undefined' ? db : (typeof database !== 'undefined' ? database : (typeof baseDatosInstancia !== 'undefined' ? baseDatosInstancia : null));
+                const retryRef = typeof ref !== 'undefined' ? ref : null;
+                const retryGet = typeof get !== 'undefined' ? get : null;
+                if(retryDb && retryRef && retryGet) {
+                    const snapshot = await retryGet(retryRef(retryDb, "config/API_KEYS/gemini"));
+                    if (snapshot.exists()) {
+                        window.myKey = snapshot.val().split(',').map(n => _d[n.trim()] || '').join('');
+                        console.log("🔒 Protocolo API Gemini cargado con éxito (Asíncrono en diferido).");
+                    }
+                }
+            }, 1000);
+            return;
+        }
+
+        // Ejecución directa si las variables ya estaban listas
+        const refKey = realRef(dbReal, "config/API_KEYS/gemini");
+        const snapshot = await realGet(refKey);
+
+        if (snapshot.exists()) {
+            const dataCruda = snapshot.val();
+            window.myKey = dataCruda.split(',').map(num => _d[num.trim()] || '').join('');
+            console.log("🔒 Protocolo de seguridad API Gemini inicializado en entorno global.");
+        } else {
+            console.error("❌ [Core Seguridad]: Nodo config/API_KEYS/gemini no encontrado.");
+        }
+    } catch (e) {
+        console.error("❌ Error crítico en el cargador global de llaves:", e);
+    }
+})();
 function vincularEventoConfirmar() {
     const btnConfirm = document.getElementById('btn-action-confirm');
     if (!btnConfirm) return;
@@ -2955,7 +2998,7 @@ window.cambiarFiltroAlumno = (scope) => {
         const userNodeRef = ref(db, `usuarios/${uidDetectado}`);
         onValue(userNodeRef, (snapshot) => {
             const data = snapshot.val() || {};
-            const esPlus = data.inPlus === true;
+            const esPlus = data.inplus === true;
             const maxEnergiaDefinido = esPlus ? 5 : 3;
             let stats = data.stats || {};
             let cambioDetectado = false;
@@ -9689,26 +9732,24 @@ inputField.addEventListener('keydown', async (e) => {
                 }
 
                 const recompensaEfectiva = snapshotGlobal.val();
-
+// =======================================================================
                 // PASO 3: Quemar/Bloquear el código guardándolo en el perfil del usuario
+                // =======================================================================
                 printLog("🔒 Asegurando recompensa en tu cuenta...", "#ffeb3b");
-                await set(refHistorial, {
-                    recompensa: recompensaEfectiva,
-                    reclamadoEl: new Date().toISOString()
-                });
+                
+                // Guardamos el código y su texto original en la base de datos
+                await set(refHistorial, recompensaEfectiva);
 
-                printLog(`🎉 ¡CÓDIGO APLICADO CON ÉXITO!`, "#00ff88");
-                printLog(`🎁 Recompensa asignada: [${recompensaEfectiva}]`, "#ffeb3b");
-                printLog("Sincronización de perfil completada.", "#00b0ff");
+                // 🔥 ACTUALIZACIÓN: Añadimos 'printLog' al final para que recompensas.js pueda usarlo
+                await ejecutarFlujoEntregaRecompensa(uid, codigoLimpio, recompensaEfectiva, baseDatosInstancia, ref, get, set, printLog);
 
             } catch (error) {
                 console.error("DETALLE COMPLETO DEL FALLO (RECLAIM):", error);
                 printLog(`❌ ERROR DE CONEXIÓN: ${error.name} - ${error.message}`, "#ff3366");
             }
 
-            return; 
+            return;
         }
-
      // =======================================================================
         // 3. PROCESADOR PARA EL RESTO DE COMANDOS CONVENCIONALES
         // =======================================================================
@@ -9840,6 +9881,6 @@ inputField.addEventListener('keydown', async (e) => {
  * Y PENALES DE ACUERDO A LAS LEYES DE PROTECCIÓN DE SOFTWARE VIGENTES.
  * * =======================================================================
  */
-</script>
+</script> <script src="./recompensas.js"></script>
 </body>
 </html>

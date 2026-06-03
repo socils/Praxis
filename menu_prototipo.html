@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Agenda - Alonixz</title>
+    <style>
+        :root {
+            --accent: #818cf8;
+            --bg: #0a0f1e;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: white;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar con Glassmorphism */
+        nav {
+            width: 260px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .menu-items {
+            flex-grow: 1;
+        }
+
+        .item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Contenido Principal */
+        main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .agenda-info {
+            background: var(--glass);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        /* Tarjetas de Tareas */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .tag {
+            background: rgba(129, 140, 248, 0.2);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        h3 { margin: 15px 0 10px 0; }
+        p { opacity: 0.7; font-size: 0.9rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Agenda Alonso</div>
+        <div class="menu-items">
+            <div class="item active">🏠 Inicio</div>
+            <div class="item">📚 Mis Tareas</div>
+            <div class="item">📅 Calendario</div>
+            <div class="item">🔔 Avisos</div>
+        </div>
+        <div class="item" style="color: #f87171;" onclick="window.location.href='index.html'">🚪 Salir</div>
+    </nav>
+
+    <main>
+        <header>
+            <h1>Tareas Pendientes</h1>
+            <div class="agenda-info">
+                Código Activo: <strong id="display-code">CARGANDO...</strong>
+            </div>
+        </header>
+
+        <div class="task-grid" id="task-container">
+            <div class="card">
+                <span class="tag">Ciencia</span>
+                <h3>Maqueta del ADN</h3>
+                <p>Traer los materiales para armar la maqueta en clase. No olvidar el kirigami de apoyo.</p>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+                <div style="font-size: 0.8rem; opacity: 0.5;">Entrega: 15 de Abril</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Esta lógica simula la recepción del código del login
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code') || "GENERAL-01";
+            document.getElementById('display-code').innerText = code.toUpperCase();
+        };
+    </script>
+</body>
+</html>
