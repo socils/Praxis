@@ -1004,199 +1004,287 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
             console.error("Error al eliminar:", error);
         }
     }
-};
-function mostrarEstadoVacio(msg) {
+};async function mostrarEstadoVacio(msg) {
     if (displayCode.innerText !== "SIN AGENDA") return;
 
     bannerTitle.innerText = "Bienvenido a Praxis";
-                                                                    
+    
     container.style.display = "block"; 
     container.style.width = "100%";
     container.style.padding = "0";
 
-    // 1. Inyección de estilos limpia (Flecha integrada en el texto con animación pasiva)
+    // 1. Inyección de estilos CSS con Texto en Gradiente (Azul a Morado)
     if (!document.getElementById("praxis-empty-state-styles")) {
         const styleSheet = document.createElement("style");
         styleSheet.id = "praxis-empty-state-styles";
-        styleSheet.innerText = `
+      styleSheet.innerText = `
             @keyframes scaleUpFade {
                 from { opacity: 0; transform: scale(0.97) translateY(15px); }
                 to { opacity: 1; transform: scale(1) translateY(0); }
             }
             @keyframes pulsoBordePasivo {
-                0% { border-color: rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.01); }
+                0%, 100% { border-color: rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.01); }
                 50% { border-color: rgba(0, 0, 0, 0.12); box-shadow: 0 10px 35px rgba(0, 0, 0, 0.03); }
-                100% { border-color: rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.01); }
             }
             @keyframes brilloTextoPasivo {
-                0% { opacity: 0.5; }
+                0%, 100% { opacity: 0.5; }
                 50% { opacity: 0.8; letter-spacing: 1.8px; }
-                100% { opacity: 0.5; }
+            }
+            @keyframes flotarFlechaDerecha {
+                0%, 100% { transform: translateX(0); }
+                50% { transform: translateX(4px); }
             }
          
+            /* --- DISEÑO ORIGINAL (CUANDO NO HAY AGENDAS) --- */
             .empty-state-wrapper {
-                text-align: center;
-                padding: 40px 20px;
-                max-width: 850px;
-                margin: 0 auto;
+                text-align: center; padding: 40px 20px; max-width: 850px; margin: 0 auto;
                 font-family: 'Segoe UI', system-ui, sans-serif;
                 animation: scaleUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
             }
             
             .empty-state-plus-btn {
-                background: var(--p-600);
-                border: 2px solid white;
-                color: #ffffff !important;
-                font-weight: 800;
-                width: 55px;
-                height: 55px;
-                border-radius: 16px;
-                font-size: 2.2rem;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                z-index: 10;
-                margin-bottom: 35px;
-                user-select: none;
-            }
-            .empty-state-plus-btn:hover {
-                background: var(--p-800);
-                transform: rotate(90deg) scale(1.1);
-                box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
+                background: var(--p-600, #2563eb); border: 2px solid white; color: #ffffff !important;
+                font-weight: 800; width: 55px; height: 55px; border-radius: 16px; font-size: 2.2rem;
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3); margin-bottom: 35px;
             }
 
             .dashboard-info-container {
-                display: flex;
-                gap: 20px;
-                align-items: stretch;
-                justify-content: center;
-                flex-wrap: wrap;
-                margin-bottom: 35px;
-                width: 100%;
+                display: flex; gap: 20px; align-items: stretch; justify-content: center; flex-wrap: wrap; margin-bottom: 35px; width: 100%;
             }
             .info-card-panel {
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border: 1px solid rgba(0, 0, 0, 0.06);
-                border-radius: 24px;
-                padding: 28px;
-                flex: 1;
-                min-width: 280px;
-                text-align: left;
-                animation: pulsoBordePasivo 4s ease-in-out infinite;
-                transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
-            }
-            .info-card-panel.panel-secundario {
-                animation-delay: 2s;
-            }
-            .info-card-panel:hover {
-                transform: translateY(-4px);
-                border-color: rgba(0, 0, 0, 0.15);
-                box-shadow: 0 15px 35px rgba(26, 28, 36, 0.06);
+                background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 24px; padding: 28px; flex: 1; min-width: 280px;
+                text-align: left; animation: pulsoBordePasivo 4s ease-in-out infinite;
             }
             .info-tag-tech {
-                font-family: monospace;
-                font-size: 10px;
-                font-weight: 800;
-                color: #727685;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-                display: inline-block;
-                margin-bottom: 14px;
+                font-family: monospace; font-size: 10px; font-weight: 800; color: #727685;
+                letter-spacing: 1.5px; text-transform: uppercase; display: inline-block; margin-bottom: 14px;
                 animation: brilloTextoPasivo 3s ease-in-out infinite;
             }
-            .info-card-panel h3 {
-                font-size: 19px;
-                font-weight: 700;
-                color: #1a1c24;
-                margin-bottom: 10px;
-                letter-spacing: -0.3px;
-            }
-            .info-desc {
-                font-size: 13.5px;
-                color: #4a4d59;
-                line-height: 1.6;
-            }
+            .info-card-panel h3 { font-size: 19px; font-weight: 700; color: #1a1c24; margin-bottom: 10px; }
+            .info-desc { font-size: 13.5px; color: #4a4d59; line-height: 1.6; }
 
-            .msg-group-container {
-                max-width: 700px;
-                margin-top: 5px;
+            .msg-group-container { max-width: 700px; margin-top: 5px; }
+            .empty-state-msg { font-size: 22px; color: #1a1c24; font-weight: 700; margin-bottom: 12px; }
+            .empty-state-instruction { font-size: 14.5px; color: #626573; font-weight: 600; }
+            .inline-arrow { display: inline-block; color: var(--p-600, #2563eb); font-weight: 800; margin-right: 6px; animation: flotarFlechaDerecha 2s ease-in-out infinite; }
+
+            /* --- GRID CLASSROOM (CON LETRA NEGRA Y ANIMACIONES ACTIVAS) --- */
+            .classroom-wrapper {
+                max-width: 1100px; margin: 0 auto; padding: 30px 20px;
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                animation: scaleUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             }
-            .empty-state-msg {
-                font-size: 22px;
-                color: #1a1c24;
-                font-weight: 700;
-                letter-spacing: -0.4px;
-                line-height: 1.4;
-                margin-bottom: 12px;
+            .classroom-grid {
+                display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 25px; width: 100%; margin-top: 20px;
             }
             
-            /* Contenedor del mensaje explicativo limpio */
-            .empty-state-instruction {
-                font-size: 14.5px;
-                color: #626573;
-                font-weight: 600;
-                line-height: 1.5;
+            /* Tarjeta Base */
+            .agenda-card {
+                background: #ffffff !important; 
+                border: 1px solid #e2e8f0; 
+                border-radius: 20px;
+                overflow: hidden; 
+                display: flex; 
+                flex-direction: column;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+                /* Transición suave para la animación al pasar el mouse */
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
             }
             
-        /* Animación pasiva para que la flecha se mueva sutilmente hacia la derecha */
-@keyframes flotarFlechaDerecha {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(4px); }
-    100% { transform: translateX(0); }
-}
+            /* Animación al pasar el mouse sobre la tarjeta */
+            .agenda-card:hover {
+                transform: translateY(-6px);
+                border-color: #cbd5e1;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+            }
 
-/* Clase específica para controlar la flecha nativa */
-.inline-arrow {
-    display: inline-block;
-    color: var(--p-600);
-    font-weight: 800;
-    margin-right: 6px;
-    animation: flotarFlechaDerecha 2s ease-in-out infinite;
-}
+            /* Cabecera limpia y transparente */
+            .agenda-header {
+                padding: 26px 24px 0px 24px !important;
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box;
+                background: transparent !important;
+            }
+
+            /* Título: Negro Intenso y Elegante */
+            .agenda-title { 
+                font-size: 22px !important; 
+                font-weight: 800 !important; 
+                margin: 0 0 6px 0 !important; 
+                color: #1e293b !important; /* Negro Slate / Azul oscuro muy profundo */
+                white-space: nowrap; 
+                overflow: hidden; 
+                text-overflow: ellipsis; 
+                display: block !important;
+                transition: color 0.2s ease;
+            }
+            
+            /* Animación de color en el título al hacer hover en la tarjeta */
+            .agenda-card:hover .agenda-title {
+                color: #0f172a !important; /* Negro puro al enfocar */
+            }
+
+            /* Subtítulos oscuros y limpios */
+            .agenda-subtitle { 
+                font-size: 12px !important; 
+                font-weight: 700 !important; 
+                letter-spacing: 0.8px !important;
+                text-transform: uppercase;
+                color: #475569 !important; /* Gris oscuro Pizarra */
+                display: block !important;
+                margin-top: 2px;
+                transition: color 0.2s ease;
+            }
+
+            /* Si eres el creador, un tono para destacar pero manteniendo la armonía oscura */
+            .agenda-header.es-creador .agenda-subtitle {
+                color: #6d28d9 !important; /* Morado Oscuro de alta visibilidad */
+            }
+
+            /* Cuerpo de la tarjeta */
+            .agenda-body { 
+                padding: 14px 24px 26px 24px; 
+                flex-grow: 1; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-between; 
+                background: transparent !important; 
+            }
+
+            .agenda-code { 
+                font-family: monospace; 
+                font-size: 13px; 
+                color: #64748b; 
+                margin-bottom: 20px; 
+            }
+
+            /* Botón de Entrada con transiciones fluidas */
+            .btn-entrar {
+                text-decoration: none; 
+                text-align: center; 
+                font-weight: 600; 
+                padding: 11px; 
+                border-radius: 12px; 
+                font-size: 14px;
+                background: #f8fafc; 
+                color: #334155; 
+                border: 1px solid #e2e8f0; 
+                display: block;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            /* Animaciones de los botones según rol al hacer hover en la tarjeta */
+            .agenda-card:hover .btn-entrar { 
+                background: #2563eb !important; 
+                color: #ffffff !important; 
+                border-color: #2563eb !important;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            }
+
+            .es-creador-btn:hover .btn-entrar { 
+                background: #7c3aed !important; 
+                color: #ffffff !important; 
+                border-color: #7c3aed !important; 
+                box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+            }
         `;
         document.head.appendChild(styleSheet);
     }
 
-    // 2. Bloques informativos coherentes
-    const infoAdicionalHTML = `
-        <div class="info-card-panel">
-            <span class="info-tag-tech">SISTEMA DE ACCESOS</span>
-            <h3>¿No encuentras tus clases?</h3>
-            <p class="info-desc">Verifica si has iniciado sesión con la cuenta correcta. Es posible que tus asignaciones estén vinculadas a tu correo institucional o personal.</p>
-        </div>
-        
-        <div class="info-card-panel panel-secundario">
-            <span class="info-tag-tech">SISTEMA DE AGENDAS</span>
-            <h3>Organiza tu entorno</h3>
-            <p class="info-desc">Para empezar a visualizar contenido aquí, puedes unirte a una agenda existente mediante un código de invitación o crear una agenda nueva para tu sección.</p>
-        </div>`;
+    // 2. Obtención automática del UID
+    const auth = getAuth();
+    
+    const cargarAgendasDelUsuario = async (uid) => {
+        let agendasHTML = "";
+        let tieneAgendas = false;
 
-  // 3. Estructura con el botón '+' integrado directamente dentro de la instrucción
-    container.innerHTML = `
-        <div class="empty-state-wrapper">
-            <div class="dashboard-info-container">
-                ${infoAdicionalHTML}
-            </div>
-            
-            <div class="msg-group-container">
-                <h2 class="empty-state-msg">${msg}</h2>
-                <p class="empty-state-instruction" style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+        try {
+            const db = getDatabase();
+            const agendasRef = ref(db, `usuarios/${uid}/mis_agendas`);
+            const snapshot = await get(agendasRef);
+
+            if (snapshot.exists()) {
+                const agendas = snapshot.val();
+                tieneAgendas = true;
+
+                Object.keys(agendas).forEach((codigoClase) => {
+                    const agendaInfo = agendas[codigoClase];
+                    const nombreAgenda = agendaInfo.nombre || "Agenda sin nombre";
+                    const esCreador = agendaInfo.rol === "creador";
                     
-                    Aprieta el botón parecido a este <span class="inline-arrow">➔</span>
-                    <span class="empty-state-plus-btn" style="width: 32px; height: 32px; font-size: 1.2rem; border-radius: 8px; margin: 0; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);"><span>+</span></span> 
-                    arriba en el menú para crear o unirse a nuevas agendas.
-                </p>
-            </div>
-        </div>`;
+                    const textoRol = esCreador ? "Agenda creada por usted" : "Inscrito como estudiante";
+                    const urlAgenda = `menu.html?code=${codigoClase}`;
+
+                    agendasHTML += `
+                        <div class="agenda-card ${esCreador ? 'es-creador-btn' : ''}">
+                            <div class="agenda-header ${esCreador ? 'es-creador' : ''}">
+                                <span class="agenda-title" title="${nombreAgenda}">${nombreAgenda}</span>
+                                <span class="agenda-subtitle">${textoRol}</span>
+                            </div>
+                            <div class="agenda-body">
+                                <div class="agenda-code">Código: <strong>${codigoClase}</strong></div>
+                                <a href="${urlAgenda}" class="btn-entrar">Ingresar a la agenda</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        } catch (error) {
+            console.error("Error cargando agendas:", error);
+        }
+
+        // 3. Renderizado condicional
+        if (tieneAgendas) {
+            container.innerHTML = `
+                <div class="classroom-wrapper">
+                    <h2 style="font-size: 24px; color: #0f172a; margin-bottom: 6px; font-weight: 700; letter-spacing: -0.5px;">Tus paneles de trabajo</h2>
+                    <p style="font-size: 14px; color: #64748b; margin: 0 0 25px 0;">Selecciona una de tus agendas disponibles para continuar.</p>
+                    <div class="classroom-grid">
+                        ${agendasHTML}
+                    </div>
+                </div>`;
+        } else {
+            // Se mantiene intacto el diseño original si el usuario no cuenta con agendas
+            container.innerHTML = `
+                <div class="empty-state-wrapper">
+                    <div class="dashboard-info-container">
+                        <div class="info-card-panel">
+                            <span class="info-tag-tech">SISTEMA DE ACCESOS</span>
+                            <h3>¿No encuentras tus clases?</h3>
+                            <p class="info-desc">Verifica si has iniciado sesión con la cuenta correcta. Es posible que tus asignaciones estén vinculadas a tu correo institucional o personal.</p>
+                        </div>
+                        <div class="info-card-panel panel-secundario">
+                            <span class="info-tag-tech">SISTEMA DE AGENDAS</span>
+                            <h3>Organiza tu entorno</h3>
+                            <p class="info-desc">Para empezar a visualizar contenido aquí, puedes unirte a una agenda existente mediante un código de invitación o crear una agenda nueva para tu sección.</p>
+                        </div>
+                    </div>
+                    <div class="msg-group-container">
+                        <h2 class="empty-state-msg">${msg}</h2>
+                        <p class="empty-state-instruction" style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                            Aprieta el botón parecido a este <span class="inline-arrow">➔</span>
+                            <span class="empty-state-plus-btn" style="width: 32px; height: 32px; font-size: 1.2rem; border-radius: 8px; margin: 0; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);"><span>+</span></span> 
+                            arriba en el menú para crear o unirse a nuevas agendas.
+                        </p>
+                    </div>
+                </div>`;
+        }
+    };
+
+    if (auth.currentUser) {
+        cargarAgendasDelUsuario(auth.currentUser.uid);
+    } else {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                cargarAgendasDelUsuario(user.uid);
+                unsubscribe();
+            }
+        });
+    }
 }
 const btnToggle = document.getElementById('btn-toggle-sidebar');
 const mainContent = document.getElementById('main-content');
