@@ -1804,10 +1804,7 @@ navItems.forEach(item => {
                 mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
             }
         } 
-   if (typeof window.calMesActual === 'undefined') {
-    window.calMesActual = new Date().getMonth();
-    window.calAñoActual = new Date().getFullYear();
-}
+
 
 else if (texto.includes("calendario")) {
     bannerTitle.innerText = "Calendario Académico";
@@ -7205,7 +7202,10 @@ async function mostrarBienvenidaProfesor(uid) {
             alert("Error: " + e.message);
             btn.disabled = false;
         }
-    };
+    };   if (typeof window.calMesActual === 'undefined') {
+    window.calMesActual = new Date().getMonth();
+    window.calAñoActual = new Date().getFullYear();
+}
 }
 
 
