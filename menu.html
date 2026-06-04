@@ -877,7 +877,7 @@ onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
                 Promise.all([get(statsRef), get(rolRef)]).then(([statsSnap, rolSnap]) => {
                     const rangoGlobal = statsSnap.val();
                     const rolEnAgenda = rolSnap.val();
-                    const tienePermiso = (data.owner === uidActual || rolEnAgenda === "creador" || rangoGlobal === "profesor" || rangoGlobal === "Admin");
+                    const tienePermiso = (data.owner === uidActual || rolEnAgenda === "creador" || rolEnAgenda === "Estudiante_Encargado" || rangoGlobal === "profesor" || rangoGlobal === "Admin");
 
                     if (tienePermiso) {
                         if (!document.getElementById('admin-publish-btn')) {
@@ -6354,7 +6354,6 @@ function escucharChatClase(code) {
     if (!user) return;
 
     try {
-                                                                                                             
         const agendaRef = ref(db, `agendas/${codigoAgenda}`);
         const statsRef = ref(db, `usuarios/${user.uid}/stats/rango`);
 
@@ -6369,9 +6368,8 @@ function escucharChatClase(code) {
         }
 
         const dataAgenda = snapAgenda.val();
-        const rangoGlobal = (snapStats.val() || "").toLowerCase();                                                                                                      
+        const rangoGlobal = (snapStats.val() || "").toLowerCase();                                                                                                     
 
-                                                                                                             
         const esAutorizado = 
             dataAgenda.creador === user.uid || 
             rangoGlobal === "profesor" || 
@@ -6380,34 +6378,42 @@ function escucharChatClase(code) {
 
         if (!esAutorizado) {
             alert("🚫 Acceso denegado: Se requiere rango de Profesor.");
-            console.warn(`[Praxis] Bloqueo: Rango(${rangoGlobal}) no autorizado.`);
             return;
         }
 
-                                                                                                             
         const pozoAgenda = dataAgenda.bancoPuntos || 0;
 
+        // Crear contenedor del modal
         const modal = document.createElement('div');
         modal.id = "panel-control-puntos";
         modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:100000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
         
         modal.innerHTML = `
-            <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #000; width:90%; max-width:420px; padding:25px;">
+            <div style="background:white; border:4px solid #000; border-radius:25px; box-shadow:15px 15px 0px #000; width:90%; max-width:460px; padding:25px; font-family: sans-serif;">
                 <div style="text-align:center; margin-bottom:20px;">
                     <h2 style="margin:0; font-weight:900; text-transform:uppercase;">Banco de Clase</h2>
+                    
                     <div style="background:#0071ff; color:white; display:inline-block; padding:10px 20px; border-radius:15px; border:3px solid #000; margin-top:10px;">
                         <span style="font-size:12px; display:block; font-weight:bold;">PUNTOS DISPONIBLES:</span>
                         <b id="banco-total" style="font-size:24px;">${pozoAgenda}</b>
                     </div>
+
+                    <div style="margin-top:15px;">
+                        <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:5px;">CANTIDAD A REPARTIR:</label>
+                        <input type="number" id="input-puntos-repartir" value="10" min="1" style="width:80px; text-align:center; padding:5px; border:3px solid #000; border-radius:8px; font-weight:bold; font-size:16px;">
+                    </div>
                 </div>
-                <div id="contenedor-alumnos" style="max-height:40vh; overflow-y:auto;">
+
+                <div id="contenedor-alumnos" style="max-height:40vh; overflow-y:auto; padding-right:5px;">
                     <p style="text-align:center;">Cargando lista de alumnos...</p>
                 </div>
+
                 <button onclick="document.getElementById('panel-control-puntos').remove()" style="width:100%; margin-top:15px; background:#ff4b4b; color:white; border:3px solid #000; padding:10px; font-weight:900; border-radius:12px; cursor:pointer;">CERRAR PANEL</button>
             </div>
         `;
         document.body.appendChild(modal);
 
+        // Traer usuarios de la base de datos
         const usuariosRef = ref(db, 'usuarios');
         const snapUsers = await get(usuariosRef);
         const contenedor = document.getElementById('contenedor-alumnos');
@@ -6416,15 +6422,33 @@ function escucharChatClase(code) {
         snapUsers.forEach((userSnap) => {
             const u = userSnap.val();
             const uid = userSnap.key;
-                                                                                                                 
+                                                                                                                                                                          
             if (u.mis_agendas && u.mis_agendas[codigoAgenda]) {
+                const rolActual = u.mis_agendas[codigoAgenda].rol || "Estudiante";
+                const esEncargado = rolActual === "Estudiante_Encargado";
+
                 const card = document.createElement('div');
-                card.style = "display:flex; justify-content:space-between; align-items:center; border:3px solid #000; padding:10px; border-radius:15px; margin-bottom:10px; box-shadow:4px 4px 0px #000;";
+                card.style = "display:flex; flex-direction:column; border:3px solid #000; padding:12px; border-radius:15px; margin-bottom:10px; box-shadow:4px 4px 0px #000; background:#f9f9f9; gap:8px;";
                 card.innerHTML = `
-                    <div style="font-weight:bold; font-size:13px;">${u.apodo || 'Sin apodo registrado'}</div>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <b id="pts-${uid}">${u.stats?.puntos || 0}</b>
-                        <button onclick="repartirPuntosAgenda('${codigoAgenda}', '${uid}', 10)" style="background:#00ff88; border:2px solid #000; font-weight:900; cursor:pointer; padding:5px 10px; border-radius:8px;">+10</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:bold; font-size:14px;">${u.apodo || 'Sin apodo registrado'}</div>
+                            <span id="rol-${uid}" style="font-size:11px; color:#666; font-weight:bold; text-transform:uppercase;">
+                                Rol: ${esEncargado ? '⭐ Encargado' : rolActual}
+                            </span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <b id="pts-${uid}" style="font-size:16px;">${u.stats?.puntos || 0}</b>
+                            <button onclick="repartirPuntosDinamico('${codigoAgenda}', '${uid}')" style="background:#00ff88; border:2px solid #000; font-weight:900; cursor:pointer; padding:5px 10px; border-radius:8px;">Dar Puntos</button>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align:right;">
+                        <button id="btn-encargado-${uid}" onclick="asignarEncargadoAgenda('${codigoAgenda}', '${uid}')" 
+                                style="background:${esEncargado ? '#ffcc00' : '#fff'}; border:2px solid #000; font-size:11px; font-weight:bold; cursor:pointer; padding:4px 8px; border-radius:6px;"
+                                ${esEncargado ? 'disabled' : ''}>
+                            ${esEncargado ? '👑 Ya es Encargado' : '💼 Hacer Encargado'}
+                        </button>
                     </div>
                 `;
                 contenedor.appendChild(card);
@@ -6435,7 +6459,34 @@ function escucharChatClase(code) {
         console.error("Error en administración de puntos:", error);
         alert("Error crítico al cargar permisos.");
     }
-};                                                                                                                                                   
+};window.asignarEncargadoAgenda = async (codigoAgenda, alumnoUid) => {
+    const confirmacion = confirm("¿Estás seguro de que deseas nombrar a este estudiante como encargado de esta agenda?");
+    if (!confirmacion) return;
+
+    try {
+        // Ruta solicitada: usuarios/uid/mis_agendas/CODEDELAAGENDA/rol
+        const rolAgendaRef = ref(db, `usuarios/${alumnoUid}/mis_agendas/${codigoAgenda}/rol`);
+        
+        await set(rolAgendaRef, "Estudiante_Encargado");
+
+        // Actualizar la interfaz visualmente sin recargar
+        const textoRol = document.getElementById(`rol-${alumnoUid}`);
+        const botonEncargado = document.getElementById(`btn-encargado-${alumnoUid}`);
+        
+        if (textoRol) textoRol.innerText = "Rol: ⭐ Encargado";
+        if (botonEncargado) {
+            botonEncargado.innerText = "👑 Ya es Encargado";
+            botonEncargado.style.background = "#ffcc00";
+            botonEncargado.disabled = true;
+        }
+
+        alert("¡Rol actualizado a Estudiante_Encargado con éxito!");
+
+    } catch (error) {
+        console.error("Error al asignar encargado:", error);
+        alert("Hubo un error al cambiar el rol del estudiante.");
+    }
+};                                                                                                                                                
 window.codigoAgendaActiva = null;
 async function detectarAgendaDesdeURL() {
     const params = new URLSearchParams(window.location.search);
@@ -6506,46 +6557,37 @@ window.donarPuntosAAgenda = async (codigoAgenda) => {
 
         alert(`🤝 ¡Gracias! Has donado ${cantidad} puntos a la clase.`);
     } catch (e) { console.error(e); }
-};window.repartirPuntosAgenda = async (codigoAgenda, uidAlumno, cantidad) => {
-    const agendaRef = ref(db, `agendas/${codigoAgenda}/bancoPuntos`);
-    const alumnoRef = ref(db, `usuarios/${uidAlumno}/stats/puntos`);
+};window.repartirPuntosDinamico = async (codigoAgenda, alumnoUid) => {
+    const inputPts = document.getElementById('input-puntos-repartir');
+    const cantidad = parseInt(inputPts.value) || 0;
 
-    try {
-                                                                                                                                               
-        const resultadoBanco = await runTransaction(agendaRef, (puntosActuales) => {
-            const totalBanco = puntosActuales || 0;
-            if (totalBanco < cantidad) {
-                return;                                                                                                                                        
-            }
-            return totalBanco - cantidad;
-        });
+    if (cantidad <= 0) {
+        alert("Por favor, ingresa una cantidad de puntos válida mayor a 0.");
+        return;
+    }
 
-        if (!resultadoBanco.committed) {
-            alert("⚠️ El banco de la clase no tiene suficientes puntos.");
-            return;
+    // Aquí invocamos a tu lógica original de repartir puntos (repartirPuntosAgenda) 
+    // pero pasándole la cantidad dinámica extraída del input.
+    if (typeof window.repartirPuntosAgenda === "function") {
+        await window.repartirPuntosAgenda(codigoAgenda, alumnoUid, cantidad);
+    } else {
+        // Fallback por si ejecutas la lógica directamente aquí
+        try {
+            const puntosRef = ref(db, `usuarios/${alumnoUid}/stats/puntos`);
+            const snapPts = await get(puntosRef);
+            const puntosActuales = snapPts.val() || 0;
+            
+            await set(puntosRef, puntosActuales + cantidad);
+            
+            // Actualizar visualmente en la interfaz
+            const elementoPts = document.getElementById(`pts-${alumnoUid}`);
+            if (elementoPts) elementoPts.innerText = puntosActuales + cantidad;
+            
+            alert(`¡Se han asignado ${cantidad} puntos con éxito!`);
+        } catch (e) {
+            console.error(e);
+            alert("No se pudieron otorgar los puntos.");
         }
-
-                                                                                                                                               
-        await runTransaction(alumnoRef, (puntosAlumno) => {
-            return (puntosAlumno || 0) + cantidad;
-        });
-
-                                                                                                                                               
-        const elBanco = document.getElementById('banco-total');
-        const elAlumno = document.getElementById(`pts-${uidAlumno}`);
-
-        if (elBanco) elBanco.innerText = (await get(agendaRef)).val() || 0;
-        if (elAlumno) {
-            elAlumno.innerText = (await get(alumnoRef)).val() || 0;
-            elAlumno.style.transform = "scale(1.2)";
-            setTimeout(() => elAlumno.style.transform = "scale(1)", 200);
-        }
-
-        console.log(`[Praxis v1.0.0]: Puntos repartidos con éxito.`);
-
-    } catch (e) {
-        console.error("Error en reparto:", e);
-        alert("Hubo un error al procesar la transacción.");
     }
 };const inicializarBotonProfesor = async () => {
     const params = new URLSearchParams(window.location.search);
