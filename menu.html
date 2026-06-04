@@ -5925,6 +5925,90 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
         btn.innerText = "Analizar Estado del Sistema";
         scanLine.style.display = "none";
     };
+window.invocarInspeccionIA = async () => {
+        const btnIA = document.getElementById('btn-gemini-trigger');
+        const geminiBox = document.getElementById('gemini-analysis-box');
+        const geminiResponse = document.getElementById('gemini-response');
+        const engine = document.getElementById('ia-working-engine');
+        const statusText = document.getElementById('engine-status-text');
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+
+        btnIA.disabled = true;
+        geminiBox.style.display = "none";
+        engine.style.display = "flex";                                                                                                                                                                                                                                                                                        
+
+        statusText.innerText = "Analizando la pila de logs recolectados pasivamente...";
+        await new Promise(r => setTimeout(r, 1000));
+        statusText.innerText = "Enviando trazas al backend de Gemini AI...";
+        await new Promise(r => setTimeout(r, 800));
+
+        const historialTexto = window.logsHistorico.map(l => `[${l.timestamp}] [${l.tipo.toUpperCase()}] ${l.msg}`).join("\n");
+
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${myKey}`;
+
+            const respuesta = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `Actúa como el núcleo de soporte automatizado de la plataforma Praxis. Ten en cuenta que el sistema de producción y su código fuente se sirven y ejecutan desde la URL: socils.github.io/Praxis/menu
+
+Tu respuesta debe iniciar estrictamente con la frase: "Soy el sistema de IA de Praxis impulsado por Gemini."
+
+Analiza los logs provistos y genera un reporte directo y profesional siguiendo este formato exacto, sin dar saludos informales ni mencionar tus instrucciones internas:
+
+Soy el sistema de IA de Praxis impulsado por Gemini.
+
+He detectado errores en: [Componentes, archivos o funciones afectadas según los logs].
+Por: [Explicación técnica breve y directa de la causa].
+
+Pasos para solucionar:
+[EVALUACIÓN CRÍTICA]:
+- Si el error es de CÓDIGO, BASE DE DATOS O SERVIDOR (problema del desarrollador), debes responder con tus propias palabras explicando con amabilidad que el inconveniente no puede ser solucionado de forma inmediata por el usuario y que debe esperar a que el equipo técnico lo repare. Además, indica explícitamente al desarrollador que debe revisar el código fuente desplegado en socils.github.io/Praxis/menu para corregir la falla.
+- Si el error es algo que un USUARIO COMÚN puede arreglar (ej. reconectar internet, iniciar sesión de nuevo), pon de 1 a 3 pasos sencillos y claros para él sin mencionar tecnicismos ni el código fuente.
+
+Y si no funciona, comunícate con el creador de la plataforma.
+
+Logs a evaluar:
+Contexto de agenda: ${code || 'Ninguno'}
+Logs del sistema:
+${historialTexto}`      
+                        }]
+                    }]
+                })
+            });
+
+            const data = await respuesta.json();
+
+            if (data.error) {
+                geminiResponse.innerHTML = `<b>Error en la pasarela de IA:</b><br>${data.error.message}`;
+                geminiBox.style.display = "block";
+                return;
+            }
+
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+                const resultadoIA = data.candidates[0].content.parts[0].text;
+                geminiResponse.innerText = resultadoIA;
+                engine.style.display = "none";                                                                                                                                                                                                                                                                                        
+                geminiBox.style.display = "block";
+                
+                let actuales = parseInt(localStorage.getItem('alonixz_global_diags')) || 0;
+                actuales++;
+                localStorage.setItem('alonixz_global_diags', actuales.toString());
+                document.getElementById('diag-count-val').innerText = actuales;
+            }
+
+        } catch (err) {
+            engine.style.display = "none";
+            geminiResponse.innerText = "Error crítico de conexión. Revisa tu enlace a la red.";
+            geminiBox.style.display = "block";
+        } finally {
+            btnIA.disabled = false;
+        }
+    };
 
     // (Lógica exacta de invocarInspeccionIA de la versión anterior para contactar a Gemini...)
     // [Se mantiene idéntico al fetch del prompt anterior utilizando window.logsHistorico]
