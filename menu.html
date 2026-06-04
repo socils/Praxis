@@ -1764,7 +1764,10 @@ window.subirArchivoTarea = async () => {
     }
 };
 
-
+   if (typeof window.calMesActual === 'undefined') {
+    window.calMesActual = new Date().getMonth();
+    window.calAñoActual = new Date().getFullYear();
+}
 const navItems = document.querySelectorAll('.nav-item');
 navItems.forEach(item => {
     item.onclick = (e) => {
@@ -7202,10 +7205,7 @@ async function mostrarBienvenidaProfesor(uid) {
             alert("Error: " + e.message);
             btn.disabled = false;
         }
-    };   if (typeof window.calMesActual === 'undefined') {
-    window.calMesActual = new Date().getMonth();
-    window.calAñoActual = new Date().getFullYear();
-}
+    };
 }
 
 
