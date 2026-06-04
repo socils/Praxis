@@ -1804,8 +1804,7 @@ navItems.forEach(item => {
                 mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
             }
         } 
-   // Definimos variables de estado globales (o fuera de la función) para recordar qué mes está mirando el usuario
-if (typeof window.calMesActual === 'undefined') {
+   if (typeof window.calMesActual === 'undefined') {
     window.calMesActual = new Date().getMonth();
     window.calAñoActual = new Date().getFullYear();
 }
@@ -1878,25 +1877,33 @@ else if (texto.includes("calendario")) {
                 text-transform: uppercase;
                 border-bottom: 2px solid #eee;
             }
+            /* La celda ahora soporta transiciones de expansión de altura */
             .cal-cell {
                 min-height: 115px;
-                max-height: 145px; /* Altura máxima controlada para que no rompa el diseño */
+                max-height: 145px; 
                 background: #fff;
                 border: 2px solid #eee;
                 border-radius: 15px;
                 padding: 8px;
-                transition: 0.2s;
+                transition: max-height 0.3s ease-in-out, box-shadow 0.2s;
                 box-sizing: border-box;
                 display: flex;
                 flex-direction: column;
-                overflow: hidden; /* Oculta desbordamientos */
+                overflow: hidden; 
+            }
+            /* Clase que se aplicará dinámicamente con JavaScript */
+            .cal-cell.expandida {
+                max-height: 500px !important; /* Desconfigura el límite para mostrar todo */
+                overflow: visible !important;
+                z-index: 10;
+                box-shadow: 0px 4px 15px rgba(0,0,0,0.15);
+                background: #fff;
             }
             .cal-tasks-container {
                 display: flex;
                 flex-direction: column;
                 gap: 4px;
                 margin-top: 5px;
-                overflow-y: hidden; /* Los elementos sobrantes se gestionan con JS */
                 flex-grow: 1;
             }
             .cal-cell-today {
@@ -1914,7 +1921,7 @@ else if (texto.includes("calendario")) {
                 border: 1px solid #000;
                 white-space: nowrap;
                 overflow: hidden;
-                text-overflow: ellipsis; /* ... cuando el texto es muy largo */
+                text-overflow: ellipsis; 
                 transition: 0.2s;
                 min-height: 22px;
                 box-sizing: border-box;
@@ -1930,11 +1937,13 @@ else if (texto.includes("calendario")) {
                 color: #0071ff;
                 text-align: center;
                 cursor: pointer;
-                padding-top: 2px;
+                padding: 4px 0 2px 0;
                 text-transform: uppercase;
+                margin-top: auto; /* Se ancla al fondo de la celda */
             }
             .cal-more-tasks:hover {
                 text-decoration: underline;
+                color: #00e5ff;
             }
             /* Modal Estilo V3 */
             .modal-tarea-v3 {
@@ -1967,7 +1976,6 @@ else if (texto.includes("calendario")) {
         document.head.appendChild(styleSheet);
     }
 
-                                                            
     if (!document.getElementById('modal-detalle-tarea')) {
         const modalDiv = document.createElement('div');
         modalDiv.id = 'modal-detalle-tarea';
@@ -1975,7 +1983,6 @@ else if (texto.includes("calendario")) {
         document.body.appendChild(modalDiv);
     }
 
-                                                            
     window.verDetalleTareaV3 = (titulo, descripcion, fecha) => {
         const modal = document.getElementById('modal-detalle-tarea');
         modal.innerHTML = `
@@ -1992,7 +1999,6 @@ else if (texto.includes("calendario")) {
         modal.style.display = 'flex';
     };
 
-    // Función encargada de renderizar por completo el calendario según las variables globales
     window.renderizarCalendarioV3 = () => {
         container.innerHTML = `
             <div class="cal-main-wrapper">
@@ -2026,7 +2032,6 @@ else if (texto.includes("calendario")) {
                 }
             });
 
-            // HEADER NUEVO: Con botones funcionales e interactivos de navegación
             const headerHtml = `
                 <div class="cal-header-v3">
                     <button class="cal-btn-nav" onclick="cambiarMesCalendario(-1)">◀</button>
@@ -2047,43 +2052,50 @@ else if (texto.includes("calendario")) {
             const primerDiaMes = new Date(window.calAñoActual, window.calMesActual, 1).getDay();
             const ultimoDiaMes = new Date(window.calAñoActual, window.calMesActual + 1, 0).getDate();
 
-            // Rellenar días vacíos del mes anterior
             for (let i = 0; i < primerDiaMes; i++) gridHtml.innerHTML += `<div></div>`;
 
-            // Construcción de los días del mes actual
             for (let dia = 1; dia <= ultimoDiaMes; dia++) {
                 const dStr = dia.toString().padStart(2, '0');
                 const mStr = (window.calMesActual + 1).toString().padStart(2, '0');
                 const fechaHoyKey = `${window.calAñoActual}-${mStr}-${dStr}`;
                 const tareasDelDia = tareasPorFecha[fechaHoyKey] || [];
                 
-                // Comprobación exacta de si es el día de hoy real en el mundo físico
                 const hoyReal = new Date();
                 const esHoy = hoyReal.getDate() === dia && hoyReal.getMonth() === window.calMesActual && hoyReal.getFullYear() === window.calAñoActual;
 
-                // CONTROL DE CAPACIDAD: Mostrar máximo 2 mini-cards para evitar romper el grid
-                const maxTareasVisibles = 2;
-                const tareasVisibles = tareasDelDia.slice(0, maxTareasVisibles);
-                const ocultasCount = tareasDelDia.length - maxTareasVisibles;
+                // ID Único para cada celda de día
+                const celdaId = `celda-dia-${dia}`;
+                const contenedorTareasId = `tareas-container-${dia}`;
 
-                let tareasRenderizadasHtml = tareasVisibles.map(t => {
+                // Renderizamos TODAS las tareas inicialmente dentro del HTML, pero el contenedor CSS se encargará de ocultar las que sobren
+                let tareasHtml = tareasDelDia.map((t, index) => {
                     const tit = t.titulo.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const desc = (t.descripcion || '').replace(/'/g, "\\'").replace(/\n/g, " ");
-                    return `<div onclick="verDetalleTareaV3('${tit}', '${desc}', '${t.fecha}')" class="task-mini-card" title="${t.titulo}">${t.titulo}</div>`;
+                    
+                    // Las tareas mayores al índice 1 (la tercera en adelante) llevarán un estilo oculto por defecto
+                    const estiloOculto = index >= 2 ? 'display: none;' : '';
+                    
+                    return `<div onclick="verDetalleTareaV3('${tit}', '${desc}', '${t.fecha}')" 
+                                 class="task-mini-card" 
+                                 style="${estiloOculto}" 
+                                 data-extra="true"
+                                 title="${t.titulo}">${t.titulo}</div>`;
                 }).join('');
 
-                // Si hay más tareas, generamos un botón interactivo que abre un modal con la lista de ese día o alertas
-                if (ocultasCount > 0) {
-                    // Generamos un disparador para que al presionar "+X más", muestre un menú informativo o el detalle
-                    tareasRenderizadasHtml += `<div class="cal-more-tasks" onclick="alert('Hay ${ocultasCount} tarea(s) más este día. Haz click en las visibles para ver detalles u organiza tu agenda.')">+ ${ocultasCount} más</div>`;
+                let botonMasHtml = '';
+                if (tareasDelDia.length > 2) {
+                    const excedente = tareasDelDia.length - 2;
+                    // El botón ahora invoca a una función que expande o colapsa el diseño
+                    botonMasHtml = `<div id="btn-mas-${dia}" class="cal-more-tasks" onclick="conmutarVisibilidadTareas(${dia}, ${excedente})">+ ${excedente} más</div>`;
                 }
 
                 gridHtml.innerHTML += `
-                    <div class="cal-cell ${esHoy ? 'cal-cell-today' : ''}">
+                    <div id="${celdaId}" class="cal-cell ${esHoy ? 'cal-cell-today' : ''}">
                         <div style="font-family:'Outfit'; font-size: 15px; font-weight: 900; color: ${esHoy ? '#00e5ff' : '#000'};">${dia}</div>
-                        <div class="cal-tasks-container">
-                            ${tareasRenderizadasHtml}
+                        <div id="${contenedorTareasId}" class="cal-tasks-container">
+                            ${tareasHtml}
                         </div>
+                        ${botonMasHtml}
                     </div>
                 `;
             }
@@ -2093,7 +2105,40 @@ else if (texto.includes("calendario")) {
         });
     };
 
-    // Nueva función global para saltar entre meses de forma infinita e inteligente
+    // NUEVA FUNCIÓN INTERACTIVA: Expande el diseño de la celda y muestra los nodos HTML ocultos
+    window.conmutarVisibilidadTareas = (dia, excedente) => {
+        const celda = document.getElementById(`celda-dia-${dia}`);
+        const contenedor = document.getElementById(`tareas-container-${dia}`);
+        const boton = document.getElementById(`btn-mas-${dia}`);
+        
+        // Buscamos todas las mini-cards asignadas como extras dentro de este día
+        const tarjetasExtra = contenedor.querySelectorAll('.task-mini-card[data-extra="true"]');
+
+        if (!celda.classList.contains('expandida')) {
+            // ACCIÓN: EXPANDIR
+            celda.classList.add('expandida');
+            
+            // Hacemos visibles todas las tareas ocultas
+            tarjetasExtra.forEach(tarjeta => tarjeta.style.display = 'block');
+            
+            // Cambiamos el texto del botón
+            boton.innerText = "Ver menos ▲";
+            boton.style.color = "#ff4b4b"; // Rojo Neón para indicar acción de cierre
+        } else {
+            // ACCIÓN: COLAPSAR
+            celda.classList.remove('expandida');
+            
+            // Volvemos a ocultar de la tercera tarea en adelante (índice >= 2)
+            tarjetasExtra.forEach((tarjeta, index) => {
+                if (index >= 2) tarjeta.style.display = 'none';
+            });
+            
+            // Restauramos el botón original
+            boton.innerText = `+ ${excedente} más`;
+            boton.style.color = "#0071ff";
+        }
+    };
+
     window.cambiarMesCalendario = (direccion) => {
         window.calMesActual += direccion;
         if (window.calMesActual > 11) {
@@ -2106,7 +2151,6 @@ else if (texto.includes("calendario")) {
         window.renderizarCalendarioV3();
     };
 
-    // Ejecución inicial por primera vez
     window.renderizarCalendarioV3();
 }else if (texto.includes("noticias") || texto.includes("actualizaciones")) {
     bannerTitle.innerText = "Centro de Noticias";
