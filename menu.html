@@ -1804,18 +1804,22 @@ navItems.forEach(item => {
                 mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
             }
         } 
-    else if (texto.includes("calendario")) {
+   // Definimos variables de estado globales (o fuera de la función) para recordar qué mes está mirando el usuario
+if (typeof window.calMesActual === 'undefined') {
+    window.calMesActual = new Date().getMonth();
+    window.calAñoActual = new Date().getFullYear();
+}
+
+else if (texto.includes("calendario")) {
     bannerTitle.innerText = "Calendario Académico";
     displayCode.innerText = "CALENDARIO_V3";
     navegarA("Calendario Académico", "VISTA_CALENDARIO");
     
-                                                            
     container.style.display = "block"; 
     container.style.width = "100%";
     container.style.overflowX = "hidden";
     container.style.padding = "0";                                                         
 
-                                                            
     if (!document.getElementById('cal-styles-v3')) {
         const styleSheet = document.createElement("style");
         styleSheet.id = 'cal-styles-v3';
@@ -1833,8 +1837,26 @@ navItems.forEach(item => {
                 padding: 25px;
                 border-radius: 25px 25px 0 0;
                 border: 4px solid #000;
-                text-align: center;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
                 box-shadow: 8px 8px 0px #00e5ff;
+            }
+            .cal-btn-nav {
+                background: #00e5ff;
+                color: #000;
+                border: 3px solid #000;
+                border-radius: 12px;
+                font-weight: 900;
+                font-size: 18px;
+                padding: 5px 15px;
+                cursor: pointer;
+                box-shadow: 3px 3px 0px #fff;
+                transition: 0.1s;
+            }
+            .cal-btn-nav:active {
+                transform: translate(2px, 2px);
+                box-shadow: 1px 1px 0px #fff;
             }
             .cal-grid-v3 {
                 display: grid;
@@ -1857,13 +1879,25 @@ navItems.forEach(item => {
                 border-bottom: 2px solid #eee;
             }
             .cal-cell {
-                min-height: 110px;
+                min-height: 115px;
+                max-height: 145px; /* Altura máxima controlada para que no rompa el diseño */
                 background: #fff;
                 border: 2px solid #eee;
                 border-radius: 15px;
                 padding: 8px;
                 transition: 0.2s;
                 box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden; /* Oculta desbordamientos */
+            }
+            .cal-tasks-container {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                margin-top: 5px;
+                overflow-y: hidden; /* Los elementos sobrantes se gestionan con JS */
+                flex-grow: 1;
             }
             .cal-cell-today {
                 border: 3px solid #00e5ff !important;
@@ -1875,19 +1909,32 @@ navItems.forEach(item => {
                 font-size: 10px;
                 padding: 5px 8px;
                 border-radius: 8px;
-                margin-top: 5px;
                 font-weight: 700;
                 cursor: pointer;
                 border: 1px solid #000;
                 white-space: nowrap;
                 overflow: hidden;
-                text-overflow: ellipsis;
+                text-overflow: ellipsis; /* ... cuando el texto es muy largo */
                 transition: 0.2s;
+                min-height: 22px;
+                box-sizing: border-box;
             }
             .task-mini-card:hover {
                 background: #00e5ff;
                 color: #000;
                 transform: translateX(3px);
+            }
+            .cal-more-tasks {
+                font-size: 9px;
+                font-weight: 900;
+                color: #0071ff;
+                text-align: center;
+                cursor: pointer;
+                padding-top: 2px;
+                text-transform: uppercase;
+            }
+            .cal-more-tasks:hover {
+                text-decoration: underline;
             }
             /* Modal Estilo V3 */
             .modal-tarea-v3 {
@@ -1937,100 +1984,130 @@ navItems.forEach(item => {
                         style="position:absolute; top:15px; right:15px; background:#000; color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-weight:900;">✕</button>
                 <div style="background:#00e5ff; color:#000; display:inline-block; padding:4px 12px; border-radius:10px; font-weight:900; font-size:11px; border:2px solid #000; margin-bottom:10px;">${fecha}</div>
                 <h2 style="font-family:'Outfit'; font-weight:900; font-size:24px; margin:0 0 15px 0; color:#000;">${titulo}</h2>
-                <p style="font-family:'Plus Jakarta Sans'; color:#444; line-height:1.6; margin-bottom:20px;">${descripcion || 'No hay descripción disponible para esta tarea.'}</p>
+                <p style="font-family:'Plus Jakarta Sans'; color:#444; line-height:1.6; margin-bottom:20px; white-space: pre-wrap;">${descripcion || 'No hay descripción disponible para esta tarea.'}</p>
                 <button onclick="document.getElementById('modal-detalle-tarea').style.display='none'" 
-                        style="width:100%; background:#000; color:#fff; padding:12px; border-radius:15px; font-weight:900; cursor:pointer; border:none; box-shadow: 4px 4px 0px #00e5ff; active:transform:scale(0.95);">CERRAR</button>
+                        style="width:100%; background:#000; color:#fff; padding:12px; border-radius:15px; font-weight:900; cursor:pointer; border:none; box-shadow: 4px 4px 0px #00e5ff;">CERRAR</button>
             </div>
         `;
         modal.style.display = 'flex';
     };
 
-    container.innerHTML = `
-        <div class="cal-main-wrapper">
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px;">
-                <div class="spinner"></div>
-                <p style="font-family:'JetBrains Mono'; font-weight:700; margin-top:15px;">CARGANDO CRONOGRAMA V3...</p>
-            </div>
-        </div>`;
-    
-    obtenerTodasLasTareas((todasLasTareas) => {
-        const calWrapper = container.querySelector('.cal-main-wrapper');
-        calWrapper.innerHTML = "";
-        
-        const fechaRef = new Date();
-        const mesActual = fechaRef.getMonth();
-        const añoActual = fechaRef.getFullYear();
-        const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    // Función encargada de renderizar por completo el calendario según las variables globales
+    window.renderizarCalendarioV3 = () => {
+        container.innerHTML = `
+            <div class="cal-main-wrapper">
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px;">
+                    <div class="spinner"></div>
+                    <p style="font-family:'JetBrains Mono'; font-weight:700; margin-top:15px;">CARGANDO CRONOGRAMA V3...</p>
+                </div>
+            </div>`;
 
-       const tareasPorFecha = {};
-todasLasTareas.forEach(tarea => {
-                                                            
-    if (tarea && tarea.fecha) {
-        const partes = tarea.fecha.split('/');
-        
-        if (partes.length === 3) {
-                                                                    
-            let d = partes[0].padStart(2, '0');
-            let m = partes[1].padStart(2, '0');
-            let a = partes[2];
-
-                                                                    
-            if (a.length === 2) {
-                a = "20" + a;
-            }
-
-                                                                    
-            const fechaKey = `${a}-${m}-${d}`;
+        obtenerTodasLasTareas((todasLasTareas) => {
+            const calWrapper = container.querySelector('.cal-main-wrapper');
+            calWrapper.innerHTML = "";
             
-            if (!tareasPorFecha[fechaKey]) tareasPorFecha[fechaKey] = [];
-            tareasPorFecha[fechaKey].push(tarea);
-        }
-    }
-});
-        const headerHtml = `
-            <div class="cal-header-v3">
-                <h2 style="font-family:'Outfit'; font-weight:900; margin:0; font-size: 26px; text-transform: uppercase; letter-spacing: 1px;">
-                    ${nombresMeses[mesActual]} <span style="color:#00e5ff;">${añoActual}</span>
-                </h2>
-            </div>
-        `;
+            const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-        const gridHtml = document.createElement('div');
-        gridHtml.className = "cal-grid-v3";
+            const tareasPorFecha = {};
+            todasLasTareas.forEach(tarea => {
+                if (tarea && tarea.fecha) {
+                    const partes = tarea.fecha.split('/');
+                    if (partes.length === 3) {
+                        let d = partes[0].padStart(2, '0');
+                        let m = partes[1].padStart(2, '0');
+                        let a = partes[2];
 
-        ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'].forEach(dia => {
-            gridHtml.innerHTML += `<div class="cal-day-label">${dia}</div>`;
-        });
+                        if (a.length === 2) a = "20" + a;
 
-        const primerDiaMes = new Date(añoActual, mesActual, 1).getDay();
-        const ultimoDiaMes = new Date(añoActual, mesActual + 1, 0).getDate();
+                        const fechaKey = `${a}-${m}-${d}`;
+                        if (!tareasPorFecha[fechaKey]) tareasPorFecha[fechaKey] = [];
+                        tareasPorFecha[fechaKey].push(tarea);
+                    }
+                }
+            });
 
-        for (let i = 0; i < primerDiaMes; i++) gridHtml.innerHTML += `<div></div>`;
-
-        for (let dia = 1; dia <= ultimoDiaMes; dia++) {
-            const dStr = dia.toString().padStart(2, '0');
-            const mStr = (mesActual + 1).toString().padStart(2, '0');
-            const fechaHoyKey = `${añoActual}-${mStr}-${dStr}`;
-            const tareasDelDia = tareasPorFecha[fechaHoyKey] || [];
-            const esHoy = new Date().getDate() === dia && new Date().getMonth() === mesActual;
-
-            gridHtml.innerHTML += `
-                <div class="cal-cell ${esHoy ? 'cal-cell-today' : ''}">
-                    <div style="font-family:'Outfit'; font-size: 15px; font-weight: 900; color: ${esHoy ? '#00e5ff' : '#000'};">${dia}</div>
-                    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
-                        ${tareasDelDia.map(t => {
-                            const tit = t.titulo.replace(/'/g, "\\'");
-                            const desc = (t.descripcion || '').replace(/'/g, "\\'").replace(/\n/g, " ");
-                            return `<div onclick="verDetalleTareaV3('${tit}', '${desc}', '${t.fecha}')" class="task-mini-card">${t.titulo}</div>`;
-                        }).join('')}
-                    </div>
+            // HEADER NUEVO: Con botones funcionales e interactivos de navegación
+            const headerHtml = `
+                <div class="cal-header-v3">
+                    <button class="cal-btn-nav" onclick="cambiarMesCalendario(-1)">◀</button>
+                    <h2 style="font-family:'Outfit'; font-weight:900; margin:0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; text-align:center;">
+                        ${nombresMeses[window.calMesActual]} <span style="color:#00e5ff;">${window.calAñoActual}</span>
+                    </h2>
+                    <button class="cal-btn-nav" onclick="cambiarMesCalendario(1)">▶</button>
                 </div>
             `;
-        }
 
-        calWrapper.innerHTML = headerHtml;
-        calWrapper.appendChild(gridHtml);
-    });
+            const gridHtml = document.createElement('div');
+            gridHtml.className = "cal-grid-v3";
+
+            ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'].forEach(dia => {
+                gridHtml.innerHTML += `<div class="cal-day-label">${dia}</div>`;
+            });
+
+            const primerDiaMes = new Date(window.calAñoActual, window.calMesActual, 1).getDay();
+            const ultimoDiaMes = new Date(window.calAñoActual, window.calMesActual + 1, 0).getDate();
+
+            // Rellenar días vacíos del mes anterior
+            for (let i = 0; i < primerDiaMes; i++) gridHtml.innerHTML += `<div></div>`;
+
+            // Construcción de los días del mes actual
+            for (let dia = 1; dia <= ultimoDiaMes; dia++) {
+                const dStr = dia.toString().padStart(2, '0');
+                const mStr = (window.calMesActual + 1).toString().padStart(2, '0');
+                const fechaHoyKey = `${window.calAñoActual}-${mStr}-${dStr}`;
+                const tareasDelDia = tareasPorFecha[fechaHoyKey] || [];
+                
+                // Comprobación exacta de si es el día de hoy real en el mundo físico
+                const hoyReal = new Date();
+                const esHoy = hoyReal.getDate() === dia && hoyReal.getMonth() === window.calMesActual && hoyReal.getFullYear() === window.calAñoActual;
+
+                // CONTROL DE CAPACIDAD: Mostrar máximo 2 mini-cards para evitar romper el grid
+                const maxTareasVisibles = 2;
+                const tareasVisibles = tareasDelDia.slice(0, maxTareasVisibles);
+                const ocultasCount = tareasDelDia.length - maxTareasVisibles;
+
+                let tareasRenderizadasHtml = tareasVisibles.map(t => {
+                    const tit = t.titulo.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const desc = (t.descripcion || '').replace(/'/g, "\\'").replace(/\n/g, " ");
+                    return `<div onclick="verDetalleTareaV3('${tit}', '${desc}', '${t.fecha}')" class="task-mini-card" title="${t.titulo}">${t.titulo}</div>`;
+                }).join('');
+
+                // Si hay más tareas, generamos un botón interactivo que abre un modal con la lista de ese día o alertas
+                if (ocultasCount > 0) {
+                    // Generamos un disparador para que al presionar "+X más", muestre un menú informativo o el detalle
+                    tareasRenderizadasHtml += `<div class="cal-more-tasks" onclick="alert('Hay ${ocultasCount} tarea(s) más este día. Haz click en las visibles para ver detalles u organiza tu agenda.')">+ ${ocultasCount} más</div>`;
+                }
+
+                gridHtml.innerHTML += `
+                    <div class="cal-cell ${esHoy ? 'cal-cell-today' : ''}">
+                        <div style="font-family:'Outfit'; font-size: 15px; font-weight: 900; color: ${esHoy ? '#00e5ff' : '#000'};">${dia}</div>
+                        <div class="cal-tasks-container">
+                            ${tareasRenderizadasHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            calWrapper.innerHTML = headerHtml;
+            calWrapper.appendChild(gridHtml);
+        });
+    };
+
+    // Nueva función global para saltar entre meses de forma infinita e inteligente
+    window.cambiarMesCalendario = (direccion) => {
+        window.calMesActual += direccion;
+        if (window.calMesActual > 11) {
+            window.calMesActual = 0;
+            window.calAñoActual += 1;
+        } else if (window.calMesActual < 0) {
+            window.calMesActual = 11;
+            window.calAñoActual -= 1;
+        }
+        window.renderizarCalendarioV3();
+    };
+
+    // Ejecución inicial por primera vez
+    window.renderizarCalendarioV3();
 }else if (texto.includes("noticias") || texto.includes("actualizaciones")) {
     bannerTitle.innerText = "Centro de Noticias";
     displayCode.innerText = "NEWS_V3_BRUTALIST";
