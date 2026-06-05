@@ -1013,7 +1013,7 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
     container.style.width = "100%";
     container.style.padding = "0";
 
-    // 1. Inyección de estilos CSS con Texto en Gradiente (Azul a Morado)
+                                                                                                                                           
     if (!document.getElementById("praxis-empty-state-styles")) {
         const styleSheet = document.createElement("style");
         styleSheet.id = "praxis-empty-state-styles";
@@ -1195,7 +1195,7 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
         document.head.appendChild(styleSheet);
     }
 
-    // 2. Obtención automática del UID
+                                                                                                                                           
     const auth = getAuth();
     
     const cargarAgendasDelUsuario = async (uid) => {
@@ -1237,7 +1237,7 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
             console.error("Error cargando agendas:", error);
         }
 
-        // 3. Renderizado condicional
+                                                                                                                                               
         if (tieneAgendas) {
             container.innerHTML = `
                 <div class="classroom-wrapper">
@@ -1248,7 +1248,7 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
                     </div>
                 </div>`;
         } else {
-            // Se mantiene intacto el diseño original si el usuario no cuenta con agendas
+                                                                                                                                                   
             container.innerHTML = `
                 <div class="empty-state-wrapper">
                     <div class="dashboard-info-container">
@@ -1373,16 +1373,16 @@ document.getElementById('open-create').onclick = (e) => {
     input.value = "";
     actionModal.style.display = "flex";
 };
-// =========================================================================
-// DECODIFICADOR SEGURO ESTRICTO - AUTO-LIMPIABLE DE FÁBRICA (V10 MODULAR)
-// =========================================================================
-// =========================================================================
-// DECODIFICADOR SEGURO ESTRICTO - PROCESADOR REDUNDANTE CORREGIDO
-// =========================================================================
+                                                                                                                                       
+                                                                                                                                       
+                                                                                                                                       
+                                                                                                                                       
+                                                                                                                                       
+                                                                                                                                       
 
 (async () => {
     try {
-        // Diccionario de decodificación ASCII estándar del ecosistema
+                                                                                                                                               
         const _d = {
             "48": "0", "49": "1", "50": "2", "51": "3", "52": "4", "53": "5", "54": "6", "55": "7", "56": "8", "57": "9",
             "65": "A", "66": "B", "67": "C", "68": "D", "69": "E", "70": "F", "71": "G", "72": "H", "73": "I", "74": "J",
@@ -1394,7 +1394,7 @@ document.getElementById('open-create').onclick = (e) => {
             "45": "-", "46": ".", "95": "_", "47": "/", "61": "="
         };
 
-        // Captura e inicialización de dependencias de Firebase v10
+                                                                                                                                               
         const dbReal = (typeof db !== 'undefined') ? db : 
                        (typeof database !== 'undefined') ? database : 
                        (typeof baseDatosInstancia !== 'undefined') ? baseDatosInstancia : 
@@ -1409,17 +1409,17 @@ document.getElementById('open-create').onclick = (e) => {
             return;
         }
 
-        // Definición de las rutas del almacén y sus respectivas banderas de error
+                                                                                                                                               
         const configuracionCanales = [
-            { id: 0, ruta: "config/API_KEYS/gemini", bandera: "config/ERROR_gemini" },           // Canal Principal
-            { id: 1, ruta: "config/API_KEYS/gemini_respaldo1", bandera: "config/ERROR1_gemini" }, // Respaldo 1
-            { id: 2, ruta: "config/API_KEYS/gemini_respaldo2", bandera: "config/ERROR2_gemini" }  // Respaldo 2 (Definitivo)
+            { id: 0, ruta: "config/API_KEYS/gemini", bandera: "config/ERROR_gemini" },                                                                                                                                                  
+            { id: 1, ruta: "config/API_KEYS/gemini_respaldo1", bandera: "config/ERROR1_gemini" },                                                                                                                                        
+            { id: 2, ruta: "config/API_KEYS/gemini_respaldo2", bandera: "config/ERROR2_gemini" }                                                                                                                                         
         ];
 
         let llaveCargadaCorrectamente = false;
         let indiceLlaveActiva = -1;
 
-        // 🔍 FASE 1: Análisis canal por canal sin romper el bucle
+                                                                                                                                               
         for (let i = 0; i < configuracionCanales.length; i++) {
             const canal = configuracionCanales[i];
             let canalValido = false;
@@ -1430,10 +1430,10 @@ document.getElementById('open-create').onclick = (e) => {
                 if (snapshot.exists() && snapshot.val()) {
                     const dataCruda = snapshot.val().toString().trim();
                     
-                    // Reconstrucción de la cadena plana descifrando los códigos ASCII
+                                                                                                                                                           
                     const llaveDecodificada = dataCruda.split(',').map(num => _d[num.trim()] || '').join('');
 
-                    // Validación de longitud y consistencia básica (Evita llaves corruptas o vacías)
+                                                                                                                                                           
                     if (llaveDecodificada.length >= 35 && !llaveDecodificada.includes('undefined')) {
                         window.myKey = llaveDecodificada;
                         console.log(`🔒 [Core Seguridad]: Llave funcional establecida desde [${canal.ruta}].`);
@@ -1446,19 +1446,19 @@ document.getElementById('open-create').onclick = (e) => {
                 console.warn(`[Info Red]: Latencia en la ruta [${canal.ruta}].`);
             }
 
-            // ACCIÓN BASADA EN LA VALIDEZ DEL CANAL ACTUAL
+                                                                                                                                                   
             if (canalValido) {
-                // Si este canal sirvió, salimos del bucle para empezar a trabajar con él
+                                                                                                                                                       
                 break;
             } else {
-                // Si falló, marcamos su error específico en Firebase y el bucle sigue al siguiente respaldo
+                                                                                                                                                       
                 console.error(`🚨 [Fallo Gemini]: Error de formato o ausencia en [${canal.ruta}]. Marcando bandera...`);
                 await realSet(realRef(dbReal, canal.bandera), true);
             }
         }
 
-        // 🔄 FASE 2: RETORNO DE FÁBRICA / AUTO-RESTABLECIMIENTO
-        // Si el sistema encontró una llave sana, reajusta las banderas sobrantes a FALSE automáticamente
+                                                                                                                                               
+                                                                                                                                               
         if (llaveCargadaCorrectamente) {
             for (let i = 0; i < configuracionCanales.length; i++) {
                 if (i >= indiceLlaveActiva) {
@@ -1763,41 +1763,41 @@ window.subirArchivoTarea = async () => {
         btn.disabled = false;
     }
 };
-// =========================================================================
-// NÚCLEO DE DIAGNÓSTICO GLOBAL PERSISTENTE (ALONIXZ_SMART_DIAG)
-// =========================================================================
+                                                                                                                                       
+                                                                                                                                       
+                                                                                                                                       
 if (typeof window.logsHistorico === 'undefined') {
     window.logsHistorico = [];
     window.conteoErroresActuales = 0;
 
-    // LEER ESTADOS DESDE LOCALSTORAGE (Persistencia entre recargas y agendas)
-    // 'alonixz_widget_activo' controlará si el widget existe físicamente en pantalla
+                                                                                                                                           
+                                                                                                                                           
     if (localStorage.getItem('alonixz_widget_activo') === null) {
-        localStorage.setItem('alonixz_widget_activo', 'false'); // Oculto por defecto hasta que lo activen
+        localStorage.setItem('alonixz_widget_activo', 'false');                                                                                                                                        
     }
     
     if (localStorage.getItem('alonixz_global_diags') === null) {
         localStorage.setItem('alonixz_global_diags', '0');
     }
 
-    // Copias de seguridad de las consolas nativas del navegador
+                                                                                                                                           
     if (!window.logOriginal) {
         window.logOriginal = console.log;
         window.errorOriginal = console.error;
     }
 
-    // Capturador universal de logs (Escucha siempre en segundo plano para guardar datos)
+                                                                                                                                           
     window.registrarLogGlobal = (msg, tipo = "log") => {
         const timestamp = new Date().toLocaleTimeString();
         const entradaLog = { timestamp, msg, tipo };
         
         window.logsHistorico.push(entradaLog);
-        if (window.logsHistorico.length > 100) window.logsHistorico.shift(); // Buffer extendido a 100
+        if (window.logsHistorico.length > 100) window.logsHistorico.shift();                                                                                                                                        
 
         if (tipo === "error" || msg.toLowerCase().includes("error") || msg.toLowerCase().includes("failed")) {
             window.conteoErroresActuales++;
             
-            // Si el widget está pintado en pantalla, actualizar su burbuja roja en tiempo real
+                                                                                                                                                   
             const indicadorFila = document.getElementById('burbuja-error-count');
             if (indicadorFila) {
                 indicadorFila.innerText = window.conteoErroresActuales;
@@ -1808,7 +1808,7 @@ if (typeof window.logsHistorico === 'undefined') {
         }
     };
 
-    // Redirección de consolas nativas
+                                                                                                                                           
     console.log = (...args) => {
         const mensaje = args.join(' ');
         window.registrarLogGlobal(mensaje, "log");
@@ -1821,9 +1821,9 @@ if (typeof window.logsHistorico === 'undefined') {
         window.errorOriginal.apply(console, args);
     };
 
-    // FUNCIÓN PARA CREAR EL WIDGET FLOTANTE ARRÁSTRABLE
+                                                                                                                                           
     window.crearWidgetFlotanteDiagnostico = () => {
-        // Si ya existe o si el usuario lo tiene configurado como inactivo/desactivado, no hacer nada
+                                                                                                                                               
         if (document.getElementById('burbuja-diag-praxis') || localStorage.getItem('alonixz_widget_activo') !== 'true') return;
 
         const burbuja = document.createElement('div');
@@ -1835,7 +1835,7 @@ if (typeof window.logsHistorico === 'undefined') {
             display: flex; align-items: center; justify-content: center; font-size: 26px;
             user-select: none; transition: transform 0.1s;
         `;
-        // Agregamos un botón minúsculo "X" en la esquina del widget para apagarlo rápido si estorba
+                                                                                                                                               
         burbuja.innerHTML = `
             🛠️
             <span id="burbuja-error-count" style="
@@ -1855,7 +1855,7 @@ if (typeof window.logsHistorico === 'undefined') {
 
         document.body.appendChild(burbuja);
 
-        // Lógica de arrastre Drag & Drop (PC y Móviles)
+                                                                                                                                               
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         let ejecutandoClick = false;
 
@@ -1911,18 +1911,18 @@ if (typeof window.logsHistorico === 'undefined') {
         }
     };
 
-    // Acción de destrucción del widget desde la cruz 'X'
+                                                                                                                                           
     window.desactivarWidgetCompletamente = () => {
         localStorage.setItem('alonixz_widget_activo', 'false');
         const elemento = document.getElementById('burbuja-diag-praxis');
         if (elemento) elemento.remove();
         
-        // Sincronizar el checkbox si el usuario casualmente está parado en soporte y ayuda
+                                                                                                                                               
         const chk = document.getElementById('chk-switch-escucha');
         if (chk) chk.checked = false;
     };
 
-    // EJECUCIÓN INMEDIATA: Comprueba si debe revivir el widget al cargar/recargar la página o cambiar de agenda
+                                                                                                                                           
     setTimeout(window.crearWidgetFlotanteDiagnostico, 600);
 }
    if (typeof window.calMesActual === 'undefined') {
@@ -2224,16 +2224,16 @@ else if (texto.includes("calendario")) {
                 const hoyReal = new Date();
                 const esHoy = hoyReal.getDate() === dia && hoyReal.getMonth() === window.calMesActual && hoyReal.getFullYear() === window.calAñoActual;
 
-                // ID Único para cada celda de día
+                                                                                                                                                       
                 const celdaId = `celda-dia-${dia}`;
                 const contenedorTareasId = `tareas-container-${dia}`;
 
-                // Renderizamos TODAS las tareas inicialmente dentro del HTML, pero el contenedor CSS se encargará de ocultar las que sobren
+                                                                                                                                                       
                 let tareasHtml = tareasDelDia.map((t, index) => {
                     const tit = t.titulo.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const desc = (t.descripcion || '').replace(/'/g, "\\'").replace(/\n/g, " ");
                     
-                    // Las tareas mayores al índice 1 (la tercera en adelante) llevarán un estilo oculto por defecto
+                                                                                                                                                           
                     const estiloOculto = index >= 2 ? 'display: none;' : '';
                     
                     return `<div onclick="verDetalleTareaV3('${tit}', '${desc}', '${t.fecha}')" 
@@ -2246,7 +2246,7 @@ else if (texto.includes("calendario")) {
                 let botonMasHtml = '';
                 if (tareasDelDia.length > 2) {
                     const excedente = tareasDelDia.length - 2;
-                    // El botón ahora invoca a una función que expande o colapsa el diseño
+                                                                                                                                                           
                     botonMasHtml = `<div id="btn-mas-${dia}" class="cal-more-tasks" onclick="conmutarVisibilidadTareas(${dia}, ${excedente})">+ ${excedente} más</div>`;
                 }
 
@@ -2266,35 +2266,35 @@ else if (texto.includes("calendario")) {
         });
     };
 
-    // NUEVA FUNCIÓN INTERACTIVA: Expande el diseño de la celda y muestra los nodos HTML ocultos
+                                                                                                                                           
     window.conmutarVisibilidadTareas = (dia, excedente) => {
         const celda = document.getElementById(`celda-dia-${dia}`);
         const contenedor = document.getElementById(`tareas-container-${dia}`);
         const boton = document.getElementById(`btn-mas-${dia}`);
         
-        // Buscamos todas las mini-cards asignadas como extras dentro de este día
+                                                                                                                                               
         const tarjetasExtra = contenedor.querySelectorAll('.task-mini-card[data-extra="true"]');
 
         if (!celda.classList.contains('expandida')) {
-            // ACCIÓN: EXPANDIR
+                                                                                                                                                   
             celda.classList.add('expandida');
             
-            // Hacemos visibles todas las tareas ocultas
+                                                                                                                                                   
             tarjetasExtra.forEach(tarjeta => tarjeta.style.display = 'block');
             
-            // Cambiamos el texto del botón
+                                                                                                                                                   
             boton.innerText = "Ver menos ▲";
-            boton.style.color = "#ff4b4b"; // Rojo Neón para indicar acción de cierre
+            boton.style.color = "#ff4b4b";                                                                                                                                        
         } else {
-            // ACCIÓN: COLAPSAR
+                                                                                                                                                   
             celda.classList.remove('expandida');
             
-            // Volvemos a ocultar de la tercera tarea en adelante (índice >= 2)
+                                                                                                                                                   
             tarjetasExtra.forEach((tarjeta, index) => {
                 if (index >= 2) tarjeta.style.display = 'none';
             });
             
-            // Restauramos el botón original
+                                                                                                                                                   
             boton.innerText = `+ ${excedente} más`;
             boton.style.color = "#0071ff";
         }
@@ -2395,7 +2395,7 @@ else if (texto.includes("calendario")) {
 
                                                                          
     const noticiasDB = [
-        // --- NUEVA ENTRADA: PRAXIS ASSISTANT ---
+                                                                                                                                               
         {
             esSuper: true,
             fecha: "30/05/26",
@@ -2405,7 +2405,7 @@ else if (texto.includes("calendario")) {
             parches: ["Inicialización de matrices neuronales", "Integración con Firebase Core v10", "Terminal de comandos con privilegios root (sudo)", "Advertencia de estabilidad (Beta)"],
             icono: "🤖"
         },
-        // --- NOTICIA ANTERIOR: OPTIMIZACIÓN ---
+                                                                                                                                               
         {
             esSuper: true,
             fecha: "21/05/26",
@@ -2415,7 +2415,7 @@ else if (texto.includes("calendario")) {
             parches: ["Optimización del módulo de autenticación", "Sincronización de agenda institucional", "Prevención de exclusión informativa"],
             icono: "⚙️"
         },
-        // --- NOTICIA ANTERIOR: CENTRAL DE NEXOS ---
+                                                                                                                                               
         {
             esSuper: false,
             esFeature: true,
@@ -2426,7 +2426,7 @@ else if (texto.includes("calendario")) {
             parches: ["Canal bidireccional mediante Firebase", "Desafío Cíclico Cooperativo", "Multiplicador de Red"],
             icono: "👥"
         },
-        // --- NOTICIA ANTERIOR: LANZAMIENTO ---
+                                                                                                                                               
         {
             esSuper: false,
             fecha: "18/05/26",
@@ -2495,18 +2495,17 @@ else if (texto.includes("calendario")) {
     });
 }else if (texto.includes("rankings") || texto.includes("top") || texto.includes("ranking")) {
     bannerTitle.innerText = "Ranking Global Praxis";
-    displayCode.innerText = "RANKING_V8";
+    displayCode.innerText = "RANKING_V8_PRO";
 
     container.style.display = "block"; 
     container.style.width = "100%";
     container.style.padding = "0";
 
+                                                                                                                                           
     let currentMode = 'racha'; 
-    let currentScope = 'global';
+    let currentScope = 'global'; 
     let filtroGradoDocente = "global";
     let filtroSeccionDocente = "";
-
-    const currentUserID = (typeof auth !== 'undefined' && auth.currentUser) ? auth.currentUser.uid : null;
 
     const listaGrados = [
         "Inicial-3", "Inicial-4", "Inicial-5",
@@ -2514,12 +2513,34 @@ else if (texto.includes("calendario")) {
         "1ro-Sec", "2do-Sec", "3ro-Sec", "4to-Sec", "5to-Sec"
     ];
 
-                                                            
+                                                                                                                                           
+    const obtenerRango = (racha, email) => {
+        if (racha >= 1000) {
+            return { nombre: "ROOT_HACKER", clase: "rango-hacker", avatar: "avatar-hacker" };
+        }
+        if (racha >= 100 || email === "ajuliuszch@gmail.com") {
+            return { nombre: "ADMIN", clase: "rango-admin", avatar: "avatar-admin" };
+        }
+        if (racha >= 80) return { nombre: "OBSIDIANA", clase: "rango-obsidiana", avatar: "avatar-obsidiana" };
+        if (racha >= 60) return { nombre: "DIAMANTE", clase: "rango-diamante", avatar: "avatar-diamante" };
+        if (racha >= 30) return { nombre: "ORO", clase: "rango-oro", avatar: "avatar-oro" };
+        if (racha >= 15) return { nombre: "PLATA", clase: "rango-plata", avatar: "avatar-plata" };
+        if (racha >= 7) return { nombre: "BRONCE", clase: "rango-bronce", avatar: "avatar-bronce" };
+        if (racha < 7) {
+            return { 
+                nombre: "ASPIRANTE", 
+                clase: "rango-aspirante", 
+                avatar: "avatar-aspirante",
+                color: "#b0bec5" 
+            };
+        }
+        return null;
+    };
+
     const formatearGrado = (u) => {
-                                                                
-        if (u.rango === "profesor" || u.rango === "docente") return "DOCENTE";
+        const rol = (u.rango || "").toLowerCase();
+        if (rol === "profesor" || rol === "docente") return "DOCENTE";
         
-                                                                
         const grados = {
             "Inicial-3": "3 AÑOS", "Inicial-4": "4 AÑOS", "Inicial-5": "5 AÑOS",
             "Primaria-1": "1° PRI", "Primaria-2": "2° PRI", "Primaria-3": "3° PRI",
@@ -2529,160 +2550,270 @@ else if (texto.includes("calendario")) {
         
         const gTexto = grados[u.grado];
         if (gTexto) {
-            return u.seccion ? `${gTexto} "${u.seccion}"` : gTexto;
+            return u.seccion ? `${gTexto} "${u.seccion.toUpperCase().trim()}"` : gTexto;
         }
-        
-        return "ESTUDIANTE";                                                         
+        return "ESTUDIANTE";                                                                                   
     };
 
     container.innerHTML = `
-        <div class="ranking-v7-wrapper">
-            <div class="ranking-header-complex">
-                <div class="main-mode-selector">
-                    <button onclick="cambiarModo('racha')" id="m-racha" class="brutal-card-btn">
-                        <div class="btn-content">
+ <div class="ranking-v8-container">
+    <div id="ranking-internal-loader" class="tech-loader-wrapper">
+        <div class="skeleton-podium-container">
+            <div class="skeleton-item pos-2">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-bar bar-2"></div>
+            </div>
+            <div class="skeleton-item pos-1">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-bar bar-1"></div>
+            </div>
+            <div class="skeleton-item pos-3">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-bar bar-3"></div>
+            </div>
+        </div>
+        <p class="loader-text">CARGANDO BASE DE DATOS Y RANGOS...</p>
+    </div>
+
+
+            <div id="ranking-main-content" class="ranking-fade-in" style="display: none;">
+                <div class="ranking-header-complex">
+                    <div class="main-mode-selector">
+                        <button onclick="cambiarModo('racha')" id="m-racha" class="tech-card-btn">
                             <img src="fuego.png" class="mode-icon">
                             <span>RACHAS</span>
-                        </div>
-                    </button>
-                    <button onclick="cambiarModo('puntos')" id="m-puntos" class="brutal-card-btn">
-                        <div class="btn-content">
+                        </button>
+                        <button onclick="cambiarModo('puntos')" id="m-puntos" class="tech-card-btn">
                             <img src="dolar.png" class="mode-icon">
                             <span>PUNTOS</span>
+                        </button>
+                    </div>
+                    
+                    <div id="filter-zone" class="dynamic-filter-box">
+                        <div class="docente-panel">
+                            <span>EXPLORAR GRADO:</span>
+                            <select id="sel-grado" onchange="updateFiltroUnificado()">
+                                <option value="global">TODO EL COLEGIO</option>
+                                ${listaGrados.map(g => `<option value="${g}" ${filtroGradoDocente === g ? 'selected' : ''}>${g}</option>`).join('')}
+                            </select>
+                            <select id="sel-seccion" onchange="updateFiltroUnificado()">
+                                <option value="">TODAS LAS SECCIONES</option>
+                                <option value="A" ${filtroSeccionDocente === "A" ? 'selected' : ''}>SECCIÓN A</option>
+                                <option value="B" ${filtroSeccionDocente === "B" ? 'selected' : ''}>SECCIÓN B</option>
+                                <option value="C" ${filtroSeccionDocente === "C" ? 'selected' : ''}>SECCIÓN C</option>
+                            </select>
                         </div>
-                    </button>
+                    </div>
                 </div>
-                <div id="filter-zone" class="dynamic-filter-box"></div>
-            </div>
 
-            <div id="podium-v7" class="podium-v7-grid"></div>
+                <div id="podium-v7" class="podium-v7-grid"></div>
 
-            <div class="list-v7-container">
-                <div id="ranking-rows-v7"></div>
+                <div class="list-v7-container">
+                    <div id="ranking-rows-v7"></div>
+                </div>
             </div>
         </div>
 
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=JetBrains+Mono:wght@800&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Outfit:wght@700;900&family=JetBrains+Mono:wght@700;800&display=swap');
 
-            .ranking-v7-wrapper { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
-            .ranking-header-complex { display: flex; flex-direction: column; align-items: center; gap: 30px; margin-bottom: 60px; }
-            .main-mode-selector { display: flex; gap: 25px; }
+            .ranking-v8-container { max-width: 1100px; margin: 0 auto; padding: 20px; font-family: 'Space Grotesk', sans-serif; }
             
-            .brutal-card-btn {
-                width: 140px; height: 140px; background: #fff; border: 5px solid #000;
-                border-radius: 40px; cursor: pointer; box-shadow: 12px 12px 0px #000;
-                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            .tech-loader-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; }
+            .classic-loading-spinner { width: 45px; height: 45px; border: 4px solid rgba(0,0,0,0.1); border-left-color: #00e5ff; border-radius: 50%; animation: spinClassic 0.8s linear infinite; }
+            .loader-text { font-family: 'Space Grotesk'; font-size: 13px; font-weight: 700; margin-top: 15px; letter-spacing: 1px; color: #000; }
+            @keyframes spinClassic { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            
+            .ranking-fade-in { animation: fadeInSoft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            @keyframes fadeInSoft { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+            .ranking-header-complex { display: flex; flex-direction: column; align-items: center; gap: 25px; margin-bottom: 50px; }
+            .main-mode-selector { display: flex; gap: 20px; }
+            
+            .tech-card-btn {
+                width: 140px; height: 120px; background: #fff; border: 3px solid #000;
+                border-radius: 24px; cursor: pointer; box-shadow: 6px 6px 0px #000;
+                display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            .brutal-card-btn.active { transform: translate(10px, 10px); box-shadow: 0px 0px 0px #000; background: #00e5ff; }
-            .mode-icon { width: 45px; }
-            .brutal-card-btn span { font-family: 'Outfit'; font-weight: 900; font-size: 16px; }
+            .tech-card-btn span { font-family: 'Outfit'; font-weight: 900; font-size: 15px; color: #000; }
+            .tech-card-btn .mode-icon { width: 38px; transition: transform 0.3s ease; }
+            .tech-card-btn.active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px #000; background: #00e5ff; }
+            .tech-card-btn:hover:not(.active) .mode-icon { transform: scale(1.15) rotate(-5deg); }
 
-            .dynamic-filter-box { display: flex; justify-content: center; width: 100%; }
-            .docente-panel { display: flex; gap: 15px; background: #fff; padding: 15px 30px; border: 5px solid #000; border-radius: 30px; box-shadow: 10px 10px 0px #000; align-items: center; }
-            .docente-panel select { border: 3px solid #000; border-radius: 12px; padding: 8px 15px; font-family: 'Outfit'; font-weight: 700; background: #fff; }
-            
-            .alumno-pills { display: flex; gap: 12px; background: #000; padding: 10px; border-radius: 25px; }
-            .pill-btn { padding: 10px 25px; border: none; background: transparent; color: #fff; font-family: 'Outfit'; font-weight: 800; cursor: pointer; border-radius: 15px; }
-            .pill-btn.active { background: #00e5ff; color: #000; }
+            .dynamic-filter-box { display: flex; justify-content: center; width: 100%; min-height: 55px; }
+            .docente-panel { display: flex; gap: 12px; background: #fff; padding: 10px 24px; border: 3px solid #000; border-radius: 20px; box-shadow: 6px 6px 0px #000; align-items: center; flex-wrap: wrap; justify-content: center; }
+            .docente-panel span { font-family: 'Space Grotesk'; font-weight: 700; font-size: 13px; color: #000; }
+            .docente-panel select { border: 3px solid #000; border-radius: 12px; padding: 8px 16px; font-family: 'Space Grotesk'; font-weight: 700; font-size: 13px; background: #fff; outline: none; cursor: pointer; transition: background 0.2s; }
+            .docente-panel select:hover { background: #f5f5f5; }
 
-            .podium-v7-grid { display: flex; align-items: flex-end; justify-content: center; gap: 30px; margin-bottom: 60px; padding-top: 50px; }
-            .podium-item { display: flex; flex-direction: column; align-items: center; width: 180px; }
+            /* Grid del Podio */
+            .podium-v7-grid { display: flex; align-items: flex-end; justify-content: center; gap: 24px; margin-bottom: 50px; padding-top: 40px; }
+            .podium-item { display: flex; flex-direction: column; align-items: center; width: 190px; }
             .podium-card-v7 {
-                width: 100%; border: 5px solid #000; border-radius: 40px;
-                box-shadow: 12px 12px 0px #000; display: flex; flex-direction: column;
-                align-items: center; position: relative; padding-bottom: 25px; background: #fff;
+                width: 100%; border: 3px solid #000; border-radius: 32px;
+                box-shadow: 8px 8px 0px #000; display: flex; flex-direction: column;
+                align-items: center; position: relative; padding-bottom: 20px; background: #fff;
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            .podium-img { width: 100px; height: 100px; border-radius: 50%; border: 5px solid #000; background: #fff; object-fit: cover; margin-top: -50px; }
-            .rank-number-tag { position: absolute; top: 15px; right: -10px; background: #000; color: #fff; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; border: 3px solid #fff; }
+            .podium-card-v7:hover { transform: translateY(-5px); }
+            .podium-img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #000; background: #fff; object-fit: cover; margin-top: -45px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+            .rank-number-tag { position: absolute; top: 12px; right: -8px; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-weight: 800; font-size: 14px; border: 3px solid #000; }
 
-            .podium-name { font-family: 'Outfit'; font-weight: 900; font-size: 18px; width: 90%; text-align: center; color: #000; margin-top: 15px; overflow-wrap: break-word; }
-            .podium-sub { font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 800; opacity: 0.5; text-transform: uppercase; margin-bottom: 15px; }
-            .score-val { font-family: 'Outfit'; font-weight: 900; font-size: 32px; }
+            .podium-name { font-family: 'Outfit'; font-weight: 900; font-size: 17px; width: 90%; text-align: center; color: #000; margin-top: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .podium-sub { font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 700; opacity: 0.6; text-transform: uppercase; margin-top: 2px; margin-bottom: 10px; }
+            
+            /* --- CAMBIO: Se eliminó 'border: 2px solid #000;' de la clase base de rangos --- */
+            .rango-tag { font-family: 'JetBrains Mono'; font-size: 9px; font-weight: 800; padding: 4px 10px; border-radius: 8px; text-transform: uppercase; margin-bottom: 10px; border: none; }
+            
+            .podium-score { display: flex; align-items: center; gap: 6px; margin-top: auto; }
+            .score-val { font-family: 'Outfit'; font-weight: 900; font-size: 28px; color: #000; }
 
-            .list-v7-container { background: #fff; border: 6px solid #000; border-radius: 55px; padding: 40px; box-shadow: 25px 25px 0px #000; }
-            .row-v7 { display: flex; align-items: center; padding: 25px 0; border-bottom: 4px solid #f4f4f4; gap: 25px; }
-            .row-rank-v7 { font-family: 'JetBrains Mono'; font-weight: 800; color: #ddd; font-size: 24px; width: 50px; }
-            .row-img-v7 { width: 65px; height: 65px; border-radius: 50%; border: 4px solid #000; }
-            .row-name-v7 { font-family: 'Outfit'; font-weight: 800; font-size: 21px; color: #000; }
-            .row-score-v7 { background: #000; color: #fff; padding: 12px 25px; border-radius: 22px; font-family: 'Outfit'; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+            /* Tabla de Posiciones Principal */
+            .list-v7-container { background: #fff; border: 3px solid #000; border-radius: 36px; padding: 25px; box-shadow: 12px 12px 0px #000; }
+            .row-v7 { display: flex; align-items: center; padding: 18px 8px; border-bottom: 2px solid #efefef; gap: 20px; transition: background 0.2s ease; }
+            .row-v7:last-child { border-bottom: none; }
+            .row-v7:hover { background: #fafafa; }
+            
+            .row-rank-v7 { font-family: 'JetBrains Mono'; font-weight: 800; color: #bcbcbc; font-size: 20px; width: 45px; text-align: center; }
+            .row-img-v7 { width: 55px; height: 55px; border-radius: 50%; border: 3px solid #000; object-fit: cover; }
+            .row-info-v7 { display: flex; flex-direction: column; flex-grow: 1; gap: 2px; }
+            .row-name-container { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+            .row-name-v7 { font-family: 'Outfit'; font-weight: 800; font-size: 18px; color: #000; }
+            .row-sub-v7 { font-family: 'JetBrains Mono'; font-size: 11px; font-weight: 700; opacity: 0.6; }
+            .row-score-v7 { background: #000; color: #fff; padding: 8px 18px; border-radius: 16px; font-family: 'Outfit'; font-weight: 900; font-size: 18px; display: flex; align-items: center; gap: 8px; margin-left: auto; }
 
-            @media (max-width: 900px) {
-                .podium-v7-grid { flex-direction: column; align-items: center; gap: 80px; }
-            }
+            @media (max-width: 850px) {
+                .podium-v7-grid { flex-direction: column; align-items: center; gap: 65px; padding-top: 50px; }
+                .podium-item { width: 100%; max-width: 280px; }
+                .podium-item:nth-child(2) { order: 1 !important; }
+                .podium-item:nth-child(1) { order: 2 !important; }
+                .podium-item:nth-child(3) { order: 3 !important; }
+                .podium-card-v7 { height: auto !important; padding-top: 10px; }
+            }/* --- ESTILOS DEL PODIO SILUETA (SKELETON) --- */
+.tech-loader-wrapper { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    padding: 40px 0; 
+}
+
+.skeleton-podium-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 20px;
+    height: 220px;
+    margin-bottom: 25px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.skeleton-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+/* Animación de pulso digital suave */
+.skeleton-avatar, .skeleton-bar {
+    background: #e0e0e0;
+    border: 3px solid #000;
+    animation: pulseSkeleton 1.5s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-bottom: -15px;
+    z-index: 2;
+    background-color: #eee;
+}
+
+.skeleton-bar {
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 4px 4px 0px #000;
+}
+
+/* Tamaños proporcionales del podio */
+.bar-1 { height: 140px; }
+.bar-2 { height: 100px; }
+.bar-3 { height: 75px; }
+
+/* Orden visual en desktop (2, 1, 3) */
+.pos-2 { order: 1; }
+.pos-1 { order: 2; }
+.pos-3 { order: 3; }
+
+.loader-text { 
+    font-family: 'Space Grotesk'; 
+    font-size: 13px; 
+    font-weight: 700; 
+    letter-spacing: 1px; 
+    color: #000; 
+    text-align: center;
+}
+
+@keyframes pulseSkeleton {
+    0% { opacity: 0.6; transform: scale(0.99); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.6; transform: scale(0.99); }
+}
         </style>
     `;
 
     window.cambiarModo = (m) => {
         currentMode = m;
-        document.querySelectorAll('.brutal-card-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`m-${m}`).classList.add('active');
+        document.querySelectorAll('.tech-card-btn').forEach(b => b.classList.remove('active'));
+        const btnActivo = document.getElementById(`m-${m}`);
+        if (btnActivo) btnActivo.classList.add('active');
         renderizar();
     };
 
-    window.updateFiltroDocente = () => {
+    window.updateFiltroUnificado = () => {
         filtroGradoDocente = document.getElementById('sel-grado').value;
         filtroSeccionDocente = document.getElementById('sel-seccion').value;
         currentScope = (filtroGradoDocente === "global") ? "global" : "docente-especifico";
         renderizar();
     };
 
-window.cambiarFiltroAlumno = (scope) => {
-    currentScope = scope;
-                                                            
-    renderizar(); 
-};
+                                                                                                                                           
     const renderizar = () => {
         onValue(ref(db, 'usuarios'), (snap) => {
             const data = snap.val();
+            
+            const internalLoader = document.getElementById('ranking-internal-loader');
+            const mainContent = document.getElementById('ranking-main-content');
+            if (internalLoader) internalLoader.style.display = 'none';
+            if (mainContent) mainContent.style.display = 'block';
+
             if (!data) return;
 
-            const me = data[currentUserID] || {};
-            const soyDocente = (me.stats?.rango === "profesor" || me.stats?.rango === "docente");
-            const filterZone = document.getElementById('filter-zone');
+            let users = Object.keys(data).map(id => {
+                const u = data[id];
+                return {
+                    ...u,
+                    puntos: parseInt(u.stats?.puntos || u.puntos || 0),
+                    racha: parseInt(u.stats?.racha || u.racha || 0),
+                    grado: (u.stats?.grado || u.grado || "").trim(),
+                    seccion: (u.stats?.seccion || u.seccion || "").toUpperCase().trim(),
+                    rango: (u.stats?.rango || u.rango || "").toLowerCase().trim(),
+                    email: u.email || "",
+                    displayName: u.apodo || u.nombre || "Usuario"
+                };
+            });
 
-                                                                    
-            if (soyDocente) {
-                filterZone.innerHTML = `
-                    <div class="docente-panel">
-                        <span style="font-weight:900; font-size:12px;">PANEL DOCENTE:</span>
-                        <select id="sel-grado" onchange="updateFiltroDocente()">
-                            <option value="global">VER TODO EL COLEGIO</option>
-                            ${listaGrados.map(g => `<option value="${g}" ${filtroGradoDocente === g ? 'selected' : ''}>${g}</option>`).join('')}
-                        </select>
-                        <select id="sel-seccion" onchange="updateFiltroDocente()">
-                            <option value="">TODAS LAS SECCIONES</option>
-                            <option value="A" ${filtroSeccionDocente === "A" ? 'selected' : ''}>SECCIÓN A</option>
-                            <option value="B" ${filtroSeccionDocente === "B" ? 'selected' : ''}>SECCIÓN B</option>
-                            <option value="C" ${filtroSeccionDocente === "C" ? 'selected' : ''}>SECCIÓN C</option>
-                        </select>
-                    </div>`;
-            } else if (me.stats?.grado) {
-                filterZone.innerHTML = `
-                    <div class="alumno-pills">
-                        <button onclick="cambiarFiltroAlumno('global')" class="pill-btn ${currentScope === 'global' ? 'active' : ''}">GLOBAL</button>
-                        <button onclick="cambiarFiltroAlumno('grado')" class="pill-btn ${currentScope === 'grado' ? 'active' : ''}">MI GRADO</button>
-                        <button onclick="cambiarFiltroAlumno('seccion')" class="pill-btn ${currentScope === 'seccion' ? 'active' : ''}">MI SECCIÓN</button>
-                    </div>`;
-            }
-
-            let users = Object.keys(data).map(id => ({
-                ...data[id],
-                puntos: parseInt(data[id].stats?.puntos || 0),
-                racha: parseInt(data[id].stats?.racha || 0),
-                grado: data[id].stats?.grado,
-                seccion: data[id].stats?.seccion,
-                rango: data[id].stats?.rango,
-                displayName: data[id].apodo || data[id].nombre || "Usuario"
-            }));
-
-                                                                    
-            if (!soyDocente) {
-                if (currentScope === 'grado') users = users.filter(u => u.grado === me.stats.grado);
-                if (currentScope === 'seccion') users = users.filter(u => u.grado === me.stats.grado && u.seccion === me.stats.seccion);
-            } else if (currentScope === 'docente-especifico') {
-                users = users.filter(u => u.grado === filtroGradoDocente);
-                if (filtroSeccionDocente) users = users.filter(u => u.seccion === filtroSeccionDocente);
+            if (currentScope === 'docente-especifico') {
+                users = users.filter(u => {
+                    if (u.rango === "profesor" || u.rango === "docente") return true;
+                    const cumpleGrado = (filtroGradoDocente === "global" || u.grado === filtroGradoDocente);
+                    const cumpleSeccion = (!filtroSeccionDocente || u.seccion === filtroSeccionDocente.toUpperCase());
+                    return cumpleGrado && cumpleSeccion;
+                });
             }
 
             users.sort((a, b) => b[currentMode] - a[currentMode]);
@@ -2690,43 +2821,72 @@ window.cambiarFiltroAlumno = (scope) => {
             const icon = currentMode === 'racha' ? 'fuego.png' : 'dolar.png';
             const metalColors = ["#FFD700", "#C0C0C0", "#CD7F32"];
 
-                                                                    
-            const podiumHTML = (u, pos, h, win) => `
+                                                                                                                                                   
+            const podiumHTML = (u, pos, h, win) => {
+                if (!u) {
+                    return `
+                    <div class="podium-item" style="order: ${pos === 1 ? 2 : (pos === 2 ? 1 : 3)};">
+                        <div class="podium-card-v7" style="height:${h}px; border-color: #000; opacity: 0.3; border-style: dashed;">
+                            <div class="rank-number-tag" style="background: #000">${pos}</div>
+                            <div class="podium-name">---</div>
+                        </div>
+                    </div>`;
+                }
+
+                const infoRango = obtenerRango(u.racha, u.email) || { nombre: 'ASPIRANTE', clase: 'rango-aspirante', avatar: 'avatar-aspirante' };
+
+                                                                                                                                                       
+                return `
                 <div class="podium-item" style="order: ${pos === 1 ? 2 : (pos === 2 ? 1 : 3)};">
-                    <div class="podium-card-v7" style="height:${h}px; border-color: ${metalColors[pos-1]}; background: ${win ? '#00e5ff' : '#fff'}">
-                        <img src="${u?.foto || 'avatar.png'}" class="podium-img" style="border-color: ${metalColors[pos-1]}">
+                    <div class="podium-card-v7" style="height:${h}px; border-color: ${metalColors[pos-1]}; background: ${win ? '#e3f2fd' : '#fff'}">
+                        <img src="${u.foto || 'avatar.png'}" class="podium-img ${infoRango.avatar}" style="border-color: ${metalColors[pos-1]}">
                         <div class="rank-number-tag" style="background: ${metalColors[pos-1]}">${pos}</div>
-                        <div class="podium-name">${u ? u.displayName : '---'}</div>
-                        <div class="podium-sub">${u ? formatearGrado(u) : ''}</div>
+                        <div class="podium-name">${u.displayName}</div>
+                        <div class="podium-sub">${formatearGrado(u)}</div>
+                        <div class="${infoRango.clase} rango-tag">${infoRango.nombre}</div>
                         <div class="podium-score">
-                            <span class="score-val">${u ? u[currentMode] : 0}</span>
-                            <img src="${icon}" style="width:25px;">
+                            <span class="score-val">${u[currentMode]}</span>
+                            <img src="${icon}" style="width:24px;">
                         </div>
                     </div>
                 </div>`;
+            };
 
-            document.getElementById('podium-v7').innerHTML = `
-                ${podiumHTML(users[1], 2, 280, false)}
-                ${podiumHTML(users[0], 1, 340, true)}
-                ${podiumHTML(users[2], 3, 240, false)}
-            `;
+            const podiumBox = document.getElementById('podium-v7');
+            if (podiumBox) {
+                podiumBox.innerHTML = `
+                    ${podiumHTML(users[1], 2, 260, false)}
+                    ${podiumHTML(users[0], 1, 310, true)}
+                    ${podiumHTML(users[2], 3, 220, false)}
+                `;
+            }
 
-                                                                    
-            document.getElementById('ranking-rows-v7').innerHTML = users.slice(3, 40).map((u, i) => `
-                <div class="row-v7">
-                    <span class="row-rank-v7">#${i + 4}</span>
-                    <img src="${u.foto || 'avatar.png'}" class="row-img-v7">
-                    <div class="row-info-v7">
-                        <span class="row-name-v7">${u.displayName}</span>
-                        <span class="row-sub-v7" style="${u.rango === 'profesor' ? 'color:#ff4d4d; font-weight:900;' : ''}">
-                            ${formatearGrado(u)}
-                        </span>
-                    </div>
-                    <div class="row-score-v7" style="box-shadow: 7px 7px 0px ${currentMode === 'racha' ? '#ff4d4d' : '#00e5ff'};">
-                        ${u[currentMode]} <img src="${icon}" style="width:22px;">
-                    </div>
-                </div>
-            `).join('');
+                                                                                                                                                   
+            const rowsBox = document.getElementById('ranking-rows-v7');
+            if (rowsBox) {
+                rowsBox.innerHTML = users.slice(3, 40).map((u, i) => {
+                    const infoRango = obtenerRango(u.racha, u.email) || { nombre: 'ASPIRANTE', clase: 'rango-aspirante', avatar: 'avatar-aspirante' };
+                    const esDocenteFila = (u.rango === 'profesor' || u.rango === 'docente');
+                    
+                    return `
+                    <div class="row-v7">
+                        <span class="row-rank-v7">#${i + 4}</span>
+                        <img src="${u.foto || 'avatar.png'}" class="row-img-v7 ${infoRango.avatar}">
+                        <div class="row-info-v7">
+                            <div class="row-name-container">
+                                <span class="row-name-v7">${u.displayName}</span>
+                                <span class="${infoRango.clase} rango-tag" style="margin-bottom:0; padding:2px 8px;">${infoRango.nombre}</span>
+                            </div>
+                            <span class="row-sub-v7" style="${esDocenteFila ? 'color:#ff4d4d; font-weight:800;' : ''}">
+                                ${formatearGrado(u)}
+                            </span>
+                        </div>
+                        <div class="row-score-v7" style="box-shadow: 4px 4px 0px ${currentMode === 'racha' ? '#ff4d4d' : '#00e5ff'};">
+                            ${u[currentMode]} <img src="${icon}" style="width:20px;">
+                        </div>
+                    </div>`;
+                }).join('');
+            }
         });
     };
 
@@ -5824,7 +5984,7 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
         </style>
     `;
 
-    // Renderizar las líneas recuperadas del historial pasivo global
+                                                                                                                                           
     const renderizarLineaLog = (instanciaLog) => {
         const output = document.getElementById('output-log');
         if (!output) return;
@@ -5854,14 +6014,14 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
         if (consola) consola.scrollTop = consola.scrollHeight;
     };
 
-    // Imprimir de golpe todo lo guardado en caché
+                                                                                                                                           
     window.logsHistorico.forEach(log => renderizarLineaLog(log));
 
     if (window.conteoErroresActuales > 0) {
         document.getElementById('btn-gemini-trigger').style.display = "block";
     }
 
-    // MANEJADOR DEL CHECKBOX: Inyecta o remueve de inmediato el widget y altera el Storage
+                                                                                                                                           
     window.conmutarWidgetDesdePanel = (checkbox) => {
         if (checkbox.checked) {
             localStorage.setItem('alonixz_widget_activo', 'true');
@@ -6010,8 +6170,8 @@ ${historialTexto}`
         }
     };
 
-    // (Lógica exacta de invocarInspeccionIA de la versión anterior para contactar a Gemini...)
-    // [Se mantiene idéntico al fetch del prompt anterior utilizando window.logsHistorico]
+                                                                                                                                           
+                                                                                                                                           
 };
 async function obtenerTodasLasTareas(callback) {
     const user = auth.currentUser;
@@ -6645,7 +6805,7 @@ function escucharChatClase(code) {
 
         const pozoAgenda = dataAgenda.bancoPuntos || 0;
 
-        // Crear contenedor del modal
+                                                                                                                                               
         const modal = document.createElement('div');
         modal.id = "panel-control-puntos";
         modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:100000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);";
@@ -6675,7 +6835,7 @@ function escucharChatClase(code) {
         `;
         document.body.appendChild(modal);
 
-        // Traer usuarios de la base de datos
+                                                                                                                                               
         const usuariosRef = ref(db, 'usuarios');
         const snapUsers = await get(usuariosRef);
         const contenedor = document.getElementById('contenedor-alumnos');
@@ -6726,12 +6886,12 @@ function escucharChatClase(code) {
     if (!confirmacion) return;
 
     try {
-        // Ruta solicitada: usuarios/uid/mis_agendas/CODEDELAAGENDA/rol
+                                                                                                                                               
         const rolAgendaRef = ref(db, `usuarios/${alumnoUid}/mis_agendas/${codigoAgenda}/rol`);
         
         await set(rolAgendaRef, "Estudiante_Encargado");
 
-        // Actualizar la interfaz visualmente sin recargar
+                                                                                                                                               
         const textoRol = document.getElementById(`rol-${alumnoUid}`);
         const botonEncargado = document.getElementById(`btn-encargado-${alumnoUid}`);
         
@@ -6828,12 +6988,12 @@ window.donarPuntosAAgenda = async (codigoAgenda) => {
         return;
     }
 
-    // Aquí invocamos a tu lógica original de repartir puntos (repartirPuntosAgenda) 
-    // pero pasándole la cantidad dinámica extraída del input.
+                                                                                                                                           
+                                                                                                                                           
     if (typeof window.repartirPuntosAgenda === "function") {
         await window.repartirPuntosAgenda(codigoAgenda, alumnoUid, cantidad);
     } else {
-        // Fallback por si ejecutas la lógica directamente aquí
+                                                                                                                                               
         try {
             const puntosRef = ref(db, `usuarios/${alumnoUid}/stats/puntos`);
             const snapPts = await get(puntosRef);
@@ -6841,7 +7001,7 @@ window.donarPuntosAAgenda = async (codigoAgenda) => {
             
             await set(puntosRef, puntosActuales + cantidad);
             
-            // Actualizar visualmente en la interfaz
+                                                                                                                                                   
             const elementoPts = document.getElementById(`pts-${alumnoUid}`);
             if (elementoPts) elementoPts.innerText = puntosActuales + cantidad;
             
@@ -8203,15 +8363,15 @@ window.otorgarInsignia = (targetUID, key) => {
             boleta.style.width = '';
         }
     }
-};// =========================================================================
-// MONITOREO DINÁMICO REACTIVO DE ERRORES DE IA (GEMINI CORE)
-// =========================================================================
+};                                                                                                                                       
+                                                                                                                                       
+                                                                                                                                       
 
 function inicializarRastreadorErroresIA() {
-    // Referencia al nodo raíz donde viven las banderas de error
+                                                                                                                                           
     const refConfig = ref(db, 'config');
 
-    // Escuchador dinámico en tiempo real
+                                                                                                                                           
     onValue(refConfig, (snapshot) => {
         if (!snapshot.exists()) return;
         
@@ -8221,41 +8381,41 @@ function inicializarRastreadorErroresIA() {
         const errorRespaldo1 = data.ERROR1_gemini === true;
         const errorRespaldo2 = data.ERROR2_gemini === true;
 
-        // Evaluación de severidad jerárquica
+                                                                                                                                               
         if (errorRespaldo2) {
-            // COLAPSO CRÍTICO DEFINITIVO (Ninguna llave sirve)
+                                                                                                                                                   
             desplegarAlertaIA({
                 titulo: "💀 COLAPSO TOTAL IA",
                 mensaje: "El motor principal y todos los servidores de respaldo han fallado. Praxis AI deshabilitado temporalmente.",
-                colorLinea: "#ef4444", // Rojo puro
+                colorLinea: "#ef4444",                                                                                                                                        
                 colorTag: "#7f1d1d",
                 icono: "☣️",
                 tagText: "CRITICAL_NUCLEO_DOWN"
             });
         }  
         else if (errorRespaldo1) {
-            // SEGUNDA FALLA SECUENCIAL (Saltó al respaldo 2)
+                                                                                                                                                   
             desplegarAlertaIA({
                 titulo: "⚠️ ERROR: RESPALDO 01 CAÍDO",
                 mensaje: "Canal de contingencia primario corrompido. Conmutando tráfico hacia la última línea de defensa.",
-                colorLinea: "#f97316", // Naranja
+                colorLinea: "#f97316",                                                                                                                                        
                 colorTag: "#c2410c",
                 icono: "📡",
                 tagText: "FALLBACK_LEVEL_02"
             });
         } 
         else if (errorPrincipal) {
-            // PRIMERA FALLA (Saltó al respaldo 1)
+                                                                                                                                                   
             desplegarAlertaIA({
                 titulo: "🎟️ FALLO EN LLAVE PRINCIPAL",
                 mensaje: "Se detectó desconfiguración en el token base. Canal auxiliar activado correctamente.",
-                colorLinea: "#eab308", // Amarillo
+                colorLinea: "#eab308",                                                                                                                                        
                 colorTag: "#854d0e",
                 icono: "⚡",
                 tagText: "FALLBACK_LEVEL_01"
             });
         } else {
-            // ECOSISTEMA COMPLETAMENTE NORMALIZADO
+                                                                                                                                                   
             ocultarAlertaIAVisual();
         }
     });
@@ -8271,7 +8431,7 @@ function desplegarAlertaIA(config) {
 
     if (!contenedor) return;
 
-    // Inyección de parámetros dinámicos
+                                                                                                                                           
     titulo.innerText = config.titulo;
     mensaje.innerText = config.mensaje;
     icono.innerText = config.icono;
@@ -8280,10 +8440,10 @@ function desplegarAlertaIA(config) {
     linea.style.background = config.colorLinea;
     tag.style.background = config.colorTag;
 
-    // Despliegue con reinicio de animación
+                                                                                                                                           
     contenedor.style.display = "block";
     contenedor.style.animation = 'none';
-    contenedor.offsetHeight; // Truco de reflujo de renderizado para reiniciar animación CSS
+    contenedor.offsetHeight;                                                                                                                                        
     contenedor.style.animation = "popupEntrada 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both";
 }
 
@@ -8304,7 +8464,7 @@ function ocultarAlertaIAVisual() {
     }
 }
 
-// 🚀 Activar el rastreador de alertas al cargar la página
+                                                                                                                                       
 inicializarRastreadorErroresIA();
 function activarRastreadorPuntos(uid) {
     const puntosRef = ref(db, `usuarios/${uid}/stats/puntos`);
@@ -9973,11 +10133,11 @@ ${tareasTexto}`
         });
         console.log(`⚡ Energía ajustada automáticamente a: ${rangoCorrectoMax}`);
     }
-}// ==========================================================
-// ESTRUCTURA BASE DE LA TERMINAL OCULTA (SOLO INTERFAZ)
-// ==========================================================
+}                                                                                                                                       
+                                                                                                                                       
+                                                                                                                                       
 
-// 1. Crear e inyectar el contenedor de la Terminal de forma dinámica
+                                                                                                                                       
 const terminalOverlay = document.createElement('div');
 terminalOverlay.id = 'praxis-terminal';
 terminalOverlay.style = `
@@ -9999,7 +10159,7 @@ terminalOverlay.style = `
 
 terminalOverlay.innerHTML = `
     <div style="border-bottom: 2px dashed #00ff88; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; user-select: none;">
-        <span>📟 PRAXIS__CORE // TERMINAL DE COMANDOS</span>
+        <span>📟 PRAXIS__CORE                                                                                                                                        
         <span style="color: #ff3366; cursor: pointer; font-weight: bold;" id="close-term-btn">[ESC PARA CERRAR]</span>
     </div>
     <div id="terminal-output" style="flex: 1; overflow-y: auto; margin-bottom: 15px; white-space: pre-wrap; line-height: 1.5;"></div>
@@ -10013,62 +10173,62 @@ document.body.appendChild(terminalOverlay);
 const outputDiv = document.getElementById('terminal-output');
 const inputField = document.getElementById('terminal-input');
 
-// Función básica para imprimir texto en la pantalla de la terminal
+                                                                                                                                       
 function printLog(text, color = '#00ff88') {
     outputDiv.innerHTML += `<div style="color: ${color};">${text}</div>`;
     outputDiv.scrollTop = outputDiv.scrollHeight;
 }
 
-// Mensaje inicial del sistema al cargar por primera vez
+                                                                                                                                       
 printLog("Ecosistema Praxis Core cargado correctamente.");
 printLog("Consola en modo de espera... lista para recibir parámetros.", "#00b0ff");
 
-// 2. Control de apertura/cierre con combinaciones de teclas
+                                                                                                                                       
 window.addEventListener('keydown', (e) => {
-    // Abre y cierra con Ctrl + Y
+                                                                                                                                           
     if (e.ctrlKey && e.key.toLowerCase() === 'y') {
-        e.preventDefault(); // Evita cualquier comportamiento nativo por si acaso
+        e.preventDefault();                                                                                                                                        
         toggleTerminal();
     }
     
-    // Cierra con la tecla Escape (Esc) si la terminal está visible
+                                                                                                                                           
     if (e.key === 'Escape' && terminalOverlay.style.display === 'flex') {
         toggleTerminal();
     }
 });
 
-// Cierre al hacer clic en el botón de la esquina
+                                                                                                                                       
 document.getElementById('close-term-btn').onclick = toggleTerminal;
 
 function toggleTerminal() {
     const isOpen = terminalOverlay.style.display === 'flex';
     terminalOverlay.style.display = isOpen ? 'none' : 'flex';
     
-    // Si se abre, pone el foco automáticamente en el input para empezar a escribir
+                                                                                                                                           
     if (!isOpen) {
         inputField.focus();
     }
 }
-// Asegúrate de tener 'set' importado de Firebase junto a ref y get:
-// import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-database.js";
+                                                                                                                                       
+                                                                                                                                       
 
-// 3. Procesador Técnico de Comandos (Ecosistema Praxis Core - Blindado Firebase v10)
+                                                                                                                                       
 inputField.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
         const fullCommand = inputField.value.trim();
-        inputField.value = ''; // Limpia la línea de entrada inmediatamente
+        inputField.value = '';                                                                                                                                        
         
         if (!fullCommand) return;
 
-        // Hace eco en la terminal de la orden ingresada
+                                                                                                                                               
         printLog(`praxis@root:~$ ${fullCommand}`, '#ffffff');
         
-        // Formateo base para evaluar prefijos de comandos estructurados sin alterar mayúsculas internas
+                                                                                                                                               
         const comandoNormalizado = fullCommand.toLowerCase().replace(/\s+/g, ' ');
 
-        // =======================================================================
-        // 1. COMANDO SECRETO 1: Acceso Administrativo -> token adminpanel password=[...]
-        // =======================================================================
+                                                                                                                                               
+                                                                                                                                               
+                                                                                                                                               
         if (comandoNormalizado.startsWith('token adminpanel password=')) {
             const match = fullCommand.match(/password=\s*\[(.*?)\]/i);
             const claveIngresada = match ? match[1] : null;
@@ -10122,9 +10282,9 @@ inputField.addEventListener('keydown', async (e) => {
             
             return; 
         }
-// =======================================================================
-        // 2. COMANDO: Reclamo de Código -> reclaim code=[...]
-        // =======================================================================
+                                                                                                                                       
+                                                                                                                                               
+                                                                                                                                               
         if (comandoNormalizado.startsWith('reclaim code=')) {
             const matchCode = fullCommand.match(/code=\s*\[(.*?)\]/i);
             const codigoReclamado = matchCode ? matchCode[1] : null;
@@ -10158,7 +10318,7 @@ inputField.addEventListener('keydown', async (e) => {
 
                 const uid = usuarioActual.uid;
 
-                // Validación de historial de uso por el usuario
+                                                                                                                                                       
                 const rutaHistorialUser = `usuarios/${uid}/promos/${codigoLimpio}`;
                 const refHistorial = ref(baseDatosInstancia, rutaHistorialUser);
                 const snapshotHistorial = await get(refHistorial);
@@ -10168,7 +10328,7 @@ inputField.addEventListener('keydown', async (e) => {
                     return;
                 }
 
-                // Validación global y procesamiento de disponibilidad
+                                                                                                                                                       
                 const rutaGlobalCodigo = `config/codigos_promocionales/${codigoLimpio}`;
                 const refGlobal = ref(baseDatosInstancia, rutaGlobalCodigo);
                 printLog(`🛰️ Verificando autenticidad del código...`, "#00b0ff");
@@ -10192,7 +10352,7 @@ inputField.addEventListener('keydown', async (e) => {
                             const nuevoStock = stockActual - 1;
                             return stringValor.replace(/\[\d+\]$/, `[${nuevoStock}]`);
                         } else {
-                            // Inicialización automática de existencias por defecto
+                                                                                                                                                                   
                             return `${stringValor} [9]`;
                         }
                     });
@@ -10207,11 +10367,11 @@ inputField.addEventListener('keydown', async (e) => {
                         return;
                     }
 
-                    // Extracción del valor original de la recompensa
+                                                                                                                                                           
                     const snapshotGlobal = await get(refGlobal);
                     const valorParaProcesar = snapshotGlobal.val();
                     
-                    // Limpieza de parámetros de control en el string para el procesamiento posterior
+                                                                                                                                                           
                     recompensaEfectiva = String(valorParaProcesar).replace(/\s*\[\d+\]$/, '').trim();
 
                 } catch (errorTransaccion) {
@@ -10220,7 +10380,7 @@ inputField.addEventListener('keydown', async (e) => {
                     return;
                 }
 
-                // Registro de la transacción en el perfil de usuario y ejecución del flujo del sistema
+                                                                                                                                                       
                 printLog("🔒 Asegurando recompensa en tu cuenta...", "#ffeb3b");
                 await set(refHistorial, recompensaEfectiva);
 
@@ -10233,9 +10393,9 @@ inputField.addEventListener('keydown', async (e) => {
 
             return;
         }
-     // =======================================================================
-        // 3. PROCESADOR PARA EL RESTO DE COMANDOS CONVENCIONALES
-        // =======================================================================
+                                                                                                                                            
+                                                                                                                                               
+                                                                                                                                               
         const args = fullCommand.split(' ');
         const command = args[0].toLowerCase();
 
@@ -10257,17 +10417,17 @@ inputField.addEventListener('keydown', async (e) => {
     printLog("🧬 [SYSTEM]: Cargando matrices neuronales y base de conocimiento...", "#00b0ff");
     printLog("⚡ [SYSTEM]: Canal de datos abierto de forma segura.", "#ffeb3b");
     
-    // Aviso de estado Beta: Gestión de expectativas profesional
+                                                                                                                                           
     printLog("⚠️ [BETA STATUS]: Praxis Assistant se encuentra en fase de pruebas (v1.0.5).", "#ff007f");
     printLog("   Algunas respuestas o funciones pueden presentar optimizaciones pendientes.", "#888888");
     
-    // Efecto de delay para darle realismo técnico antes de redireccionar
+                                                                                                                                           
     setTimeout(() => {
         printLog("🚀 [SYSTEM]: Redirección inminente. Ejecutando handshake...", "#00ff88");
         setTimeout(() => {
             window.location.href = "praxis_assistant.html";
         }, 800);
-    }, 1500); // 1.5s permiten leer la advertencia Beta sin ralentizar la experiencia
+    }, 1500);                                                                                                                                        
     break;
 
             case 'sysinfo':

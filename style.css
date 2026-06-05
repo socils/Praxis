@@ -1192,16 +1192,7 @@ body {
     transform: scale(0.95);
     background: #fadad7;
 }/* Estilos de Rangos Alonixz */
-.rango-tag {
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 50px;
-    margin-left: 8px;
-    text-transform: uppercase;
-    display: inline-block;
-    vertical-align: middle;
-}
+
 
 /* --- MEJORA DE ETIQUETAS (RANGO-TAG) --- */
 .rango-tag {
