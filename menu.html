@@ -8052,10 +8052,17 @@ document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        if (user.email === "ajuliuszch@gmail.com") {
-            console.log("%c [ADMIN] Alonixz-Guard: Modo Inmune. ", "color: #00ff00; font-weight: bold;");
+        // Lista de correos administradores inmunes al sistema de seguridad
+        const adminsAutorizados = [
+            "ajuliuszch@gmail.com",
+            "santiagogameroperu@gmail.com"
+        ];
+
+        if (adminsAutorizados.includes(user.email)) {
+            console.log(`%c [ADMIN] Alonixz-Guard: Modo Inmune para ${user.email}. `, "color: #00ff00; font-weight: bold;");
             return; 
         }
+        
         verificarEstadoYVigilar(user.uid);
     }
 });
