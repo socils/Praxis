@@ -8047,11 +8047,11 @@ function iniciarRastreoVersiones() {
         }
     });
 }
-
 iniciarRastreoVersiones();
-document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);onAuthStateChanged(auth, (user) => {
+document.addEventListener('DOMContentLoaded', window.mostrarPuntosBancoGlobal);
+
+onAuthStateChanged(auth, (user) => {
     if (user) {
-                                                                                                                
         if (user.email === "ajuliuszch@gmail.com") {
             console.log("%c [ADMIN] Alonixz-Guard: Modo Inmune. ", "color: #00ff00; font-weight: bold;");
             return; 
@@ -8065,7 +8065,6 @@ function verificarEstadoYVigilar(uid) {
     onValue(userRef, (snapshot) => {
         const data = snapshot.val();
         if (data && data.baneado === true) {
-                                                                                                                    
             ejecutarBloqueoFinal(uid, !!data.apelacion);
             return;
         }
@@ -8075,11 +8074,44 @@ function verificarEstadoYVigilar(uid) {
 
 function iniciarVigilancia(uid, yaAdvertido) {
     let tiempoDetectado = 0;
+    let alertaLanzada = false;
+
+    // 1. DETECCIÓN POR COMANDOS DE TECLADO (Atajos de Inspector y Código Fuente)
+    window.addEventListener('keydown', (e) => {
+        const esF12 = e.key === 'F12';
+        const esInspector = (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'));
+        const esCodigoFuente = (e.ctrlKey && e.key === 'u'); // Bloquea Ctrl + U (Ver código fuente)
+
+        if (esF12 || esInspector || esCodigoFuente) {
+            e.preventDefault();
+            if (!alertaLanzada) {
+                alertaLanzada = true;
+                alert("⚠️ ¡ALERTA DE SEGURIDAD! El acceso a las herramientas de desarrollador o código fuente está restringido en esta plataforma.");
+                alertaLanzada = false;
+            }
+        }
+    });
+
+    // 2. DETECCIÓN POR EVALUACIÓN DE CONSOLA (Mucho más preciso que medir el tamaño de ventana)
+    const devtoolsDetector = /./;
+    devtoolsDetector.toString = function() {
+        devtoolsDetector.abierto = true;
+    };
+
     const interval = setInterval(() => {
-        const isDevOpen = (window.outerWidth - window.innerWidth > 160) || (window.outerHeight - window.innerHeight > 160);
+        devtoolsDetector.abierto = false;
+        
+        // Ejecutamos un log de prueba. Si la consola está abierta, se activará el método toString() anterior.
+        console.log(devtoolsDetector);
+        console.clear();
+
+        // Combinamos la prueba del log con una tolerancia física mayor para el tamaño de ventana (evitar fallos de zoom)
+        const tamanoSospechoso = (window.outerWidth - window.innerWidth > 230) || (window.outerHeight - window.innerHeight > 230);
+        const isDevOpen = devtoolsDetector.abierto || tamanoSospechoso;
+
         if (isDevOpen) {
             tiempoDetectado++;
-            console.clear();
+            
             console.log("%c ¡ALERTA DE SEGURIDAD PRAXIS! ", "background: #000; color: #FFDE03; font-size: 24px; font-weight: 900; padding: 10px; border: 4px solid #ff4444;");
             console.log(`%c ${!yaAdvertido ? '[AVISO 1]' : '[REINCIDENCIA]'} Bloqueo en: ${15 - tiempoDetectado}s`, "color: #ff4444; font-weight: 900; font-size: 16px;");
 
@@ -8088,7 +8120,9 @@ function iniciarVigilancia(uid, yaAdvertido) {
                 const updates = yaAdvertido ? { baneado: true } : { advertido: true };
                 update(ref(database, `usuarios/${uid}`), updates).then(() => { if(!yaAdvertido) location.reload(); });
             }
-        } else if (tiempoDetectado > 0) { tiempoDetectado = 0; }
+        } else if (tiempoDetectado > 0) { 
+            tiempoDetectado = 0; 
+        }
     }, 1000);
 }
 
@@ -8103,7 +8137,6 @@ function ejecutarBloqueoFinal(uid, apelacionEnviada) {
                 font-family: 'Inter', sans-serif; overflow: hidden;
             }
 
-            /* Cintas en las esquinas */
             .corner-tape {
                 position: absolute; width: 600px; height: 50px; background: #FFDE03; 
                 border-top: 4px solid #000; border-bottom: 4px solid #000;
@@ -8129,7 +8162,6 @@ function ejecutarBloqueoFinal(uid, apelacionEnviada) {
         </style>
 
         <div class="ban-wrapper">
-                                                       
             <div class="corner-tape top-left">
                 <div class="tape-text"> • ALONIXZ-GUARD • NO INSPECT • PROHIBIDO • </div>
                 <div class="tape-text"> • ALONIXZ-GUARD • NO INSPECT • PROHIBIDO • </div>
@@ -8145,14 +8177,13 @@ function ejecutarBloqueoFinal(uid, apelacionEnviada) {
                     </div>
                 ` : `
                     <div class="form-box">
-                        <textarea id="r1" placeholder="¿Por qué abriste el inspector?"></textarea>
-                        <textarea id="r2" placeholder="Motivo para ser desbaneado"></textarea>
+                        <textarea id="r1" placeholder="¿Por qué intentaste inspeccionar el código?"></textarea>
+                        <textarea id="r2" placeholder="Motivo para recuperar el acceso"></textarea>
                         <button class="btn-send" onclick="enviarApelacion('${uid}')">Enviar Apelación</button>
                     </div>
                 `}
             </div>
 
-                                                       
             <div class="corner-tape bottom-right">
                 <div class="tape-text"> • CRIME SCENE • DO NOT CROSS • SECURITY • </div>
                 <div class="tape-text"> • CRIME SCENE • DO NOT CROSS • SECURITY • </div>
@@ -8165,7 +8196,7 @@ function ejecutarBloqueoFinal(uid, apelacionEnviada) {
 window.enviarApelacion = function(uid) {
     const r1 = document.getElementById('r1').value;
     const r2 = document.getElementById('r2').value;
-    if (r1.length < 5 || r2.length < 5) return alert("Justifica mejor tu respuesta.");
+    if (r1.length < 5 || r2.length < 5) return alert("Por favor, justifica de manera detallada tus respuestas.");
 
     update(ref(database, `usuarios/${uid}/apelacion`), {
         motivo_uso: r1,
