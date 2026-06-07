@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mantenimiento Crítico | Praxis</title>
+    <title>Mantenimiento | Praxis</title>
     
     <link rel="icon" type="image/png" href="praxis.png">
     
@@ -12,12 +12,12 @@
 
     <style>
         :root {
-            --primary: #dc3545; /* Rojo de alerta para errores fatales */
-            --primary-light: rgba(220, 53, 69, 0.15);
-            --dark: #07080a;
-            --text-muted: #8a8f98;
+            --primary: #1a73e8; /* Tu azul original favorito */
+            --primary-light: rgba(26, 115, 232, 0.12);
+            --dark: #0b0c10;
+            --text-muted: #9e9e9e;
             --border: rgba(255, 255, 255, 0.08);
-            --accent: #00ffcc;
+            --accent: #00ffcc; /* Verde menta interactivo */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
@@ -48,9 +48,9 @@
         .grid-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(220, 53, 69, 0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(220, 53, 69, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
+            background-image: linear-gradient(rgba(26, 115, 232, 0.04) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(26, 115, 232, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
             z-index: 2;
             pointer-events: none;
         }
@@ -74,7 +74,7 @@
         .logo-box img {
             width: 46px;
             height: auto;
-            animation: pulseLogo 2s infinite ease-in-out;
+            animation: pulseLogo 2.5s infinite ease-in-out;
         }
 
         .logo-box span {
@@ -82,13 +82,13 @@
             font-weight: 900;
             font-size: 2rem;
             letter-spacing: -1px;
-            background: linear-gradient(135deg, #ffffff 40%, #dc3545);
+            background: linear-gradient(135deg, #ffffff 40%, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .score-board {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border);
             padding: 12px 24px;
             border-radius: 14px;
@@ -98,7 +98,7 @@
             backdrop-filter: blur(10px);
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
         }
 
         .score-board:hover {
@@ -118,19 +118,31 @@
             align-items: center;
         }
 
-        .alert-pulse-box {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 25px;
+        /* El cargador de doble anillo que te gustó */
+        .spinner-box {
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary-light);
-            border: 2px solid var(--primary);
-            border-radius: 20px;
-            font-size: 2rem;
-            animation: pulseBox 1.8s infinite ease-in-out;
+            width: 75px;
+            height: 75px;
+            margin-bottom: 25px;
+        }
+
+        .spinner-outer {
+            width: 100%; height: 100%;
+            border: 4px solid transparent;
+            border-top-color: var(--primary);
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .spinner-inner {
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 3px solid transparent;
+            border-left-color: var(--accent);
+            border-right-color: var(--accent);
+            border-radius: 50%;
+            animation: spinReverse 1s linear infinite;
         }
 
         h1 {
@@ -140,7 +152,7 @@
             letter-spacing: -1px;
             margin-bottom: 15px;
             line-height: 1.1;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.7);
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
 
         .desc-text {
@@ -151,15 +163,10 @@
             font-weight: 500;
         }
 
-        .desc-text stroke {
-            color: #ffffff;
-            font-weight: 700;
-        }
-
         .fact-box {
-            background: rgba(10, 11, 15, 0.85);
+            background: rgba(15, 17, 23, 0.75);
             border: 1px solid var(--border);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(14px);
             border-radius: 20px;
             padding: 25px;
             width: 100%;
@@ -168,7 +175,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
         .fact-title {
@@ -190,7 +197,7 @@
 
         .fact-text.changing { opacity: 0; transform: scale(0.98) translateY(-4px); }
 
-        /* --- TERMINAL FLOTANTE (CANAL DE EMERGENCIA) --- */
+        /* --- TERMINAL FLOTANTE MODAL --- */
         .terminal-overlay {
             position: fixed;
             top: 50%; left: 50%;
@@ -244,14 +251,14 @@
             padding: 20px;
             font-family: 'Fira Code', monospace;
             font-size: 0.85rem;
-            color: #a3e635;
+            color: var(--accent);
             height: 250px;
             overflow-y: auto;
             line-height: 1.5;
             background: #050608;
         }
 
-        /* --- FOOTER --- */
+        /* --- FOOTER UI --- */
         .footer-ui {
             z-index: 3;
             width: 100%;
@@ -263,13 +270,14 @@
 
         .badge-status {
             background: var(--primary-light);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #ff8080;
+            border: 1px solid rgba(26, 115, 232, 0.3);
+            color: #ffffff;
             font-family: 'Fira Code', monospace;
             padding: 8px 16px;
             border-radius: 10px;
             font-size: 0.75rem;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
 
         .contact-link {
@@ -291,16 +299,13 @@
         }
 
         /* --- ANIMACIONES --- */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinReverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+        
         @keyframes pulseLogo {
-            0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(220,53,69,0)); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 5px 15px rgba(220,53,69,0.4)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(220,53,69,0)); }
-        }
-
-        @keyframes pulseBox {
-            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+            0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(26,115,232,0)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 5px 15px rgba(26,115,232,0.3)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(26,115,232,0)); }
         }
     </style>
 </head>
@@ -309,22 +314,25 @@
     <div class="grid-overlay"></div>
     <canvas id="game-canvas"></canvas>
 
-    <!-- UI SUPERIOR -->
+    <!-- HEADER UI -->
     <div class="header-ui">
         <div class="logo-box">
             <img src="praxis.png" alt="Logo">
             <span>Praxis</span>
         </div>
         <div class="score-board" id="scoreDisplay" onclick="provocarExplosionMasiva()">
-            ⚡ RED CORE: 000
+            ⚡ ENERGÍA CORE: 000
         </div>
     </div>
 
-    <!-- UI CENTRAL -->
+    <!-- CUERPO CENTRAL -->
     <div class="center-ui">
-        <div class="alert-pulse-box">🛠</div>
-        <h1>Mitigando Error Fatal</h1>
-        <p class="desc-text">Alonixz-Group está depurando un <span style="color: #ff6b6b; font-weight: 700;">desbordamiento crítico de memoria</span> detectado en Alonixz-Cloud para salvar los entornos de bases de datos.</p>
+        <div class="spinner-box">
+            <div class="spinner-outer"></div>
+            <div class="spinner-inner"></div>
+        </div>
+        <h1>Actualizando la Plataforma</h1>
+        <p class="desc-text">Estamos solucionando errores e inyectando optimizaciones en Alonixz-Cloud para mejorar tu experiencia.</p>
 
         <div class="fact-box">
             <div class="fact-title">¿Sabías que?</div>
@@ -332,21 +340,22 @@
         </div>
     </div>
 
-    <!-- UI INFERIOR -->
+    <!-- FOOTER UI -->
     <div class="footer-ui">
-        <div class="badge-status">
-            ALONIXZ_CLOUD: CRITICAL_REPAIR_RUNNING
+        <!-- ESTATUS EN TIEMPO REAL CON FIREBASE -->
+        <div class="badge-status" id="dbStatusDisplay">
+            CONEXIÓN: COMPROBANDO...
         </div>
         <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
             &copy; 2026 Alonixz-Group &bull; Arequipa
         </p>
-        <a href="#" class="contact-link" onclick="abrirTerminalEmergencia(event)">Abrir Consola de Diagnóstico</a>
+        <a href="#" class="contact-link" onclick="abrirTerminalEmergencia(event)">Consola de Diagnóstico</a>
     </div>
 
-    <!-- CONSOLA DE DIAGNÓSTICO INTERACTIVA (TERMINAL MODAL) -->
+    <!-- VENTANA DE DIAGNÓSTICO -->
     <div class="terminal-overlay" id="terminalModal">
         <div class="terminal-header">
-            <span class="terminal-title">>_ ALONIXZ-CLOUD DIAGNOSTIC</span>
+            <span class="terminal-title">>_ ALONIXZ-CLOUD MONITOR</span>
             <span class="terminal-close" onclick="cerrarTerminalEmergencia()">&times;</span>
         </div>
         <div class="terminal-body" id="terminalLog"></div>
@@ -356,7 +365,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CREDENCIALES OFICIALES DE TU PROYECTO PRAXIS
         const firebaseConfig = {
             apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
             authDomain: "praxis-79b9a.firebaseapp.com",
@@ -370,23 +378,32 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const mRef = ref(db, "config/mantenimiento_activo");
+        const statusDisplay = document.getElementById("dbStatusDisplay");
 
-        // Regreso automático al menú cuando desactivas el mantenimiento en Firebase
+        // ESCUCHADOR Y CONTROLADOR DE ESTATUS EN TIEMPO REAL
         onValue(mRef, (snapshot) => {
             const activo = snapshot.val();
-            if (activo === false || activo === null) {
+            if (activo === true) {
+                statusDisplay.innerText = "ESTATUS: MANTENIMIENTO_ACTIVO";
+                statusDisplay.style.borderColor = "rgba(26, 115, 232, 0.4)";
+                statusDisplay.style.color = "#ffffff";
+            } else if (activo === false || activo === null) {
+                statusDisplay.innerText = "ESTATUS: EN LÍNEA / REDIRECCIONANDO";
+                statusDisplay.style.borderColor = "var(--accent)";
+                statusDisplay.style.color = var(--accent);
+                
                 document.body.style.opacity = "0";
-                setTimeout(() => { window.location.href = "menu.html"; }, 500);
+                setTimeout(() => { window.location.href = "menu.html"; }, 600);
             }
         });
 
-        // --- ROTACIÓN DEL "¿SABÍAS QUE?" ---
+        // --- CURIOSIDADES ---
         const curiosidades = [
             "Praxis cuenta con su propio asistente IA diseñado para guiarte en tus objetivos de estudio.",
             "A través de Alonixz-Cloud garantizamos que tus datos e historial de tareas estén siempre seguros.",
             "La plataforma optimiza el consumo de datos para que puedas revisar tus actividades sin problemas.",
             "Puedes interactuar con las herramientas analíticas para proyectar tu rendimiento en cada materia.",
-            "¡Destruye las anomalías flotantes para purificar los nodos del núcleo central de datos!"
+            "¡Destruye los nodos flotantes haciendo clic para sumar energía al Core central!"
         ];
 
         let index = 0;
@@ -400,14 +417,14 @@
             }, 300);
         }, 5500);
 
-        // --- MOTOR DEL JUEGO CON EFECTOS DE IMPACTO Y PARTÍCULAS ---
+        // --- MOTOR CANVAS DEL JUEGO INTERACTIVO ---
         const canvas = document.getElementById("game-canvas");
         const ctx = canvas.getContext("2d");
         const scoreDisplay = document.getElementById("scoreDisplay");
 
         let score = 0;
         let bubbles = [];
-        let splinters = []; // Partículas de explosión
+        let splinters = [];
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -421,16 +438,16 @@
                 this.x = Math.random() * canvas.width;
                 this.y = canvas.height + 50;
                 this.radius = Math.random() * 18 + 14;
-                this.speed = Math.random() * 1.8 + 0.8;
-                this.color = Math.random() > 0.4 ? "#dc3545" : "#00ffcc"; // Rojo anomalía o verde puro
-                this.alpha = Math.random() * 0.3 + 0.3;
+                this.speed = Math.random() * 1.5 + 0.6;
+                this.color = Math.random() > 0.4 ? "#1a73e8" : "#00ffcc";
+                this.alpha = Math.random() * 0.3 + 0.2;
                 this.wobble = 0;
                 this.wobbleInc = Math.random() * 0.03 + 0.01;
             }
             update() {
                 this.y -= this.speed;
                 this.wobble += this.wobbleInc;
-                this.x += Math.sin(this.wobble) * 0.5;
+                this.x += Math.sin(this.wobble) * 0.4;
             }
             draw() {
                 ctx.save();
@@ -439,46 +456,29 @@
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = this.color;
                 ctx.fill();
-                ctx.strokeStyle = "#ffffff";
-                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+                ctx.lineWidth = 1;
                 ctx.stroke();
                 ctx.restore();
             }
         }
 
-        class Splinter { // Partículas al estallar
+        class Splinter {
             constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.radius = Math.random() * 3 + 1;
-                this.vx = (Math.random() - 0.5) * 6;
-                this.vy = (Math.random() - 0.5) * 6;
+                this.x = x; this.y = y; this.color = color;
+                this.radius = Math.random() * 2.5 + 1;
+                this.vx = (Math.random() - 0.5) * 5;
+                this.vy = (Math.random() - 0.5) * 5;
                 this.alpha = 1;
             }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.alpha -= 0.03;
-            }
+            update() { this.x += this.vx; this.y += this.vy; this.alpha -= 0.03; }
             draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
+                ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.restore();
+                ctx.fillStyle = this.color; ctx.fill(); ctx.restore();
             }
         }
 
-        function createExplosion(x, y, color) {
-            for (let i = 0; i < 12; i++) {
-                splinters.push(new Splinter(x, y, color));
-            }
-        }
-
-        // Evento de disparo contra anomalías
         canvas.addEventListener("mousedown", (e) => {
             const rect = canvas.getBoundingClientRect();
             const mx = e.clientX - rect.left;
@@ -487,54 +487,40 @@
             bubbles.forEach((b, idx) => {
                 const distance = Math.hypot(b.x - mx, b.y - my);
                 if (distance < b.radius + 15) {
-                    createExplosion(b.x, b.y, b.color);
+                    for (let i = 0; i < 10; i++) splinters.push(new Splinter(b.x, b.y, b.color));
                     bubbles.splice(idx, 1);
-                    score += 15;
-                    scoreDisplay.innerText = `⚡ RED CORE: ${String(score).padStart(3, '0')}`;
+                    score += 10;
+                    scoreDisplay.innerText = `⚡ ENERGÍA CORE: ${String(score).padStart(3, '0')}`;
                 }
             });
         });
 
-        // Botón Secreto: Explosión masiva al hacer clic en el marcador
         window.provocarExplosionMasiva = function() {
-            bubbles.forEach((b) => createExplosion(b.x, b.y, b.color));
-            score += bubbles.length * 15;
+            bubbles.forEach((b) => {
+                for (let i = 0; i < 8; i++) splinters.push(new Splinter(b.x, b.y, b.color));
+            });
+            score += bubbles.length * 10;
             bubbles = [];
-            scoreDisplay.innerText = `⚡ RED CORE: ${String(score).padStart(3, '0')}`;
+            scoreDisplay.innerText = `⚡ ENERGÍA CORE: ${String(score).padStart(3, '0')}`;
         };
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (bubbles.length < 30 && Math.random() < 0.05) {
-                bubbles.push(new Bubble());
-            }
-
-            bubbles.forEach((b, idx) => {
-                b.update();
-                b.draw();
-                if (b.y + b.radius < 0) bubbles.splice(idx, 1);
-            });
-
-            splinters.forEach((s, idx) => {
-                s.update();
-                s.draw();
-                if (s.alpha <= 0) splinters.splice(idx, 1);
-            });
-
+            if (bubbles.length < 25 && Math.random() < 0.04) bubbles.push(new Bubble());
+            bubbles.forEach((b, idx) => { b.update(); b.draw(); if (b.y + b.radius < 0) bubbles.splice(idx, 1); });
+            splinters.forEach((s, idx) => { s.update(); s.draw(); if (s.alpha <= 0) splinters.splice(idx, 1); });
             requestAnimationFrame(animate);
         }
         animate();
 
-        // --- INTERACCIONES DE LA CONSOLA DE DIAGNÓSTICO (BOTÓN INFERIOR) ---
+        // --- CONSOLA DE DIAGNÓSTICO ---
         const logs = [
-            "[CRITICAL] Desbordamiento detectado en sector de memoria 0x7FFA89B",
-            "[SYSTEM] Desplegando cortafuegos en Alonixz-Cloud...",
-            "[INFO] Estabilizando árbol de Firebase Realtime Database...",
-            "[SUCCESS] Fragmentos corruptos aislados con éxito.",
-            "[PROCESS] Re-compilando módulos del core analítico de Praxis...",
-            "[MONITOR] Escuchando cambios en config/mantenimiento_activo...",
-            "[ALERT] Solicitando purga de caché global..."
+            "[INFO] Estableciendo conexión segura con Alonixz-Cloud...",
+            "[INFO] Comprobando integridad en config/mantenimiento_activo",
+            "[SYSTEM] Analizando reportes de errores de la interfaz...",
+            "[SUCCESS] Corrección de bugs menores completada en tiempo récord.",
+            "[PROCESS] Optimizando base de datos para la plataforma Praxis...",
+            "[MONITOR] Escuchando cambios en la red en tiempo real..."
         ];
 
         window.abrirTerminalEmergencia = function(e) {
@@ -544,8 +530,7 @@
             modal.style.display = "flex";
             setTimeout(() => modal.classList.add("active"), 10);
 
-            logBox.innerHTML = "> Inicializando escaneo forzado...<br>";
-            
+            logBox.innerHTML = "> Ejecutando diagnóstico de rutina...<br>";
             let line = 0;
             const logInterval = setInterval(() => {
                 if (line < logs.length) {
@@ -553,10 +538,10 @@
                     logBox.scrollTop = logBox.scrollHeight;
                     line++;
                 } else {
-                    logBox.innerHTML += `><br><span style='color:#00ffcc'>> [ESTADO]: RED PURIFICADA. EN ESPERA DE SEÑAL DE APERTURA ADM...</span>`;
+                    logBox.innerHTML += `><br><span style='color:#00ffcc'>> [ESTADO]: SISTEMA ESTABLE. EN ESPERA...</span>`;
                     clearInterval(logInterval);
                 }
-            }, 600);
+            }, 500);
         };
 
         window.cerrarTerminalEmergencia = function() {
