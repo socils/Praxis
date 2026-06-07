@@ -360,8 +360,7 @@
         </div>
         <div class="terminal-body" id="terminalLog"></div>
     </div>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -389,8 +388,8 @@
                 statusDisplay.style.color = "#ffffff";
             } else if (activo === false || activo === null) {
                 statusDisplay.innerText = "ESTATUS: EN LÍNEA / REDIRECCIONANDO";
-                statusDisplay.style.borderColor = "var(--accent)";
-                statusDisplay.style.color = var(--accent);
+                statusDisplay.style.borderColor = "#00ffcc";
+                statusDisplay.style.color = "#00ffcc"; // Corregido: Texto plano en lugar de var(--accent)
                 
                 document.body.style.opacity = "0";
                 setTimeout(() => { window.location.href = "menu.html"; }, 600);
