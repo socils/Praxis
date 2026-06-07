@@ -389,7 +389,7 @@
         }
     });
 
-    // --- ESCUCHADOR: MÓDULO DE USUARIOS CON FILTRADO EN usuarios/uid/stats/ ---
+   // --- ESCUCHADOR: MÓDULO DE USUARIOS CON FILTRADO EN usuarios/uid/stats/ ---
     onValue(ref(db, 'usuarios'), (snapshot) => {
         const data = snapshot.val();
         const countEl = document.getElementById('count-users');
@@ -407,9 +407,9 @@
             if(tbody) {
                 tbody.innerHTML = "";
                 userList.forEach(([uid, u]) => {
-                    // SE CORRIGE LA EXTRACCIÓN HACIA LA SUBRUTA /stats/[cite: 1]
-                    const racha = (u.stats && u.stats.racha) ? u.stats.racha : 0;[cite: 1]
-                    const puntos = (u.stats && u.stats.puntos) ? u.stats.puntos : 0;[cite: 1]
+                    // SE CORRIGE LA EXTRACCIÓN HACIA LA SUBRUTA /stats/ SIN ERRORES DE SINTAXIS
+                    const racha = (u.stats && u.stats.racha) ? u.stats.racha : 0;
+                    const puntos = (u.stats && u.stats.puntos) ? u.stats.puntos : 0;
                     
                     totalRacha += racha;
                     
