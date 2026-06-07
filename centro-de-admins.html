@@ -19,6 +19,7 @@
             --danger-soft: rgba(255, 77, 77, 0.12);
             --success: #00ffcc;
             --success-soft: rgba(0, 255, 204, 0.12);
+            --ai-glow: rgba(0, 255, 204, 0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
@@ -34,7 +35,7 @@
             background-size: 50px 50px;
         }
 
-        /* Sidebar Modernizado */
+        /* Sidebar Glassmorphism */
         .sidebar {
             width: 280px;
             background: #0e1116;
@@ -111,6 +112,15 @@
         .section-title { font-family: 'Outfit', sans-serif; margin-bottom: 20px; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
         .panel { background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border); padding: 30px; margin-bottom: 35px; backdrop-filter: blur(10px); }
 
+        /* Módulo IA */
+        .ai-panel {
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            background: linear-gradient(135deg, rgba(26, 29, 36, 0.8), rgba(0, 255, 204, 0.02));
+            box-shadow: 0 0 20px var(--ai-glow);
+        }
+        .ai-status { font-family: 'Fira Code', monospace; color: var(--success); font-size: 13px; margin-bottom: 12px; }
+        .ai-response { background: #060709; color: #e2e8f0; padding: 20px; border-radius: 14px; border: 1px solid var(--border); font-size: 14px; line-height: 1.6; min-height: 60px; }
+
         input {
             width: 100%;
             background: #111317;
@@ -143,6 +153,8 @@
 
         .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2); }
         .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-ai { background: rgba(0, 255, 204, 0.1); color: var(--success); border: 1px solid rgba(0, 255, 204, 0.3); font-family: 'Outfit', sans-serif; }
+        .btn-ai:hover { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); }
         .btn-danger { background: var(--danger-soft); color: #ff6b6b; border: 1px solid rgba(255, 77, 77, 0.2); }
         .btn-danger:hover { background: var(--danger); color: white; }
         .btn-success { background: var(--success-soft); color: var(--success); border: 1px solid rgba(0, 255, 204, 0.2); }
@@ -174,7 +186,6 @@
         .btn-copy { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.05); color: white; padding: 6px 12px; font-size: 11px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-weight: 700; }
         .btn-copy:hover { background: rgba(255,255,255,0.1); }
 
-        /* Monitor de Mantenimiento Activo */
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -202,6 +213,13 @@
 </head>
 <body>
 
+    <!-- DECLARACIÓN PREVIA DE LA KEY GLOBAL -->
+    <script>
+        // Simulando la clave pre-declarada en tu entorno
+        window.myKey = "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8"; 
+    </script>
+
+    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="brand">
             <img src="praxis.png" alt="Logo">
@@ -218,8 +236,10 @@
         </nav>
     </aside>
 
+    <!-- ÁREA DE CONTENIDO -->
     <main class="content">
         
+        <!-- PESTAÑA: RESUMEN -->
         <div id="tab-resumen" class="admin-tab">
             <div class="header">
                 <div>
@@ -246,6 +266,14 @@
                 </div>
             </div>
 
+            <!-- NUEVO CONTENEDOR: AUDITORÍA DE INTELIGENCIA ARTIFICIAL -->
+            <h2 class="section-title" style="color: var(--success);">⚡ Auditoría de Sistema IA (Gemini 1.5 Flash)</h2>
+            <div class="panel ai-panel">
+                <div class="ai-status">🤖 ALONIXZ-CORE > En espera de instrucciones...</div>
+                <div class="ai-response" id="ai-output">Haz clic en el botón inferior para que la IA realice una lectura estructural de la base de datos de Praxis en tiempo real...</div>
+                <button class="btn btn-ai" style="margin-top: 18px;" onclick="ejecutarAuditoriaIA()">Generar Diagnóstico Inteligente</button>
+            </div>
+
             <h2 class="section-title">Anuncio del Sistema</h2>
             <div class="panel">
                 <input type="text" id="global-announcement" placeholder="Escribe la notificación o aviso global para los alumnos...">
@@ -262,6 +290,7 @@
             </div>
         </div>
 
+        <!-- PESTAÑA: USUARIOS -->
         <div id="tab-usuarios" class="admin-tab" style="display:none;">
             <div class="header">
                 <div>
@@ -276,7 +305,7 @@
                             <tr>
                                 <th>IDENTIDAD</th>
                                 <th>ESTADO</th>
-                                <th>PROGRESO</th>
+                                <th>PROGRESO (RACHA | PUNTOS)</th>
                                 <th style="text-align: right;">ACCIÓN</th>
                             </tr>
                         </thead>
@@ -286,6 +315,7 @@
             </div>
         </div>
 
+        <!-- PESTAÑA: DATABASE -->
         <div id="tab-database" class="admin-tab" style="display:none;">
             <div class="header">
                 <div>
@@ -305,9 +335,9 @@
     import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     
-    // Configuración completa e integrada v10 de Praxis
+    // Configuración usando la variable pre-declarada window.myKey
     const firebaseConfig = {
-        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        apiKey: window.myKey,
         authDomain: "praxis-79b9a.firebaseapp.com",
         projectId: "praxis-79b9a",
         databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
@@ -326,8 +356,6 @@
         if (!user || user.email !== miCorreoAdmin) {
             alert("Acceso denegado. Solo el líder de Alonixz-Group puede entrar.");
             window.location.href = "menu.html";
-        } else {
-            console.log("Sesión de administrador validada.");
         }
     });
 
@@ -361,7 +389,7 @@
         }
     });
 
-    // --- ESCUCHADOR: MÓDULO DE USUARIOS ---
+    // --- ESCUCHADOR: MÓDULO DE USUARIOS CON FILTRADO EN usuarios/uid/stats/ ---
     onValue(ref(db, 'usuarios'), (snapshot) => {
         const data = snapshot.val();
         const countEl = document.getElementById('count-users');
@@ -379,13 +407,15 @@
             if(tbody) {
                 tbody.innerHTML = "";
                 userList.forEach(([uid, u]) => {
-                    totalRacha += (u.racha || 0);
+                    // SE CORRIGE LA EXTRACCIÓN HACIA LA SUBRUTA /stats/[cite: 1]
+                    const racha = (u.stats && u.stats.racha) ? u.stats.racha : 0;[cite: 1]
+                    const puntos = (u.stats && u.stats.puntos) ? u.stats.puntos : 0;[cite: 1]
+                    
+                    totalRacha += racha;
                     
                     const nombre = u.nombre || "Estudiante";
                     const correo = u.correo || "Sin correo";
                     const foto = u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
-                    const racha = u.racha || 0;
-                    const puntos = u.puntos || 0;
 
                     tbody.innerHTML += `
                         <tr>
@@ -397,7 +427,7 @@
                                 </div>
                             </td>
                             <td><span style="color:var(--success); font-weight:700; font-size:13px;">● Activo</span></td>
-                            <td style="font-family:'Fira Code', monospace; font-size:13px;">${racha} 🔥 | ${puntos} ✨</td>
+                            <td style="font-family:'Fira Code', monospace; font-size:13px; color:#00ffcc;">${racha} 🔥 <span style="color:#9ca3af;">|</span> ${puntos} ✨</td>
                             <td style="text-align: right;">
                                 <button class="btn btn-danger" style="padding: 6px 14px; font-size:11px; border-radius:8px;" onclick="borrarUsuario('${uid}')">EXPULSAR</button>
                             </td>
@@ -436,7 +466,7 @@
         if(msg) {
             await set(ref(db, 'config/anuncio_global'), { mensaje: msg, fecha: Date.now() });
             alert("Banner actualizado en la nube Alonixz.");
-            inputEl.value = ""; // Limpieza del campo
+            inputEl.value = ""; 
         } else {
             alert("Escribe un mensaje válido.");
         }
@@ -464,6 +494,95 @@
         }).catch(err => {
             console.error("Error al copiar: ", err);
         });
+    };// --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL (GEMINI 1.5 FLASH) ---
+    window.ejecutarAuditoriaIA = async () => {
+        const aiOutput = document.getElementById('ai-output');
+        const aiStatus = document.querySelector('.ai-status');
+        
+        if (!aiOutput || !aiStatus) return;
+
+        aiStatus.innerText = "🤖 ALONIXZ-CORE > Extrayendo datos de Firebase...";
+        aiOutput.innerText = "Analizando la estructura de nodos de Alonixz-Cloud...";
+
+        try {
+            // 1. Obtener una instantánea de toda la base de datos en tiempo real
+            const snapshot = await get(ref(db, '/'));
+            if (!snapshot.exists()) {
+                aiOutput.innerText = "No hay datos suficientes en la base de datos para realizar un diagnóstico.";
+                aiStatus.innerText = "🤖 ALONIXZ-CORE > Error de lectura";
+                return;
+            }
+
+            const databaseData = snapshot.val();
+
+            // 2. Filtrar o limpiar datos si deseas (para optimizar los tokens enviados a la IA)
+            const payloadMinificado = {
+                config: databaseData.config || {},
+                total_usuarios: databaseData.usuarios ? Object.keys(databaseData.usuarios).length : 0,
+                metricas_usuarios: []
+            };
+
+            if (databaseData.usuarios) {
+                Object.entries(databaseData.usuarios).forEach(([uid, u]) => {
+                    payloadMinificado.metricas_usuarios.push({
+                        nombre: u.nombre || "Estudiante Anónimo",
+                        racha: (u.stats && u.stats.racha) ? u.stats.racha : 0,
+                        puntos: (u.stats && u.stats.puntos) ? u.stats.puntos : 0
+                    });
+                });
+            }
+
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Conectando con Gemini 1.5 Flash...";
+
+            // 3. Petición HTTP directa al endpoint oficial de Google Gen AI usando tu variable global myKey
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${window.myKey}`;
+
+            const prompt = `Actúa como un Administrador de Sistemas de Inteligencia Artificial para la plataforma académica Praxis de Alonixz-Group. 
+Analiza los siguientes datos del sistema y de los estudiantes en tiempo real. 
+Genera un diagnóstico resumido en español (máximo 4 párrafos cortos o viñetas), indicando cómo va el progreso global, quiénes son los alumnos con mejores rachas/puntos, y si el estado del mantenimiento requiere atención técnica.
+
+Datos de la base de datos:
+${JSON.stringify(payloadMinificado, null, 2)}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            // 4. Procesar y mostrar la respuesta generada por Gemini
+            if (result.candidates && result.candidates[0].content.parts[0].text) {
+                let textoIA = result.candidates[0].content.parts[0].text;
+                
+                // Conversión ultra básica de formato Markdown a HTML para que los asteriscos se vean en negrita
+                textoIA = textoIA.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                textoIA = textoIA.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                textoIA = textoIA.replace(/\n/g, '<br>');
+
+                aiOutput.innerHTML = textoIA;
+                aiStatus.innerText = "🤖 ALONIXZ-CORE > Diagnóstico Estructural Exitoso";
+            } else {
+                aiOutput.innerText = "La IA no devolvió un formato de respuesta esperado.";
+                aiStatus.innerText = "🤖 ALONIXZ-CORE > Respuesta Vacía";
+            }
+
+        } catch (error) {
+            console.error("Error en la auditoría de IA:", error);
+            aiOutput.innerText = `Fallo al inicializar la consulta con Gemini 1.5 Flash: ${error.message}`;
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Error Crítico de API";
+        }
     };
 </script>
 </body>
