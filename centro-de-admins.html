@@ -271,7 +271,10 @@
             <div class="panel ai-panel">
                 <div class="ai-status">🤖 ALONIXZ-CORE > En espera de instrucciones...</div>
                 <div class="ai-response" id="ai-output">Haz clic en el botón inferior para que la IA realice una lectura estructural de la base de datos de Praxis en tiempo real...</div>
-                <button class="btn btn-ai" style="margin-top: 18px;" onclick="ejecutarAuditoriaIA()">Generar Diagnóstico Inteligente</button>
+                </button>
+<button class="btn btn-ai" style="margin-top: 18px;" onclick="ejecutarAuditoriaIA(auth.currentUser ? auth.currentUser.email : null)">
+    Generar Diagnóstico Inteligente
+</button>
             </div>
 
             <h2 class="section-title">Anuncio del Sistema</h2>
@@ -359,14 +362,27 @@
         }
     });
 
-    // --- CONMUTADOR DE PESTAÑAS (TABS) ---
-    window.switchTab = (tabId, element) => {
-        document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        document.getElementById(`tab-${tabId}`).style.display = 'block';
-        element.classList.add('active');
-        if(tabId === 'database') loadRawData();
-    };
+  // --- CONMUTADOR DE PESTAÑAS SEGURAS ---
+window.switchTab = (tabId, element) => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`).style.display = 'block';
+    element.classList.add('active');
+    if(tabId === 'database') loadRawData();
+};
+
+// --- EXPLORADOR JSON OPTIMIZADO (EVITA PERMISSION DENIED) ---
+async function loadRawData() {
+    try {
+        // En lugar de leer '/', leemos solo '/usuarios' que está permitido para administradores
+        const s = await get(ref(db, 'usuarios'));
+        const rawEl = document.getElementById('raw-json');
+        if(rawEl) rawEl.innerText = JSON.stringify(s.val(), null, 4);
+    } catch (error) {
+        console.error("Error al cargar JSON:", error);
+        document.getElementById('raw-json').innerText = "Error de permisos al consultar este nodo.";
+    }
+}
 
     // --- ESCUCHADOR: AGENDAS ACTIVAS ---
     onValue(ref(db, 'agendas'), s => {
@@ -495,95 +511,98 @@
             console.error("Error al copiar: ", err);
         });
     };// --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL (GEMINI 1.5 FLASH) ---
-    window.ejecutarAuditoriaIA = async () => {
-        const aiOutput = document.getElementById('ai-output');
-        const aiStatus = document.querySelector('.ai-status');
+  // --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL SEGURA POR CORREO ---
+window.ejecutarAuditoriaIA = async (correoUsuarioActivo) => {
+    const aiOutput = document.getElementById('ai-output');
+    const aiStatus = document.querySelector('.ai-status');
+    const correoAdminAutorizado = "ajuliuszch@gmail.com";
+    
+    if (!aiOutput || !aiStatus) return;
+
+    // VALIDACIÓN DE LLAVE POR CORREO ELECTRÓNICO
+    if (!correoUsuarioActivo || correoUsuarioActivo !== correoAdminAutorizado) {
+        aiStatus.innerText = "🤖 ALONIXZ-CORE > Acceso Denegado";
+        aiOutput.innerText = "Error: Tu correo no cuenta con los privilegios criptográficos para auditar Praxis.";
+        return;
+    }
+
+    aiStatus.innerText = "🤖 ALONIXZ-CORE > Validando credenciales y extrayendo métricas...";
+    aiOutput.innerText = "Conectando con el nodo seguro de usuarios...";
+
+    try {
+        // CORRECCIÓN CRÍTICA: Se consulta la ruta 'usuarios' directamente para evitar el bloqueo 'Permission Denied'
+        const snapshotUsuarios = await get(ref(db, 'usuarios'));
+        const snapshotMantenimiento = await get(ref(db, 'config/mantenimiento_activo'));
         
-        if (!aiOutput || !aiStatus) return;
+        if (!snapshotUsuarios.exists()) {
+            aiOutput.innerText = "Base de datos de alumnos vacía. No hay datos para analizar.";
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Sin datos";
+            return;
+        }
 
-        aiStatus.innerText = "🤖 ALONIXZ-CORE > Extrayendo datos de Firebase...";
-        aiOutput.innerText = "Analizando la estructura de nodos de Alonixz-Cloud...";
+        const databaseUsuarios = snapshotUsuarios.val();
+        const estadoMantenimiento = snapshotMantenimiento.val() || false;
 
-        try {
-            // 1. Obtener una instantánea de toda la base de datos en tiempo real
-            const snapshot = await get(ref(db, '/'));
-            if (!snapshot.exists()) {
-                aiOutput.innerText = "No hay datos suficientes en la base de datos para realizar un diagnóstico.";
-                aiStatus.innerText = "🤖 ALONIXZ-CORE > Error de lectura";
-                return;
-            }
+        // Empaquetado optimizado para Gemini 1.5 Flash
+        const payloadMinificado = {
+            mantenimiento_activo: estadoMantenimiento,
+            total_usuarios: Object.keys(databaseUsuarios).length,
+            metricas_usuarios: []
+        };
 
-            const databaseData = snapshot.val();
+        Object.entries(databaseUsuarios).forEach(([uid, u]) => {
+            payloadMinificado.metricas_usuarios.push({
+                nombre: u.nombre || "Estudiante Anónimo",
+                racha: (u.stats && u.stats.racha) ? u.stats.racha : 0,
+                puntos: (u.stats && u.stats.puntos) ? u.stats.puntos : 0
+            });
+        });
 
-            // 2. Filtrar o limpiar datos si deseas (para optimizar los tokens enviados a la IA)
-            const payloadMinificado = {
-                config: databaseData.config || {},
-                total_usuarios: databaseData.usuarios ? Object.keys(databaseData.usuarios).length : 0,
-                metricas_usuarios: []
-            };
+        aiStatus.innerText = "🤖 ALONIXZ-CORE > Procesando con Gemini 1.5 Flash...";
 
-            if (databaseData.usuarios) {
-                Object.entries(databaseData.usuarios).forEach(([uid, u]) => {
-                    payloadMinificado.metricas_usuarios.push({
-                        nombre: u.nombre || "Estudiante Anónimo",
-                        racha: (u.stats && u.stats.racha) ? u.stats.racha : 0,
-                        puntos: (u.stats && u.stats.puntos) ? u.stats.puntos : 0
-                    });
-                });
-            }
+        // Petición HTTP a Google Gen AI usando tu key predeclarada
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${window.myKey}`;
 
-            aiStatus.innerText = "🤖 ALONIXZ-CORE > Conectando con Gemini 1.5 Flash...";
+        const prompt = `Actúa como el Administrador de Inteligencia Artificial de Praxis. 
+Analiza estas métricas académicas de la base de datos y genera un reporte ejecutivo muy corto y directo en español. 
+Dime el estado del rendimiento del grupo, resalta los estudiantes con mejores rachas y puntos, y analiza si el sistema requiere atención según el estado de mantenimiento actual.
 
-            // 3. Petición HTTP directa al endpoint oficial de Google Gen AI usando tu variable global myKey
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${window.myKey}`;
-
-            const prompt = `Actúa como un Administrador de Sistemas de Inteligencia Artificial para la plataforma académica Praxis de Alonixz-Group. 
-Analiza los siguientes datos del sistema y de los estudiantes en tiempo real. 
-Genera un diagnóstico resumido en español (máximo 4 párrafos cortos o viñetas), indicando cómo va el progreso global, quiénes son los alumnos con mejores rachas/puntos, y si el estado del mantenimiento requiere atención técnica.
-
-Datos de la base de datos:
+Datos estructurados:
 ${JSON.stringify(payloadMinificado, null, 2)}`;
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }]
-                })
-            });
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-            const result = await response.json();
+        const result = await response.json();
+        
+        if (result.candidates && result.candidates[0].content.parts[0].text) {
+            let textoIA = result.candidates[0].content.parts[0].text;
             
-            // 4. Procesar y mostrar la respuesta generada por Gemini
-            if (result.candidates && result.candidates[0].content.parts[0].text) {
-                let textoIA = result.candidates[0].content.parts[0].text;
-                
-                // Conversión ultra básica de formato Markdown a HTML para que los asteriscos se vean en negrita
-                textoIA = textoIA.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                textoIA = textoIA.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                textoIA = textoIA.replace(/\n/g, '<br>');
+            // Formateo visual del Markdown devuelto por la IA
+            textoIA = textoIA.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            textoIA = textoIA.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            textoIA = textoIA.replace(/\n/g, '<br>');
 
-                aiOutput.innerHTML = textoIA;
-                aiStatus.innerText = "🤖 ALONIXZ-CORE > Diagnóstico Estructural Exitoso";
-            } else {
-                aiOutput.innerText = "La IA no devolvió un formato de respuesta esperado.";
-                aiStatus.innerText = "🤖 ALONIXZ-CORE > Respuesta Vacía";
-            }
-
-        } catch (error) {
-            console.error("Error en la auditoría de IA:", error);
-            aiOutput.innerText = `Fallo al inicializar la consulta con Gemini 1.5 Flash: ${error.message}`;
-            aiStatus.innerText = "🤖 ALONIXZ-CORE > Error Crítico de API";
+            aiOutput.innerHTML = textoIA;
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Diagnóstico Completado con Éxito";
+        } else {
+            aiOutput.innerText = "El motor de IA no devolvió contenido procesable.";
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Error de Respuesta";
         }
-    };
+
+    } catch (error) {
+        console.error("Error en la auditoría de IA:", error);
+        aiOutput.innerText = `Fallo en el flujo de diagnóstico automatizado: ${error.message}`;
+        aiStatus.innerText = "🤖 ALONIXZ-CORE > Error de Ejecución";
+    }
+};
 </script>
 </body>
 </html>
