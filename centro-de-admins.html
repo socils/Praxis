@@ -495,13 +495,6 @@ async function loadRawData() {
         }
     };
 
-    // --- FUNCIÓN: EXPLORADOR JSON ---
-    async function loadRawData() {
-        const s = await get(ref(db, '/'));
-        const rawEl = document.getElementById('raw-json');
-        if(rawEl) rawEl.innerText = JSON.stringify(s.val(), null, 4);
-    }
-
     // --- FUNCIÓN COPIAR JSON ---
     window.copiarJSON = function() {
         const jsonText = document.getElementById('raw-json').innerText;
