@@ -213,11 +213,7 @@
 </head>
 <body>
 
-    <!-- DECLARACIÓN PREVIA DE LA KEY GLOBAL -->
-    <script>
-        // Simulando la clave pre-declarada en tu entorno
-        window.myKey = "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8"; 
-    </script>
+
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
@@ -554,7 +550,7 @@ window.ejecutarAuditoriaIA = async (correoUsuarioActivo) => {
         aiStatus.innerText = "🤖 ALONIXZ-CORE > Procesando con Gemini 1.5 Flash...";
 
         // Petición HTTP a Google Gen AI usando tu key predeclarada
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${window.myKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${myKey}`;
 
         const prompt = `Actúa como el Administrador de Inteligencia Artificial de Praxis. 
 Analiza estas métricas académicas de la base de datos y genera un reporte ejecutivo muy corto y directo en español. 

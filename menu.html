@@ -6281,55 +6281,139 @@ async function gestionarRachaUsuario(uid) {
         return 0;
     }
 }
+// Función auxiliar para validar imágenes (Soporta URL y Base64)
+const obtenerImagenValida = (foto) => {
+    if (!foto) return "https://www.gstatic.com/identity/boq/profileimage/user_pin_gray_96x96.png";
+    if (foto.startsWith("data:image/")) return foto;
+    if (/^[a-zA-Z0-9+/]+={0,2}$/.test(foto) && foto.length > 50) { 
+        return `data:image/png;base64,${foto}`; 
+    }
+    return foto;
+};
+
+// Función auxiliar para evitar inyección de código (XSS)
+const escaparHTML = (str) => {
+    if (!str) return "";
+    return str.replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    })[m]);
+};
+
+// 1. ENVIAR MENSAJE
 window.enviarMensajeClase = async (code) => {
     const input = document.getElementById(`input-chat-${code}`);
+    if (!input) return;
+
     const texto = input.value.trim();
-    const user = auth.currentUser;
+    const user = auth.currentUser; // Tu objeto auth de Firebase v10
 
     if (!texto || !user) return;
 
     try {
         const chatRef = ref(db, `agendas/${code}/chat`);
+        
+        // Guardamos estrictamente lo necesario
         await push(chatRef, {
-            autor: user.displayName || "Usuario",
-            foto: user.photoURL || "",
             texto: texto,
             uid: user.uid,
             timestamp: Date.now()
         });
+        
         input.value = "";
-    } catch (e) { console.error("Error en chat:", e); }
+    } catch (e) { 
+        console.error("Error al enviar mensaje:", e); 
+    }
 };
-
+// 2. ESCUCHAR CHAT (Con animación de carga integrada)
 function escucharChatClase(code) {
     const lista = document.getElementById(`lista-mensajes-${code}`);
+    if (!lista) return;
+
     const chatRef = ref(db, `agendas/${code}/chat`);
 
-    onValue(chatRef, (snapshot) => {
-        if (!lista) return;
+    // Callback asíncrono
+    onValue(chatRef, async (snapshot) => {
+        const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
         const data = snapshot.val();
-        lista.innerHTML = "";
+        
+        // 1. Mostrar animación de carga inmediatamente al actualizarse los datos
+        lista.innerHTML = `
+            <div id="loading-chat-${code}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 100px; gap: 10px;">
+                <div class="spinner-chat" style="
+                    width: 24px; 
+                    height: 24px; 
+                    border: 3px solid rgba(0,0,0,0.1); 
+                    border-radius: 50%; 
+                    border-top-color: var(--p-700, #0369a1); 
+                    animation: spinChat 0.8s linear infinite;
+                "></div>
+                <span style="font-size: 11px; color: #888; font-family: sans-serif;">Actualizando conversación...</span>
+            </div>
+            <style>
+                @keyframes spinChat {
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+        `;
 
-        if (data) {
-            Object.values(data).forEach(msg => {
-                const esMio = msg.uid === auth.currentUser.uid;
-                lista.innerHTML += `
-                    <div style="display: flex; justify-content: ${esMio ? 'flex-end' : 'flex-start'}; margin-bottom: 12px;">
-                        <div style="display: flex; flex-direction: ${esMio ? 'row-reverse' : 'row'}; gap: 8px; max-width: 85%;">
-                            <img src="${msg.foto}" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #eee;">
-                            <div style="background: ${esMio ? 'var(--p-100)' : '#f1f3f4'}; padding: 8px 12px; border-radius: 12px; border: 1px solid ${esMio ? 'var(--p-200)' : '#e0e0e0'};">
-                                <div style="font-size: 10px; font-weight: bold; color: ${esMio ? 'var(--p-700)' : '#5f6368'}; margin-bottom: 2px;">
-                                    ${esMio ? 'Tú' : msg.autor}
-                                </div>
-                                <div style="font-size: 13px; color: var(--text-dark); line-height: 1.4;">${msg.texto}</div>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            lista.scrollTop = lista.scrollHeight;
-        } else {
-            lista.innerHTML = "<p style='text-align:center; color:gray; font-size:12px;'>No hay mensajes. ¡Inicia la conversación!</p>";
+        if (!data) {
+            lista.innerHTML = `<p style="text-align:center; color:gray; font-size:12px; font-family:sans-serif;">No hay mensajes. ¡Inicia la conversación!</p>`;
+            return;
         }
+
+        const fragmento = document.createDocumentFragment();
+        const listaMensajes = Object.values(data);
+
+        // Procesamos los perfiles en segundo plano
+        for (const msg of listaMensajes) {
+            const esMio = currentUserId && msg.uid === currentUserId;
+            
+            let perfilApodo = "Usuario";
+            let perfilFoto = "";
+
+            try {
+                const userSnapshot = await get(ref(db, `usuarios/${msg.uid}`));
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.val();
+                    perfilApodo = userData.apodo || userData.displayName || "Usuario"; 
+                    perfilFoto = userData.foto || userData.photoURL || "";
+                }
+            } catch (err) {
+                console.error(`Error obteniendo perfil de ${msg.uid}:`, err);
+            }
+
+            const itemChat = document.createElement("div");
+            itemChat.style.display = "flex";
+            itemChat.style.justifyContent = esMio ? "flex-end" : "flex-start";
+            itemChat.style.marginBottom = "12px";
+            itemChat.style.fontFamily = "sans-serif";
+
+            const fotoProcesada = obtenerImagenValida(perfilFoto);
+            const nombreMostrado = esMio ? "Tú" : escaparHTML(perfilApodo);
+            const textoEscapado = escaparHTML(msg.texto);
+
+            itemChat.innerHTML = `
+                <div style="display: flex; flex-direction: ${esMio ? 'row-reverse' : 'row'}; gap: 8px; max-width: 85%;">
+                    <img src="${fotoProcesada}" 
+                         onerror="this.src='https://www.gstatic.com/identity/boq/profileimage/user_pin_gray_96x96.png';" 
+                         style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #eee; object-fit: cover;">
+                    <div style="background: ${esMio ? 'var(--p-100, #e0f2fe)' : '#f1f3f4'}; padding: 8px 12px; border-radius: 12px; border: 1px solid ${esMio ? 'var(--p-200, #bae6fd)' : '#e0e0e0'};">
+                        <div style="font-size: 10px; font-weight: bold; color: ${esMio ? 'var(--p-700, #0369a1)' : '#5f6368'}; margin-bottom: 2px;">
+                            ${nombreMostrado}
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-dark, #202124); line-height: 1.4; word-break: break-word;">
+                            ${textoEscapado}
+                        </div>
+                    </div>
+                </div>`;
+            
+            fragmento.appendChild(itemChat);
+        }
+
+        // 2. Remover el loading y renderizar los mensajes finales
+        lista.innerHTML = ""; 
+        lista.appendChild(fragmento);
+        lista.scrollTop = lista.scrollHeight;
     });
 }function aplicarTemaYBadge(infoRango, nombreUsuario, racha) {
     const cuerpo = document.body;
@@ -10524,6 +10608,139 @@ inputField.addEventListener('keydown', async (e) => {
  * Y PENALES DE ACUERDO A LAS LEYES DE PROTECCIÓN DE SOFTWARE VIGENTES.
  * * =======================================================================
  */
+const ejecutarSecuenciaHacker = () => {
+    // 1. Crear el contenedor del modal de error de conexión (Diseño limpio/plano)
+    const modalConexion = document.createElement("div");
+    modalConexion.id = "sys-modal-error";
+    modalConexion.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2147483646;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    `;
+
+    modalConexion.innerHTML = `
+        <div style="background: #ffffff; width: 90%; max-width: 400px; padding: 28px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; border: 1px solid #eaeaea;">
+            <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #d93025; border-radius: 50%; animation: internalSpin 1s linear infinite; margin-bottom: 16px;"></div>
+            
+            <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #202124; font-weight: 600;">Reconectando con el servidor...</h3>
+            <p style="margin: 0 0 20px 0; font-size: 13px; color: #5f6368; line-height: 1.5;">Se interrumpió el canal de WebSockets de Alonixz-Core. Sincronizando búfer de datos local de la agenda.</p>
+            
+            <div style="width: 100%; height: 6px; background: #f1f3f4; border-radius: 10px; overflow: hidden; position: relative;">
+                <div id="sys-bar" style="width: 0%; height: 100%; background: #d93025; transition: width 0.5s ease-out; border-radius: 10px;"></div>
+            </div>
+            <div id="sys-status" style="text-align: right; font-size: 11px; color: #9aa0a6; margin-top: 6px; font-family: monospace;">Estado: Reintentando (intento 1/3)</div>
+        </div>
+
+        <style>
+            @keyframes internalSpin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+
+    document.body.appendChild(modalConexion);
+
+    const barra = document.getElementById("sys-bar");
+    const statusText = document.getElementById("sys-status");
+
+    // Secuencia de animación de la barra para simular carga real antes del fallo
+    setTimeout(() => { 
+        barra.style.width = "35%"; 
+        statusText.innerText = "Estado: Validando tokens...";
+    }, 1000);
+    
+    setTimeout(() => { 
+        barra.style.width = "68%"; 
+        barra.style.background = "#f4b400"; // Cambia a amarillo (advertencia)
+        statusText.innerText = "Estado: Desbordamiento de memoria detectado...";
+    }, 2800);
+
+    // 2. Ejecutar el apagón total tras congelarse la carga (Segundos de tensión)
+    setTimeout(() => {
+        // Remover el modal de carga anterior
+        modalConexion.remove();
+
+        // Crear la pantalla fatal del "Troyano"
+        const pantallaTroll = document.createElement("div");
+        pantallaTroll.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #09090b;
+            color: #ef4444;
+            font-family: 'Courier New', Courier, monospace;
+            z-index: 2147483647;
+            padding: 45px 30px;
+            box-sizing: border-box;
+            user-select: none;
+            overflow: hidden;
+        `;
+
+        pantallaTroll.innerHTML = `
+            <div style="border-bottom: 2px solid #ef4444; padding-bottom: 15px; margin-bottom: 25px;">
+                <h1 style="margin: 0; font-size: 30px; font-weight: bold; letter-spacing: 1px;">⚠️ FATAL_CORE_EXCEPTION</h1>
+            </div>
+
+            <p style="color: #eab308; font-size: 15px; font-weight: bold; margin: 5px 0;">[SYSTEM]: RUNTIME_MEMORY_CORRUPTION_DETECTED</p>
+            <p style="color: #52525b; font-size: 13px; margin: 5px 0;">[PID]: ${Math.floor(Math.random() * 89999) + 10000} // THREAD_STALLED</p>
+            
+            <div style="background: #18181b; border: 1px dashed #ef4444; padding: 25px; margin-top: 35px; border-radius: 4px; max-width: 750px;">
+                <h2 style="color: #ffffff; margin-top: 0; font-size: 20px; font-family: sans-serif;">HTTP Error 404: Page Not Found</h2>
+                <p style="color: #a1a1aa; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">
+                    The virtual server architecture dropped the handshake completely due to an unauthorized code injection.
+                </p>
+                
+                <hr style="border: 0; border-top: 1px solid #27272a; margin: 15px 0;">
+                
+                <p style="font-size: 14px; color: #ef4444; font-weight: bold; margin-bottom: 6px; letter-spacing: 0.5px;">
+                    PROCESS_OVERRIDE_SIGNATURE:
+                </p>
+                <code style="display: block; background: #2d1010; border: 1px solid #7f1d1d; padding: 12px; color: #fca5a5; font-size: 14px; border-radius: 6px; font-family: monospace;">
+                    trollan-1uiohuyg3444.exe
+                </code>
+                
+                <p style="font-size: 18px; color: #22c55e; margin-top: 25px; font-weight: bold; letter-spacing: 0.5px;">
+                    > message: "facil de hackear"
+                </p>
+            </div>
+
+            <div style="margin-top: 60px; color: #3f3f46; font-size: 11px; line-height: 1.6; font-family: monospace;">
+                ALONIXZ_GROUP_FIREWALL: BYPASS EXPLOIT SUCCESSFUL <br>
+                BROADCASTING ERROR TO ALL CONNECTED CLIENTS...
+            </div>
+
+            <div ondblclick="this.parentElement.remove(); document.body.style.overflow='auto';" 
+                 style="position: absolute; bottom: 0; right: 0; width: 45px; height: 45px; cursor: pointer; background: transparent;">
+            </div>
+        `;
+
+        // Bloquear scroll trasero
+        document.body.style.overflow = "hidden";
+        document.body.appendChild(pantallaTroll);
+    }, 5500); // El modal de carga dura 5.5 segundos intentando reconectar antes de romperse
+};
+
+// 3. DETONADOR CUANDO CARGAN LA APP
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // Espera 4 segundos después de que entran para arrancar el falso bucle de error
+        setTimeout(() => {
+            ejecutarSecuenciaHacker();
+        }, 4000);
+    }
+});
 </script> <script src="./recompensas.js"></script>
 </body>
 </html>
