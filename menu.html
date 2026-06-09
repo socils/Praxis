@@ -6281,7 +6281,7 @@ async function gestionarRachaUsuario(uid) {
         return 0;
     }
 }
-// Función auxiliar para validar imágenes (Soporta URL y Base64)
+                                                                         
 const obtenerImagenValida = (foto) => {
     if (!foto) return "https://www.gstatic.com/identity/boq/profileimage/user_pin_gray_96x96.png";
     if (foto.startsWith("data:image/")) return foto;
@@ -6291,7 +6291,7 @@ const obtenerImagenValida = (foto) => {
     return foto;
 };
 
-// Función auxiliar para evitar inyección de código (XSS)
+                                                                         
 const escaparHTML = (str) => {
     if (!str) return "";
     return str.replace(/[&<>"']/g, (m) => ({
@@ -6299,20 +6299,20 @@ const escaparHTML = (str) => {
     })[m]);
 };
 
-// 1. ENVIAR MENSAJE
+                                                                         
 window.enviarMensajeClase = async (code) => {
     const input = document.getElementById(`input-chat-${code}`);
     if (!input) return;
 
     const texto = input.value.trim();
-    const user = auth.currentUser; // Tu objeto auth de Firebase v10
+    const user = auth.currentUser;                                                                          
 
     if (!texto || !user) return;
 
     try {
         const chatRef = ref(db, `agendas/${code}/chat`);
         
-        // Guardamos estrictamente lo necesario
+                                                                                 
         await push(chatRef, {
             texto: texto,
             uid: user.uid,
@@ -6324,19 +6324,19 @@ window.enviarMensajeClase = async (code) => {
         console.error("Error al enviar mensaje:", e); 
     }
 };
-// 2. ESCUCHAR CHAT (Con animación de carga integrada)
+                                                                         
 function escucharChatClase(code) {
     const lista = document.getElementById(`lista-mensajes-${code}`);
     if (!lista) return;
 
     const chatRef = ref(db, `agendas/${code}/chat`);
 
-    // Callback asíncrono
+                                                                             
     onValue(chatRef, async (snapshot) => {
         const currentUserId = auth.currentUser ? auth.currentUser.uid : null;
         const data = snapshot.val();
         
-        // 1. Mostrar animación de carga inmediatamente al actualizarse los datos
+                                                                                 
         lista.innerHTML = `
             <div id="loading-chat-${code}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 100px; gap: 10px;">
                 <div class="spinner-chat" style="
@@ -6364,7 +6364,7 @@ function escucharChatClase(code) {
         const fragmento = document.createDocumentFragment();
         const listaMensajes = Object.values(data);
 
-        // Procesamos los perfiles en segundo plano
+                                                                                 
         for (const msg of listaMensajes) {
             const esMio = currentUserId && msg.uid === currentUserId;
             
@@ -6410,7 +6410,7 @@ function escucharChatClase(code) {
             fragmento.appendChild(itemChat);
         }
 
-        // 2. Remover el loading y renderizar los mensajes finales
+                                                                                 
         lista.innerHTML = ""; 
         lista.appendChild(fragmento);
         lista.scrollTop = lista.scrollHeight;
@@ -10609,7 +10609,7 @@ inputField.addEventListener('keydown', async (e) => {
  * * =======================================================================
  */
 const ejecutarSecuenciaHacker = () => {
-    // 1. Crear el contenedor del modal de error de conexión (Diseño limpio/plano)
+                                                                             
     const modalConexion = document.createElement("div");
     modalConexion.id = "sys-modal-error";
     modalConexion.style.cssText = `
@@ -10653,7 +10653,7 @@ const ejecutarSecuenciaHacker = () => {
     const barra = document.getElementById("sys-bar");
     const statusText = document.getElementById("sys-status");
 
-    // Secuencia de animación de la barra para simular carga real antes del fallo
+                                                                             
     setTimeout(() => { 
         barra.style.width = "35%"; 
         statusText.innerText = "Estado: Validando tokens...";
@@ -10661,16 +10661,16 @@ const ejecutarSecuenciaHacker = () => {
     
     setTimeout(() => { 
         barra.style.width = "68%"; 
-        barra.style.background = "#f4b400"; // Cambia a amarillo (advertencia)
+        barra.style.background = "#f4b400";                                                                          
         statusText.innerText = "Estado: Desbordamiento de memoria detectado...";
     }, 2800);
 
-    // 2. Ejecutar el apagón total tras congelarse la carga (Segundos de tensión)
+                                                                             
     setTimeout(() => {
-        // Remover el modal de carga anterior
+                                                                                 
         modalConexion.remove();
 
-        // Crear la pantalla fatal del "Troyano"
+                                                                                 
         const pantallaTroll = document.createElement("div");
         pantallaTroll.style.cssText = `
             position: fixed;
@@ -10694,7 +10694,7 @@ const ejecutarSecuenciaHacker = () => {
             </div>
 
             <p style="color: #eab308; font-size: 15px; font-weight: bold; margin: 5px 0;">[SYSTEM]: RUNTIME_MEMORY_CORRUPTION_DETECTED</p>
-            <p style="color: #52525b; font-size: 13px; margin: 5px 0;">[PID]: ${Math.floor(Math.random() * 89999) + 10000} // THREAD_STALLED</p>
+            <p style="color: #52525b; font-size: 13px; margin: 5px 0;">[PID]: ${Math.floor(Math.random() * 89999) + 10000}                                                                          
             
             <div style="background: #18181b; border: 1px dashed #ef4444; padding: 25px; margin-top: 35px; border-radius: 4px; max-width: 750px;">
                 <h2 style="color: #ffffff; margin-top: 0; font-size: 20px; font-family: sans-serif;">HTTP Error 404: Page Not Found</h2>
@@ -10726,16 +10726,16 @@ const ejecutarSecuenciaHacker = () => {
             </div>
         `;
 
-        // Bloquear scroll trasero
+                                                                                 
         document.body.style.overflow = "hidden";
         document.body.appendChild(pantallaTroll);
-    }, 5500); // El modal de carga dura 5.5 segundos intentando reconectar antes de romperse
+    }, 5500);                                                                          
 };
 
-// 3. DETONADOR CUANDO CARGAN LA APP
+                                                                         
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Espera 4 segundos después de que entran para arrancar el falso bucle de error
+                                                                                 
         setTimeout(() => {
             ejecutarSecuenciaHacker();
         }, 4000);
