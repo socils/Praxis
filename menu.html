@@ -662,7 +662,7 @@ onAuthStateChanged(auth, async (user) => {
     try {
         const isGuest = user.isAnonymous;
         const miCorreoAdmin = "ajuliuszch@gmail.com";
-        const STAFF_CONSEJO = ["jzavaletac@gmail.com", "miembro3@ejemplo.com", "miembro4@ejemplo.com", "miembro5@ejemplo.com"];
+        const STAFF_CONSEJO = ["jzavaletac@gmail.com", "francosantosch@gmail.com", "miembro4@ejemplo.com", "miembro5@ejemplo.com"];
 
         const adminBtn = document.getElementById('admin-link');
         const consejoBtn = document.getElementById('consejo-link');
@@ -7138,9 +7138,7 @@ async function detectarAgendaDesdeURL() {
 window.addEventListener('DOMContentLoaded', detectarAgendaDesdeURL);
 window.donarPuntosAAgenda = async (codigoAgenda) => {
     const user = auth.currentUser;
-    const cantidad = parseInt(prompt("¿Cuántos puntos deseas donar al pozo de la clase?"));
-    
-    if (isNaN(cantidad) || cantidad <= 0) return;
+    if (!user) return alert("Inicia sesión para realizar esta acción.");
 
     const userRef = ref(db, `usuarios/${user.uid}/stats/puntos`);
     const agendaRef = ref(db, `agendas/${codigoAgenda}/bancoPuntos`);
@@ -7149,19 +7147,94 @@ window.donarPuntosAAgenda = async (codigoAgenda) => {
         const snapUser = await get(userRef);
         const misPuntos = snapUser.val() || 0;
 
-        if (misPuntos < cantidad) {
-            alert("No tienes suficientes puntos para donar esa cantidad.");
-            return;
-        }
+        // Crear contenedor del Modal
+        const modalOverlay = document.createElement("div");
+        modalOverlay.style = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); display: flex; align-items: center;
+            justify-content: center; z-index: 10000; font-family: system-ui, sans-serif;
+        `;
 
-                                                                                                                                               
-        await set(userRef, misPuntos - cantidad);
-                                                                                                                                               
-        const snapAgenda = await get(agendaRef);
-        await set(agendaRef, (snapAgenda.val() || 0) + cantidad);
+        // Estructura e interfaz Neo-Brutalista
+        modalOverlay.innerHTML = `
+            <div style="background: #fff; border: 4px solid #000; padding: 25px; width: 90%; max-width: 400px; border-radius: 16px; box-shadow: 8px 8px 0px #000; box-sizing: border-box; transform: translateY(-10px);">
+                <h3 style="margin: 0 0 10px 0; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; color: #000;">
+                    🎲 Aportar al Pozo
+                </h3>
+                <p style="margin: 0 0 20px 0; font-size: 0.9rem; font-weight: 700; color: #555;">
+                    Puntos disponibles: <span style="background: #ffcc00; color: #000; border: 2px solid #000; padding: 2px 6px; border-radius: 6px; font-weight: 900;">${misPuntos} pts</span>
+                </p>
+                
+                <label style="display: block; font-weight: 900; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 8px;">Cantidad a donar:</label>
+                <input type="number" id="input-cantidad-donar" min="1" max="${misPuntos}" value="10" style="width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 900; border: 3px solid #000; border-radius: 10px; box-shadow: 3px 3px 0px #000; box-sizing: border-box; margin-bottom: 25px; outline: none;">
+                
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button id="btn-cancelar-donacion" style="background: #fff; color: #000; border: 3px solid #000; padding: 10px 20px; border-radius: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; box-shadow: 3px 3px 0px #000; transition: transform 0.1s, box-shadow 0.1s;">
+                        Cancelar
+                    </button>
+                    <button id="btn-confirmar-donacion" style="background: #00ff88; color: #000; border: 3px solid #000; padding: 10px 20px; border-radius: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; box-shadow: 3px 3px 0px #000; transition: transform 0.1s, box-shadow 0.1s;">
+                        Donar
+                    </button>
+                </div>
+            </div>
+            <style>
+                #btn-cancelar-donacion:active, #btn-confirmar-donacion:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
+                #input-cantidad-donar:focus { border-color: #3b82f6; }
+            </style>
+        `;
 
-        alert(`🤝 ¡Gracias! Has donado ${cantidad} puntos a la clase.`);
-    } catch (e) { console.error(e); }
+        document.body.appendChild(modalOverlay);
+
+        // Retornar una promesa para pausar la ejecución hasta que el usuario decida
+        return new Promise((resolve) => {
+            const cerrarModal = () => {
+                modalOverlay.remove();
+                resolve();
+            };
+
+            // Evento Cancelar
+            modalOverlay.querySelector("#btn-cancelar-donacion").onclick = cerrarModal;
+
+            // Evento Confirmar
+            modalOverlay.querySelector("#btn-confirmar-donacion").onclick = async () => {
+                const input = modalOverlay.querySelector("#input-cantidad-donar");
+                const cantidad = parseInt(input.value);
+
+                if (isNaN(cantidad) || cantidad <= 0) {
+                    alert("Por favor, ingresa una cantidad válida numérica.");
+                    return;
+                }
+
+                if (misPuntos < cantidad) {
+                    alert("No cuentas con los puntos suficientes en tus estadísticas.");
+                    return;
+                }
+
+                // Deshabilitar botón para prevenir doble submit
+                const btnConfirmar = modalOverlay.querySelector("#btn-confirmar-donacion");
+                btnConfirmar.innerText = "Procesando...";
+                btnConfirmar.disabled = true;
+
+                try {
+                    // Restar puntos al usuario
+                    await set(userRef, misPuntos - cantidad);
+                    
+                    // Sumar al pozo común de la agenda escolar
+                    const snapAgenda = await get(agendaRef);
+                    await set(agendaRef, (snapAgenda.val() || 0) + cantidad);
+
+                    alert(`🤝 ¡Muchas gracias! Has aportado ${cantidad} puntos a la clase.`);
+                } catch (err) {
+                    console.error("Error en la transferencia de puntos:", err);
+                } finally {
+                    cerrarModal();
+                }
+            };
+        });
+
+    } catch (e) { 
+        console.error("Error crítico en donarPuntosAAgenda:", e); 
+    }
 };const inicializarBotonProfesor = async () => {
     const params = new URLSearchParams(window.location.search);
     const codigoActivo = params.get('code');                                                                                
