@@ -4709,7 +4709,7 @@ ETIQUETA|||estilo-clase|||Cuerpo estructurado o el texto bloqueado completamente
                 <div class="market-item-card">
                                                                             
                     <div class="market-hanging-price">
-                        <span style="color: #00ff88; font-weight: 900; text-shadow: 0 0 6px rgba(0,255,136,0.6);">⚡</span> 
+                        <span style="color: #00ff88; font-weight: 900; text-shadow: 0 0 6px rgba(0,255,136,0.6);"><img src="dolar.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 5px;"></span> 
                         <span>${p.costo}</span> 
                         <span style="font-size: 9px; color: #94a3b8; font-weight: 700; margin-left: 1px;">PTS</span>
                     </div>
@@ -7968,7 +7968,142 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
             sessionStorage.setItem('e_seen', id);
         }
     }
-});/* ============================================================
+});window.mostrarConsejo = (titulo, contenidoOMsg, opciones = null, encuestaId = null) => {
+    // 1. Intentar capturar instancias globales de Firebase por seguridad de scope
+    const databaseInst = window.db || (typeof db !== 'undefined' ? db : null);
+    const authInst = window.auth || (typeof auth !== 'undefined' ? auth : null);
+
+    // 2. Normalizar opciones (Soporta Arrays de JS u Objetos estructurados de Firebase RTDB)
+    let arrayOpciones = [];
+    if (opciones !== null) {
+        if (Array.isArray(opciones)) {
+            arrayOpciones = opciones;
+        } else if (typeof opciones === 'object') {
+            arrayOpciones = Object.keys(opciones); // Extrae las llaves seguras del objeto
+        }
+    }
+
+    const esEncuesta = arrayOpciones.length > 0 && encuestaId !== null;
+
+    // 3. Crear el contenedor con animaciones Neo-Brutalistas mejoradas
+    const avisoContainer = document.createElement("div");
+    avisoContainer.style = `
+        position: fixed; bottom: 24px; right: 24px; width: 90%; max-width: 420px;
+        background: #fff; border: 4px solid #000; border-radius: 16px;
+        box-shadow: 8px 8px 0px #000; z-index: 100000; font-family: system-ui, sans-serif;
+        padding: 24px; box-sizing: border-box;
+        animation: brutalPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        will-change: transform, opacity;
+    `;
+
+    // 4. Estructura Base (Si es encuesta, NO se renderiza el botón 'X' para hacerla obligatoria)
+    let HTMLContenido = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 3px solid #000;">
+            <h4 style="margin: 0; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; color: #000; letter-spacing: -0.5px;">
+                ${esEncuesta ? "📊 " + titulo : "📢 " + titulo}
+            </h4>
+            ${!esEncuesta ? `<button id="btn-cerrar-aviso" style="background: #fff; border: 3px solid #000; font-weight: 900; cursor: pointer; padding: 4px 10px; border-radius: 8px; box-shadow: 2px 2px 0px #000; font-size: 0.9rem; transition: all 0.1s ease;">X</button>` : ''}
+        </div>
+        <p style="margin: 0 0 18px 0; font-size: 1rem; font-weight: 700; color: #111; line-height: 1.4;">
+            ${contenidoOMsg}
+        </p>
+    `;
+
+    // 5. Inyección de botones interactivos si se valida una consulta
+    if (esEncuesta) {
+        HTMLContenido += `<div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px;">`;
+        arrayOpciones.forEach((opcion) => {
+            HTMLContenido += `
+                <button class="btn-opcion-encuesta" data-opcion="${opcion}" style="background: #fff; color: #000; border: 3px solid #000; padding: 12px 16px; border-radius: 12px; font-weight: 800; text-align: left; cursor: pointer; box-shadow: 4px 4px 0px #000; font-size: 0.95rem; position: relative; overflow: hidden;">
+                    ${opcion}
+                </button>
+            `;
+        });
+        HTMLContenido += `</div>`;
+    }
+
+    // Estilos CSS inyectados dinámicamente con animaciones fluidas de interacción dura
+    avisoContainer.innerHTML = HTMLContenido + `
+        <style>
+            @keyframes brutalPopIn {
+                0% { transform: translateY(100px) scale(0.8) rotate(2deg); opacity: 0; }
+                70% { transform: translateY(-10px) scale(1.02) rotate(-1deg); opacity: 1; }
+                100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+            }
+            @keyframes brutalPopOut {
+                0% { transform: translate(0) scale(1); opacity: 1; }
+                100% { transform: translateY(40px) scale(0.9); opacity: 0; }
+            }
+            @keyframes pulseSuccess {
+                0% { background-color: #fff; }
+                50% { background-color: #00ff88; transform: scale(0.98); }
+                100% { background-color: #00ff88; }
+            }
+            #btn-cerrar-aviso:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #000; background: #ff4b4b; color: #fff; }
+            #btn-cerrar-aviso:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px #000; }
+            
+            .btn-opcion-encuesta { transition: transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.15s ease, background-color 0.2s; }
+            .btn-opcion-encuesta:hover { background: #f3f4f6; transform: translate(-3px, -3px); box-shadow: 7px 7px 0px #000; }
+            .btn-opcion-encuesta:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px #000; }
+            .btn-opcion-encuesta:disabled { pointer-events: none; }
+        </style>
+    `;
+
+    document.body.appendChild(avisoContainer);
+
+    // 6. Animación de cierre controlado para comunicados ordinarios
+    const cerrarConAnimacion = () => {
+        avisoContainer.style.animation = "brutalPopOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards";
+        avisoContainer.addEventListener("animationend", () => avisoContainer.remove());
+    };
+
+    if (!esEncuesta) {
+        avisoContainer.querySelector("#btn-cerrar-aviso").onclick = cerrarConAnimacion;
+    }
+
+    // 7. Lógica de votación obligatoria e inyección asíncrona hacia Firebase
+    if (esEncuesta) {
+        avisoContainer.querySelectorAll(".btn-opcion-encuesta").forEach(btn => {
+            btn.onclick = async () => {
+                if (!authInst || !authInst.currentUser) {
+                    return alert("Identificación requerida: Inicia sesión para registrar tu respuesta en la consulta.");
+                }
+
+                const user = authInst.currentUser;
+                const seleccionada = btn.getAttribute("data-opcion");
+                
+                // Deshabilitar controles para bloquear re-entrada de eventos de clic
+                avisoContainer.querySelectorAll(".btn-opcion-encuesta").forEach(b => b.disabled = true);
+                
+                // Animación de feedback de éxito en la opción elegida
+                btn.style.animation = "pulseSuccess 0.4s forwards";
+                btn.style.border = "3px solid #000";
+                btn.innerText = "📥 Procesando Respuesta...";
+
+                try {
+                    // Importación de módulos bajo demanda por si no se exponen globalmente
+                    const { ref: fRef, set: fSet } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+                    
+                    // Almacena el texto limpio de la opción usando el UID único del estudiante
+                    const votoRef = fRef(databaseInst, `encuestas/${encuestaId}/votos/${user.uid}`);
+                    await fSet(votoRef, seleccionada);
+                    
+                    // Pequeña pausa para apreciar la animación de éxito antes de desmontar el banner
+                    setTimeout(cerrarConAnimacion, 600);
+                } catch (err) {
+                    console.error("Error crítico de red en Firebase RTDB:", err);
+                    alert("Ocurrió un inconveniente al guardar tu respuesta.");
+                    // Reactivar opciones si la transacción falla
+                    avisoContainer.querySelectorAll(".btn-opcion-encuesta").forEach(b => {
+                        b.disabled = false;
+                        b.style.animation = "";
+                    });
+                    btn.innerText = seleccionada;
+                }
+            };
+        });
+    }
+};/* ============================================================
    SISTEMA DE INTEGRIDAD ALONIXZ-CLOUD (MONITOR DE ALTERACIONES)
    ============================================================ */
 
