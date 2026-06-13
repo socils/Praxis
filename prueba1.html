@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Virtual | Mendel Class</title>
+    <style>
+        :root {
+            --mendel-blue: #003366;
+            --mendel-red: #D43947;
+            --bg-gray: #f4f7f6;
+            --border-color: #e1e4e8;
+            --text-dark: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body { background-color: var(--bg-gray); color: var(--text-dark); }
+
+        /* HEADER INSTITUCIONAL */
+        header {
+            background: var(--mendel-blue);
+            color: white;
+            padding: 10px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--mendel-red);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-circle { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--mendel-blue); border: 2px solid var(--mendel-red); }
+
+        .user-info { text-align: right; font-size: 0.9rem; }
+
+        /* MAIN LAYOUT */
+        .main-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            max-width: 1300px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        /* SIDEBAR / CALENDARIO */
+        .sidebar { background: white; border-radius: 8px; border: 1px solid var(--border-color); padding: 20px; height: fit-content; }
+        
+        .calendar-header { font-weight: bold; margin-bottom: 15px; color: var(--mendel-blue); text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        
+        .mini-calendar { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem; }
+        .mini-calendar th { padding: 5px; color: #888; }
+        .mini-calendar td { padding: 8px; border-radius: 4px; cursor: pointer; }
+        .mini-calendar td:hover { background: #f0f0f0; }
+        .mini-calendar td.selected { background: var(--mendel-red); color: white; font-weight: bold; }
+        .mini-calendar td.has-task::after { content: ''; display: block; width: 4px; height: 4px; background: var(--mendel-blue); border-radius: 50%; margin: 0 auto; }
+
+        /* AGENDA CONTENT */
+        .agenda-view { background: white; border-radius: 8px; border: 1px solid var(--border-color); padding: 25px; }
+
+        .date-navigator { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .current-date { font-size: 1.5rem; font-weight: bold; color: var(--mendel-blue); }
+        .nav-btn { background: #eee; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+        /* TAREAS / ACTIVIDADES */
+        .task-card {
+            border: 1px solid var(--border-color);
+            border-left: 6px solid var(--mendel-blue);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            display: grid;
+            grid-template-columns: 80px 1fr 120px;
+            align-items: center;
+        }
+
+        .task-time { font-weight: bold; color: #666; font-size: 0.9rem; }
+        .task-info h4 { margin-bottom: 5px; color: var(--mendel-blue); }
+        .task-info p { font-size: 0.85rem; color: #555; }
+        
+        .status-badge {
+            text-align: center;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-pendiente { background: #fff3cd; color: #856404; }
+        .status-completado { background: #d4edda; color: #155724; }
+
+        /* FOOTER */
+        .footer-alonixz { margin-top: 40px; text-align: center; font-size: 0.8rem; color: #999; padding: 20px; }
+
+        @media (max-width: 900px) {
+            .main-container { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-circle">M</div>
+            <div>
+                <h2 style="font-size: 1.1rem; letter-spacing: 1px;">MENDEL CLASS</h2>
+                <small>Sede: Arequipa - Centro</small>
+            </div>
+        </div>
+        <div class="user-status">
+            <span id="user-display">Invitado (Eliot Ness View)</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="calendar-header">Abril 2026</div>
+            <table class="mini-calendar">
+                <thead>
+                    <tr><th>D</th><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th><th>S</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+                    <tr><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>
+                    <tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr>
+                    <tr><td>19</td><td>20</td><td>21</td><td class="selected">22</td><td>23</td><td>24</td><td>25</td></tr>
+                    <tr><td>26</td><td>27</td><td class="has-task">28</td><td>29</td><td>30</td><td></td><td></td></tr>
+                </tbody>
+            </table>
+            <br>
+            <div class="calendar-header">Cursos</div>
+            <ul style="list-style: none; font-size: 0.85rem; color: #555;">
+                <li>📘 Matemática (Geometría)</li>
+                <li>📕 Física Elemental</li>
+                <li>📗 Comunicación</li>
+                <li>📙 Ciencia y Tecnología (Eureka)</li>
+            </ul>
+        </aside>
+
+        <main class="agenda-view">
+            <div class="date-navigator">
+                <button class="nav-btn">Anterior</button>
+                <div class="current-date">Miércoles, 22 de Abril 2026</div>
+                <button class="nav-btn">Siguiente</button>
+            </div>
+
+            <div class="task-list">
+                
+                <div class="task-card">
+                    <div class="task-time">08:00 AM</div>
+                    <div class="task-info">
+                        <h4>Geometría: Congruencia de Triángulos</h4>
+                        <p>Resolver ejercicios de la página 45 a la 48 del libro de actividades.</p>
+                    </div>
+                    <div class="status-badge status-pendiente">Pendiente</div>
+                </div>
+
+                <div class="task-card" style="border-left-color: var(--mendel-red);">
+                    <div class="task-time">10:30 AM</div>
+                    <div class="task-info">
+                        <h4>Física: Análisis Dimensional</h4>
+                        <p>Entrega de práctica calificada sobre magnitudes fundamentales y derivadas.</p>
+                    </div>
+                    <div class="status-badge status-completado">Enviado</div>
+                </div>
+
+                <div class="task-card">
+                    <div class="task-time">02:00 PM</div>
+                    <div class="task-info">
+                        <h4>Eureka 2026: Avance de Bitácora</h4>
+                        <p>Subir fotos del prototipo y avances del cuaderno de campo (Fase Institucional).</p>
+                    </div>
+                    <div class="status-badge status-pendiente">Pendiente</div>
+                </div>
+
+                <div class="task-card" style="opacity: 0.6; border-left-color: #999;">
+                    <div class="task-time">04:00 PM</div>
+                    <div class="task-info">
+                        <h4>Tutoría: Charla de Orientación</h4>
+                        <p>Reunión vía Meet sobre el proceso de admisión universitaria.</p>
+                    </div>
+                    <div class="status-badge" style="background:#eee;">Pasado</div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div class="footer-alonixz">
+        Sistema replicado para Eliot Ness Hub | Alonixz-Group &copy; 2026
+    </div>
+
+    <script>
+        // Lógica simple para interactuar
+        document.querySelectorAll('.task-card').forEach(card => {
+            card.addEventListener('click', () => {
+                alert("Detalles de la actividad: " + card.querySelector('h4').innerText);
+            });
+        });
+    </script>
+</body>
+</html>

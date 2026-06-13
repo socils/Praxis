@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Operaciones - Sistema General Praxis</title>
+    
+    <style>
+                                                                                                         
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap');
+
+                                                                                                         
+        :root {
+            --fondo-escritorio: #e5e9ec;                                                                                                    
+            --color-papel: #faf8f5;                                                                                                         
+            --texto-oscuro: #111111;                                                                                                        
+            --lineas-borde: #000000;                                                                                                        
+            --azul-enlace: #1a73e8;                                                                                                         
+            --sombra-manual: 12px 12px 0px #000000;
+            
+                                                                                                             
+            --verde-profesor: #059669;
+            --purpura-consejo: #7c3aed;
+        }
+
+                                                                                                         
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--fondo-escritorio);
+            color: var(--texto-oscuro);
+            line-height: 1.6;
+            padding: 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+                                                                                                         
+        .manual-contenedor {
+            background-color: var(--color-papel);
+            width: 100%;
+            max-width: 850px;
+            min-height: 950px;
+            border: 5px solid var(--lineas-borde);
+            box-shadow: var(--sombra-manual);
+            position: relative;
+            padding: 60px 50px 80px 70px;
+            display: flex;
+            flex-direction: column;
+        }
+
+                                                                                                         
+        .manual-contenedor::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 30px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                #333 0px,
+                #333 10px,
+                transparent 10px,
+                transparent 40px
+            );
+            border-right: 4px solid var(--lineas-borde);
+            opacity: 0.15;
+        }
+
+                                                                                                         
+        .manual-linea-lomo {
+            position: absolute;
+            top: 0;
+            left: 45px;
+            width: 2px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-left: 1px dashed rgba(0, 0, 0, 0.2);
+        }
+
+                                                                                                         
+        .logo-praxis-central {
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: -1.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .logo-praxis-central span {
+            background-color: var(--texto-oscuro);
+            color: var(--color-papel);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 18px;
+        }
+
+        .marca-alonixz {
+            position: absolute;
+            bottom: 25px;
+            left: 70px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.4;
+        }
+
+                                                                                                         
+        .libro-pagina {
+            display: none;     
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+                                                                                                         
+        .libro-pagina.pagina-activa {
+            display: flex;
+        }
+
+                                                                                                         
+        #pagina-portada {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .sello-seguridad {
+            border: 3px solid var(--lineas-borde);
+            padding: 6px 16px;
+            font-weight: 900;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            background-color: #fff;
+        }
+
+        #pagina-portada h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        #pagina-portada h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            border: none;
+            padding: 0;
+        }
+
+        .linea-separadora-portada {
+            width: 40%;
+            height: 4px;
+            background-color: var(--lineas-borde);
+            margin-bottom: 40px;
+        }
+
+        .creditos-portada {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.8;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+                                                                                                         
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-top: 30px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            border-bottom: 3px solid var(--lineas-borde);
+            padding-bottom: 4px;
+        }
+
+        p {
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+
+        code {
+            font-family: monospace;
+            background-color: rgba(0,0,0,0.06);
+            padding: 2px 6px;
+            border: 1px solid rgba(0,0,0,0.15);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+                                                                                                         
+        #pagina-indice ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        #pagina-indice > ul > li {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        #pagina-indice ul ul {
+            list-style: none;
+            margin-left: 20px;
+            margin-top: 6px;
+        }
+
+        #pagina-indice ul ul li {
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 4px;
+        }
+
+        #pagina-indice a {
+            color: var(--azul-enlace);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #pagina-indice a:hover {
+            text-decoration: underline;
+        }
+
+                                                                                                         
+        .barra-navegacion-manual {
+            position: absolute;
+            bottom: 20px;
+            right: 50px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .btn-flecha {
+            background-color: #ffffff;
+            color: var(--texto-oscuro);
+            border: 3px solid var(--lineas-borde);
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0px #000000;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-flecha:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #000000;
+        }
+
+        .btn-flecha:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000000;
+        }
+
+                                                                                                         
+        .indicador-numero-pagina {
+            position: absolute;
+            bottom: 28px;
+            right: 210px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+                                                                                                         
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            .manual-contenedor {
+                padding: 40px 20px 80px 45px;
+                min-height: auto;
+            }
+
+            .manual-contenedor::before {
+                width: 20px;
+            }
+
+            .manual-linea-lomo {
+                left: 30px;
+            }
+
+            #pagina-portada h1 {
+                font-size: 2.2rem;
+            }
+
+            .indicador-numero-pagina {
+                right: auto;
+                left: 45px;
+                bottom: 25px;
+            }
+
+            .barra-navegacion-manual {
+                right: 20px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="manual-contenedor">
+        
+        <div class="manual-linea-lomo"></div>
+        
+        <div class="logo-praxis-central">
+            <span>P</span> PRAXIS CORE
+        </div>
+
+        <div class="marca-alonixz">ALONIXZ-GROUP // MANUAL GENERAL</div>
+
+                                                                                                         
+        <div class="libro-pagina pagina-activa" id="pag-0">
+            <div id="pagina-portada">
+                <div class="sello-seguridad">DOCUMENTO DE INDUCCIÓN OFICIAL</div>
+                <h1>SISTEMA GENERAL<br>PRAXIS</h1>
+                <h2>Manual de Operaciones Completo</h2>
+                <div class="linea-separadora-portada"></div>
+                <p style="text-align: center; max-width: 550px; margin: 0 auto;">
+                    Compendio operativo para el usuario: Instrucciones de navegación del tablero, uso de herramientas del menú lateral, control de economía interna y reglas del consejo.
+                </p>
+                <div class="creditos-portada">
+                    <p><strong>Desarrollado por:</strong> Alonixz-Group</p>
+                    <p><strong>Módulo de Resguardo:</strong> Escudo Alonixz-Guard</p>
+                    <p><strong>Acceso Oficial:</strong> socils.github.io/Praxis</p>
+                    <p style="margin-top: 15px; font-weight: 900; opacity: 0.3;">EDICIÓN DE DESPLIEGUE - 2026</p>
+                </div>
+            </div>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-1">
+            <h2>ÍNDICE DE CONTENIDOS</h2>
+            <p><em>Haz clic sobre cualquiera de las secciones descritas para abrir la hoja correspondiente del manual de forma inmediata.</em></p>
+            <hr style="border: none; border-top: 3px solid var(--lineas-borde); margin-bottom: 20px;">
+            
+            <div id="pagina-indice">
+                <ul>
+                    <li>
+                        CAPÍTULO I: PROTOCOLO DE ACCESO E INDUCCIÓN
+                        <ul>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(2)">Sección 1.1 — Dirección de Ingreso a la Plataforma</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(2)">Sección 1.2 — Opciones de Inicio de Sesión y Resguardo</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(3)">Sección 1.3 — El Cuestionario Inicial Obligatorio</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(3)">Sección 1.4 — Registro de tu Apodo Escolar</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        CAPÍTULO II: ARQUITECTURA DEL TABLERO PRINCIPAL
+                        <ul>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(4)">Sección 2.1 — La Barra Superior y Marcadores en Tiempo Real</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(5)">Sección 2.2 — Mensaje de Bienvenida y Alerta para Celulares</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(5)">Sección 2.3 — El Panel Central y la Vinculación de Aulas</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        CAPÍTULO III: MAPA DETALLADO DE LA BARRA LATERAL (HERRAMIENTAS)
+                        <ul>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(6)">Sección 3.1 — Interfaces de Inicio, Calendario y Tareas Pendientes</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(7)">Sección 3.2 — Pizarras de Rankings y Monitor de Errores</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(8)">Sección 3.3 — Tablón de Noticias y Datos del Perfil de Google</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(9)">Sección 3.4 — Lista de Amigos, Desafíos y Envío de Puntos</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(10)">Sección 3.5 — Ver Espacio de Praxis: Límites y Almacenamiento</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(11)">Sección 3.6 — Panel de Ajustes y Cambio de Identidad Escolar</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(12)">Sección 3.7 — DNI de Praxis y Uso Escolar del Código QR</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(13)">Sección 3.8 — Mercado de Canjes (Marketplace) y Boletos Virtuales</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(14)">Sección 3.9 — Historial de Compras, Tus Clases y Botón de Salir</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        CAPÍTULO IV: BOTONES EXTRAS Y REGLAS DE LA COMUNIDAD
+                        <ul>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(15)">Sección 4.1 — Los Tres Botones Especiales de Inyección y Control</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(16)">Sección 4.2 — Tabla de Rangos por Constancia de Días Diarios</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(17)">Sección 4.3 — El Rol del Profesor y las Reglas de las Notas</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(18)">Sección 4.4 — Los Miembros del Consejo Regulador Global</a></li>
+                            <li><a href="#" onclick="abrirPaginaEspecifica(19)">Sección 4.5 — Uso del PIN Secreto y Bloqueo de Seguridad Integral</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-2">
+            <h2>CAPÍTULO I: PROTOCOLO DE ACCESO E INDUCCIÓN</h2>
+            
+            <h3>1.1 Dirección de Ingreso a la Plataforma</h3>
+            <p>Para entrar de forma legal y segura al entorno virtual de aprendizaje, el usuario debe abrir el navegador de internet de su preferencia (ya sea en una computadora o dispositivo autorizado) e introducir la dirección oficial de la plataforma: <code>socils.github.io/Praxis</code>.</p>
+            <p>Una vez que los elementos visuales terminen de cargar en pantalla, se debe presionar con firmeza el botón central rotulado como <strong>"EMPEZAR"</strong>. Esta acción abre las compuertas principales y da inicio a la sesión en la comunidad.</p>
+            
+            <h3>1.2 Opciones de Inicio de Sesión y Resguardo de Datos</h3>
+            <p>Al avanzar, el sistema te presentará dos caminos diferentes para identificar tu cuenta. Cada uno maneja tus datos de una forma completamente distinta:</p>
+            <ul>
+                <li><strong>Ingresar con tu Cuenta de Google (Método Recomendado):</strong> Vincula tu perfil estudiantil de manera directa y segura. Al usar este método, todos tus avances, tareas entregadas, configuraciones personales y tus puntos acumulados se guardarán automáticamente en la nube. Tu progreso estará a salvo y podrás abrirlo en cualquier equipo.</li>
+                <li><strong>Ingresar como Invitado Anónimo (No Recomendable):</strong> Es una vía rápida diseñada únicamente para explorar el diseño o realizar pruebas superficiales. Bajo este modo, la plataforma no puede guardar tus acciones a largo plazo. Al cerrar la pestaña de internet o recargar la página, todos los puntos ganados y las tareas avanzadas se destruirán para siempre.</li>
+            </ul>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-3">
+            <h2>CAPÍTULO I: PROTOCOLO DE ACCESO (CONT.)</h2>
+            
+            <h3>1.3 El Cuestionario Inicial Obligatorio</h3>
+            <p>Cuando accedas por primera vez utilizando tu cuenta, la plataforma activará de manera automática un tutorial interactivo en pantalla que te guiará paso a paso. Es un requisito indispensable **completar todo este recorrido preliminar y ser totalmente honesto con la información brindada**, ya que de esto depende la correcta organización de tu panel escolar. El cuestionario consta de dos pasos:</p>
+            <ol>
+                <li><strong>Declarar tu Rol Real:</strong> Debes elegir con total veracidad si vas a operar en calidad de Estudiante o con los privilegios de un Profesor. Intentar tomar un rol que no te corresponde es considerado una falta grave.</li>
+                <li><strong>Seleccionar tu Aula Física:</strong> Tendrás que marcar el Grado y la Sección a la que perteneces en tu escuela (abarcando todos los niveles de la etapa escolar hasta el último año de Educación Secundaria). De esta manera, el sistema filtrará las materias correspondientes y te mostrará la agenda correcta de tu salón.</li>
+            </ol>
+
+            <h3>1.4 Registro de tu Apodo Escolar</h3>
+            <p>En el último paso de este cuestionario de bienvenida, tendrás que escribir un <strong>Apodo Oficial</strong>. Este sobrenombre o alias constituirá tu firma de identidad pública dentro de todo el ecosistema de Praxis. Tus compañeros de clase, profesores y rivales te reconocerán mediante este nombre en las entregas de trabajos, comentarios y en los cuadros de competencia de la escuela.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-4">
+            <h2>CAPÍTULO II: ARQUITECTURA DEL TABLERO PRINCIPAL</h2>
+            
+            <h3>2.1 Componentes de la Barra de Control Superior</h3>
+            <p>La franja horizontal ubicada en la parte más alta de la pantalla funciona como tu tablero de control personal en tiempo real. En ella siempre podrás ver tus estadísticas vigentes:</p>
+            <ul>
+                <li><strong>Botón de Menú Oculto:</strong> Es el botón con el icono de tres líneas horizontales. Al presionarlo, esconde el menú de la izquierda para darte más espacio para leer tus tareas, o lo vuelve a mostrar si necesitas navegar.</li>
+                <li><strong>Logotipo de Praxis:</strong> El emblema oficial acompañado de la palabra "Praxis" escrita en letras gruesas, que representa el acceso directo a la central de la plataforma.</li>
+                <li><strong>Marcador de Balance (Puntos):</strong> Muestra un icono de una moneda de oro junto a una cifra numérica. Este número es tu saldo disponible de Puntos Praxis, los cuales suben cada vez que cumples con tus deberes escolares.</li>
+                <li><strong>Medidor de Racha Diaria:</strong> Identificado con un icono de una flama de fuego sobre un fondo amarillo brillante. Cuenta cuántos días seguidos has entrado a revisar y cumplir con tus obligaciones. Mantener la flama encendida aumenta tu reputación y te otorga recompensas especiales de constancia.</li>
+                <li><strong>Indicador de Aula Vinculada:</strong> Un recuadro de texto que te muestra la clave de la sección a la que estás conectado. Si eres un alumno nuevo y todavía no te has unido a ningún grupo, este espacio te mostrará de forma permanente el aviso de alerta: <code>"SIN AGENDA"</code>.</li>
+                <li><strong>Información de tu Perfil:</strong> En la esquina derecha aparecerá tu nombre completo escrito en letras mayúsculas, acompañado de tu fotografía redonda de usuario para confirmar que estás operando tu cuenta personal.</li>
+            </ul>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-5">
+            <h2>CAPÍTULO II: ARQUITECTURA DEL TABLERO (CONT.)</h2>
+            
+            <h3>2.2 Mensaje de Bienvenida y la Alerta para Celulares</h3>
+            <p>El entorno visual cuenta con dos ventanas de asistencia automática integradas en su diseño para evitar confusiones de uso y garantizar una navegación cómoda:</p>
+            <ul>
+                <li><strong>Tarjeta Virtual de Bienvenida:</strong> Un cuadro emergente que te saluda cordialmente usando tu apodo y te invita a leer los manuales para aprender a usar todas las herramientas rápidamente. Cuenta con un botón azul destacado que te lleva directo a las guías de ayuda.</li>
+                <li><strong>Aviso de Recomendación para Celulares:</strong> El diseño visual de Praxis está pensado y estructurado para verse con total comodidad en pantallas grandes de computadoras o tabletas. Si intentas entrar usar un teléfono celular, el sistema oscurecerá la pantalla completa y te mostrará un mensaje de advertencia técnica. El texto te recomendará activar la opción llamada <strong>"Sitio para computadora"</strong> o <strong>"Vista de escritorio"</strong> en las opciones de tu propio navegador móvil para que el diseño se acomode perfectamente. Podrás quitar este aviso presionando el botón de "Entendido".</li>
+            </ul>
+
+            <h3>2.3 El Panel Central y la Vinculación de Aulas</h3>
+            <p>El gran espacio que queda en medio de la pantalla cambia según lo que elijas en el menú de la izquierda. Si la plataforma detecta que eres un usuario nuevo o que no tienes un aula registrada, este espacio se transformará en una tarjeta de aviso que dice: <code>"⚠️ SIN AGENDA ACTIVA"</code>.</p>
+            <p>Para solucionar esto, el panel te mostrará un mensaje que te pide ingresar el código que te haya dado tu profesor. Solo debes escribir la clave en el cuadro de texto que dice <em>"Código de agenda..."</em> y presionar el botón de unirse. En ese instante, el aviso desaparecerá y se cargará el listado con todas las asignaturas, tareas y materiales de tu salón de clases físico.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-6">
+            <h2>CAPÍTULO III: MAPA DETALLADO DE LA BARRA LATERAL</h2>
+            <p>La barra lateral izquierda contiene todos los módulos interactivos que componen el ecosistema de Praxis. A continuación se desglosa el funcionamiento y propósito de cada una de estas páginas:</p>
+            
+            <h3>Página de Inicio (🏠 Inicio)</h3>
+            <p>Al hacer clic en este botón, se carga el panel principal del estudiante. En esta sección podrás visualizar de forma inmediata las novedades de tu salón y la agenda activa con los apuntes, temas y lecciones que se están dictando en ese preciso momento en tu aula física.</p>
+            
+            <h3>Página del Calendario (📅 Calendario)</h3>
+            <p>Esta sección te muestra un organizador mensual interactivo y sumamente visual del mes en curso. Aquí aparecerán marcadas de forma automática todas las tareas escolares pendientes y las fechas de los exámenes programados por tus profesores, permitiéndote planificar tu tiempo de estudio con mucha anticipación.</p>
+            
+            <h3>Página de Pendientes (📝 Pendientes)</h3>
+            <p>Es una sección de enfoque rápido. Al ingresar, el sistema oculta los anuncios generales y te muestra de forma exclusiva una lista limpia con todas las tareas que te faltan por hacer. Es la herramienta ideal para revisar qué deberes debes completar antes de que venza su plazo de entrega.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-7">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de Rankings (🏆 Rankings)</h3>
+            <p>Esta es la zona de competencia saludable de la escuela. Muestra pizarras ordenadas con las posiciones de todos los alumnos de acuerdo con su nivel de esfuerzo académico. Puedes revisar quiénes lideran el grupo por tener la mayor cantidad de puntos acumulados en sus cuadernos virtuales o quiénes tienen las rachas de días seguidos más altas.</p>
+            
+            <h3>Página de Soporte (📚 Soporte y Ayuda)</h3>
+            <p>Esta sección está equipada con un monitor inteligente que se encarga de rastrear en tiempo real si ocurre alguna falla en la plataforma mientras te encuentras navegando. El sistema está programado para detectar el inconveniente, clasificar qué tipo de error es (visual, de conexión, de carga, etc.) e informarlo de inmediato en un reporte automático para que pueda ser solucionado rápidamente por el equipo encargado del diseño.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-8">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de Noticias (📢 Noticias)</h3>
+            <p>Funciona como el periódico oficial y bitácora de Praxis. En este espacio se publican de forma constante todas las actualizaciones del sistema, las mejoras aplicadas al diseño, las nuevas herramientas añadidas y los reportes de cambios realizados por el equipo de desarrollo para mantener informados a los estudiantes.</p>
+            
+            <h3>Página de tu Perfil (👤 Cuenta de Google)</h3>
+            <p>Este es un panel privado de supervisión personal. Aquí podrás verificar bajo qué dirección de correo electrónico has iniciado tu sesión escolar. Además, incluye un gráfico visual interactivo que te muestra detalladamente cómo ha ido variando tu puntaje académico a lo largo del tiempo. Para cuidar la claridad de la pantalla y no saturar el espacio, este marcador gráfico almacena y muestra únicamente los últimos 7 datos de tus movimientos de puntos.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-9">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de Amigos (👥 Lista de Amigos)</h3>
+            <p>Es el centro social de interacción de la plataforma. Sirve para buscar y organizar grupos con tus compañeros de clase frecuentes. A través de este módulo, tienes la posibilidad de transferir o mandar parte de tus puntos personales acumulados a otros amigos que los necesiten para completar una meta académica.</p>
+            <p>También permite activar desafíos o retos especiales entre ustedes de mutuo acuerdo. Si logran completar exitosamente el desafío establecido en el tiempo indicado, recibirán un premio o bonificación especial de puntos otorgado directamente por los miembros del consejo estudiantil de la escuela.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-10">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de Almacenamiento (📦 Ver Espacio de Praxis)</h3>
+            <p>Una sección orientada al control y la seguridad de tu cuenta. Te muestra de forma sumamente clara cuánto espacio físico están ocupando tus archivos y tareas entregadas dentro del sistema general de la plataforma.</p>
+            <p>Por motivos estrictos de privacidad y resguardo de identidad, este panel solo mostrará algunos de tus datos esenciales y ocultará el resto para que nadie más pueda verlos. Asimismo, aquí podrás revisar cuál es el límite máximo de usuarios permitidos en tu salón de clases y los riesgos o alertas de saturación de espacio en caso de que la agenda del aula esté demasiado llena.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-11">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de Ajustes (⚙️ Configuraciones)</h3>
+            <p>El panel central de personalización de identidad de tu cuenta. En esta sección tienes la libertad de modificar tu Apodo Oficial y cambiar la forma en que se muestra tu nombre de Google en las listas de entregas públicas.</p>
+            <p>Asimismo, si posees el rol de profesor, esta pestaña te habilitará una opción exclusiva para modificar tu número de PIN secreto de acceso. Para poder realizar este cambio de alta seguridad, el sistema te exigirá desbloquear la pantalla introduciendo primero tu PIN actual de forma correcta.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-12">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de Identidad (🪪 DNI de Praxis)</h3>
+            <p>Es tu credencial digital de estudiante dentro de toda la comunidad de la plataforma. Al abrir esta sección, se desplegará una tarjeta con todos tus datos escolares esenciales y un código QR personalizado único.</p>
+            <p>Este código QR tiene una utilidad muy importante en el día a día escolar: los miembros del consejo estudiantil pueden escanearlo directamente desde sus propias pantallas (o si lo tienes impreso de forma física) para abonarte puntos de manera inmediata a tu balance total, premiándote por méritos sin necesidad de buscar tu nombre manualmente en las listas de todo el colegio.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-13">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de la Tienda (🛒 Marketplace)</h3>
+            <p>El Mercado de Canjes es la tienda oficial de la comunidad de Praxis. Aquí se exhiben todos los premios, recompensas, incentivos y pases especiales provistos por el consejo estudiantil. Cada artículo en vitrina muestra claramente su precio en puntos y la cantidad de unidades disponibles en el inventario (stock).</p>
+            <p>Al realizar una compra utilizando tus puntos acumulados, el sistema te otorgará automáticamente un ticket o boleto de canje virtual que incluye su propio código QR. Cuando vayas a reclamar tu premio de forma física ante las autoridades correspondientes, el miembro del consejo escaneará ese QR para marcar el boleto formalmente como "entregado" y cerrar la transacción.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-14">
+            <h2>CAPÍTULO III: MAPA DE LA BARRA LATERAL (CONT.)</h2>
+            
+            <h3>Página de Registros (📜 Historial de Compras)</h3>
+            <p>El libro de contabilidad de tus intercambios económicos dentro de la plataforma. En este apartado podrás encontrar reunidos y ordenados todos los boletos y tickets de canje de cada una de las compras que hayas realizado en el Marketplace. Te sirve como un comprobante oficial para verificar qué artículos has adquirido y cuáles tienes pendientes de cobrar.</p>
+            
+            <h3>Página de Clases (🏫 Tus Clases)</h3>
+            <p>Un acceso directo que te despliega el listado completo de todos los salones, asignaturas y agendas de clases a las que te has unido o en las que participas activamente dentro de la institución escolar.</p>
+            
+            <h3>Cierre de Sesión (🚪 Botón de Salir)</h3>
+            <p>Ubicado estratégicamente al final del menú de navegación lateral. Te permite cerrar tu sesión de forma segura y limpiar el acceso del equipo. Su uso es obligatorio al terminar tus labores para impedir que terceras personas manipulen tus datos o gasten tus puntos si estás usando una computadora compartida en el aula de cómputo de la escuela.</p>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-15">
+            <h2>CAPÍTULO IV: BOTONES EXTRAS Y REGLAS DE LA COMUNIDAD</h2>
+            
+            <h3>4.1 Los Tres Botones Especiales de Inyección y Control</h3>
+            <p>Aparte de las herramientas estándar del menú lateral, la interfaz de Praxis cuenta con tres botones especiales cuyos accesos son completamente dinámicos y dependen de tu ubicación en la plataforma o del rol jerárquico que poseas en la institución:</p>
+            <ol>
+                <li><strong>🎁 Botón - Donar a la Clase:</strong> Este botón cuenta con una regla de aparición estricta: solo se volverá visible en tu pantalla cuando te encuentres revisando una agenda activa de clases. Te permite tomar una parte de tus Puntos Praxis personales e inyectarlos directamente como una donación al fondo común de la agenda que tienes abierta en ese instante para apoyar metas grupales.</li>
+                <li><strong>📊 Botón - Administrar Puntos de la Clase (Solo Profesores):</strong> Esta opción es exclusiva para el creador de la agenda o docente a cargo. Al presionarlo, el maestro entra a un panel de control donde puede transferir e inyectar puntos de forma directa a cualquier integrante del salón que esté conectado a su agenda, usándose como premio por participación, buena conducta o cumplimiento en clase.</li>
+                <li><strong>🛡️ Botón - Panel de Control del Consejo (Solo Miembros del Consejo):</strong> El tercer botón especial. Es completamente invisible para los estudiantes comunes y los profesores. Solo aparece si tu cuenta posee los privilegios de administración del consejo estudiantil, y funciona como un puente de redirección directo hacia tu panel de administración global.</li>
+            </ol>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-16">
+            <h2>CAPÍTULO IV: REGLAS DE LA COMUNIDAD (CONT.)</h2>
+            
+            <h3>4.2 Tabla de Rangos por Días Consecutivos (Rachas)</h3>
+            <p>Tu nivel y prestigio dentro de la comunidad escolar cambian de manera automática de acuerdo con los días seguidos que mantengas tu flama de racha encendida al entrar a la plataforma:</p>
+            <ul>
+                <li><strong>Rango Aspirante (de 0 a 6 días de racha):</strong> Es el estado inicial de inducción al entorno digital. El diseño de tu tarjeta de usuario se mostrará en tonos grises muy sencillos y neutros.</li>
+                <li><strong>Rangos Bronce, Plata y Oro (de 7 a 59 días de racha):</strong> Son los escalafones intermedios de la escuela. Demuestran a toda la comunidad que eres un alumno constante, responsable y muy activo en el cumplimiento de tus deberes cotidianos.</li>
+                <li><strong>Rangos Diamante y Obsidiana (de 60 a 99 días de racha):</strong> Estatus de alto nivel académico. Al alcanzarlos, el sistema desbloqueará de forma automática combinaciones de colores exclusivas y temas oscuros muy estéticos para personalizar todo tu panel de control.</li>
+                <li><strong>Rango Máximo Admin / Root_Hacker (de 100 a 1000+ días de racha):</strong> El nivel más alto de constancia. Este rango modifica por completo el diseño visual de tu perfil, decorándolo con efectos de movimiento especiales y animaciones que imitan a una pantalla de comandos de computadora antigua.</li>
+            </ul>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-17">
+            <h2>CAPÍTULO IV: REGLAS DE LA COMUNIDAD (CONT.)</h2>
+            
+            <h3>4.3 El Rol del Profesor y las Reglas de las Notas</h3>
+            <p>Los usuarios que ingresan con el rol de <strong>Profesor o Docente</strong> cuentan con permisos especiales de escritura para dirigir, coordinar y evaluar las agendas virtuales bajo su responsabilidad directa. Su entorno de trabajo se identifica con un color verde esmeralda distintivo y sus funciones principales son:</p>
+            <ul>
+                <li><strong>Controlar la Agenda del Salón:</strong> Tienen la autoridad exclusiva de crear las tareas escolares en el muro central, fijar las fechas de vencimiento en el calendario, editar las descripciones de los temas y borrar las actividades cuando sea necesario.</li>
+                <li><strong>Evaluar y Asignar Puntos:</strong> Son los encargados de revisar los trabajos que suben los alumnos y otorgar la cantidad de puntos correspondiente al esfuerzo demostrado. <strong>Regla inquebrantable del sistema:</strong> Para cuidar el valor de los artículos del Mercado de Canjes, los profesores no pueden regalar puntos de forma injustificada; cada punto entregado debe estar firmemente amarrado a una tarea o actividad real evaluada dentro del aula.</li>
+                <li><strong>Compartir Accesos:</strong> Pueden crear y enviar enlaces rápidos para que los alumnos nuevos se conecten a sus agendas con un solo clic.</li>
+            </ul>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-18">
+            <h2>CAPÍTULO IV: REGLAS DE LA COMUNIDAD (CONT.)</h2>
+            
+            <h3>4.4 Los Miembros del Consejo Regulador Global</h3>
+            <p>Situados en una posición de supervisión general sobre todas las aulas y salones de la plataforma, los <strong>Miembros del Consejo</strong> se identifican con el color púrpura oficial del sistema. Sus responsabilidades son mantener el orden, la justicia y el equilibrio de la red a través de las siguientes tareas:</p>
+            <ul>
+                <li><strong>Controlar la Inflation y los Puntos:</strong> Son la única autoridad facultada para inyectar o retirar grandes bloques de puntos directamente del sistema central. Su labor es cuidar que el Mercado de Canjes funcione de manera justa y equilibrada para todos.</li>
+                <li><strong>Anuncios de Alta Prioridad:</strong> Tienen el poder de enviar notificaciones obligatorias a toda la escuela al mismo tiempo y organizar votaciones o encuestas estudiantiles sobre temas de interés general.</li>
+                <li><strong>Vigilar la Honestidad:</strong> Pueden revisar los saldos de puntos de cualquier usuario y examinar las claves de todas las agendas creadas para cerciorarse de que nadie haga trampa. Este rol es supervisado directamente por el <strong>Creador y Fundador</strong> del sistema para asegurar que todos jueguen limpio.</li>
+            </ul>
+        </div>
+
+                                                                                                         
+        <div class="libro-pagina" id="pag-19">
+            <h2>CAPÍTULO IV: REGLAS DE LA COMUNIDAD (CONT.)</h2>
+            
+            <h3>4.5 Uso Obligatorio del PIN Secreto y Bloqueo por Infracción</h3>
+            <p>Para proteger tus esfuerzos de cualquier mala intención, Praxis cuenta con dos capas de seguridad estrictas que funcionan de manera automatizada en el fondo de la interfaz:</p>
+            <ul>
+                <li><strong>El PIN Secreto de Confirmación:</strong> Es una clave de cuatro números privados que tú mismo debes elegir al configurar tu cuenta por primera vez. No tiene ninguna relación con tu clave de Google. El sistema te pedirá este número de forma obligatoria cada vez que intentes realizar un cambio importante en tu perfil, como modificar tu Apodo, cambiar tu Grado y Sección o alterar tus datos personales. Si los números no se escriben correctamente, la plataforma cancelará la acción al instante. Esto evita que otra persona altere tus datos si dejas tu cuenta abierta por descuido en la escuela.</li>
+                <li><strong>El Sistema de Bloqueo Alonixz-Guard:</strong> Es el escudo inteligente que vigila la plataforma en todo momento. Si detecta que un usuario está intentando alterar el funcionamiento de la página (como intentar inventarse puntos falsos o meter códigos extraños para hacer trampa), el escudo actuará de forma inmediata. La página se congelará por completo, la cuenta del alumno quedará suspendida en el acto y la pantalla se bloqueará mostrando un aviso de infracción de seguridad. Para recuperar el acceso, el estudiante tendrá que llenar obligatoriamente un formulario detallado explicando sus acciones, el cual será evaluado personalmente por el Fundador del sistema para decidir su sanción.</li>
+            </ul>
+            <br><br>
+            <center>
+                <p style="font-weight: 800; opacity: 0.5;">--- FIN DEL COMPENDIO DE OPERACIONES ---</p>
+                <p style="font-size: 11px; opacity: 0.4; margin-top: 5px;">Lanzamiento Oficial: 18 de Mayo de 2026. Alonixz-Group.</p>
+            </center>
+        </div>
+
+                                                                                                         
+        <div class="indicador-numero-pagina" id="marcador-pagina-texto">PORTADA</div>
+        
+        <div class="barra-navegacion-manual">
+            <button class="btn-flecha" id="btn-atras" onclick="cambiarPagina(-1)">⬅ Anter.</button>
+            <button class="btn-flecha" id="btn-siguiente" onclick="cambiarPagina(1)">Siguie. ➡</button>
+        </div>
+
+    </div>
+<script>
+        // Declaramos cuántas páginas de contenido tiene nuestro libro digital
+        let paginaActual = 0;
+        const totalPaginas = 20; // Del 0 (Portada) al 19 (Última sección)
+
+        function actualizarVisibilidadLibro() {
+            // Buscamos todas las hojas del manual
+            for (let i = 0; i < totalPaginas; i++) {
+                const hoja = document.getElementById(`pag-${i}`);
+                if (hoja) {
+                    if (i === paginaActual) {
+                        hoja.classList.add('pagina-activa');
+                    } else {
+                        hoja.classList.remove('pagina-activa');
+                    }
+                }
+            }
+
+            // Cambiamos el texto del marcador físico inferior
+            const marcador = document.getElementById('marcador-pagina-texto');
+            if (paginaActual === 0) {
+                marcador.innerText = "PORTADA";
+            } else if (paginaActual === 1) {
+                marcador.innerText = "ÍNDICE GENERAL";
+            } else {
+                marcador.innerText = `PÁGINA ${paginaActual}`;
+            }
+
+            // Desplazamos la pantalla automáticamente hacia arriba para simular el cambio de hoja limpio
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cambiarPagina(direccion) {
+            // Calculamos la nueva página sumando o restando 1
+            let nuevaPagina = paginaActual + direccion;
+
+            // Evitamos que el usuario intente retroceder antes de la portada o avanzar después del final
+            if (nuevaPagina >= 0 && nuevaPagina < totalPaginas) {
+                paginaActual = nuevaPagina;
+                actualizarVisibilidadLibro();
+            }
+        }
+
+        function abrirPaginaEspecifica(numeroDePagina) {
+            // Permite al índice redirigir directamente al alumno a una hoja exacta
+            if (numeroDePagina >= 0 && numeroDePagina < totalPaginas) {
+                paginaActual = numeroDePagina;
+                actualizarVisibilidadLibro();
+            }
+        }
+    </script>
+</body>
+</html>

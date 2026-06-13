@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Racha - Alonixz Group</title>
+    <style>
+        /* Estética Minimalista y Brutalista */
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border: 4px solid #000; /* Toque Brutalista */
+            box-shadow: 10px 10px 0px #ccc;
+        }
+
+        video {
+            width: 200px;
+            height: 200px;
+            background-color: #eee;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 2px solid #000;
+            background: #fff;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:active {
+            background: #000;
+            color: #fff;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- El video debe tener playsinline para celulares -->
+    <video id="fireVideo" muted playsinline>
+        <source src="hailuo-2_3_Para_lograr_que_una_IA_de_video_como_Leonardo.ai_Runway_o_LottieFiles_genere_los-0.mp4" type="video/mp4">
+        Tu navegador no soporta video.
+    </video>
+
+    <div class="controls">
+        <button onclick="faseIntro()">1. Intro (0-2s)</button>
+        <button onclick="fasePasiva()">2. Bucle (2-4s)</button>
+        <button onclick="faseSalida()">3. Salida (5-6s)</button>
+        <button onclick="detenerTodo()" style="grid-column: span 2; background: #ff4444; color: white;">Detener</button>
+    </div>
+
+    <div class="status" id="statusLabel">Estado: Detenido</div>
+</div>
+
+<script>
+    const video = document.getElementById('fireVideo');
+    const label = document.getElementById('statusLabel');
+    let loopInterval;
+
+    function limpiarIntervalos() {
+        clearInterval(loopInterval);
+        video.ontimeupdate = null;
+    }
+
+    // FASE 1: Intro y transición automática a Pasiva
+    function faseIntro() {
+        limpiarIntervalos();
+        label.innerText = "Estado: Iniciando (Intro)";
+        video.currentTime = 0;
+        video.play();
+
+        video.ontimeupdate = () => {
+            if (video.currentTime >= 2) {
+                fasePasiva(); // Salta automáticamente al bucle
+            }
+        };
+    }
+
+    // FASE 2: Bucle infinito de la racha activa
+    function fasePasiva() {
+        limpiarIntervalos();
+        label.innerText = "Estado: Racha Activa (Bucle 2-4s)";
+        video.currentTime = 2;
+        video.play();
+
+        loopInterval = setInterval(() => {
+            if (video.currentTime >= 4) {
+                video.currentTime = 2;
+            }
+        }, 10);
+    }
+
+    // FASE 3: Animación de apagado
+    function faseSalida() {
+        limpiarIntervalos();
+        label.innerText = "Estado: Apagando (Salida 5-6s)";
+        video.currentTime = 5;
+        video.play();
+
+        video.ontimeupdate = () => {
+            if (video.currentTime >= 5.9) { // Casi al final para evitar saltos
+                video.pause();
+                label.innerText = "Estado: Apagado";
+            }
+        };
+    }
+
+    function detenerTodo() {
+        limpiarIntervalos();
+        video.pause();
+        video.currentTime = 0;
+        label.innerText = "Estado: Detenido";
+    }
+</script>
+
+</body>
+</html>

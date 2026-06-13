@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Global Rankings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --accent: #1a73e8;
+            --gold: #f4b400;
+            --text: #202124;
+            --text-dim: #5f6368;
+            --card: #f8f9fa;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container { width: 100%; max-width: 600px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 32px; margin: 0; }
+        
+        .podium {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            height: 200px;
+        }
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .podium-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid var(--bg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background: #eee;
+        }
+        .rank-2 { height: 120px; background: #e8f0fe; border-radius: 15px 15px 0 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .rank-1 { height: 160px; background: #fef7e0; border-radius: 15px 15px 0 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid var(--gold); }
+        .rank-3 { height: 100px; background: #f1f3f4; border-radius: 15px 15px 0 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .list { background: var(--card); border-radius: 24px; padding: 10px; }
+        .row {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+        }
+        .row:last-child { border: none; }
+        .pos { font-weight: 800; width: 30px; color: var(--text-dim); }
+        .user-img { width: 40px; height: 40px; border-radius: 50%; }
+        .user-info { flex-grow: 1; }
+        .user-name { display: block; font-weight: 700; font-size: 14px; }
+        .user-streak { color: var(--gold); font-weight: 800; font-size: 14px; }
+        
+        .btn-back {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Ranking Global</h1>
+            <p style="color: var(--text-dim);">Los mejores estudiantes de Praxis</p>
+        </div>
+
+        <div class="podium" id="podium-area">
+            </div>
+
+        <div class="list" id="ranking-list">
+            </div>
+    </div>
+
+    <a href="menu.html" class="btn-back">Volver al Dashboard</a>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9738f534"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+        } else {
+            const usuariosRef = ref(db, 'usuarios');
+            onValue(usuariosRef, (snapshot) => {
+                const data = snapshot.val();
+                
+                if (!data) {
+                    const list = document.getElementById('ranking-list');
+                    if(list) list.innerHTML = "<p style='text-align:center; padding:20px;'>No hay datos en el servidor</p>";
+                    return;
+                }
+
+                const arr = Object.keys(data).map(uid => ({
+                    nombre: data[uid].nombre || "Estudiante",
+                    foto: data[uid].foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png",
+                    racha: (data[uid].stats && data[uid].stats.racha) ? parseInt(data[uid].stats.racha) : 0
+                })).sort((a, b) => b.racha - a.racha);
+
+                renderPodium(arr.slice(0, 3));
+                renderList(arr.slice(3, 20));
+            }, (error) => {
+                console.error("Error Alonixz-Guard:", error);
+            });
+        }
+    });
+
+    function renderPodium(top3) {
+        const container = document.getElementById('podium-area');
+        if (!container || top3.length === 0) return;
+        
+        container.innerHTML = `
+            <div class="podium-item">
+                <img src="${top3[1]?.foto || 'https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png'}" class="podium-avatar">
+                <div class="rank-2"><small>#2</small><strong>${top3[1]?.racha || 0}</strong></div>
+                <span style="font-size:11px; font-weight:700; margin-top:5px;">${(top3[1]?.nombre || '').split(' ')[0]}</span>
+            </div>
+            <div class="podium-item">
+                <img src="${top3[0]?.foto || 'https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png'}" class="podium-avatar" style="width: 85px; height: 85px; border-color: #f4b400;">
+                <div class="rank-1"><small>#1</small><strong>${top3[0]?.racha || 0}</strong></div>
+                <span style="font-size:12px; font-weight:800; margin-top:5px; color:#1a73e8;">${(top3[0]?.nombre || '').split(' ')[0]}</span>
+            </div>
+            <div class="podium-item">
+                <img src="${top3[2]?.foto || 'https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png'}" class="podium-avatar">
+                <div class="rank-3"><small>#3</small><strong>${top3[2]?.racha || 0}</strong></div>
+                <span style="font-size:11px; font-weight:700; margin-top:5px;">${(top3[2]?.nombre || '').split(' ')[0]}</span>
+            </div>
+        `;
+    }
+
+    function renderList(others) {
+        const list = document.getElementById('ranking-list');
+        if (!list) return;
+        
+        if (others.length === 0) {
+            list.innerHTML = "";
+            return;
+        }
+
+        list.innerHTML = others.map((u, i) => `
+            <div class="row">
+                <span class="pos">${i + 4}</span>
+                <img src="${u.foto}" class="user-img">
+                <div class="user-info">
+                    <span class="user-name">${u.nombre}</span>
+                </div>
+                <span class="user-streak">${u.racha} 🔥</span>
+            </div>
+        `).join('');
+    }
+</script>
+</body>
+</html>

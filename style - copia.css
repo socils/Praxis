@@ -1,0 +1,1381 @@
+/* --- PRAXIS ULTIMATE CORE & GLOBAL RESET --- */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+ 
+:root {
+    /* Main Palette - Alonixz Blue Deep */
+    --p-50: #eff6ff;
+    --p-100: #dbeafe;
+    --p-200: #bfdbfe;
+    --p-300: #93c5fd;
+    --p-400: #60a5fa;
+    --p-500: #3b82f6;
+    --p-600: #2563eb;
+    --p-700: #1d4ed8;
+    --p-800: #1e40af;
+    --p-900: #1e3a8a;
+
+    /* Secondary - Electric Violet */
+    --s-500: #8b5cf6;
+    --s-600: #7c3aed;
+    --s-700: #6d28d9;
+
+    /* Semantic Colors */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #0ea5e9;
+
+    /* Neutral Scale */
+    --n-0: #ffffff;
+    --n-50: #f9fafb;
+    --n-100: #f3f4f6;
+    --n-200: #e5e7eb;
+    --n-300: #d1d5db;
+    --n-400: #9ca3af;
+    --n-500: #6b7280;
+    --n-600: #4b5563;
+    --n-700: #374151;
+    --n-800: #1f2937;
+    --n-900: #111827;
+
+    /* Glassmorphism & Elevation */
+    --glass: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+    
+    /* Layout Variables */
+    --header-h: 72px;
+    --sidebar-w: 280px;
+    --sidebar-collapsed-w: 80px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 32px;
+    
+    /* Animation Timing */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration: 0.3s;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--n-50);
+    color: var(--n-900);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Custom Selection */
+::selection {
+    background: var(--p-200);
+    color: var(--p-900);
+}
+
+/* --- TOP BAR: THE CRYSTAL NAV --- */
+.top-bar {
+    height: var(--header-h);
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--n-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    transition: var(--duration) var(--ease-out);
+}
+
+.top-bar.scrolled {
+    height: 64px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: var(--shadow-md);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.menu-toggle {
+    background: var(--n-100);
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: var(--duration) var(--ease-out);
+}
+
+.menu-toggle span {
+    width: 20px;
+    height: 2px;
+    background: var(--n-700);
+    border-radius: 2px;
+    transition: var(--duration) var(--ease-out);
+}
+
+.menu-toggle:hover {
+    background: var(--p-100);
+}
+
+.menu-toggle:hover span {
+    background: var(--p-600);
+}
+
+/* Logo Styling */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    user-select: none;
+}
+
+.logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--p-600), var(--s-600));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(to right, var(--n-900), var(--n-600));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.logo-text span {
+    color: var(--p-600);
+    -webkit-text-fill-color: var(--p-600);
+}
+
+/* Header Right Area */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.search-bar {
+    position: relative;
+    display: none; /* Hidden on mobile by default */
+}
+
+@media (min-width: 1024px) {
+    .search-bar { display: block; }
+}
+
+.search-bar input {
+    background: var(--n-100);
+    border: 1px solid transparent;
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+    border-radius: var(--radius-md);
+    width: 240px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: var(--duration) var(--ease-out);
+}
+
+.search-bar i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--n-500);
+}
+
+.search-bar input:focus {
+    outline: none;
+    width: 320px;
+    background: white;
+    border-color: var(--p-500);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.code-pill {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--n-900);
+    color: var(--p-400);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--n-800);
+}
+
+.code-pill::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 4px;
+    padding-left: 12px;
+    background: var(--n-100);
+    border-radius: 50px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: var(--duration);
+}
+
+.user-profile:hover {
+    background: var(--n-200);
+    border-color: var(--n-300);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--n-800);
+    line-height: 1;
+}
+
+.user-role {
+    font-size: 0.7rem;
+    color: var(--n-500);
+    font-weight: 500;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--p-500);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Fin Parte 1 */
+/* --- PARTE 2: NAVEGACIÓN LATERAL Y SISTEMA DE TARJETAS --- */
+
+/* --- SIDEBAR (BARRA LATERAL) --- */
+.sidebar {
+    width: var(--sidebar-w);
+    height: calc(100vh - var(--header-h));
+    position: fixed;
+    left: 0;
+    top: var(--header-h);
+    background: var(--n-0);
+    border-right: 1px solid var(--n-200);
+    padding: 1.5rem 1rem;
+    transition: var(--duration) var(--ease-out);
+    z-index: 1500;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-w);
+}
+
+.sidebar-section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--n-400);
+    font-weight: 700;
+    margin: 1.5rem 0 0.75rem 1rem;
+    transition: opacity var(--duration);
+}
+
+.sidebar.collapsed .sidebar-section-label {
+    opacity: 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    color: var(--n-600);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: var(--duration) var(--ease-out);
+    margin-bottom: 0.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item i {
+    font-size: 1.25rem;
+    min-width: 24px;
+    text-align: center;
+    transition: var(--duration);
+}
+
+.nav-item:hover {
+    background: var(--n-100);
+    color: var(--p-600);
+}
+
+.nav-item.active {
+    background: var(--p-50);
+    color: var(--p-700);
+    font-weight: 600;
+}
+
+.nav-item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20%;
+    height: 60%;
+    width: 4px;
+    background: var(--p-600);
+    border-radius: 0 4px 4px 0;
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+.content {
+    margin-left: var(--sidebar-w);
+    padding: 2.5rem;
+    transition: var(--duration) var(--ease-out);
+    min-height: calc(100vh - var(--header-h));
+}
+
+.sidebar.collapsed + .content {
+    margin-left: var(--sidebar-collapsed-w);
+}
+
+/* --- BANNER DINÁMICO --- */
+.banner {
+    /* Fondo ultra oscuro con flujo de color */
+    background: linear-gradient(-45deg, #0f172a, var(--p-900), #1e1b4b, #020617);
+    background-size: 400% 400%;
+    animation: darkGradientFlow 12s ease infinite;
+    
+    border-radius: var(--radius-lg);
+    padding: 3.5rem;
+    color: white;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    /* Sombra más profunda y elegante */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}.banner h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    /* Efecto de degradado en el texto */
+    background: linear-gradient(to bottom, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+}.banner-shape {
+    position: absolute;
+    /* Usamos el violeta de Alonixz pero muy transparente */
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 1;
+    filter: blur(60px);
+    animation: floatNebula 8s ease-in-out infinite alternate;
+}
+
+@keyframes floatNebula {
+    from { transform: translate(0, 0) scale(1); opacity: 0.5; }
+    to { transform: translate(20px, -20px) scale(1.3); opacity: 0.8; }
+}
+.shape-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
+.shape-2 { width: 200px; height: 200px; bottom: -50px; right: 150px; }
+
+/* --- GRID DE TAREAS --- */
+.task-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.75rem;
+}
+
+/* --- TARJETA DE TAREA (TASK CARD) --- */
+.card {
+    background: var(--n-0);
+    border: 1px solid var(--n-200);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: var(--duration) var(--ease-out);
+    cursor: default;
+    position: relative;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--p-200);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card-topic-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    background: var(--p-50);
+    color: var(--p-700);
+}
+
+.card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--n-900);
+    margin-top: 0.5rem;
+    line-height: 1.4;
+}
+
+.card-body {
+    font-size: 0.95rem;
+    color: var(--n-600);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-footer {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--n-100);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-date {
+    font-size: 0.8rem;
+    color: var(--n-400);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--n-200);
+    background: white;
+    color: var(--n-500);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--n-100);
+    color: var(--danger);
+    border-color: var(--danger);
+}
+/* --- ESTILOS PARA HEADER-RIGHT Y DROPDOWN --- */
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Contenedor del menú de acción */
+.action-menu {
+    position: relative;
+    display: inline-block;
+}
+
+/* Botón "+" para Banner Claro - Siempre visible */
+.add-btn {
+    /* Fondo oscuro traslúcido para que resalte sobre el banner claro */
+    background: var(--p-600); /* El azul de Alonixz */
+    border: 2px solid white; /* Borde blanco para separarlo del fondo */
+    
+    /* EL SÍMBOLO: Blanco puro para que contraste con su propio fondo azul */
+    color: #ffffff !important;
+    font-weight: 800; /* Más grueso para que sea muy nítido */
+    
+    width: 55px;
+    height: 55px;
+    border-radius: 16px;
+    font-size: 2.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Sombra para que "flote" sobre el banner claro */
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+/* Animación al pasar el mouse */
+.add-btn:hover {
+    background: var(--p-800); /* Se oscurece un poco al tocarlo */
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.4);
+}
+/* Menú desplegable (Estilo Glassmorphism) */
+.dropdown-content {
+    display: none; /* Se activa con la clase .show en JS */
+    position: absolute;
+    right: 0;
+    top: calc(100% + 12px);
+    min-width: 220px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--n-200);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 3000;
+    padding: 8px;
+    transform-origin: top right;
+    animation: dropdownFadeIn 0.2s var(--ease-out);
+}
+
+/* Clase para mostrar el menú (manejada por tu script) */
+.dropdown-content.show {
+    display: block;
+}
+
+/* Enlaces dentro del dropdown */
+.dropdown-content a {
+    color: var(--n-700);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: var(--duration);
+}
+
+.dropdown-content a:hover {
+    background: var(--p-50);
+    color: var(--p-600);
+}
+
+/* Separador visual opcional */
+.dropdown-content a:not(:last-child) {
+    margin-bottom: 4px;
+}
+
+/* Animación de entrada */
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* --- OPTIMIZACIÓN MÓVIL PARA EL DROPDOWN --- */
+@media (max-width: 768px) {
+    .dropdown-content {
+        position: fixed;
+        top: auto;
+        bottom: 80px; /* Se abre hacia arriba en móvil si el botón está abajo */
+        right: 20px;
+        width: calc(100% - 40px);
+        max-width: none;
+    }
+}
+/* --- CORRECCIÓN DE ALINEACIÓN Y VISIBILIDAD DEL MODAL --- */
+
+/* 1. Centrar el modal correctamente en la pantalla */
+.modal {
+    display: none; /* Se activa con JS */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(32, 33, 36, 0.6); /* Fondo oscuro semitransparente */
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 2. Ajustar el contenedor del formulario para que no se oculte */
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box; /* Importante para que el padding no desplace el contenido */
+    position: relative;
+    margin-left: auto; /* Asegura centrado si hay barras laterales */
+    margin-right: auto;
+}
+
+/* 3. Estilo para los campos de texto (IDs de tu JS) */
+#t-titulo, 
+#t-materia, 
+#t-desc, 
+#t-fecha {
+    width: 100% !important; /* Forzar ancho completo dentro del modal */
+    box-sizing: border-box !important;
+    padding: 12px !important;
+    margin: 8px 0 !important;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+/* 4. Asegurar que los botones estén siempre visibles abajo */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* 5. Botón Publicar (Azul Google) */
+#btn-save-task {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#btn-save-task:hover {
+    background-color: #1765cc;
+}
+
+/* 6. Botón Cancelar (Gris) */
+.btn-cancel {
+    background: #f1f3f4;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}/* --- ESTILO PARA EL BOTÓN DE TRES RAYAS (MENU) --- */
+#btn-toggle-sidebar {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #5f6368;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    width: 45px;
+    height: 45px;
+}
+
+#btn-toggle-sidebar:hover {
+    background-color: #f1f3f4;
+    color: #202124;
+}
+
+#btn-toggle-sidebar:active {
+    background-color: #e8f0fe;
+}
+
+/* --- ESTILO PARA EL BOTÓN + PUBLICAR TAREAS (BANNER) --- */
+#admin-publish-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: rgba(255, 255, 255, 0.2); /* Efecto cristal */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 12px 20px;
+    border-radius: 25px; /* Estilo píldora */
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    margin-top: 15px;
+}
+
+#admin-publish-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+#admin-publish-btn img {
+    filter: brightness(0) invert(1); /* Hace que el icono anadir.png sea blanco */
+    width: 18px;
+    height: 18px;
+}
+
+/* Animación para que el botón aparezca suavemente */
+@keyframes fadeInBtn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#admin-publish-btn {
+    animation: fadeInBtn 0.4s ease-out;
+}
+/* --- ESTILOS PARA CALENDARIO Y PENDIENTES --- */
+.agenda-group {
+    margin-bottom: 2rem;
+}
+
+.date-header {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--p-600);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-left: 5px;
+    border-left: 4px solid var(--p-600);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--n-700);
+}
+
+.empty-state img {
+    width: 150px;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+/* --- ESTILOS DE SINCRONIZACIÓN --- */
+.sync-container {
+    text-align: center;
+    padding: 50px 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.loader-bar-container {
+    width: 100%;
+    height: 12px;
+    background-color: #e8f0fe;
+    border-radius: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+    display: none; /* Se muestra al hacer clic */
+}
+
+.loader-progress {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #1a73e8, #4285f4);
+    transition: width 0.5s ease;
+}
+
+.sync-success-icon {
+    font-size: 50px;
+    color: #34a853;
+    display: none;
+    margin-bottom: 10px;
+}
+/* Contenedor del logo para posicionar la etiqueta */
+.logo-wrapper {
+    margin-left: 10px;
+}
+
+/* Estilo de la etiqueta Beta */
+.badge-beta {
+    position: absolute;
+    top: -12px;
+    right: -45px;
+    background: linear-gradient(45deg, #1a73e8, #4285f4);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 4px;
+    transform: rotate(15deg); /* Inclinación diagonal */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    border: 1px solid rgba(255,255,255,0.3);
+    pointer-events: none; /* Para que no estorbe al hacer clic */
+}
+
+.badge-beta span {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.badge-beta small {
+    font-size: 7px;
+    text-transform: uppercase;
+    opacity: 0.9;
+    margin-top: 1px;
+}
+
+/* Ajuste para que el logo no se vea cortado si el header es pequeño */
+.header-left {
+    overflow: visible !important;
+}
+/* Contenedor principal de la racha */
+#streak-container {
+    cursor: help;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #dadce0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none;
+}
+
+#streak-container:hover {
+    transform: scale(1.05);
+    border-color: #f4b400;
+    box-shadow: 0 2px 8px rgba(244, 180, 0, 0.2);
+}
+
+/* El número de la racha */
+#streak-count {
+    font-weight: 700;
+    color: #3c4043;
+    font-size: 14px;
+    margin-right: 2px;
+}
+
+/* Animación de latido para rachas activas */
+@keyframes pulse-fire {
+    0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
+    50% { transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(244, 180, 0, 0.6)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 180, 0, 0)); }
+}
+
+/* Clase para aplicar cuando la racha es > 0 */
+.racha-fuego-activa {
+    display: inline-block;
+    animation: pulse-fire 2s infinite ease-in-out;
+}
+
+/* Color especial si la racha es muy alta (+7 días) */
+.racha-legendaria {
+    background: #fff9e6 !important;
+    border-color: #f4b400 !important;
+}
+.btn-header-apoyo {
+    position: relative;
+    padding: 3px; /* Grosor del borde de colores */
+    background: transparent;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    /* Crea un nuevo contexto para que el z-index interno funcione perfecto */
+    isolation: isolate; 
+}
+
+/* LA CAPA DE COLORES (FONDO) */
+.btn-header-apoyo::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 400%;
+    background: conic-gradient(
+        #4285f4, #34a853, #f4b400, #ea4335, #4285f4
+    );
+    animation: rotateColors 3s linear infinite;
+    /* Valor negativo para que se vaya detrás de todo dentro del botón */
+    z-index: -1; 
+}
+
+/* LA CAPA BLANCA + TEXTO (FRENTE) */
+.btn-inner {
+    position: relative;
+    /* Valor positivo para forzar que esté delante */
+    z-index: 1; 
+    background: white; /* Debe ser sólido, no transparente */
+    padding: 6px 16px;
+    border-radius: 22px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #1a73e8; 
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.3s;
+}
+
+@keyframes rotateColors {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.btn-header-apoyo:hover .btn-inner {
+    background: #f8f9fa;
+}
+/* Transformamos el contenedor en un Banner Pro */
+.content-area {
+    background: linear-gradient(-45deg, var(--p-600), var(--s-600), #4285f4, #00d2ff);
+    background-size: 400% 400%;
+    animation: gradientFlow 10s ease infinite;
+    
+    margin: 20px;
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    position: relative; /* Para que el botón + se ancle aquí */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+/* Ajustamos el h1 para que se vea bien dentro del banner */
+.content-area h1 {
+    color: white !important;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}@keyframes darkGradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+/* --- AJUSTE DE LA VENTANA EMERGENTE --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center; /* Centra verticalmente */
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px; /* Margen de seguridad para que no toque los bordes de la pantalla */
+}
+
+.welcome-card {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 2rem;
+    border-radius: 28px;
+    max-width: 500px;
+    width: 100%;
+    
+    /* EL TRUCO PARA QUE NO SE SALGA: */
+    max-height: 90vh; /* Máximo 90% de la altura de la pantalla */
+    overflow-y: auto; /* Si el contenido es mucho, aparece scroll interno */
+    
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+/* Personalizar el scroll interno para que sea elegante (Estilo Alonixz) */
+.welcome-card::-webkit-scrollbar {
+    width: 6px;
+}
+.welcome-card::-webkit-scrollbar-thumb {
+    background: var(--p-600);
+    border-radius: 10px;
+}.welcome-header h2 {
+    font-size: 1.5rem; /* Un poco más pequeño para ahorrar espacio */
+    margin-top: 0.5rem;
+}
+
+.update-list li {
+    font-size: 0.85rem; /* Texto más compacto */
+    padding: 8px 12px;
+}
+
+.guide-grid {
+    gap: 8px; /* Menos espacio entre cuadros */
+}
+
+/* Estilo del botón de confirmación en el modal */
+.btn-welcome-confirm {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    
+    /* Fondo con el azul de Alonixz */
+    background: var(--p-600);
+    color: white;
+    
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.btn-welcome-confirm:hover {
+    background: var(--p-700);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+}
+
+.btn-welcome-confirm:active {
+    transform: translateY(0);
+}
+.btn-delete {
+    background: #fdf2f2; /* Fondo rojo muy suave */
+    border: none;
+    border-radius: 8px; /* Bordes redondeados sutiles */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.btn-delete img {
+    width: 15px; /* Tamaño exacto que pediste */
+    height: 15px;
+    filter: invert(34%) sepia(85%) saturate(1435%) hue-rotate(338deg) brightness(91%) contrast(98%); 
+    /* El filter de arriba convierte iconos negros a un rojo Google (#d93025) */
+}
+
+/* Efectos de interacción */
+.btn-delete:hover {
+    background: #fce8e6; /* Un rojo un poco más oscuro al pasar el mouse */
+    transform: scale(1.05);
+}
+
+.btn-delete:active {
+    transform: scale(0.95);
+    background: #fadad7;
+}/* Estilos de Rangos Alonixz */
+.rango-tag {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 50px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* --- MEJORA DE ETIQUETAS (RANGO-TAG) --- */
+.rango-tag {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Colores con Gradientes Profesionales */
+.rango-bronce { 
+    background: linear-gradient(135deg, #a0522d, #cd7f32); 
+    color: white; 
+    box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4); 
+}
+.rango-plata { 
+    background: linear-gradient(135deg, #bdc3c7, #7f8c8d); 
+    color: white; 
+    box-shadow: 0 2px 8px rgba(127, 140, 141, 0.3); 
+}
+.rango-oro { 
+    background: linear-gradient(135deg, #f1c40f, #f39c12); 
+    color: #5c4301; 
+    box-shadow: 0 2px 10px rgba(243, 156, 18, 0.5); 
+}
+.rango-diamante { 
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5); 
+    color: white; 
+    box-shadow: 0 2px 12px rgba(0, 210, 255, 0.6); 
+    animation: shine 3s infinite;
+}
+.rango-obsidiana { 
+    background: linear-gradient(135deg, #2c3e50, #000000); 
+    color: #e0a3ff; 
+    border: 1px solid #3a0052;
+    animation: pulse-obsidiana 2s infinite; 
+}
+.rango-admin { 
+    background: linear-gradient(135deg, #ed213a, #93291e); 
+    color: white; 
+    border: 1px solid #000;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(237, 33, 58, 0.4);
+}
+
+/* --- MEJORA DE AVATARES (BORDES) --- */
+.user-avatar-base {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    object-fit: cover;
+}
+
+.avatar-bronce { border: 3px solid #cd7f32 !important; }
+.avatar-plata { border: 3px solid #bdc3c7 !important; }
+.avatar-oro { border: 3px solid #f1c40f !important; }
+.avatar-diamante { border: 3px solid #00d2ff !important; box-shadow: 0 0 10px #00d2ff; }
+.avatar-obsidiana { border: 3px solid #3a0052 !important; filter: drop-shadow(0 0 5px #3a0052); }
+/* --- ESTILO ADMIN MEJORADO --- */
+.rango-admin { 
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient-admin 5s ease infinite;
+    color: white; 
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    font-weight: 900;
+    letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(231, 60, 126, 0.5);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Borde de Avatar con Efecto de Respiración */
+.avatar-admin { 
+    border: 3px solid #ed213a !important; 
+    box-shadow: 0 0 15px rgba(237, 33, 58, 0.6);
+    animation: admin-glow 2s ease-in-out infinite alternate;
+    position: relative;
+}
+
+/* --- ANIMACIONES EXCLUSIVAS --- */
+
+/* Gradiente que se mueve solo para el tag */
+@keyframes gradient-admin {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* El avatar "respira" luz roja */
+@keyframes admin-glow {
+    from {
+        box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d;
+        transform: scale(1);
+    }
+    to {
+        box-shadow: 0 0 20px #ff4d4d, 0 0 30px #ff0000;
+        transform: scale(1.05);
+    }
+}
+
+/* --- ANIMACIONES NUEVAS --- */
+@keyframes pulse-obsidiana {
+    0% { box-shadow: 0 0 5px #3a0052; transform: scale(1); }
+    50% { box-shadow: 0 0 20px #3a0052; transform: scale(1.02); }
+    100% { box-shadow: 0 0 5px #3a0052; transform: scale(1); }
+}
+
+@keyframes shine {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+    100% { filter: brightness(1); }
+}
+/* --- RANGO HACKER (SUPREMO 1000+) --- */
+.rango-hacker {
+    background: #000;
+    color: #0f0; /* Verde Matrix */
+    border: 1px solid #0f0;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+    animation: hacker-flicker 1.5s infinite;
+}
+
+/* Efecto de línea de escaneo para la etiqueta */
+.rango-hacker::after {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 255, 0, 0) 0%, rgba(0, 255, 0, 0.2) 50%, rgba(0, 255, 0, 0) 100%);
+    animation: scanline 2s linear infinite;
+}
+
+/* Avatar Hacker: Borde digital */
+.avatar-hacker {
+    border: 3px double #0f0 !important;
+    filter: brightness(1.2) contrast(1.2) sepia(1) hue-rotate(70deg); /* Tinte verde */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5), inset 0 0 10px rgba(0, 255, 0, 0.5);
+    animation: glitch-border 0.2s infinite;
+}
+
+/* --- ANIMACIONES HACKER --- */
+@keyframes scanline {
+    to { top: 100%; }
+}
+
+@keyframes hacker-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+    90% { opacity: 0.9; }
+}
+
+@keyframes glitch-border {
+    0% { transform: translate(0); }
+    20% { transform: translate(-1px, 1px); }
+    40% { transform: translate(-1px, -1px); }
+    60% { transform: translate(1px, 1px); }
+    80% { transform: translate(1px, -1px); }
+    100% { transform: translate(0); }
+}
+/* --- TEMA DIAMANTE: Elegante y Brillante --- */
+.tema-diamante {
+    --p-600: #00d2ff; /* Cambia el azul principal por celeste diamante */
+    background: linear-gradient(135deg, #f0faff 0%, #ffffff 100%);
+}
+.tema-diamante .top-bar {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid #b9f2ff;
+}
+
+/* --- TEMA OBSIDIANA: Oscuro y Letal --- */
+.tema-obsidiana {
+    --p-600: #ff4d4d; /* El acento se vuelve rojo lava */
+    background: #0a0a0a;
+    color: #eee;
+}
+.tema-obsidiana .top-bar, .tema-obsidiana .sidebar {
+    background: #151515;
+    border-color: #333;
+}
+.tema-obsidiana .card, .tema-obsidiana .no-agenda-box div {
+    background: #1a1a1a !important;
+    border: 1px solid #ff4d4d33 !important;
+    color: white;
+}
+
+/* --- TEMA HACKER: Brutalismo Digital (Matrix) --- */
+.tema-hacker {
+    background: #000 !important;
+    color: #0f0 !important;
+    font-family: 'JetBrains Mono', monospace !important;
+}
+.tema-hacker .top-bar {
+    background: #000;
+    border-bottom: 1px solid #0f0;
+}
+.tema-hacker .sidebar {
+    background: #050505;
+    border-right: 1px solid #0f0;
+}
+.tema-hacker img {
+    filter: sepia(1) hue-rotate(70deg) brightness(1.2); /* Todo se vuelve verde */
+}
+.tema-hacker .btn-header-apoyo, .tema-hacker .menu-btn {
+    border: 1px solid #0f0;
+    color: #0f0;
+}

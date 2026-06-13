@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo | Praxis Consejo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="estilos-panel.css">
+</head>
+<body>
+
+<header class="brutal-header">
+    <div style="display: flex; align-items: center; gap: 14px;">
+        <button onclick="window.location.href='menu.html'" class="btn-nav-home">🏠</button>
+        <h1 class="header-title">Panel del Consejo</h1>
+    </div>
+    <div id="admin-status" class="status-badge">● Admin Activo</div>
+</header>
+
+<div class="container">
+    
+    <div class="top-actions-grid">
+        <a href="lector.html" class="btn-action-brutal btn-blue">
+            <span>📷 ABRIR LECTOR QR</span>
+        </a>
+        <a href="registro.html" class="btn-action-brutal btn-green">
+            <span>📂 EXPLORADOR DE REGISTROS</span>
+        </a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-emoji">📣</div>
+            <div id="count-com" class="stat-number">0</div>
+            <div class="stat-label">Comunicados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-emoji">📊</div>
+            <div id="count-enc" class="stat-number">0</div>
+            <div class="stat-label">Encuestas</div>
+        </div>
+    </div>
+
+    <div class="creation-buttons-grid">
+        <button class="btn-main-trigger trigger-comunicado" onclick="abrirModal('comunicado')">
+            <span>➕</span> Publicar Comunicado
+        </button>
+        <button class="btn-main-trigger trigger-encuesta" onclick="abrirModal('encuesta')">
+            <span>📈</span> Crear Nueva Encuesta
+        </button>
+    </div>
+
+    <div class="brutal-box box-blue-light">
+        <div class="box-header">
+            <span>🏆</span>
+            <h3>Premiación Praxis</h3>
+        </div>
+        <p class="box-subtitle">Otorga puntos de mérito directamente a los IDs del directorio.</p>
+        <div class="input-inline-group">
+            <input type="text" id="praxis-uid" placeholder="ID del Estudiante (Pegar aquí)">
+            <input type="number" id="praxis-amt" placeholder="Cant.">
+        </div>
+        <div class="button-inline-group">
+            <button onclick="puntosPraxis(true)" class="btn-submit btn-submit-blue">Otorgar</button>
+            <button onclick="puntosPraxis(false)" class="btn-submit btn-submit-white">Retirar</button>
+        </div>
+    </div>
+
+    <div class="brutal-box box-pink-light">
+        <div class="box-header">
+            <span>📔</span>
+            <h3>Banco de Puntos: Agendas</h3>
+        </div>
+        <p class="box-subtitle">Gestiona el saldo acumulado de las agendas mediante su código oficial.</p>
+        <div class="input-inline-group">
+            <input type="text" id="agenda-cod" placeholder="Código (Ej: PX-Z2X2EF)" style="text-transform: uppercase;">
+            <input type="number" id="agenda-amt" placeholder="Cant.">
+        </div>
+        <div class="button-inline-group">
+            <button onclick="puntosAgenda(true)" class="btn-submit btn-submit-pink">Cargar</button>
+            <button onclick="puntosAgenda(false)" class="btn-submit btn-submit-white">Debitar</button>
+        </div>
+    </div>
+
+    <div class="brutal-box box-white-market">
+        <div class="box-header header-border-dark">
+            <span>📦</span>
+            <h3>Registrar Nuevo Artículo</h3>
+        </div>
+        <div class="form-vertical-stack">
+            <div class="field-group">
+                <label>Nombre del ítem</label>
+                <input type="text" id="prod-nombre" placeholder="Ej: Membresía Praxis Premium">
+            </div>
+            <div class="field-group">
+                <label>Descripción del beneficio</label>
+                <textarea id="prod-desc" placeholder="Detalla qué incluye este producto o servicio..."></textarea>
+            </div>
+            <div class="input-inline-group">
+                <div class="field-group">
+                    <label>Costo (Créditos)</label>
+                    <input type="number" id="prod-precio" placeholder="000" class="input-costo-badge">
+                </div>
+                <div class="field-group">
+                    <label>Stock Inicial</label>
+                    <input type="number" id="prod-stock" placeholder="Unidades">
+                </div>
+            </div>
+            <button onclick="subirProducto()" class="btn-deploy-market">
+                DESPLEGAR EN MARKETPLACE
+            </button>
+        </div>
+    </div>
+
+    <div class="brutal-box box-purple-plus">
+        <div class="box-header header-border-purple">
+            <span>💎</span>
+            <h3>Activar Suscripción Plus</h3>
+        </div>
+        <div class="form-vertical-stack">
+            <div class="field-group">
+                <label class="purple-label">ID del Estudiante</label>
+                <input type="text" id="plus-uid" placeholder="Pegar UID aquí..." class="purple-input-mono">
+            </div>
+            <div class="field-group">
+                <label class="purple-label">Fecha y Hora de Expiración</label>
+                <input type="datetime-local" id="plus-expira" class="purple-input-dark">
+            </div>
+            <button onclick="activarPlusDefinitivo()" class="btn-deploy-plus">
+                CONFIRMAR ACTIVACIÓN PLUS
+            </button>
+        </div>
+    </div>
+
+    <div class="brutal-box box-white-promo">
+        <div class="box-header">
+            <span>🎟️</span>
+            <h3>Registrar Códigos Promocionales</h3>
+        </div>
+        <div class="brutal-warning-badge">
+            <p class="warning-title">Optimización del núcleo:</p>
+            <p class="warning-text">Se sugiere programar un volumen menor a 50 unidades por secuencia para balancear el tráfico del comando de reclamos.</p>
+        </div>
+        <div class="form-vertical-stack">
+            <div class="field-group">
+                <label>Identificador del Código</label>
+                <input type="text" id="promo-id" placeholder="Ej: promo65">
+            </div>
+            <div class="field-group">
+                <label>Tipo de Beneficio</label>
+                <select id="promo-tipo" onchange="window.actualizarPlaceholderPremio()">
+                    <option value="PUNTOS">Sistema de Puntos (PTS)</option>
+                    <option value="PLUS">Suscripción Complementaria (PLUS)</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>Especificación del Premio</label>
+                <input type="text" id="promo-premio" placeholder="Ej: 30 pts o 30 puntos">
+            </div>
+            <div class="field-group">
+                <label>Existencias Disponibles (Stock)</label>
+                <input type="number" id="promo-stock" value="10" min="1">
+            </div>
+            <button onclick="window.registrarCodigoSistema()" class="btn-deploy-promo">
+                INYECTAR CÓDIGO EN SERVIDOR
+            </button>
+        </div>
+    </div>
+
+   <div class="section-title">Directorio de Estudiantes</div>
+    <div class="directory-table-wrapper">
+        <div class="directory-table-header">
+            <span class="table-brand">REGISTRO ALONIXZ-CLOUD</span>
+            <span id="count-users" class="table-counter">0 Usuarios</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="brutal-table">
+                <thead>
+                    <tr>
+                        <th>ESTUDIANTE</th>
+                        <th>ACTIVIDAD</th>
+                        <th style="text-align: right;">PUNTOS</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body">
+                    <tr><td colspan="3" class="table-loading">Sincronizando base de datos en tiempo real...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section-title">📢 Comunicados Activos en Cartelera</div>
+    <div id="lista-comunicados-activos" class="dynamic-list-container">
+        <p class="loading-text-small">Sincronizando anuncios activos...</p>
+    </div>
+<div class="section-title">📊 Consultas Estudiantiles Activas</div>
+<div id="resultados-encuestas" class="dynamic-list-container">
+    <p class="loading-text-small">Sincronizando encuestas en tiempo real e indexando métricas...</p>
+</div>
+    <div class="section-title">Agendas Activas (Sincronizadas)</div>
+    <div id="lista-agendas" class="dynamic-list-container">
+        <p class="loading-text-small">Cargando bancos de puntos...</p>
+    </div>
+
+</div>
+
+<div id="modal-editor" class="brutal-modal-overlay">
+    <div class="brutal-modal-content">
+        <h3 id="modal-titulo" class="modal-main-title">Nuevo Elemento</h3>
+        
+        <div id="form-comunicado" style="display: none;">
+            <div class="field-group">
+                <label>Título del Comunicado:</label>
+                <input type="text" id="com-tit" placeholder="Escribe el título...">
+            </div>
+            <div class="field-group" style="margin-top: 12px;">
+                <label>Mensaje General:</label>
+                <textarea id="com-msg" placeholder="Escribe el cuerpo del mensaje..."></textarea>
+            </div>
+        </div>
+
+        <div id="form-encuesta" style="display: none;">
+            <div class="field-group">
+                <label>Pregunta de la Consulta Estudiantil:</label>
+                <input type="text" id="enc-pre" placeholder="¿Qué opinas sobre...?">
+            </div>
+            <div class="field-group" style="margin-top: 12px;">
+                <label>Opciones Dinámicas de Respuesta:</label>
+                <div id="ops-container"></div>
+                <button type="button" onclick="addOp()" class="btn-add-option-brutal">➕ Añadir Opción</button>
+            </div>
+        </div>
+
+        <div class="modal-footer-actions">
+            <button onclick="cerrarModal()" class="btn-modal-cancel">Cancelar</button>
+            <button onclick="guardar()" class="btn-modal-save">Guardar e Inyectar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-seguridad" class="brutal-modal-overlay" style="display: flex;">
+    <div class="brutal-modal-content warning-modal-border">
+        <div class="warning-icon-wrapper">
+            <div class="warning-icon-circle"><span>i</span></div>
+        </div>
+        <h2 class="warning-modal-title">Aviso del Creador de la Plataforma</h2>
+        <p class="warning-modal-text">
+            Estimado <b>Consejo Estudiantil</b>: Se les hace saber que si un estudiante les envía una captura de sus puntos, esta información <b>podría estar modificada</b>. 
+            <br><br>
+            Aunque nuestro sistema cuenta con alta seguridad en la base de datos, la interfaz visual puede ser "maquillada" localmente mediante la opción de <i>"Inspeccionar elemento"</i> del navegador.
+            <br><br>
+            <span style="color: #1a73e8; font-weight: 900;">Recomendación:</span> Siempre verifiquen la validez de los puntos directamente desde este panel administrativo antes de otorgar cualquier premio.
+        </p>
+        <button onclick="cerrarSeguridad()" class="btn-warning-understand">Entendido, verificaré siempre</button>
+    </div>
+</div>
+
+<script type="module" src="controlador-panel.js"></script>
+</body>
+</html>

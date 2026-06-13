@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>.boton-led {
+  position: relative;
+  padding: 15px 30px;
+  font-size: 18px;
+  color: #fff;
+  background-color: #111; /* Fondo oscuro para que resalte la luz */
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Creamos el efecto de luz de borde en movimiento */
+.boton-led::before {
+  content: '';
+  position: absolute;
+  inset: -3px; /* Expande el borde más allá del botón */
+  background: conic-gradient(
+    from 0deg, 
+    #ff0055, #7300ff, #00d2ff, #00ff6a, #ffea00, #ff0055
+  );
+  border-radius: 50px;
+  z-index: -2;
+  animation: rotarBordes 3s linear infinite;
+}
+
+/* Creamos la estela de luz (efecto neón) */
+.boton-led::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background: conic-gradient(
+    from 0deg, 
+    #ff0055, #7300ff, #00d2ff, #00ff6a, #ffea00, #ff0055
+  );
+  border-radius: 50px;
+  z-index: -2;
+  filter: blur(15px); /* Desenfoque para lograr el efecto LED brillante */
+  animation: rotarBordes 3s linear infinite;
+}
+
+/* Animación de giro */
+@keyframes rotarBordes {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+    <button class="boton-led">
+  Botón LED
+</button>
+
+</body>
+</html>

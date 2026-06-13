@@ -1,0 +1,141 @@
+
+<!DOCTYPE html><html lang=es translate=no moznomarginboxes mozdisallowselectionprint><head><base href=/sistema/ ><meta charset=utf-8><meta name=description content="El SieWeb Intranet es un novedoso sistema de interacción Alumno-Profesor-Familia-Colegio. Mejora la comunicación entre los padres de familia y los profesores, y permite un mejor control de los padres con sus hijos."><meta name=theme-color content=#562598><meta name=msapplication-TileColor content=#562598><meta name=apple-mobile-web-app-capable content=yes><meta name=mobile-web-app-capable content=yes><meta name=format-detection content="telephone=no"><meta name=msapplication-tap-highlight content=no><meta name=viewport content="initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width"><meta http-equiv=X-UA-Compatible content="IE=edge"><meta property=og:image content=https://sieweb.com.pe/wp-content/uploads/2017/12/isotipo-240x240.png><meta property=og:description content="El SieWeb Intranet es un novedoso sistema de interacción Alumno-Profesor-Familia-Colegio. Mejora la comunicación entre los padres de familia y los profesores, y permite un mejor control de los padres con sus hijos."><meta property=og:title content=SieWeb><title>SieWeb</title><link rel=icon href=statics/app-logo.png type=image/x-icon><style>body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #ebebeb;
+            overflow: none
+        }
+
+        body>#loading {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            text-align: center;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 999999;
+            background: #562598;
+            background: var(--q-color-primary, #562598);
+            -o-transition: background-color 0.8s linear;
+            -moz-transition: background-color 0.8s linear;
+            -webkit-transition: background-color 0.8s linear;
+            transition: background-color 0.8s linear
+        }
+
+        body>#loading>#logo,
+        body>#loading>img {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto
+        }
+
+        body>#loading>#logo {
+            width: 256px;
+            height: 200px
+        }
+
+        .cycle {
+            -webkit-animation: cycle 3s infinite linear;
+            animation: cycle 3s infinite linear
+        }
+
+        .spin {
+            -webkit-animation: spin 2.5s infinite linear;
+            animation: spin 2.5s infinite linear
+        }
+
+        @keyframes cycle {
+
+            0%,
+            50%,
+            to {
+                animation-timing-function: cubic-bezier(.5, .5, .5, .5)
+            }
+
+            0% {
+                -webkit-transform: rotate(0);
+                transform: rotate(0)
+            }
+
+            50% {
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg)
+            }
+
+            to {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg)
+            }
+        }
+
+        @-webkit-keyframes cycle {
+
+            0%,
+            50%,
+            to {
+                animation-timing-function: cubic-bezier(.5, .5, .5, .5)
+            }
+
+            0% {
+                -webkit-transform: rotate(0);
+                transform: rotate(0)
+            }
+
+            50% {
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg)
+            }
+
+            to {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg)
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                -webkit-transform: rotate(0);
+                transform: rotate(0);
+                animation-timing-function: cubic-bezier(.55, .055, .675, .19)
+            }
+
+            50% {
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg);
+                animation-timing-function: cubic-bezier(.215, .61, .355, 1)
+            }
+
+            to {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg)
+            }
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0);
+                transform: rotate(0);
+                animation-timing-function: cubic-bezier(.55, .055, .675, .19)
+            }
+
+            50% {
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg);
+                animation-timing-function: cubic-bezier(.215, .61, .355, 1)
+            }
+
+            to {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg)
+            }
+        }
+
+        body,
+        html {
+            height: 100vh;
+            overflow: hidden
+        }</style><script defer src=/sistema/js/vendor.213c7627e4d169079ecb.js></script><script defer src=/sistema/js/app.b3779996227fe182e2a4.js></script><link href=/sistema/css/vendor.75509fa4.css rel=stylesheet><link href=/sistema/css/app.c080b485.css rel=stylesheet><link rel=manifest href=manifest.json><meta name=theme-color content=#562598><meta name=mobile-web-app-capable content=yes><meta name=apple-mobile-web-app-status-bar-style content=default><meta name=apple-mobile-web-app-title content=SieWeb><link rel=apple-touch-icon href=icons/apple-icon-120x120.png><link rel=apple-touch-icon sizes=152x152 href=icons/apple-icon-152x152.png><link rel=apple-touch-icon sizes=167x167 href=icons/apple-icon-167x167.png><link rel=apple-touch-icon sizes=180x180 href=icons/apple-icon-180x180.png><link rel=mask-icon href=icons/safari-pinned-tab.svg color=#562598><meta name=msapplication-TileImage content=icons/ms-icon-144x144.png><meta name=msapplication-TileColor content=#000000></head><body><noscript>Actualice su navegador por favor</noscript><div id=loading><img src=statics/loading2.png class=spin width=200 height=200><div id=logo><svg width=256 height=200 viewBox="0 0 256 200"><path id=arriba stroke=none stroke-width=13 stroke-linecap=round fill=none d="m 128,115 c -9.085692,-4.4965 -35.305439,-16.1743 -40.2436694,-22.7314 -3.69717,-4.9092 -3.8540357,-10.8196 -0.7347457,-15.9372 4.7554101,-7.8019 29.6189541,-24.65461 34.7147241,-26.51134 4.37768,-1.59508 8.959627,-2.47008 14.306047,-0.70641 3.43716,1.13383 23.499386,12.17395 38.022276,19.79065"/><path id=abajo stroke=none stroke-width=13 stroke-linecap=round fill=none d="m 133,80 c 9.109252,4.5081 35.396972,16.2163 40.348012,22.7904 3.70675,4.9219 3.86403,10.8477 0.73665,15.9785 -4.76774,7.8221 -29.69575,24.7186 -34.80473,26.5801 -4.38903,1.5992 -8.982859,2.4765 -14.34314,0.7082 -3.446072,-1.1367 -23.560314,-12.2054 -38.120858,-19.8419"/></svg></div></div><div id=q-app></div></body></html>

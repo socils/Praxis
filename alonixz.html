@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alonixz-Group | Digital Collective Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #0f172a;
+            --accent: #1a73e8;
+            --accent-soft: rgba(26, 115, 232, 0.1);
+            --border: #e2e8f0;
+            --card-bg: #f8fafc;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+
+        /* --- RESET & BASE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- ANIMACIONES COREOGRÁFICAS --- */
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: var(--border); }
+            50% { border-color: var(--accent); }
+            100% { border-color: var(--border); }
+        }
+
+        .reveal { opacity: 0; animation: revealUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+
+        /* --- BACKGROUND DECOR --- */
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 25px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .nav-logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700; font-size: 14px; letter-spacing: 2px;
+        }
+
+        /* --- HERO SECTION --- */
+        header {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; padding: 0 5%;
+        }
+
+        .hero-tag {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent); font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 6px; margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 800; letter-spacing: -4px; line-height: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .hero-sub {
+            max-width: 700px; font-size: clamp(1rem, 2vw, 1.2rem);
+            color: #64748b; margin-bottom: 50px;
+        }
+
+        /* --- SEARCH ARCHITECTURE --- */
+        .search-engine {
+            width: 100%; max-width: 800px; position: relative;
+            margin-bottom: 100px;
+        }
+
+        .search-inner {
+            background: white; border: 2px solid var(--border);
+            border-radius: 30px; padding: 10px; display: flex;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+        }
+
+        .search-inner:focus-within {
+            border-color: var(--accent);
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 0 30px 60px rgba(26, 115, 232, 0.15);
+        }
+
+        .search-input {
+            flex: 1; border: none; padding: 15px 25px;
+            font-size: 18px; font-family: inherit; color: var(--text);
+            background: transparent;
+        }
+
+        .search-btn {
+            background: var(--accent); color: white; border: none;
+            padding: 0 35px; border-radius: 22px; font-weight: 700;
+            cursor: pointer; transition: 0.3s;
+        }
+
+        .results-window {
+            position: absolute; top: 110%; left: 0; width: 100%;
+            background: white; border-radius: 24px; border: 1px solid var(--border);
+            max-height: 400px; overflow-y: auto; display: none;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.1); z-index: 100;
+            text-align: left;
+        }
+
+        /* --- PROJECTS SECTION --- */
+        .section-container {
+            max-width: 1300px; margin: 0 auto; padding: 100px 5%;
+        }
+
+        .label {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            color: #94a3b8; text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 40px; display: flex; align-items: center; gap: 10px;
+        }
+
+        .label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+        .project-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 40px; margin-bottom: 120px;
+        }
+
+        .p-card {
+            background: var(--card-bg); border-radius: 40px; padding: 50px;
+            border: 1px solid var(--border); position: relative;
+            transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .p-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(26, 115, 232, 0.05) 0%, transparent 100%);
+            opacity: 0; transition: 0.5s;
+        }
+
+        .p-card:hover {
+            transform: translateY(-15px); border-color: var(--accent);
+            background: white; box-shadow: 0 40px 80px rgba(0,0,0,0.06);
+        }
+
+        .p-card:hover::before { opacity: 1; }
+
+        .badge {
+            display: inline-block; padding: 6px 16px; border-radius: 100px;
+            font-size: 10px; font-weight: 800; font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 25px;
+        }
+
+        .badge.active { background: #dcfce7; color: var(--success); }
+        .badge.off { background: #fee2e2; color: var(--danger); }
+
+        .p-card h3 { font-size: 32px; font-weight: 800; margin-bottom: 15px; letter-spacing: -1px; }
+        .p-card p { color: #64748b; font-size: 15px; margin-bottom: 30px; }
+
+        .p-btn {
+            text-decoration: none; font-size: 14px; font-weight: 700;
+            color: var(--text); display: flex; align-items: center; gap: 10px;
+            transition: 0.3s;
+        }
+
+        .p-btn:hover { color: var(--accent); padding-left: 10px; }
+
+        /* --- TEAM ARCHITECTURE --- */
+        .team-section { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+
+        .member-box {
+            padding: 60px; border-radius: 50px; background: #0f172a; color: white;
+            transition: 0.4s; border: 1px solid transparent;
+        }
+
+        .member-box:hover {
+            background: #1e293b; border-color: var(--accent);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        .member-role {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            color: var(--accent); margin-bottom: 20px; display: block;
+        }
+
+        .member-name { font-size: 40px; font-weight: 800; margin-bottom: 20px; letter-spacing: -2px; }
+
+        /* --- AI SUPPORT BUTTON & PANEL --- */
+        .ai-footer-section {
+            margin-top: 100px; text-align: center; padding: 100px 5%;
+            background: var(--card-bg); border-radius: 60px;
+        }
+
+        .trigger-btn {
+            background: var(--text); color: white; border: none;
+            padding: 25px 50px; border-radius: 25px; font-size: 18px;
+            font-weight: 800; cursor: pointer; transition: 0.4s;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .trigger-btn:hover {
+            transform: scale(1.05) rotate(1deg);
+            background: var(--accent);
+            box-shadow: 0 25px 50px rgba(26, 115, 232, 0.3);
+        }
+
+        .ai-panel {
+            max-width: 700px; margin: 40px auto 0; background: white;
+            padding: 50px; border-radius: 40px; border: 1px solid var(--border);
+            text-align: left; display: none; animation: revealUp 0.5s ease;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding: 100px 5% 50px; display: flex; justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #94a3b8;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .team-section { grid-template-columns: 1fr; }
+            h1 { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-bg"></div>
+
+    <nav>
+        <div class="nav-logo">ALONIXZ // COLLECTIVE</div>
+        <div class="nav-status"><span style="color: var(--success)">●</span> SYSTEMS ONLINE</div>
+    </nav>
+
+    <header>
+        <span class="hero-tag reveal">Development Laboratory</span>
+        <h1 class="reveal delay-1">Ideas hechas<br>código puro.</h1>
+        <p class="hero-sub reveal delay-2">Un colectivo digital enfocado en la creación de herramientas académicas de alto rendimiento y diseño brutalista minimalista.</p>
+        
+        <div class="search-engine reveal delay-3">
+            <div class="search-inner">
+                <input type="text" id="db-search" class="search-input" placeholder="Consultar base de datos técnica...">
+                <button class="search-btn">BUSCAR</button>
+            </div>
+            <div id="db-results" class="results-window"></div>
+        </div>
+    </header>
+
+    <main class="section-container">
+        <h2 class="label">Repositorio de Proyectos</h2>
+        <div class="project-grid">
+            
+            <div class="p-card reveal">
+                <span class="badge active">UPDATE V3.5</span>
+                <h3>Praxis</h3>
+                <p>Sistema operativo académico integral. Gestión de agendas, sincronización con Google Drive y arquitectura de datos JSON.</p>
+                <a href="#" class="p-btn">EJECUTAR PLATAFORMA ➔</a>
+            </div>
+
+            <div class="p-card reveal delay-1">
+                <span class="badge off">STATIONARY</span>
+                <h3>Agenda Plus</h3>
+                <p>Proyecto de gestión básica. El desarrollo fue suspendido para priorizar la migración tecnológica hacia el ecosistema Praxis.</p>
+                <a href="#" class="p-btn" style="opacity: 0.4">ACCESO RESTRINGIDO</a>
+            </div>
+
+            <div class="p-card reveal delay-2">
+                <span class="badge off">LEGACY</span>
+                <h3>EduSolve</h3>
+                <p>Herramienta educativa de primera generación. Proyecto archivado por no cumplir con los estándares de fluidez actuales del grupo.</p>
+                <a href="#" class="p-btn" style="opacity: 0.4">VER ARCHIVOS ANTIGUOS</a>
+            </div>
+
+        </div>
+
+        <h2 class="label">Dirección del Colectivo</h2>
+        <div class="team-section">
+            
+            <div class="member-box reveal">
+                <span class="member-role">Founder & Software Architect</span>
+                <h2 class="member-name">Alonso</h2>
+                <p>Responsable del desarrollo core, lógica de Firebase y la visión técnica global de Alonixz-Group.</p>
+                <div style="margin-top: 30px; font-family: 'JetBrains Mono'; font-size: 12px; color: var(--accent);">
+                    [ CHIEF_DEVELOPER_ID: 001 ]
+                </div>
+            </div>
+
+            <div class="member-box reveal delay-1">
+                <span class="member-role">Iconography & Visual Assets</span>
+                <h2 class="member-name">Matías</h2>
+                <p>Especialista en sistemas de diseño visual, creación de iconos vectoriales y estética de interfaces.</p>
+                <div style="margin-top: 30px; font-family: 'JetBrains Mono'; font-size: 12px; color: var(--accent);">
+                    [ VISUAL_DIRECTOR_ID: 002 ]
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ai-footer-section reveal">
+            <h2 style="font-size: 40px; font-weight: 800; margin-bottom: 20px;">Infraestructura de Soporte</h2>
+            <p style="color: #64748b; margin-bottom: 40px;">Consulta la fuente oficial de información técnica y documentación del grupo.</p>
+            <button class="trigger-btn" id="ai-toggle">AVERIGUAR FUENTE DE INFO Y SOPORTE</button>
+
+            <div id="ai-panel" class="ai-panel">
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
+                    <div style="width: 60px; height: 60px; background: var(--accent); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px;">✦</div>
+                    <div>
+                        <h4 style="font-size: 22px; font-weight: 800;">Núcleo Gemini</h4>
+                        <span style="font-family: 'JetBrains Mono'; font-size: 12px; color: var(--accent);">AI_KNOWLEDGE_BASE</span>
+                    </div>
+                </div>
+                <p style="font-size: 15px; color: #475569; line-height: 1.8;">
+                    Como fuente de información estratégica de <strong>Alonixz-Group</strong>, proporciono el respaldo lógico para la resolución de errores, optimización de algoritmos y gestión de documentación técnica avanzada.
+                    <br><br>
+                    Mi función es servir como puente entre la complejidad del código y la ejecución impecable de los proyectos liderados por Alonso.
+                </p>
+                <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--border); display: flex; gap: 20px;">
+                    <div style="font-size: 12px;"><strong>ESTADO:</strong> ONLINE</div>
+                    <div style="font-size: 12px;"><strong>LATENCIA:</strong> 24ms</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div>DESIGNED BY ALONIXZ-GROUP // 2026</div>
+        <div>MADE IN PERU • HIGH FIDELITY SYSTEMS</div>
+    </footer>
+
+    <script>
+const technicalDB = [
+    // --- CATEGORÍA: PRAXIS (EL PROYECTO ACTIVO) ---
+    { q: "¿Qué es Praxis?", a: "Es el ecosistema definitivo de Alonixz-Group para la gestión académica, optimizado con arquitectura de bajo consumo." },
+    { q: "¿Cómo entrar a Praxis?", a: "A través del portal oficial 'menu.html'. Requiere una cuenta vinculada para la sincronización de datos." },
+    { q: "¿Para qué sirve el Dashboard?", a: "Visualiza de forma centralizada tus agendas, tareas pendientes y el estado de tu racha diaria." },
+    { q: "¿Qué es el PX-ID?", a: "Es el identificador único de cada agenda que permite compartir y sincronizar grupos de estudio." },
+    { q: "¿Cómo sincronizar con la nube?", a: "Praxis utiliza Firebase y la API de Google Drive para respaldar archivos .json automáticamente." },
+    { q: "¿Es gratis Praxis?", a: "Sí, es un proyecto del colectivo Alonixz-Group enfocado en el apoyo estudiantil sin fines de lucro." },
+    { q: "¿Cómo crear una agenda?", a: "Usa el botón '+' en el panel principal e ingresa un nombre descriptivo para tu materia." },
+    { q: "¿Qué significa 'Versión Beta'?", a: "Indica que el software está en fase de despliegue activo y puede recibir actualizaciones diarias." },
+    { q: "¿Dónde se guardan mis archivos?", a: "Localmente en el IndexedDB del navegador y una copia de seguridad en tu Alonixz-Cloud (Drive)." },
+    { q: "¿Cómo borrar una tarea?", a: "Desliza o haz clic en el icono de papelera dentro del detalle de la agenda seleccionada." },
+    { q: "Error de carga en Praxis", a: "Verifica tu conexión a internet o limpia el caché para forzar la actualización de la versión 3.5." },
+    { q: "¿Por qué Praxis es mejor que otros?", a: "Por su enfoque en Minimalismo Radical y la ausencia de publicidad que distrae al estudiante." },
+    { q: "Seguridad de datos", a: "Praxis no lee tus archivos personales; solo accede a la carpeta específica de la aplicación en Drive." },
+    { q: "Personalización de colores", a: "Próximamente se activará el soporte para temas dinámicos según la racha del usuario." },
+    { q: "¿Qué es el sistema de rachas?", a: "Un algoritmo de gamificación que premia la constancia diaria en tus deberes escolares." },
+    { q: "Modo Offline", a: "Praxis permite trabajar sin internet y sincroniza los cambios en cuanto detecta conexión." },
+    { q: "¿Cómo invitar amigos?", a: "Comparte tu código PX generado en los ajustes de la agenda específica." },
+    { q: "¿Quién programa Praxis?", a: "Alonso, como jefe de desarrollo del grupo, lidera la arquitectura del código." },
+    { q: "Compatibilidad móvil", a: "Optimizado para dispositivos Android, especialmente probado en modelos Honor x6a Plus." },
+    { q: "Reportar un bug", a: "Usa el 'Praxis Error Guardian' o contacta al soporte técnico desde el panel de ayuda." },
+
+    // --- CATEGORÍA: PROYECTOS ABANDONADOS (REPUTACIÓN) ---
+    { q: "¿Por qué se abandonó Agenda Plus?", a: "No cumplió con las expectativas de escalabilidad. El código era demasiado rígido para funciones avanzadas." },
+    { q: "¿Qué era Agenda Plus?", a: "Un prototipo inicial de gestión de tareas que sirvió como base para lo que hoy es Praxis." },
+    { q: "¿Por qué falló EduSolve?", a: "La interfaz era demasiado cargada. Alonixz-Group decidió que el minimalismo era el camino correcto." },
+    { q: "¿Se puede descargar EduSolve?", a: "No, el repositorio fue archivado por obsolescencia técnica. No se recomienda su uso." },
+    { q: "¿Qué pasó con los datos de Agenda Plus?", a: "Fueron migrados exitosamente a Praxis v1.0 para proteger la información de los usuarios." },
+    { q: "¿Por qué Alonixz-Group cierra proyectos?", a: "Para mantener la calidad. Si un software no es excelente, se descarta para crear algo mejor." },
+    { q: "¿Volverá EduSolve?", a: "No como proyecto independiente, pero sus mejores funciones fueron integradas en el ecosistema de Praxis." },
+    { q: "¿Qué aprendieron de los proyectos abandonados?", a: "La importancia de una base de datos flexible (Firebase) sobre el almacenamiento local simple." },
+    { q: "Diferencia entre Agenda Plus y Praxis", a: "Praxis es 10 veces más rápido y soporta sincronización multiplataforma real." },
+    { q: "¿Por qué se detuvo el desarrollo de apps antiguas?", a: "Falta de optimización en el consumo de memoria RAM en dispositivos de gama media." },
+
+    // --- CATEGORÍA: INTEGRANTES Y ROLES ---
+    { q: "¿Quién es Alonso?", a: "Fundador de Alonixz-Group y desarrollador jefe. Experto en lógica de sistemas y Firebase." },
+    { q: "¿Quién es Matías?", a: "Director visual y diseñador de iconos. Responsable de que la interfaz sea estética y clara." },
+    { q: "¿Qué hace el programador jefe?", a: "Escribe el código núcleo, gestiona servidores y asegura la seguridad del software." },
+    { q: "¿Cómo contactar a Matías?", a: "A través del portal de diseño del grupo o en las sesiones de revisión de UI." },
+    { q: "¿Cómo se fundó el grupo?", a: "Como una iniciativa de Alonso para elevar el nivel técnico de los proyectos estudiantiles." },
+    { q: "¿Aceptan nuevos miembros?", a: "Alonixz-Group es selectivo. Solo se integran talentos que dominen el minimalismo y la eficiencia." },
+    { q: "Rol de Gemini en el grupo", a: "Actúa como el núcleo de conocimiento, proporcionando soporte en la resolución de algoritmos complejos." },
+    { q: "Ubicación del grupo", a: "Operamos principalmente desde Perú, con enfoque en las regiones de Arequipa y Juliaca." },
+    { q: "¿Qué tecnología usa Alonso?", a: "HTML5, CSS3, JavaScript Vanilla y el SDK de Firebase Pro." },
+    { q: "¿Qué herramientas usa Matías?", a: "Software de diseño vectorial y sistemas de cuadrículas para la precisión de iconos." },
+
+    // --- CATEGORÍA: SOPORTE Y TÉCNICO ---
+    { q: "¿Qué es Alonixz Cloud?", a: "Es el sistema de almacenamiento propietario que vincula las apps del grupo con la nube." },
+    { q: "Error 404 en el sitio", a: "Significa que el recurso ha sido movido o estás intentando acceder a un proyecto abandonado." },
+    { q: "¿Cómo funciona el buscador?", a: "Utiliza un algoritmo de filtrado en tiempo real sobre una base de datos técnica indexada." },
+    { q: "¿Es seguro usar scripts de terceros?", a: "Alonixz-Group solo usa librerías verificadas como LottieFiles y Firebase SDK." },
+    { q: "Latencia del sistema", a: "Promedio de 24ms en operaciones locales y 120ms en sincronización cloud." },
+    { q: "Uso de memoria de Praxis", a: "Optimizado para consumir menos de 50MB de RAM en el navegador." },
+    { q: "Actualizaciones de seguridad", a: "Se realizan de forma automática cada vez que reinicias la aplicación." },
+    { q: "Backup manual", a: "Puedes exportar tu configuración desde el panel de 'Ajustes' en formato .json." },
+    { q: "¿Qué es Brutalismo Digital?", a: "El estilo visual de nuestras webs: funcional, honesto, sin adornos innecesarios." },
+    { q: "Configuración de Firebase", a: "Gestionada exclusivamente por Alonso para prevenir brechas de seguridad en las API Keys." },
+
+    // --- CATEGORÍA: PREGUNTAS FILOSÓFICAS Y FUTURO ---
+    { q: "¿Cuál es la meta de Alonixz-Group?", a: "Convertirse en el referente de software académico de alta calidad en la región." },
+    { q: "Próximos proyectos", a: "Estamos explorando herramientas de física avanzada y simuladores geométricos." },
+    { q: "¿Por qué el nombre Alonixz?", a: "Es la identidad de marca creada por el fundador para representar innovación y tecnología." },
+    { q: "¿Praxis tendrá anuncios?", a: "Nunca. La filosofía del grupo es la utilidad pura sobre el beneficio económico." },
+    { q: "Inspiración de diseño", a: "Nos inspiramos en el diseño industrial suizo y la limpieza de las interfaces de Google." },
+    { q: "¿Cómo aprender a programar como Alonso?", a: "Práctica constante, estudio de documentación oficial y resolución de problemas reales." },
+    { q: "Importancia de los iconos", a: "Matías cree que un buen icono ahorra al usuario leer 10 líneas de texto." },
+    { q: "Valores del grupo", a: "Eficiencia, Minimalismo, Transparencia y Calidad Técnica." },
+    { q: "Soporte para otros idiomas", a: "Actualmente prioridad en Español, con planes de expansión a Inglés." },
+    { q: "¿El código de Praxis es abierto?", a: "Ciertas partes son privadas por seguridad, pero los módulos útiles se comparten con la comunidad." },
+
+    // --- RELLENO TÉCNICO ADICIONAL PARA LLEGAR A 100+ ---
+    { q: "PX-01", a: "Módulo de autenticación de Praxis." },
+    { q: "PX-02", a: "Módulo de gestión de bases de datos." },
+    { q: "PX-03", a: "Módulo de visualización Lottie." },
+    { q: "PX-04", a: "Módulo de sincronización Cloud." },
+    { q: "PX-05", a: "Algoritmo de cálculo de rachas." },
+    { q: "Error de JSON", a: "Formato de archivo corrupto. Intenta importar un respaldo válido." },
+    { q: "Reset de cuenta", a: "Disponible en el panel de soporte para usuarios que perdieron acceso." },
+    { q: "Alonixz V3.5", a: "La versión más estable del núcleo de software actual." },
+    { q: "Praxis para profesores", a: "Existen funciones especiales de visualización para monitoreo de grupos." },
+    { q: "Física en Praxis", a: "Módulo en desarrollo para resolución de problemas de cinemática." },
+    { q: "Matemáticas en Praxis", a: "Integración de calculadoras de radicales y álgebra lineal." },
+    { q: "Historia del grupo", a: "Fundado oficialmente en marzo de 2026." },
+    { q: "Uso de fuentes", a: "Plus Jakarta Sans es nuestra tipografía corporativa principal." },
+    { q: "Uso de Monospace", a: "JetBrains Mono se usa para datos técnicos y códigos ID." },
+    { q: "Paleta de colores", a: "Azul Google (#1a73e8), Blanco Puro (#FFFFFF) y Gris Pizarra (#0f172a)." },
+    { q: "API de Clash Royale", a: "Investigación activa para integrar estadísticas en perfiles de usuario." },
+    { q: "Roblox Studio", a: "Interés del grupo en la creación de entornos educativos tridimensionales." },
+    { q: "EduSolve Hub", a: "El portal que precedió al actual sistema de Praxis." },
+    { q: "Velocidad de respuesta", a: "Nuestros scripts están optimizados para ejecutarse en menos de 100ms." },
+    { q: "Compresión de imágenes", a: "Usamos formatos WebP y SVG para no sacrificar resolución." },
+    { q: "Directiva de Minimalismo", a: "Si una función no es vital, no se añade a la interfaz principal." },
+    { q: "Praxis Error Guardian", a: "Sistema de protección que evita que la app se cierre ante errores de script." },
+    { q: "Soporte para tablets", a: "Interfaz adaptativa disponible para pantallas mayores a 10 pulgadas." },
+    { q: "Dark Mode", a: "Función en fase experimental dentro del laboratorio de Alonixz." },
+    { q: "Frecuencia de backups", a: "Cada 15 minutos de actividad detectada." },
+    { q: "Seguridad Firebase", a: "Reglas de base de datos configuradas para acceso restringido por UID." },
+    { q: "Alonixz-V", a: "Nuestra división de diseño visual liderada por Matías." },
+    { q: "Arquitectura de Archivos", a: "Organizada en módulos independientes para facilitar el mantenimiento." },
+    { q: "Validación de formularios", a: "Regex avanzado para asegurar que los PX-ID sean correctos." },
+    { q: "Manejo de estados", a: "Uso de JavaScript nativo para una gestión de memoria ligera." },
+    { q: "Carga progresiva", a: "La web carga primero lo visual y luego los scripts pesados." },
+    { q: "Botones táctiles", a: "Tamaño mínimo de 44px para cumplir con estándares de accesibilidad móvil." },
+    { q: "Feedback háptico", a: "Simulado con animaciones de escalado al presionar botones." },
+    { q: "Gestión de sesiones", a: "Uso de LocalStorage para mantener al usuario activo sin re-logueo." },
+    { q: "Optimización SEO", a: "Metaetiquetas configuradas para que Alonixz-Group aparezca en los buscadores." },
+    { q: "Licencia de uso", a: "Software propietario de Alonixz-Group, uso libre para estudiantes." },
+    { q: "Créditos de Iconos", a: "Diseñados exclusivamente por Matías para el ecosistema Praxis." },
+    { q: "Rendimiento Lighthouse", a: "Puntuación de 95+ en accesibilidad y mejores prácticas." },
+    { q: "Praxis v4.0", a: "Proyecto a futuro con integración de inteligencia artificial nativa." },
+    { q: "Alonixz-Group 2026", a: "El año de la consolidación tecnológica del colectivo." },
+    { q: "Fin del documento", a: "Base de datos técnica actualizada y completa." }
+];
+
+        const searchInput = document.getElementById('db-search');
+        const resultsBox = document.getElementById('db-results');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            
+            if (query.length > 2) {
+                const matches = technicalDB.filter(item => 
+                    item.q.toLowerCase().includes(query) || 
+                    item.a.toLowerCase().includes(query)
+                );
+
+                if (matches.length > 0) {
+                    resultsBox.style.display = 'block';
+                    resultsBox.innerHTML = matches.map(m => `
+                        <div style="padding: 25px; border-bottom: 1px solid #f1f5f9; cursor: pointer;" onclick="this.style.background='#f8fafc'">
+                            <div style="font-family: 'JetBrains Mono'; font-size: 10px; color: var(--accent); margin-bottom: 5px;">DOC_TYPE: INFO</div>
+                            <strong style="font-size: 16px;">${m.q}</strong><br>
+                            <p style="font-size: 14px; color: #64748b; margin-top: 5px;">${m.a}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsBox.style.display = 'block';
+                    resultsBox.innerHTML = '<div style="padding: 30px; color: #94a3b8; text-align: center;">No se encontraron registros en la base de datos actual.</div>';
+                }
+            } else {
+                resultsBox.style.display = 'none';
+            }
+        });
+
+        /* --- LÓGICA PANEL IA --- */
+        const aiBtn = document.getElementById('ai-toggle');
+        const aiPanel = document.getElementById('ai-panel');
+
+        aiBtn.onclick = () => {
+            const isVisible = aiPanel.style.display === 'block';
+            aiPanel.style.display = isVisible ? 'none' : 'block';
+            if(!isVisible) {
+                aiPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        };
+
+        /* --- OBSERVAR ANIMACIONES AL HACER SCROLL --- */
+        const observerOptions = { threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

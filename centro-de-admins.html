@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alonixz Cloud | Admin Suite</title>
+    <link rel="icon" type="image/png" href="praxis.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;900&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #1a73e8;
+            --accent-soft: rgba(26, 115, 232, 0.12);
+            --bg-deep: #0b0c10;
+            --bg-card: rgba(26, 29, 36, 0.65);
+            --text-main: #f8f9fa;
+            --text-dim: #9ca3af;
+            --border: rgba(255, 255, 255, 0.07);
+            --danger: #ff4d4d;
+            --danger-soft: rgba(255, 77, 77, 0.12);
+            --success: #00ffcc;
+            --success-soft: rgba(0, 255, 204, 0.12);
+            --ai-glow: rgba(0, 255, 204, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(26, 115, 232, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(26, 115, 232, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Sidebar Glassmorphism */
+        .sidebar {
+            width: 280px;
+            background: #0e1116;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 20px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 5;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 10px;
+        }
+
+        .brand img { width: 38px; height: auto; filter: drop-shadow(0 4px 10px rgba(26, 115, 232, 0.3)); }
+        .brand span { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+
+        .nav-group { display: flex; flex-direction: column; gap: 8px; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            text-decoration: none;
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .nav-item:hover { background: var(--accent-soft); color: #ffffff; }
+        .nav-item.active { background: var(--accent); color: white; box-shadow: 0 8px 24px rgba(26, 115, 232, 0.25); }
+
+        /* Contenedor Principal */
+        .content { flex: 1; padding: 40px 50px; overflow-x: hidden; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 34px; letter-spacing: -1px; font-weight: 900; }
+
+        /* Dashboard Grid & Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 40px; }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 26px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); opacity: 0; transition: 0.3s;
+        }
+
+        .card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); }
+        .card:hover::before { opacity: 1; }
+        .card-label { color: var(--text-dim); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+        .card-value { font-family: 'Outfit', sans-serif; font-size: 38px; font-weight: 900; color: #ffffff; }
+
+        /* Paneles */
+        .section-title { font-family: 'Outfit', sans-serif; margin-bottom: 20px; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        .panel { background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border); padding: 30px; margin-bottom: 35px; backdrop-filter: blur(10px); }
+
+        /* Módulo IA */
+        .ai-panel {
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            background: linear-gradient(135deg, rgba(26, 29, 36, 0.8), rgba(0, 255, 204, 0.02));
+            box-shadow: 0 0 20px var(--ai-glow);
+        }
+        .ai-status { font-family: 'Fira Code', monospace; color: var(--success); font-size: 13px; margin-bottom: 12px; }
+        .ai-response { background: #060709; color: #e2e8f0; padding: 20px; border-radius: 14px; border: 1px solid var(--border); font-size: 14px; line-height: 1.6; min-height: 60px; }
+
+        input {
+            width: 100%;
+            background: #111317;
+            border: 1px solid var(--border);
+            padding: 16px 20px;
+            border-radius: 14px;
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            margin-bottom: 18px;
+            transition: all 0.2s;
+        }
+
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+        /* Botones Estilizados */
+        .btn {
+            padding: 14px 28px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 800;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2); }
+        .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-ai { background: rgba(0, 255, 204, 0.1); color: var(--success); border: 1px solid rgba(0, 255, 204, 0.3); font-family: 'Outfit', sans-serif; }
+        .btn-ai:hover { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); }
+        .btn-danger { background: var(--danger-soft); color: #ff6b6b; border: 1px solid rgba(255, 77, 77, 0.2); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+        .btn-success { background: var(--success-soft); color: var(--success); border: 1px solid rgba(0, 255, 204, 0.2); }
+        .btn-success:hover { background: var(--success); color: #000; }
+
+        /* Tabla de Usuarios Avanzada */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 16px; color: var(--text-dim); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+        td { padding: 18px 16px; border-bottom: 1px solid var(--border); font-size: 14.5px; color: #e2e8f0; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.01); }
+
+        /* Explorador Terminal JSON */
+        .json-wrapper { position: relative; }
+        pre { 
+            background: #060709; 
+            color: var(--success); 
+            padding: 25px; 
+            border-radius: 18px; 
+            font-family: 'Fira Code', monospace; 
+            font-size: 13.5px; 
+            line-height: 1.6; 
+            overflow: auto; 
+            max-height: 60vh;
+            border: 1px solid var(--border);
+        }
+
+        .btn-copy { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.05); color: white; padding: 6px 12px; font-size: 11px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-weight: 700; }
+        .btn-copy:hover { background: rgba(255,255,255,0.1); }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+        }
+
+        /* Custom Scrollbar */
+        pre::-webkit-scrollbar, body::-webkit-scrollbar { width: 8px; height: 8px; }
+        pre::-webkit-scrollbar-track, body::-webkit-scrollbar-track { background: transparent; }
+        pre::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb { background: #22252a; border-radius: 10px; }
+        pre::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover { background: #33373f; }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 80px; padding: 20px 10px; }
+            .brand span, .nav-item span { display: none; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="praxis.png" alt="Logo">
+            <span>Alonixz Cloud</span>
+        </div>
+        <nav class="nav-group">
+            <div onclick="switchTab('resumen', this)" class="nav-item active"><span>Resumen</span></div>
+            <div onclick="switchTab('usuarios', this)" class="nav-item"><span>Usuarios Cloud</span></div>
+            <div onclick="switchTab('database', this)" class="nav-item"><span>Base de Datos</span></div>
+            <div style="flex: 1;"></div>
+            <a href="menu.html" class="nav-item" style="color: var(--danger); background: var(--danger-soft); border: 1px solid rgba(255,77,77,0.15);">
+                <span>← Volver al Dashboard</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ÁREA DE CONTENIDO -->
+    <main class="content">
+        
+        <!-- PESTAÑA: RESUMEN -->
+        <div id="tab-resumen" class="admin-tab">
+            <div class="header">
+                <div>
+                    <h1>System Overview</h1>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 4px;">Monitoreo centralizado del ecosistema Praxis</p>
+                </div>
+                <div class="status-pill" id="mantenimiento-status-pill">
+                    <span style="color:var(--success)">●</span> <span id="status-text-pill">Cargando Estado...</span>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <div class="card-label">Usuarios Registrados</div>
+                    <div class="card-value" id="count-users">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Agendas Activas</div>
+                    <div class="card-value" id="count-agendas">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Racha Promedio Global</div>
+                    <div class="card-value" id="avg-streak">0 🔥</div>
+                </div>
+            </div>
+
+            <!-- NUEVO CONTENEDOR: AUDITORÍA DE INTELIGENCIA ARTIFICIAL -->
+            <h2 class="section-title" style="color: var(--success);">⚡ Auditoría de Sistema IA (Gemini 1.5 Flash)</h2>
+            <div class="panel ai-panel">
+                <div class="ai-status">🤖 ALONIXZ-CORE > En espera de instrucciones...</div>
+                <div class="ai-response" id="ai-output">Haz clic en el botón inferior para que la IA realice una lectura estructural de la base de datos de Praxis en tiempo real...</div>
+                </button>
+<button class="btn btn-ai" style="margin-top: 18px;" onclick="ejecutarAuditoriaIA(auth.currentUser ? auth.currentUser.email : null)">
+    Generar Diagnóstico Inteligente
+</button>
+            </div>
+
+            <h2 class="section-title">Anuncio del Sistema</h2>
+            <div class="panel">
+                <input type="text" id="global-announcement" placeholder="Escribe la notificación o aviso global para los alumnos...">
+                <button class="btn btn-primary" onclick="publicarAnuncio()">Actualizar Banner Global</button>
+            </div>
+
+            <h2 class="section-title" style="color:var(--danger)">Protocolo de Emergencia</h2>
+            <div class="panel" style="border-color: rgba(255, 77, 77, 0.2); background: linear-gradient(to bottom right, var(--bg-card), rgba(255,77,77,0.02));">
+                <p style="color: var(--text-dim); margin-bottom: 20px; font-size: 14px; font-weight: 500;">Al activar el modo mantenimiento, se denegará el ingreso temporal de estudiantes redirigiéndolos al panel de espera.</p>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-danger" onclick="setMantenimiento(true)">Cerrar Sistema</button>
+                    <button class="btn btn-success" onclick="setMantenimiento(false)">Abrir Sistema</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA: USUARIOS -->
+        <div id="tab-usuarios" class="admin-tab" style="display:none;">
+            <div class="header">
+                <div>
+                    <h1>Usuarios Registrados</h1>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 4px;">Lista de control de alumnos autorizados</p>
+                </div>
+            </div>
+            <div class="panel" style="padding: 15px;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>IDENTIDAD</th>
+                                <th>ESTADO</th>
+                                <th>PROGRESO (RACHA | PUNTOS)</th>
+                                <th style="text-align: right;">ACCIÓN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-usuarios-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA: DATABASE -->
+        <div id="tab-database" class="admin-tab" style="display:none;">
+            <div class="header">
+                <div>
+                    <h1>Explorador Realtime JSON</h1>
+                    <p style="color: var(--text-dim); font-size: 14px; margin-top: 4px;">Estructura completa de datos en vivo</p>
+                </div>
+            </div>
+            <div class="json-wrapper">
+                <button class="btn-copy" onclick="copiarJSON()">Copiar JSON</button>
+                <pre id="raw-json">Cargando esquema Alonixz-Cloud...</pre>
+            </div>
+        </div>
+    </main>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
+    // Configuración usando la variable pre-declarada window.myKey
+    const firebaseConfig = {
+        apiKey: window.myKey,
+        authDomain: "praxis-79b9a.firebaseapp.com",
+        projectId: "praxis-79b9a",
+        databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+        storageBucket: "praxis-79b9a.firebasestorage.app",
+        messagingSenderId: "596083977949",
+        appId: "1:596083977949:web:71064f89a23f8d9738f534"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    // --- PROTECCIÓN DE RUTA (ADMIN CHECK) ---
+    onAuthStateChanged(auth, (user) => {
+        const miCorreoAdmin = "ajuliuszch@gmail.com";
+        if (!user || user.email !== miCorreoAdmin) {
+            alert("Acceso denegado. Solo el líder de Alonixz-Group puede entrar.");
+            window.location.href = "menu.html";
+        }
+    });
+
+  // --- CONMUTADOR DE PESTAÑAS SEGURAS ---
+window.switchTab = (tabId, element) => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`).style.display = 'block';
+    element.classList.add('active');
+    if(tabId === 'database') loadRawData();
+};
+
+// --- EXPLORADOR JSON OPTIMIZADO (EVITA PERMISSION DENIED) ---
+async function loadRawData() {
+    try {
+        // En lugar de leer '/', leemos solo '/usuarios' que está permitido para administradores
+        const s = await get(ref(db, 'usuarios'));
+        const rawEl = document.getElementById('raw-json');
+        if(rawEl) rawEl.innerText = JSON.stringify(s.val(), null, 4);
+    } catch (error) {
+        console.error("Error al cargar JSON:", error);
+        document.getElementById('raw-json').innerText = "Error de permisos al consultar este nodo.";
+    }
+}
+
+    // --- ESCUCHADOR: AGENDAS ACTIVAS ---
+    onValue(ref(db, 'agendas'), s => {
+        const el = document.getElementById('count-agendas');
+        if(el) el.innerText = s.val() ? Object.keys(s.val()).length : 0;
+    });
+
+    // --- ESCUCHADOR: ESTADO DE MANTENIMIENTO EN TIEMPO REAL ---
+    onValue(ref(db, 'config/mantenimiento_activo'), (snapshot) => {
+        const estadoPill = document.getElementById('mantenimiento-status-pill');
+        const textPill = document.getElementById('status-text-pill');
+        if(snapshot.val() === true) {
+            textPill.innerText = "SISTEMA CERRADO";
+            estadoPill.style.color = "var(--danger)";
+            estadoPill.querySelector('span').style.color = "var(--danger)";
+        } else {
+            textPill.innerText = "SISTEMA EN LÍNEA";
+            estadoPill.style.color = "var(--success)";
+            estadoPill.querySelector('span').style.color = "var(--success)";
+        }
+    });
+
+   // --- ESCUCHADOR: MÓDULO DE USUARIOS CON FILTRADO EN usuarios/uid/stats/ ---
+    onValue(ref(db, 'usuarios'), (snapshot) => {
+        const data = snapshot.val();
+        const countEl = document.getElementById('count-users');
+        const tbody = document.getElementById('tabla-usuarios-body');
+        const avgEl = document.getElementById('avg-streak');
+
+        if (snapshot.exists()) {
+            const userList = Object.entries(data);
+            const count = userList.length;
+
+            if(countEl) countEl.innerText = count;
+
+            let totalRacha = 0;
+            
+            if(tbody) {
+                tbody.innerHTML = "";
+                userList.forEach(([uid, u]) => {
+                    // SE CORRIGE LA EXTRACCIÓN HACIA LA SUBRUTA /stats/ SIN ERRORES DE SINTAXIS
+                    const racha = (u.stats && u.stats.racha) ? u.stats.racha : 0;
+                    const puntos = (u.stats && u.stats.puntos) ? u.stats.puntos : 0;
+                    
+                    totalRacha += racha;
+                    
+                    const nombre = u.nombre || "Estudiante";
+                    const correo = u.correo || "Sin correo";
+                    const foto = u.foto || "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="display:flex; align-items:center; gap:14px;">
+                                <img src="${foto}" style="width:36px; height:36px; border-radius:50%; object-fit: cover; border: 2px solid var(--border);">
+                                <div>
+                                    <div style="font-weight:700; font-size:14px; color:#fff;">${nombre}</div>
+                                    <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">${correo}</div>
+                                </div>
+                            </td>
+                            <td><span style="color:var(--success); font-weight:700; font-size:13px;">● Activo</span></td>
+                            <td style="font-family:'Fira Code', monospace; font-size:13px; color:#00ffcc;">${racha} 🔥 <span style="color:#9ca3af;">|</span> ${puntos} ✨</td>
+                            <td style="text-align: right;">
+                                <button class="btn btn-danger" style="padding: 6px 14px; font-size:11px; border-radius:8px;" onclick="borrarUsuario('${uid}')">EXPULSAR</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            if(avgEl) {
+                const promedio = (totalRacha / count).toFixed(1);
+                avgEl.innerText = `${promedio} 🔥`;
+            }
+
+        } else {
+            if(countEl) countEl.innerText = "0";
+            if(tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:var(--text-dim); padding:30px;'>No hay usuarios en la nube.</td></tr>";
+        }
+    });
+
+    // --- FUNCIÓN: EXPULSAR / BORRAR USUARIO ---
+    window.borrarUsuario = async (id) => {
+        if(confirm("¿Seguro que deseas eliminar permanentemente a este usuario de Praxis?")) {
+            try {
+                await set(ref(db, `usuarios/${id}`), null);
+                alert("Usuario purgado con éxito.");
+            } catch (e) {
+                console.error("Fallo al purgar:", e);
+            }
+        }
+    };
+
+    // --- FUNCIÓN: PUBLICAR ANUNCIO ---
+    window.publicarAnuncio = async () => {
+        const inputEl = document.getElementById('global-announcement');
+        const msg = inputEl.value.trim();
+        if(msg) {
+            await set(ref(db, 'config/anuncio_global'), { mensaje: msg, fecha: Date.now() });
+            alert("Banner actualizado en la nube Alonixz.");
+            inputEl.value = ""; 
+        } else {
+            alert("Escribe un mensaje válido.");
+        }
+    };
+
+    // --- FUNCIÓN: GESTIÓN DE PROTOCOLO DE MANTENIMIENTO ---
+    window.setMantenimiento = async (estado) => {
+        if(confirm(estado ? "¿Confirmar el cierre total de Praxis?" : "¿Abrir la plataforma de inmediato?")) {
+            await set(ref(db, 'config/mantenimiento_activo'), estado);
+        }
+    };
+
+    // --- FUNCIÓN COPIAR JSON ---
+    window.copiarJSON = function() {
+        const jsonText = document.getElementById('raw-json').innerText;
+        navigator.clipboard.writeText(jsonText).then(() => {
+            alert("Estructura JSON copiada al portapapeles.");
+        }).catch(err => {
+            console.error("Error al copiar: ", err);
+        });
+    };// --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL (GEMINI 1.5 FLASH) ---
+  // --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL SEGURA POR CORREO ---
+window.ejecutarAuditoriaIA = async (correoUsuarioActivo) => {
+    const aiOutput = document.getElementById('ai-output');
+    const aiStatus = document.querySelector('.ai-status');
+    const correoAdminAutorizado = "ajuliuszch@gmail.com";
+    
+    if (!aiOutput || !aiStatus) return;
+
+    // VALIDACIÓN DE LLAVE POR CORREO ELECTRÓNICO
+    if (!correoUsuarioActivo || correoUsuarioActivo !== correoAdminAutorizado) {
+        aiStatus.innerText = "🤖 ALONIXZ-CORE > Acceso Denegado";
+        aiOutput.innerText = "Error: Tu correo no cuenta con los privilegios criptográficos para auditar Praxis.";
+        return;
+    }
+
+    aiStatus.innerText = "🤖 ALONIXZ-CORE > Validando credenciales y extrayendo métricas...";
+    aiOutput.innerText = "Conectando con el nodo seguro de usuarios...";
+
+    try {
+        // CORRECCIÓN CRÍTICA: Se consulta la ruta 'usuarios' directamente para evitar el bloqueo 'Permission Denied'
+        const snapshotUsuarios = await get(ref(db, 'usuarios'));
+        const snapshotMantenimiento = await get(ref(db, 'config/mantenimiento_activo'));
+        
+        if (!snapshotUsuarios.exists()) {
+            aiOutput.innerText = "Base de datos de alumnos vacía. No hay datos para analizar.";
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Sin datos";
+            return;
+        }
+
+        const databaseUsuarios = snapshotUsuarios.val();
+        const estadoMantenimiento = snapshotMantenimiento.val() || false;
+
+        // Empaquetado optimizado para Gemini 1.5 Flash
+        const payloadMinificado = {
+            mantenimiento_activo: estadoMantenimiento,
+            total_usuarios: Object.keys(databaseUsuarios).length,
+            metricas_usuarios: []
+        };
+
+        Object.entries(databaseUsuarios).forEach(([uid, u]) => {
+            payloadMinificado.metricas_usuarios.push({
+                nombre: u.nombre || "Estudiante Anónimo",
+                racha: (u.stats && u.stats.racha) ? u.stats.racha : 0,
+                puntos: (u.stats && u.stats.puntos) ? u.stats.puntos : 0
+            });
+        });
+
+        aiStatus.innerText = "🤖 ALONIXZ-CORE > Procesando con Gemini 1.5 Flash...";
+
+        // Petición HTTP a Google Gen AI usando tu key predeclarada
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${myKey}`;
+
+        const prompt = `Actúa como el Administrador de Inteligencia Artificial de Praxis. 
+Analiza estas métricas académicas de la base de datos y genera un reporte ejecutivo muy corto y directo en español. 
+Dime el estado del rendimiento del grupo, resalta los estudiantes con mejores rachas y puntos, y analiza si el sistema requiere atención según el estado de mantenimiento actual.
+
+Datos estructurados:
+${JSON.stringify(payloadMinificado, null, 2)}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const result = await response.json();
+        
+        if (result.candidates && result.candidates[0].content.parts[0].text) {
+            let textoIA = result.candidates[0].content.parts[0].text;
+            
+            // Formateo visual del Markdown devuelto por la IA
+            textoIA = textoIA.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            textoIA = textoIA.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            textoIA = textoIA.replace(/\n/g, '<br>');
+
+            aiOutput.innerHTML = textoIA;
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Diagnóstico Completado con Éxito";
+        } else {
+            aiOutput.innerText = "El motor de IA no devolvió contenido procesable.";
+            aiStatus.innerText = "🤖 ALONIXZ-CORE > Error de Respuesta";
+        }
+
+    } catch (error) {
+        console.error("Error en la auditoría de IA:", error);
+        aiOutput.innerText = `Fallo en el flujo de diagnóstico automatizado: ${error.message}`;
+        aiStatus.innerText = "🤖 ALONIXZ-CORE > Error de Ejecución";
+    }
+};
+</script>
+</body>
+</html>
