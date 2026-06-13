@@ -63,7 +63,7 @@
 <hr>
             <div class="nav-item upcoming"><img src="usuario.png" alt="" style="width: 20px;"> Cuenta de Google</div>            <div class="nav-item upcoming"><img src="apoyo.png" alt="" style="width: 20px;"> Lista de Amigos</div> <div class="nav-item upcoming"><img src="corriendo.png" alt="" style="width: 20px;"> Dinamicas</div><div class="nav-item upcoming" onclick="navegarA('Foro', 'VISTA_FORO')">
     <img src="foro.png" alt="" style="width: 20px;"> Foro Comunitario
-</div>
+</div><div class="nav-item upcoming"><img src="praxis_assistant.png" alt="" style="width: 20px;"> Praxis Assistant</div>
             <div class="nav-item upcoming"><img src="nubes.png" alt="" style="width: 20px;"> Ver espacio de Praxis</div>
           <div class="nav-item"><img src="configuraciones.png" alt="" style="width: 20px;"> Configuraciones</div>
           <hr><div class="nav-item"><img src="marketplace.png" alt="" style="width: 20px;"> Marketplace</div>
@@ -1005,8 +1005,7 @@ window.eliminarTarea = async (agendaCode, tareaId) => {
         }
     }
 };async function mostrarEstadoVacio(msg) {
-    if (displayCode.innerText !== "SIN AGENDA") return;
-
+   if (displayCode.innerText !== "SIN AGENDA" && displayCode.innerText !== "HOME") return;
     bannerTitle.innerText = "Bienvenido a Praxis";
     
     container.style.display = "block"; 
@@ -1958,16 +1957,21 @@ navItems.forEach(item => {
         if (statusMessage) statusMessage.innerHTML = "";
 
         if (texto.includes("inicio")) {
-            bannerTitle.innerText = "Gestión Académica Praxis";
-            displayCode.innerText = "HOME";
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            if (code) {
-                cargarAgenda(auth.currentUser.uid);
-            } else {
-                mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
-            }
-        } 
+    bannerTitle.innerText = "Gestión Académica Praxis";
+    displayCode.innerText = "HOME";
+    
+    // El detector mira directamente la URL actual en tiempo real
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    
+    if (code && code.trim() !== "") {
+        // Si hay un código en la URL, ejecuta la carga pasándole el código para validar dentro
+        cargarAgenda(auth.currentUser.uid, code);
+    } else {
+        // Si no hay código en la URL, fuerza el estado vacío de inmediato
+        mostrarEstadoVacio("Ingresa un código para ver tu agenda.");
+    }
+}
 
 
 else if (texto.includes("calendario")) {
@@ -3289,6 +3293,129 @@ else if (texto.includes("calendario")) {
             }
         }
     });
+}else if (texto.includes("praxis assistant")) {
+    bannerTitle.innerText = "Praxis Assistant";
+    displayCode.innerText = "CORE_PRO_v3.1";
+    navegarA("Praxis Assistant", "VISTA_PRAXIS_PRO");
+
+    container.innerHTML = `
+        <style>/* Tipografía técnica */
+:root {
+    --neon-green: #00ff66;
+    --dark-bg: #050505;
+    --panel-bg: #0a0a0a;
+}
+
+body {
+    /* Tipografía con mejor legibilidad técnica */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.02em;
+}
+
+/* Animación de entrada para mensajes */
+.message {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Luces LED Perimetrales para el Input */
+.input-area {
+    border: 1px solid rgba(0, 255, 102, 0.2);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.input-area:focus-within {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 25px rgba(0, 255, 102, 0.15), inset 0 0 10px rgba(0, 255, 102, 0.05);
+}
+
+/* Botón LED con mejor transición */
+.led-btn-promo {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 102, 0.3));
+}
+
+.led-btn-promo:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 15px rgba(0, 255, 102, 0.6));
+}/* BOTÓN CORE PRAXIS: ESTILO LED PREMIUM */
+.led-btn-promo {
+    position: relative;
+    padding: 16px 40px;
+    background: #000;
+    color: #00ff66;
+    border: 1px solid #00ff66; /* Borde base para estructura */
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+/* Efecto LED giratorio */
+.led-btn-promo::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: conic-gradient(from 0deg, #00ff66, #000, #00ff66);
+    z-index: -1;
+    border-radius: 8px;
+    animation: rotate 3s linear infinite;
+    opacity: 0; /* Solo aparece al hacer hover o siempre si prefieres */
+    transition: opacity 0.3s;
+}
+
+/* Fondo interior para que el gradiente no opaque el texto */
+.led-btn-promo::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px; right: 2px; bottom: 2px;
+    background: #000;
+    border-radius: 4px;
+    z-index: -1;
+}
+
+/* Animaciones */
+.led-btn-promo:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
+    transform: scale(1.05);
+}
+
+.led-btn-promo:hover::before {
+    opacity: 1;
+}
+
+@keyframes rotate {
+    100% { transform: rotate(360deg); }
+}
+            .promo-wrapper { 
+                display: flex; flex-direction: column; height: 100%; background: #ffffff; 
+                animation: fadeIn 0.6s ease-out;
+            }
+            .hero-img { 
+                width: 100%; height: 65vh; object-fit: cover; 
+                border-bottom: 4px solid #22c55e;
+            }
+            .promo-footer { 
+                flex: 1; display: flex; flex-direction: column; align-items: center; 
+                justify-content: center; background: #000; color: #fff; padding: 20px;
+            }
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        </style>
+        
+        <div class="promo-wrapper">
+            <img src="praxis_assistant_promo.png" class="hero-img">
+            <div class="promo-footer">
+                <h2 style="letter-spacing: 2px; text-transform: uppercase;">Praxis Assistant Beta</h2>
+                <p style="color: #888; margin: 10px 0;">Sincronización neuronal de alto rendimiento.</p>
+                <a href="praxis_assistant.html" style="text-decoration: none;">
+                    <button class="led-btn-promo">ENTRA A PRAXIS ASSISTANT</button>
+                </a>
+            </div>
+        </div>
+    `;
 }else if (texto.includes("dinamicas")) {
     bannerTitle.innerText = "Centro de Dinámicas";
     displayCode.innerText = "DYNAMICS_HUB";
