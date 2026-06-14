@@ -2035,7 +2035,7 @@ body.tema-hacker .logo img {
     background: #fafafa;
     font-size: 0.75rem;
     color: #a0aec0;
-    text-align: right;
+    text-align: right;}
 /* --- CONFIGURACIÓN GENERAL Y CAPAS --- */
 .sm-overlay, .sm-overlay-fullscreen {
   display: none;

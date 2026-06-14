@@ -203,7 +203,30 @@ onAuthStateChanged(auth, async (user) => {
         if (authModal) authModal.style.display = 'flex';
     }
 });
+function verificarYRecuperarChatReciente() {
+    const ultimoChatId = localStorage.getItem("praxis_ultimo_chat");
+    const ultimaInteraccion = localStorage.getItem("praxis_ultima_interaccion");
 
+    if (ultimoChatId && ultimaInteraccion) {
+        const tiempoTranscurrido = Date.now() - parseInt(ultimaInteraccion, 10);
+        const diezMinutosEnMs = 10 * 60 * 1000; // 600,000 milisegundos
+
+        // Si ha pasado menos de 10 minutos, lo restauramos en caliente
+        if (tiempoTranscurrido < diezMinutosEnMs) {
+            // Verificamos que el chat realmente exista en los chats activos cargados de Firebase
+            if (listaChatsActivos && listaChatsActivos[ultimoChatId]) {
+                console.log(`[Praxis Core] Restaurando sesión reciente automática: Chat ${ultimoChatId}`);
+                switchChatSession(ultimoChatId);
+                return;
+            }
+        } else {
+            // Si ya expiró, limpiamos el localStorage para mantener el navegador limpio
+            localStorage.removeItem("praxis_ultimo_chat");
+            localStorage.removeItem("praxis_ultima_interaccion");
+            console.log("[Praxis Core] La sesión anterior expiró (más de 10 minutos). Inicio limpio.");
+        }
+    }
+}
 function fetchAllUserTasks() {
     if (!currentUid) return;
 
@@ -352,7 +375,45 @@ async function handleSend() {
         alert("Debes iniciar sesión para interactuar con Praxis Assistant.");
         return;
     }
+if (chatHistory && chatHistory.length >= 20) {
+        // 1. Mostramos el mensaje que escribió el alumno en la UI
+        appendMessage(queryText, 'user');
+        userInput.value = '';
 
+        // 2. Simulamos la respuesta de la IA indicando el bloqueo definitivo
+        const errorMsg = appendMessage("⚠️ Has alcanzado el límite máximo de 30 mensajes permitidos para esta ranura de chat. No es posible generar más respuestas aquí.", "assistant");
+        if (errorMsg) {
+            errorMsg.style.borderLeft = "3px solid #51ff85"; // Color verde neón identificitario
+            errorMsg.style.color = "#51ff85";
+            errorMsg.style.fontWeight = "bold";
+        }
+
+        // 3. Bloqueamos físicamente la barra de entrada de texto y el botón
+        if (userInput) {
+            userInput.disabled = true;
+            userInput.placeholder = "Chat bloqueado: Límite de 30 mensajes alcanzado.";
+        }
+        if (sendBtn) sendBtn.disabled = true;
+
+        // Guardamos este aviso de bloqueo en el historial de Firebase para que persista
+        chatHistory.push({
+            role: "model",
+            parts: [{ text: "⚠️ Has alcanzado el límite máximo de 30 mensajes permitidos para esta ranura de chat. No es posible generar más respuestas aquí." }]
+        });
+
+        if (idChatActual) {
+            const chatEspecificoRef = ref(db, `usuarios/${currentUid}/chats_guardados/${idChatActual}`);
+            await set(chatEspecificoRef, {
+                ultimaModificacion: new Date().toISOString(),
+                historial: chatHistory
+            });
+        }
+        
+        if (typeof cargarEstructuraChats === "function") {
+            cargarEstructuraChats();
+        }
+        return; // Cortamos el flujo aquí. Jamás se llama a la API de Gemini.
+    }
     const cantidadChats = Object.keys(listaChatsActivos || {}).length;
     
     if (cantidadChats >= 3 && !idChatActual) {
@@ -361,7 +422,7 @@ async function handleSend() {
         
         const errorMsg = appendMessage("⚠️ Al parecer la memoria está llena. Elimina un chat en el panel para continuar.", "assistant");
         if (errorMsg) {
-            errorMsg.style.color = "#ff007f";
+            errorMsg.style.color = "#51ff85";
             errorMsg.style.fontWeight = "bold";
         }
         return;
@@ -508,18 +569,49 @@ async function handleSend() {
         });
         const data = await response.json();
         
-        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+     if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
             const botResponse = data.candidates[0].content.parts[0].text;
             
-            loadingMsg.remove(); 
-            appendMessage(botResponse, 'model'); 
+            // 1. Quitamos la animación de carga de los 5 círculos
+            if (loadingMsg) loadingMsg.remove(); 
+
+            // =================================================================
+            // FIX: RENDERIZADO ÚNICO CON CONTENEDOR DE ESTILO PREMIUM
+            // =================================================================
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', 'assistant'); // Tus clases globales (.message y .assistant)
+            
+            // Forzamos la estructura de bloque base para que acople el CSS
+            msgDiv.style.position = "relative";
+            msgDiv.style.width = "100%";
+
+            // Limpieza estricta de metadatos residuales
+            let cleanText = String(botResponse).split("[INFORMACIÓN CRÍTICA")[0].trim();
+            cleanText = cleanText.replace(/\[object Object\]/g, "").replace(/undefined/g, "").trim();
+
+            // Pasamos el texto limpio por el formateador de tu archivo (marked)
+            const textoFormateado = typeof formatearTextoIACompleto === "function" 
+                ? formatearTextoIACompleto(cleanText) 
+                : cleanText;
+
+            // Inyectamos el HTML ya procesado con las negritas, tablas y KaTeX
+            msgDiv.innerHTML = textoFormateado;
+                
+            // Lo pegamos a la caja de chat activa una sola vez
+            if (chatBox) {
+                chatBox.appendChild(msgDiv);
+            }
+            // =================================================================
 
             chatHistory.push({
                 role: "model",
                 parts: [{ text: botResponse }]
             });
-
-            if (!idChatActual) {
+if (chatHistory.length > 30) {
+        // Corta el historial dejando solo los 30 elementos más recientes
+        chatHistory = chatHistory.slice(-30);
+    }
+           if (!idChatActual) {
                 const chatsRef = ref(db, `usuarios/${currentUid}/chats_guardados`);
                 const nuevoChatRef = push(chatsRef); 
                 idChatActual = nuevoChatRef.key;
@@ -531,17 +623,33 @@ async function handleSend() {
                 historial: chatHistory
             });
 
+            // =================================================================
+            // GUARDAR ESTADO DE SESIÓN ACTIVA EN LOCAL (LÍMITE 10 MINUTOS)
+            // =================================================================
+            if (idChatActual) {
+                localStorage.setItem("praxis_ultimo_chat", idChatActual);
+                localStorage.setItem("praxis_ultima_interaccion", Date.now().toString());
+            }
+            // =================================================================
+
+            // Auto-scroll inmediato en caliente al recibir la respuesta
+            if (chatScrollContainer) {
+                chatScrollContainer.scrollTop = chatScrollContainer.scrollHeight;
+            } else if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
             if (typeof cargarEstructuraChats === "function") {
                 cargarEstructuraChats();
             }
 
         } else {
-            loadingMsg.innerText = "Error. El sistema no pudo procesar esta estructura de datos.";
+            if (loadingMsg) loadingMsg.innerText = "Error. El sistema no pudo procesar esta estructura de datos.";
             chatHistory.pop();
         }
     } catch (error) {
         console.error(error);
-        loadingMsg.innerText = "Error crítico de red al enlazar con el Core de Praxis.";
+        if (loadingMsg) loadingMsg.innerText = "Error crítico de red al enlazar con el Core de Praxis.";
         chatHistory.pop();
     }
 }
@@ -579,9 +687,6 @@ if (userInput) {
     }
 }
 window.formatearTextoIACompleto = formatearTextoIACompleto;
-// ==========================================
-// 7. PERSISTENCIA DE CHATS (MÁXIMO 3)
-// ==========================================
 async function cargarEstructuraChats() {
     if (!currentUid) return;
     
@@ -596,10 +701,28 @@ async function cargarEstructuraChats() {
         
         let cantidadChats = 0;
 
+        // 1. CREAR LA BARRA DE MEMORIA TOTAL (Arriba de la lista)
+        const contenedorMemoriaTotal = document.createElement("div");
+        contenedorMemoriaTotal.style.cssText = "padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #1a1a1a;";
+        listaChatsGuardados.appendChild(contenedorMemoriaTotal);
+
         if (snapshot.exists()) {
             listaChatsActivos = snapshot.val();
             cantidadChats = Object.keys(listaChatsActivos).length;
             
+            // Renderizar contenido de la barra total
+            const porcTotal = (cantidadChats / 3) * 100;
+            contenedorMemoriaTotal.innerHTML = `
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #888; margin-bottom: 5px;">
+                    <span>Chats Activos</span>
+                    <span>${cantidadChats} / 3</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: #111; border: 1px solid #222; border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${porcTotal}%; height: 100%; background: ${cantidadChats >= 3 ? '#ff007f' : '#00ff66'}; transition: width 0.3s ease;"></div>
+                </div>
+            `;
+
+            // Control de bloqueo por memoria llena
             if (cantidadChats >= 3 && !idChatActual) {
                 if (memoryAlert) memoryAlert.style.display = "block";
                 if (userInput) {
@@ -616,21 +739,32 @@ async function cargarEstructuraChats() {
                 if (sendBtn) sendBtn.disabled = false;
             }
 
+            // 2. RENDERIZAR CADA CHAT CON SU MICRO-BARRA OCULTA
             for (const chatId in listaChatsActivos) {
                 if (!Object.prototype.hasOwnProperty.call(listaChatsActivos, chatId)) continue;
                 const infoChat = listaChatsActivos[chatId];
                 
+                // Calcular cantidad de mensajes en este chat específico (máx 20)
+                const totalMensajes = infoChat.historial ? infoChat.historial.length : 0;
+                const porcChat = Math.min((totalMensajes / 20) * 100, 100);
+
                 let tituloPestana = "Conversación vacía";
                 if (infoChat.historial && infoChat.historial[0] && infoChat.historial[0].parts && infoChat.historial[0].parts[0]) {
                     const textoSucio = String(infoChat.historial[0].parts[0].text);
-                    tituloPestana = textoSucio.split("[INFORMACIÓN CRÍTICA")[0].trim().substring(0, 22) + "...";
+                    tituloPestana = textoSucio.split("[INFORMACIÓN")[0].trim().substring(0, 20) + "...";
                 }
                 
                 const esActivo = idChatActual === chatId;
                 
+                // Contenedor principal de la pestaña del chat (Añadimos una clase para el CSS hover)
                 const itemChat = document.createElement("div");
-                itemChat.style.cssText = `display: flex; justify-content: space-between; align-items: center; background: ${esActivo ? 'rgba(0, 255, 102, 0.05)' : '#0f0f0f'}; border: 1px solid ${esActivo ? '#00ff66' : '#1a1a1a'}; padding: 10px; border-radius: 8px; margin-bottom: 8px; transition: all 0.2s ease;`;
+                itemChat.classList.add("pestana-chat-item");
+                itemChat.style.cssText = `display: flex; flex-direction: column; background: ${esActivo ? 'rgba(0, 255, 102, 0.02)' : '#0f0f0f'}; border: 1px solid ${esActivo ? '#00ff66' : '#1a1a1a'}; padding: 10px; border-radius: 6px; margin-bottom: 8px; transition: all 0.2s ease; position: relative;`;
                 
+                // Fila superior: Título y botón eliminar
+                const filaSuperior = document.createElement("div");
+                filaSuperior.style.cssText = "display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px;";
+
                 const btnCargar = document.createElement("div");
                 btnCargar.innerText = tituloPestana;
                 btnCargar.style.cssText = `color: ${esActivo ? '#00ff66' : '#ccc'}; cursor: pointer; font-size: 0.8rem; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: ${esActivo ? 'bold' : 'normal'};`;
@@ -641,19 +775,46 @@ async function cargarEstructuraChats() {
                 
                 const btnEliminar = document.createElement("button");
                 btnEliminar.innerText = "✕";
-                btnEliminar.style.cssText = "background: transparent; border: none; color: #ff007f; cursor: pointer; font-weight: bold; font-size: 0.8rem; padding: 0 4px; opacity: 0.6; transition: opacity 0.2s;";
+                btnEliminar.style.cssText = "background: transparent; border: none; color: #ff007f; cursor: pointer; font-weight: bold; font-size: 0.75rem; padding: 0 4px; opacity: 0.5; transition: opacity 0.2s;";
                 btnEliminar.onmouseover = () => btnEliminar.style.opacity = "1";
-                btnEliminar.onmouseout = () => btnEliminar.style.opacity = "0.6";
+                btnEliminar.onmouseout = () => btnEliminar.style.opacity = "0.5";
                 btnEliminar.onclick = (e) => {
                     e.stopPropagation(); 
                     eliminarChatSession(chatId);
                 };
                 
-                itemChat.appendChild(btnCargar);
-                itemChat.appendChild(btnEliminar);
+                filaSuperior.appendChild(btnCargar);
+                filaSuperior.appendChild(btnEliminar);
+                itemChat.appendChild(filaSuperior);
+
+                // Fila inferior: La micro-barra de mensajes (Oculta por defecto mediante la clase css)
+                const contenedorMicroBarra = document.createElement("div");
+                contenedorMicroBarra.classList.add("micro-barra-memoria");
+                contenedorMicroBarra.style.cssText = "width: 100%; margin-top: 8px; transition: all 0.2s ease;";
+                contenedorMicroBarra.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #555; margin-bottom: 3px;">
+                        <span>Mensajes guardados</span>
+                        <span>${totalMensajes} / 30</span>
+                    </div>
+                    <div style="width: 100%; height: 3px; background: #111; border-radius: 2px; overflow: hidden;">
+                        <div style="width: ${porcChat}%; height: 100%; background: ${totalMensajes >= 30 ? '#ff007f' : '#00ff66'};"></div>
+                    </div>
+                `;
+                itemChat.appendChild(contenedorMicroBarra);
+                
                 listaChatsGuardados.appendChild(itemChat);
             }
         } else {
+            // Si no hay chats, mostramos la barra total vacía (0/3)
+            contenedorMemoriaTotal.innerHTML = `
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #888; margin-bottom: 5px;">
+                    <span>Chats Activos</span>
+                    <span>0 / 3</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: #111; border: 1px solid #222; border-radius: 3px; overflow: hidden;">
+                    <div style="width: 0%; height: 100%; background: #00ff66;"></div>
+                </div>
+            `;
             listaChatsActivos = {};
             if (memoryAlert) memoryAlert.style.display = "none";
             
@@ -661,7 +822,11 @@ async function cargarEstructuraChats() {
             emptyNotice.innerText = "No hay chats guardados.";
             emptyNotice.style.cssText = "color: #444; font-size: 0.75rem; text-align: center; margin-top: 15px; font-style: italic;";
             listaChatsGuardados.appendChild(emptyNotice);
+        }if (!window.sesionVerificadaAlArrancar) {
+            window.sesionVerificadaAlArrancar = true;
+            verificarYRecuperarChatReciente();
         }
+
     } catch (error) {
         console.error("Fallo al procesar el menú lateral de Praxis:", error);
     }
@@ -701,7 +866,13 @@ function switchChatSession(chatId) {
         if (chatScrollContainer) {
             chatScrollContainer.scrollTop = chatScrollContainer.scrollHeight;
         }
-    }
+    }// =================================================================
+    // GUARDAR ESTADO DE SESIÓN ACTIVA (Último chat y tiempo)
+    // =================================================================
+    localStorage.setItem("praxis_ultimo_chat", chatId);
+    localStorage.setItem("praxis_ultima_interaccion", Date.now().toString());
+    // =================================================================
+    
     cargarEstructuraChats();
 }
 
