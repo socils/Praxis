@@ -450,7 +450,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase, ref, onValue, set, push, get, update, runTransaction, query, limitToLast, remove, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
+import { setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
@@ -606,7 +606,32 @@ function obtenerRango(racha, email) {
         loaderText.innerHTML = '¿Tienes problemas? <a href="errores.html" style="color: #1a73e8; text-decoration: none; font-weight: 700;">Contáctanos aquí</a>';
         loaderText.style.animation = "fadeIn 0.5s ease-in";
     }
-}, 5000);onAuthStateChanged(auth, async (user) => {
+}, 5000);// 1. Configurar la persistencia de forma independiente
+setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+        console.log("💾 [AUTH] Persistencia local establecida.");
+    })
+    .catch((error) => {
+        console.error("Error en persistencia:", error);
+        window.location.href = "login.html";
+    });
+
+// Variables globales del loader para evitar duplicaciones
+let progresoActual = 0;
+let procesosFirebaseCompletados = false;
+let intervaloLoader = null;
+
+const tipsEstrategicos = [
+    "Mantener un índice de constancia elevado le permitirá desbloquear insignias exclusivas dentro de su perfil institucional.",
+    "El sistema le permite sincronizar sus actividades pendientes de Google Classroom de manera directa y centralizada.",
+    "Asegure la estabilidad de sus calificaciones participando de forma íntegra y transparente en el escalafón global.",
+    "El panel informativo de novedades se actualiza en tiempo real de acuerdo con las últimas directrices de la plataforma.",
+    "Es recomendable consultar la agenda académica diariamente para realizar un seguimiento oportuno de sus asignaciones.",
+    "La vinculación de credenciales compartidas le otorga la posibilidad de realizar un análisis comparativo de métricas académicas."
+];
+
+// 2. Escuchar el estado de autenticación de forma segura y ultra-estable
+onAuthStateChanged(auth, async (user) => {
     const userInfoDiv = document.getElementById('user-info'); 
     const loader = document.getElementById('loader-global');
     const displayCode = document.getElementById('display-code');
@@ -615,21 +640,31 @@ function obtenerRango(racha, email) {
     const percentLoader = document.getElementById("loader-percentage");
     const barLoader = document.getElementById("loader-progress-bar");
     const telemetryLoader = document.getElementById("loader-telemetry");
-    const tipLoader = document.getElementById("loader-tip-text");                                                                                                                                   
+    const tipLoader = document.getElementById("loader-tip-text");
 
-    let progresoActual = 0;
-    let procesosFirebaseCompletados = false;
-    let intervaloLoader = null;
+    if (intervaloLoader) clearInterval(intervaloLoader);
 
-    const tipsEstrategicos = [
-        "Mantener un índice de constancia elevado le permitirá desbloquear insignias exclusivas dentro de su perfil institucional.",
-        "El sistema le permite sincronizar sus actividades pendientes de Google Classroom de manera directa y centralizada.",
-        "Asegure la estabilidad de sus calificaciones participando de forma íntegra y transparente en el escalafón global.",
-        "El panel informativo de novedades se actualiza en tiempo real de acuerdo con las últimas directrices de la plataforma.",
-        "Es recomendable consultar la agenda académica diariamente para realizar un seguimiento oportuno de sus asignaciones.",
-        "La vinculación de credenciales compartidas le otorga la posibilidad de realizar un análisis comparativo de métricas académicas."
-    ];
+    // 🌟 CONTROL MULTI-PESTAÑA SEGURO (SIN ELIMINAR CACHÉ)
+    if (!user) {
+        // Verificamos si existe alguna llave de Firebase Auth en el dominio
+        const llaveAuthExiste = Object.keys(localStorage).some(key => key.startsWith("firebase:authUser"));
+        
+        if (llaveAuthExiste && progresoActual < 72) {
+            // Firebase todavía está leyendo tokens en esta pestaña. Esperamos pacientemente.
+            console.log("⏳ [AUTH] Sincronizando sesión entre pestañas... Esperando al SDK.");
+            return; 
+        }
 
+        // Si realmente no hay sesión o se deslogueó explícitamente:
+        clearInterval(intervaloLoader);
+        console.log("❌ Sin sesión activa. Redirigiendo a login. Guardando el caché intacto.");
+        
+        // 🛡️ SE ELIMINÓ TODO LÓGICA DE DETRIMENTO O BORRADO DE LOCALSTORAGE AQUÍ.
+        window.location.href = "login.html";
+        return;
+    }
+
+    // --- A PARTIR DE AQUÍ EL USUARIO YA ESTÁ CONFIRMADO ---
     if (loader) {
         loader.style.display = 'flex';
         loader.style.opacity = '1';
@@ -670,7 +705,7 @@ function obtenerRango(racha, email) {
                         setTimeout(() => {
                             if (loader) {
                                 loader.style.opacity = '0';
-                                setTimeout(() => { loader.style.display = 'none'; }, 800);                                                                                                                  
+                                setTimeout(() => { loader.style.display = 'none'; }, 800);                                                                                                                                                                                                                                                                
                             }
                             inicializarAnuncioManual();
                         }, 500);
@@ -685,179 +720,419 @@ function obtenerRango(racha, email) {
     };
 
     controlarProgresoLoader();
-                                                                                                                    
-    if (user) {
-        try {
-            const isGuest = user.isAnonymous;
-            const miCorreoAdmin = "ajuliuszch@gmail.com";
-            const STAFF_CONSEJO = ["jzavaletac@gmail.com", "francosantosch@gmail.com", "miembro4@ejemplo.com", "miembro5@ejemplo.com"];
+                                                                                                                                                                                                                                                                                                                                    
+    try {
+        const isGuest = user.isAnonymous;
+        const miCorreoAdmin = "ajuliuszch@gmail.com";
+        const STAFF_CONSEJO = ["jzavaletac@gmail.com", "francosantosch@gmail.com", "miembro4@ejemplo.com", "miembro5@ejemplo.com"];
 
-            const adminBtn = document.getElementById('admin-link');
-            const consejoBtn = document.getElementById('consejo-link');
+        const adminBtn = document.getElementById('admin-link');
+        const consejoBtn = document.getElementById('consejo-link');
 
-            if (!isGuest && user.email === miCorreoAdmin && adminBtn) adminBtn.style.display = 'flex';
-            if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
-                consejoBtn.style.display = 'flex';
-            }
-
-            const FOTO_POR_DEFECTO = "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
-            let fotoDisplay = FOTO_POR_DEFECTO;
-            let nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
-            let mostrarBotonRecargaPerfil = false;
-
-            if (!isGuest) {
-                try {
-                    const cacheKey = "praxis_profile_" + user.uid;
-                    const cachedStr = localStorage.getItem(cacheKey);
-                    const limits = getSyncLimits();
-                    let usarServidor = false;
-
-                    if (!cachedStr) {
-                        console.log("=========================================");
-                        console.log("➡️ [CACHE PERFIL] No hay historial local. Creando caché inicial desde Firebase...");
-                        usarServidor = true;
-                    } else {
-                        const cacheObject = JSON.parse(cachedStr);
-                        const tiempoTranscurrido = Date.now() - cacheObject.timestamp;
-                        
-                        if (tiempoTranscurrido > CACHE_EXPIRATION_TIME_AGENDA) {
-                            mostrarBotonRecargaPerfil = true;
-                            if (limits.automaticos < 3) {
-                                console.log("=========================================");
-                                console.log("🔄 [CACHE PERFIL] Expirado (más de 1 hora). Actualizando desde Firebase...");
-                                usarServidor = true;
-                                updateSyncLimitUsage("automaticos");
-                            } else {
-                                console.warn("=========================================");
-                                console.warn("⚠️ [MODO AHORRO] Límite automático superado. Usando caché viejo.");
-                            }
-                        } else {
-                            console.log("=========================================");
-                            console.log("✅ [ÉXITO PERFIL] Cargado desde el CACHÉ local instantáneamente.");
-                            console.log("⏰ Tiempo de vida restante del caché de perfil:", ((CACHE_EXPIRATION_TIME_AGENDA - tiempoTranscurrido) / 1000 / 60).toFixed(1), "minutos.");
-                            console.log("=========================================");
-                        }
-                    }
-
-                    let usuarioData = null;
-                    if (usarServidor) {
-                        const usuarioSnap = await get(ref(database, `usuarios/${user.uid}`));
-                        usuarioData = usuarioSnap.val();
-                        if (usuarioData) {
-                            saveToCache(cacheKey, usuarioData);
-                            console.log("💾 [CACHE PERFIL] Servidor actualizado y guardado localmente.");
-                            mostrarBotonRecargaPerfil = false;
-                        }
-                    } else if (cachedStr) {
-                        usuarioData = JSON.parse(cachedStr).payload;
-                    }
-
-                    if (usuarioData && usuarioData.foto) {
-                        fotoDisplay = usuarioData.foto;
-                    } else if (user.photoURL) {
-                        fotoDisplay = user.photoURL;
-                    }
-
-                    if (usuarioData && usuarioData.nombre) {
-                        nombreDisplay = usuarioData.nombre;
-                    }
-                } catch (dbError) {
-                    console.warn("Fallo al leer base de datos, usando fallback de Google:", dbError);
-                    if (user.photoURL) fotoDisplay = user.photoURL;
-                }
-
-                if (fotoDisplay === FOTO_POR_DEFECTO) {
-                    setTimeout(solicitarConfiguracionFoto, 10000);
-                }
-            }
-
-            let rachaFinal = 0;
-                                                                                                                                    
-            if (!isGuest) {
-                const userRef = ref(db, 'usuarios/' + user.uid);
-                await update(userRef, {
-                    nombre: nombreDisplay,
-                    correo: user.email,
-                    foto: fotoDisplay,
-                    ultimaConexion: Date.now()
-                });
-                rachaFinal = await gestionarRachaUsuario(user.uid);
-            }
-
-            if (userInfoDiv) {
-                userInfoDiv.innerHTML = `
-                    ${mostrarBotonRecargaPerfil ? `
-                    <div id="perfil-desactualizado-tag" style="display: flex; align-items: center; gap: 8px; margin-right: 12px; background: #fff0f6; border: 2px solid #fcc419; padding: 4px 10px; border-radius: 10px;">
-                        <button onclick="window.funcionActualizarDatosPerfil()" style="background: #fcc419; color: #000; border: none; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='none'">⚡ Actualizar Datos</button>
-                        <a href="como-funciona.html" target="_blank" style="font-size: 11px; color: #666; font-weight: 700; text-decoration: underline; font-family: system-ui, sans-serif;">¿Cómo funciona?</a>
-                    </div>
-                    ` : ''}
-                    ${!isGuest ? `
-                    <div id="puntos-container" style="display: flex; align-items: center; margin-right: 12px; font-weight: 900; color: #000; background: #fff; padding: 5px 12px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-                        <span id="user-points-display" style="font-size: 16px;">0</span>
-                        <img src="dolar.png" style="width: 20px; margin-left: 6px; filter: drop-shadow(1px 1px 0px #000);">
-                    </div>
-                    <div id="streak-container" style="display: flex; align-items: center; margin-right: 12px; font-weight: 900; color: #000; background: #FFDE03; padding: 5px 12px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-                        <span id="streak-count" style="font-size: 16px;">${rachaFinal}</span>
-                        <img src="fuego.png" style="width: 20px; margin-left: 6px; filter: drop-shadow(1px 1px 0px #000);">
-                    </div>` : ''}
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; margin-right: 10px;">
-                        <span id="user-name-display" style="font-size: 13px; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px;">
-                            ${nombreDisplay}
-                        </span>
-                    </div>
-                    <img id="user-avatar-display" src="${fotoDisplay}" 
-                         style="width: 38px; height: 38px; border-radius: 4px; border: 3px solid #000; box-shadow: 3px 3px 0px #000; object-fit: cover; background: #fff;">
-                `;
-            }
-
-            if (!isGuest) {
-                onValue(ref(db, `usuarios/${user.uid}/stats/puntos`), (snapshot) => {
-                    const puntos = snapshot.val() || 0;
-                    const pDisplay = document.getElementById('user-points-display');
-                    if (pDisplay) {
-                        pDisplay.innerText = puntos;
-                        const container = pDisplay.parentElement;
-                        container.style.transform = "scale(1.1) translateY(-2px)";
-                        setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
-                    }
-                });
-
-                onValue(ref(db, `usuarios/${user.uid}/stats/racha`), (snapshot) => {
-                    const racha = snapshot.val() || 0;
-                    const sDisplay = document.getElementById('streak-count');
-                    if (sDisplay) {
-                        sDisplay.innerText = racha;
-                        const container = sDisplay.parentElement;
-                        container.style.transform = "scale(1.1) translateY(-2px)";
-                        setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
-                        
-                        const infoRango = obtenerRango(racha, user.email);
-                        aplicarTemaYBadge(infoRango, nombreDisplay, racha);
-                    }
-                });
-
-                if (displayCode && (displayCode.innerText === "..." || displayCode.innerText === "")) {
-                    displayCode.innerText = "SIN AGENDA";
-                }
-
-                await cargarAgenda(user.uid);      
-                await cargarListaSidebar(user.uid); 
-            } else {
-                if (displayCode) displayCode.innerText = "INVITADO";
-                bloquearFuncionesInvitado();
-            }
-
-        } catch (error) {
-            console.error("Error crítico en sincronización de datos con Firebase Core:", error);
-            if (txtLoader) txtLoader.innerText = "⚠️ ERROR DE ENLACE. VERIFICANDO CONEXIÓN...";
-        } finally {
-            procesosFirebaseCompletados = true;
+        if (!isGuest && user.email === miCorreoAdmin && adminBtn) adminBtn.style.display = 'flex';
+        if (!isGuest && (STAFF_CONSEJO.includes(user.email) || user.email === miCorreoAdmin) && consejoBtn) {
+            consejoBtn.style.display = 'flex';
         }
+
+        const FOTO_POR_DEFECTO = "https://www.gstatic.com/images/branding/product/2x/avatar_square_blue_120dp.png";
+        let fotoDisplay = FOTO_POR_DEFECTO;
+        let nombreDisplay = isGuest ? "Invitado Temporal" : (user.displayName || user.email.split('@')[0]);
+        let mostrarBotonRecargaPerfil = false;
+
+        if (!isGuest) {
+            try {
+                const cacheKey = "praxis_profile_" + user.uid;
+                const cachedStr = localStorage.getItem(cacheKey);
+                const limits = getSyncLimits();
+                let usarServidor = false;
+
+                if (!cachedStr) {
+                    usarServidor = true;
+                } else {
+                    const cacheObject = JSON.parse(cachedStr);
+                    const tiempoTranscurrido = Date.now() - cacheObject.timestamp;
+                    
+                    if (tiempoTranscurrido > CACHE_EXPIRATION_TIME_AGENDA) {
+                        mostrarBotonRecargaPerfil = true;
+                        if (limits.automaticos < 3) {
+                            usarServidor = true;
+                            updateSyncLimitUsage("automaticos");
+                        }
+                    } else {
+                        console.log("✅ [ÉXITO PERFIL] Cargado desde el CACHÉ local.");
+                    }
+                }
+
+                let usuarioData = null;
+                if (usarServidor) {
+                    const usuarioSnap = await get(ref(database, `usuarios/${user.uid}`));
+                    usuarioData = usuarioSnap.val();
+                    if (usuarioData) {
+                        saveToCache(cacheKey, usuarioData);
+                        mostrarBotonRecargaPerfil = false;
+                    }
+                } else if (cachedStr) {
+                    usuarioData = JSON.parse(cachedStr).payload;
+                }
+
+                if (usuarioData && usuarioData.foto) {
+                    fotoDisplay = usuarioData.foto;
+                } else if (user.photoURL) {
+                    fotoDisplay = user.photoURL;
+                }
+
+                if (usuarioData && usuarioData.nombre) {
+                    nombreDisplay = usuarioData.nombre;
+                }
+            } catch (dbError) {
+                console.warn(dbError);
+                if (user.photoURL) fotoDisplay = user.photoURL;
+            }
+
+            if (fotoDisplay === FOTO_POR_DEFECTO) {
+                setTimeout(solicitarConfiguracionFoto, 10000);
+            }
+        }
+
+        let rachaFinal = 0;
+                                                                                                                                                                                                                                                                                                                                                            
+        if (!isGuest) {
+            const userRef = ref(db, 'usuarios/' + user.uid);
+            await update(userRef, {
+                nombre: nombreDisplay,
+                correo: user.email,
+                foto: fotoDisplay,
+                ultimaConexion: Date.now()
+            });
+            rachaFinal = await gestionarRachaUsuario(user.uid);
+        }
+
+        if (userInfoDiv) {
+            // 1. ESTRUCTURA COMPLETA MANTENIENDO TODOS TUS CONTENEDORES ORIGINALES
+userInfoDiv.innerHTML = `
+    ${mostrarBotonRecargaPerfil ? `
+    <div id="perfil-desactualizado-tag" style="display: flex; align-items: center; gap: 8px; margin-right: 12px; background: #fff0f6; border: 2px solid #fcc419; padding: 4px 10px; border-radius: 10px;">
+        <button onclick="window.funcionActualizarDatosPerfil()" style="background: #fcc419; color: #000; border: none; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='none'">⚡ Actualizar Datos</button>
+        <a href="como-funciona.html" target="_blank" style="font-size: 11px; color: #666; font-weight: 700; text-decoration: underline; font-family: system-ui, sans-serif;">¿Cómo funciona?</a>
+    </div>
+    ` : ''}
+    ${!isGuest ? `
+    <div id="puntos-container" style="display: flex; align-items: center; margin-right: 12px; font-weight: 900; color: #000; background: #fff; padding: 5px 12px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <span id="user-points-display" style="font-size: 16px;">0</span>
+        <img src="dolar.png" style="width: 20px; margin-left: 6px; filter: drop-shadow(1px 1px 0px #000);">
+    </div>
+    <div id="streak-container" style="display: flex; align-items: center; margin-right: 12px; font-weight: 900; color: #000; background: #FFDE03; padding: 5px 12px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <span id="streak-count" style="font-size: 16px;">${rachaFinal}</span>
+        <img src="fuego.png" style="width: 20px; margin-left: 6px; filter: drop-shadow(1px 1px 0px #000);">
+    </div>` : ''}
+    <div style="display: flex; flex-direction: column; align-items: flex-end; margin-right: 10px;">
+        <span id="user-name-display" style="font-size: 13px; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px;">
+            ${nombreDisplay}
+        </span>
+    </div>
+
+    <div style="position: relative; display: flex; align-items: center; font-family: system-ui, sans-serif;">
+        <img id="user-avatar-display" src="${fotoDisplay}" 
+             style="width: 38px; height: 38px; border-radius: 4px; border: 3px solid #000; box-shadow: 3px 3px 0px #000; object-fit: cover; background: #fff; cursor: pointer; transition: transform 0.1s;"
+             onclick="window.toggleMenuPrincipal(event)"
+             onmouseover="this.style.transform='scale(1.05)'"
+             onmouseout="this.style.transform='scale(1)'">
+
+        <div id="menu-principal-avatar" style="display: none; position: absolute; top: 48px; right: 0; width: 230px; background: #fff; border: 3px solid #000; box-shadow: 5px 5px 0px #000; border-radius: 8px; z-index: 10001; padding: 6px; box-sizing: border-box;">
+            <button class="btn-opcion-menu" onclick="window.toggleSubMenuFoto(event)">📸 Cambiar Foto Perfil ➔</button>
+            <button class="btn-opcion-menu" onclick="window.toggleSubMenuApps(event)">📱 Más de Alonixz-Group ➔</button>
+            
+            <div id="sub-menu-foto" style="display: none; position: absolute; top: 0; right: 236px; width: 280px; background: #fff; border: 4px solid #000; box-shadow: 6px 6px 0px #000; border-radius: 12px; padding: 14px; box-sizing: border-box;" onclick="event.stopPropagation()">
+                <span style="display: block; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #666; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 4px;">Actualizar Avatar</span>
+                
+                <div id="drop-zone-avatar" style="border: 3px dashed #000; background: #f9f9f9; padding: 16px; text-align: center; border-radius: 8px; cursor: pointer; margin-bottom: 12px; transition: background 0.2s;">
+                    <span style="font-size: 24px; display: block; margin-bottom: 4px;">📥</span>
+                    <p style="margin: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; line-height: 1.3;">Arrastra aquí tu foto<br><span style="color: #666; font-size: 9px;">o haz clic para buscar</span></p>
+                    <input type="file" id="file-input-avatar" accept="image/*" style="display: none;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;">
+                    <label style="font-size: 10px; font-weight: 900; text-transform: uppercase;">O pega una URL directa:</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="url-input-avatar" placeholder="https://ejemplo.com/foto.jpg" style="flex: 1; border: 2px solid #000; padding: 6px; font-size: 11px; border-radius: 6px; font-weight: 700; outline: none;">
+                        <button onclick="window.procesarFotoPorURL()" style="background: #00ff88; border: 2px solid #000; font-weight: 900; font-size: 11px; padding: 0 10px; border-radius: 6px; cursor: pointer; box-shadow: 2px 2px 0px #000;">OK</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sub-menu-apps" style="display: none; position: absolute; top: 40px; right: 236px; width: 260px; background: #fff; border: 4px solid #000; box-shadow: 6px 6px 0px #000; border-radius: 12px; padding: 14px; box-sizing: border-box;">
+    <span style="display: block; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #000; margin-bottom: 12px; border-bottom: 3px solid #000; padding-bottom: 4px; letter-spacing: 0.5px;">
+        Ecosistema Digital
+    </span>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; justify-items: center;">
         
+        <div class="app-item-grid" onclick="location.href='#'" style="background: #00ff88; border: 3px solid #000; box-shadow: 3px 3px 0px #000; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 90px; height: 90px; cursor: pointer; border-radius: 10px; transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <img src="praxis.png" style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(1px 1px 0px #000); margin-bottom: 6px;">
+            <span class="app-text-grid" style="font-size: 11px; font-weight: 900; text-align: center; text-transform: uppercase; color: #000; letter-spacing: -0.3px;">Praxis</span>
+        </div>
+
+        <div style="background: #f3f4f6; border: 3px dashed #000; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 90px; height: 90px; border-radius: 10px; user-select: none;">
+            <span style="font-size: 20px; margin-bottom: 4px; filter: grayscale(100%); opacity: 0.7;">✨</span>
+            <span style="font-size: 8px; font-weight: 800; text-align: center; text-transform: uppercase; color: #555; line-height: 1.2; padding: 0 4px;">MÁS APPS<br>PRÓXIMAMENTE</span>
+        </div>
+
+    </div>
+</div>
+
+        </div>
+    </div>
+
+    <style>
+        .btn-opcion-menu {
+            display: block; width: 100%; text-align: left; background: none; border: none;
+            padding: 10px 12px; font-size: 12px; font-weight: 800; text-transform: uppercase;
+            color: #000; cursor: pointer; border-radius: 6px; transition: all 0.15s ease;
+            box-sizing: border-box; margin-bottom: 2px;
+        }
+        .btn-opcion-menu:hover { background: #FFDE03; transform: translate(-2px, -2px); box-shadow: 2px 2px 0px #000; border: 1px solid #000; padding: 9px 11px; }
+        
+        .app-item-grid { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 68px; height: 70px; cursor: pointer; border-radius: 8px; transition: all 0.15s ease; }
+        .app-item-grid:hover { background: #f3f4f6; transform: translate(-2px, -2px); box-shadow: 3px 3px 0px #000; border: 2px solid #000; }
+        .app-text-grid { font-size: 9px; font-weight: 800; text-align: center; line-height: 1.1; text-transform: uppercase; margin-top: 4px; color: #000; }
+    </style>
+`;
+
+// ============================================================================
+// 2. CONTROLADORES DE INTERFAZ DE LOS SUBMENÚS
+// ============================================================================
+
+window.toggleMenuPrincipal = (event) => {
+    event.stopPropagation();
+    const menu = document.getElementById("menu-principal-avatar");
+    if (!menu) return;
+    
+    if (menu.style.display === "none") {
+        menu.style.display = "block";
+        window.inicializarEventosDragAndDrop(); // Vincula los listeners al abrirse
     } else {
-        clearInterval(intervaloLoader);
-        window.location.href = "login.html";
+        menu.style.display = "none";
+        document.getElementById("sub-menu-foto").style.display = "none";
+        document.getElementById("sub-menu-apps").style.display = "none";
+    }
+};
+
+window.toggleSubMenuFoto = (event) => {
+    event.stopPropagation();
+
+    // FILTRO: Evita cambiar la foto si ya viene vinculada directamente desde Google
+    if (typeof fotoDisplay !== 'undefined' && fotoDisplay.includes("https://lh3.googleusercontent.com")) {
+        alert("📢 No se puede cambiar tu foto porque ya está asociada con Google. Si quieres cambiarla, actualiza tu foto directamente en tu cuenta de Google.");
+        return;
+    }
+
+    const subMenuFoto = document.getElementById("sub-menu-foto");
+    const subMenuApps = document.getElementById("sub-menu-apps");
+    subMenuApps.style.display = "none";
+    subMenuFoto.style.display = subMenuFoto.style.display === "none" ? "block" : "none";
+};
+
+window.toggleSubMenuApps = (event) => {
+    event.stopPropagation();
+    const subMenuFoto = document.getElementById("sub-menu-foto");
+    const subMenuApps = document.getElementById("sub-menu-apps");
+    subMenuFoto.style.display = "none";
+    subMenuApps.style.display = subMenuApps.style.display === "none" ? "block" : "none";
+};
+
+document.addEventListener("click", () => {
+    const menu = document.getElementById("menu-principal-avatar");
+    if (menu) {
+        menu.style.display = "none";
+        document.getElementById("sub-menu-foto").style.display = "none";
+        document.getElementById("sub-menu-apps").style.display = "none";
+    }
+});
+
+
+// ============================================================================
+// 3. PROCESAMIENTO MÉTODOS: DRAG AND DROP (CANVAS SLIM) & URL
+// ============================================================================
+
+window.inicializarEventosDragAndDrop = () => {
+    const dropZone = document.getElementById("drop-zone-avatar");
+    const fileInput = document.getElementById("file-input-avatar");
+    if (!dropZone) return;
+
+    // Abrir explorador al hacer clic
+    dropZone.onclick = () => fileInput.click();
+
+    // Efecto visual al arrastrar encima
+    dropZone.ondragover = (e) => { 
+        e.preventDefault(); 
+        dropZone.style.background = "#e6fffa"; 
+        dropZone.style.borderColor = "#00ff88"; 
+    };
+    dropZone.ondragleave = () => { 
+        dropZone.style.background = "#f9f9f9"; 
+        dropZone.style.borderColor = "#000"; 
+    };
+    
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.style.background = "#f9f9f9";
+        dropZone.style.borderColor = "#000";
+        if (e.dataTransfer.files.length > 0) {
+            window.procesarYComprimirArchivo(e.dataTransfer.files[0]);
+        }
+    };
+
+    fileInput.onchange = (e) => {
+        if (e.target.files.length > 0) window.procesarYComprimirArchivo(e.target.files[0]);
+    };
+};
+
+// Compresión a baja calidad sacrificando resolución (Max 150x150px a 55% calidad)
+window.procesarYComprimirArchivo = (file) => {
+    if (!file.type.match('image.*')) return alert("Por favor sube un formato de imagen válido.");
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (eventReader) => {
+        const img = new Image();
+        img.src = eventReader.target.result;
+        img.onload = async () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const sizeMax = 150; 
+            canvas.width = sizeMax;
+            canvas.height = sizeMax;
+            ctx.drawImage(img, 0, 0, sizeMax, sizeMax);
+
+            // Calidad bajada a 0.55 (55%) para optimización masiva de strings en RTDB
+            const base64Slim = canvas.toDataURL("image/jpeg", 0.55);
+            await subirFotoNube(base64Slim);
+        };
+    };
+};
+
+window.procesarFotoPorURL = async () => {
+    const urlValue = document.getElementById("url-input-avatar").value;
+    if (!urlValue || urlValue.trim() === "") return alert("Ingresa un enlace de imagen válido.");
+    await subirFotoNube(urlValue.trim());
+};
+
+// Envío unificado al nodo Firebase
+async function subirFotoNube(datosFoto) {
+    const authInst = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    const databaseInst = window.db || (typeof db !== 'undefined' ? db : null);
+
+    if (!authInst || !authInst.currentUser) return alert("Sesión expirada.");
+    
+    // Resguardo de seguridad extra en la subida masiva
+    if (typeof fotoDisplay !== 'undefined' && fotoDisplay.includes("https://lh3.googleusercontent.com")) {
+        return alert("Acción denegada: Tu cuenta utiliza el avatar nativo de Google.");
+    }
+    
+    try {
+        const { ref: fRef, set: fSet } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+        const fotoRef = fRef(databaseInst, `usuarios/${authInst.currentUser.uid}/foto`);
+        
+        await fSet(fotoRef, datosFoto);
+        alert("¡Avatar sincronizado en la nube con éxito!");
+        location.reload();
+    } catch (err) {
+        console.error("Error al subir:", err);
+        alert("Error de red al guardar en Firebase.");
+    }
+}
+
+// ============================================================================
+// 4. FLUJO DE VERIFICACIÓN DE USUARIO Y CARGA DE DATOS REALTIME
+// ============================================================================
+
+// Aquí continuaba tu bloque de autenticación (dentro del try/catch del observador de Firebase)
+if (!isGuest) {
+    onValue(ref(db, `usuarios/${user.uid}/stats/puntos`), (snapshot) => {
+        const puntos = snapshot.val() || 0;
+        const pDisplay = document.getElementById('user-points-display');
+        if (pDisplay) {
+            pDisplay.innerText = puntos;
+            const container = pDisplay.parentElement;
+            container.style.transform = "scale(1.1) translateY(-2px)";
+            setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
+        }
+    });
+
+    onValue(ref(db, `usuarios/${user.uid}/stats/racha`), (snapshot) => {
+        const racha = snapshot.val() || 0;
+        const sDisplay = document.getElementById('streak-count');
+        if (sDisplay) {
+            sDisplay.innerText = racha;
+            const container = sDisplay.parentElement;
+            container.style.transform = "scale(1.1) translateY(-2px)";
+            setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
+            
+            const infoRango = obtenerRango(racha, user.email);
+            aplicarTemaYBadge(infoRango, nombreDisplay, racha);
+        }
+    });
+
+    if (displayCode && (displayCode.innerText === "..." || displayCode.innerText === "")) {
+        displayCode.innerText = "SIN AGENDA";
+    }
+
+    await cargarAgenda(user.uid);      
+    await cargarListaSidebar(user.uid); 
+} else {
+    if (displayCode) displayCode.innerText = "INVITADO";
+    bloquearFuncionesInvitado();
+}
+
+procesosFirebaseCompletados = true;
+        }
+
+        if (!isGuest) {
+            onValue(ref(db, `usuarios/${user.uid}/stats/puntos`), (snapshot) => {
+                const puntos = snapshot.val() || 0;
+                const pDisplay = document.getElementById('user-points-display');
+                if (pDisplay) {
+                    pDisplay.innerText = puntos;
+                    const container = pDisplay.parentElement;
+                    container.style.transform = "scale(1.1) translateY(-2px)";
+                    setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
+                }
+            });
+
+            onValue(ref(db, `usuarios/${user.uid}/stats/racha`), (snapshot) => {
+                const racha = snapshot.val() || 0;
+                const sDisplay = document.getElementById('streak-count');
+                if (sDisplay) {
+                    sDisplay.innerText = racha;
+                    const container = sDisplay.parentElement;
+                    container.style.transform = "scale(1.1) translateY(-2px)";
+                    setTimeout(() => container.style.transform = "scale(1) translateY(0)", 200);
+                    
+                    const infoRango = obtenerRango(racha, user.email);
+                    aplicarTemaYBadge(infoRango, nombreDisplay, racha);
+                }
+            });
+
+            if (displayCode && (displayCode.innerText === "..." || displayCode.innerText === "")) {
+                displayCode.innerText = "SIN AGENDA";
+            }
+
+            await cargarAgenda(user.uid);      
+            await cargarListaSidebar(user.uid); 
+        } else {
+            if (displayCode) displayCode.innerText = "INVITADO";
+            bloquearFuncionesInvitado();
+        }
+
+        procesosFirebaseCompletados = true;
+
+    } catch (error) {
+        console.error(error);
+        if (txtLoader) txtLoader.innerText = "⚠️ ERROR DE ENLACE. VERIFICANDO CONEXIÓN...";
+        procesosFirebaseCompletados = true;
+        // En caso de error severo de red, tampoco destruimos nada del caché, solo redirigimos.
+        setTimeout(() => { window.location.href = "login.html"; }, 2000);
     }
 });
 
@@ -7863,316 +8138,6 @@ onAuthStateChanged(auth, (user) => {
  * Alonixz-Guard v7.0 - Sistema de Doble Ventana Bifurcada por Intención
  * Cierre automático por PIN directo / Apertura de segunda ventana por botón previo.
  */
-async function iniciarDetectorInactividad() {
-    let tiempoInactividad;
-    let intentosPin = 0; 
-    let pinCorrectoBaseDatos = "";
-    let minutosConfigurados = 3; 
-    let quiereConfigurar = false;                                                                      
-
-    if (!auth || !database) {
-        console.error("Alonixz-Guard: Firebase no inicializado en el entorno global.");
-        return;
-    }
-
-    const obtenerUsuarioActivo = () => {
-        return new Promise((resolve) => {
-            const desvincular = onAuthStateChanged(auth, (user) => {
-                desvincular();
-                resolve(user);
-            });
-        });
-    };
-
-    const user = await obtenerUsuarioActivo();
-    if (!user) return;
-
-    const statsRef = ref(database, `usuarios/${user.uid}/stats`);
-
-    try {
-        const statsSnapshot = await get(statsRef);
-        
-        if (statsSnapshot.exists()) {
-            const stats = statsSnapshot.val();
-            const esProfesor = stats && stats.rango === 'profesor';
-            const tienePin = stats && stats.pin;
-
-            if (esProfesor || tienePin) {
-                pinCorrectoBaseDatos = stats.pin ? stats.pin.toString() : "";
-                
-                if (stats.tiempo_inac !== undefined) {
-                    minutosConfigurados = parseInt(stats.tiempo_inac, 10);
-                } else {
-                    await update(statsRef, { tiempo_inac: 3 });
-                    minutosConfigurados = 3;
-                }
-
-                console.log(`%c Alonixz-Guard: Resguardando Praxis. Intervalo: ${minutosConfigurados} min.`, "color: #1a73e8; font-weight: bold;");
-
-                ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
-                    document.addEventListener(evento, reiniciarTemporizador, { passive: true });
-                });
-
-                reiniciarTemporizador();
-
-                if (localStorage.getItem('praxis_locked') === 'true') {
-                    ejecutarAccionInactividad();
-                }
-            } else {
-                localStorage.removeItem('praxis_locked');
-            }
-        }
-    } catch (error) {
-        console.error("Alonixz-Guard: Error en comunicación:", error);
-    }
-
-    function reiniciarTemporizador() {
-        if (localStorage.getItem('praxis_locked') === 'true') return;
-        clearTimeout(tiempoInactividad);
-        tiempoInactividad = setTimeout(ejecutarAccionInactividad, minutosConfigurados * 60000);
-    }
-
-    function ejecutarAccionInactividad() {
-        if (document.getElementById('lock-screen')) return;
-        
-        localStorage.setItem('praxis_locked', 'true');
-        intentosPin = 0; 
-        quiereConfigurar = false;                                                                      
-
-        const lockOverlay = document.createElement('div');
-        lockOverlay.id = 'lock-screen';
-        lockOverlay.style.cssText = `
-            position: fixed; inset: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            display: flex; align-items: center; justify-content: center; 
-            z-index: 9999999; font-family: 'Plus Jakarta Sans', sans-serif;
-            opacity: 0; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        `;
-
-        const estiloAnimacion = document.createElement('style');
-        estiloAnimacion.id = 'alonixz-guard-styles';
-        estiloAnimacion.innerHTML = `
-            @keyframes alonixzPopup {
-                from { transform: scale(0.94) translateY(10px); opacity: 0; }
-                to { transform: scale(1) translateY(0); opacity: 1; }
-            }
-            @keyframes alonixzShake {
-                0%, 100% { transform: translateX(0); }
-                20%, 60% { transform: translateX(-6px); }
-                40%, 80% { transform: translateX(6px); }
-            }
-            .guard-card { animation: alonixzPopup 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; transition: all 0.4s ease; }
-            .guard-shake { animation: alonixzShake 0.4s linear !important; }
-            .window-pane { transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
-        `;
-        document.head.appendChild(estiloAnimacion);
-
-        lockOverlay.innerHTML = `
-            <div class="guard-card" style="background: #ffffff; padding: 45px 30px 35px 30px; border-radius: 28px; box-shadow: 0 30px 70px rgba(15, 23, 42, 0.2); max-width: 420px; width: 92%; box-sizing: border-box; border: 1px solid rgba(226, 232, 240, 0.8); text-align: center; position: relative; overflow: hidden;">
-                
-                <div id="pane-auth-pin" class="window-pane" style="opacity: 1; display: block;">
-                    
-                    <button id="btn-config-corner" style="position: absolute; top: 20px; right: 22px; background: transparent; border: none; color: #64748b; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#0f172a';" onmouseout="this.style.background='transparent'; this.style.color='#64748b';">
-                        Configurar ⚙️
-                    </button>
-
-                    <div style="margin: 0 auto 16px auto; width: 60px; height: 60px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px;">
-                        🔒
-                    </div>
-                    
-                    <h2 style="margin: 0 0 6px 0; font-weight: 800; font-size: 24px; color: #0f172a; letter-spacing: -0.5px;">Terminal Protegida</h2>
-                    <p style="color: #64748b; font-size: 14px; margin-bottom: 25px; line-height: 1.5;">
-                        Consola restringida automáticamente por inactividad.
-                    </p>
-                    
-                    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
-                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
-                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
-                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
-                        <input type="password" class="alonixz-field" maxlength="1" pattern="[0-9]*" inputmode="numeric" style="width: 50px; height: 54px; font-size: 24px; font-weight: 800; text-align: center; border: 2px solid #cbd5e1; border-radius: 12px; background: #f8fafc; color: #0f172a; outline: none; transition: all 0.2s;">
-                    </div>
-
-                    <div id="guard-error-text" style="color: #ea4335; font-size: 13px; font-weight: 700; margin-bottom: 15px; display: none;"></div>
-                    <div id="guard-warning-text" style="background: #fffbeb; color: #b45309; border: 1px solid #fef3c7; padding: 12px; border-radius: 12px; font-size: 12.5px; font-weight: 700; margin-bottom: 15px; display: none; line-height: 1.4;"></div>
-                </div>
-
-                <div id="pane-setup-time" class="window-pane" style="opacity: 0; display: none; transform: translateY(15px);">
-                    <div style="margin: 0 auto 14px auto; width: 56px; height: 56px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                        ⚙️
-                    </div>
-                    <h3 style="margin: 0 0 6px 0; font-weight: 800; font-size: 21px; color: #0f172a; letter-spacing: -0.3px;">Ajustes del Guardián</h3>
-                    
-                    <div style="text-align: left; background: #f8fafc; padding: 16px; border-radius: 18px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-sizing: border-box;">
-                        <span style="color: #ea4335; font-weight: 700; font-size: 12px;">⚠️ AMENAZA DE SEGURIDAD VIRTUAL:</span><br>
-                        <p style="color: #475569; font-size: 12px; line-height: 1.5; margin: 4px 0 12px 0;">
-                            Dejar el equipo inactivo expone la sesión a que estudiantes malintencionados **coloquen puntos a su favor**, destruyendo el balance económico y la equidad de Praxis.
-                        </p>
-                        
-                        <div style="border-top: 1px dashed #cbd5e1; padding-top: 12px;">
-                            <label style="font-weight: 700; font-size: 13px; color: #0f172a; display: block; margin-bottom: 6px;">Tiempo de Tolerancia:</label>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="number" id="input-new-time" value="${minutosConfigurados}" min="2" max="10"
-                                    style="width: 75px; padding: 10px; border: 2px solid #0f172a; border-radius: 10px; text-align: center; font-weight: 800; background: #ffffff; color: #0f172a; outline: none; font-size: 15px;">
-                                <span style="font-size: 13px; font-weight: 600; color: #475569;">minutos</span>
-                                <button id="btn-save-time" style="margin-left: auto; background: #0f172a; color: #ffffff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">
-                                    Guardar
-                                </button>
-                            </div>
-                            <p style="font-size: 11px; color: #64748b; margin-top: 6px;">Rango admitido por administrador: 2 a 10 min.</p>
-                            <div id="time-success-text" style="color: #34a853; font-size: 12px; font-weight: 700; margin-top: 6px; display: none;">✔️ Parámetros sincronizados en Praxis.</div>
-                        </div>
-                    </div>
-
-                    <button id="btn-exit-unlock" style="width: 100%; background: #1a73e8; color: #ffffff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 14px; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2); transition: background 0.2s;">
-                        APLICAR Y DESBLOQUEAR
-                    </button>
-                </div>
-
-                <button id="btn-kill-session" style="margin-top: 15px; background: transparent; color: #94a3b8; border: none; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; transition: color 0.2s;" onmouseover="this.style.color='#64748b'" onmouseout="this.style.color='#94a3b8'">
-                    Cerrar sesión de la cuenta
-                </button>
-            </div>
-        `;
-
-        document.body.appendChild(lockOverlay);
-        setTimeout(() => { lockOverlay.style.opacity = "1"; }, 50);
-
-        const inputs = document.querySelectorAll('.alonixz-field');
-        const errorText = document.getElementById('guard-error-text');
-        const warningText = document.getElementById('guard-warning-text');
-        const card = document.querySelector('.guard-card');
-        const btnConfig = document.getElementById('btn-config-corner');
-        
-                                                                             
-        const paneAuth = document.getElementById('pane-auth-pin');
-        const paneSetup = document.getElementById('pane-setup-time');
-
-                                                                             
-        const inputNewTime = document.getElementById('input-new-time');
-        const btnSaveTime = document.getElementById('btn-save-time');
-        const btnExitUnlock = document.getElementById('btn-exit-unlock');
-        const timeSuccessText = document.getElementById('time-success-text');
-
-        inputs[0].focus();
-
-        inputs.forEach((input, index) => {
-            input.onfocus = () => {
-                input.style.borderColor = "#1a73e8";
-                input.style.boxShadow = "0 0 0 4px rgba(26, 115, 232, 0.15)";
-            };
-            input.onblur = () => {
-                input.style.borderColor = "#cbd5e1";
-                input.style.boxShadow = "none";
-            };
-            input.oninput = () => {
-                if (input.value.length === 1 && index < 3) {
-                    inputs[index + 1].focus();
-                }
-                comprobarEntradaPin();
-            };
-            input.onkeydown = (e) => {
-                if (e.key === "Backspace" && input.value === "" && index > 0) {
-                    inputs[index - 1].focus();
-                }
-            };
-        });
-
-                                                                             
-        btnConfig.onclick = function() {
-            quiereConfigurar = true;
-            
-                                                                                 
-            btnConfig.style.background = "#e2e8f0";
-            btnConfig.style.color = "#0f172a";
-            
-            warningText.innerHTML = "⚙️ <strong>Modo Configuración Activo</strong><br>Al colocar tu PIN correcto se abrirá el panel de ajustes de la terminal.";
-            warningText.style.display = "block";
-            errorText.style.display = "none";
-            
-            inputs[0].focus();
-        };
-
-        function comprobarEntradaPin() {
-            let pinIngresado = "";
-            inputs.forEach(i => pinIngresado += i.value);
-
-            if (pinIngresado === pinCorrectoBaseDatos && pinCorrectoBaseDatos !== "") {
-                if (quiereConfigurar) {
-                                                                                         
-                    paneAuth.style.opacity = "0";
-                    setTimeout(() => {
-                        paneAuth.style.display = "none";
-                        paneSetup.style.display = "block";
-                        setTimeout(() => {
-                            paneSetup.style.opacity = "1";
-                            paneSetup.style.transform = "translateY(0)";
-                            inputNewTime.focus();
-                        }, 50);
-                    }, 300);
-                } else {
-                                                                                         
-                    desbloquearConsolaLimpia();
-                }
-            } else if (pinIngresado.length === 4) {
-                intentosPin++;
-                card.classList.add('guard-shake');
-                setTimeout(() => card.classList.remove('guard-shake'), 450);
-
-                errorText.innerText = `⚠️ PIN incorrecto. Intentos restantes: ${3 - intentosPin}`;
-                errorText.style.display = 'block';
-                warningText.style.display = "none";
-                
-                inputs.forEach(i => i.value = "");
-                inputs[0].focus();
-
-                if (intentosPin >= 3) destruirSesionPorAtaque();
-            }
-        }
-
-                                                                             
-        btnSaveTime.onclick = async () => {
-            let valorInput = parseInt(inputNewTime.value, 10);
-            if (isNaN(valorInput) || valorInput < 2) valorInput = 2;
-            if (valorInput > 10) valorInput = 10;
-            inputNewTime.value = valorInput;
-
-            try {
-                await update(statsRef, { tiempo_inac: valorInput });
-                minutosConfigurados = valorInput;
-                timeSuccessText.style.display = "block";
-                setTimeout(() => { timeSuccessText.style.display = "none"; }, 2000);
-            } catch (err) {
-                console.error("Alonixz-Guard: Fallo al guardar parámetros:", err);
-            }
-        };
-
-        btnExitUnlock.onclick = desbloquearConsolaLimpia;
-
-        function desbloquearConsolaLimpia() {
-            localStorage.removeItem('praxis_locked');
-            lockOverlay.style.opacity = "0";
-            setTimeout(() => {
-                if (document.body.contains(lockOverlay)) document.body.removeChild(lockOverlay);
-                const styleTag = document.getElementById('alonixz-guard-styles');
-                if (styleTag) document.head.removeChild(styleTag);
-            }, 400);
-            reiniciarTemporizador();
-        }
-
-        document.getElementById('btn-kill-session').onclick = destruirSesionPorAtaque;
-
-        async function destruirSesionPorAtaque() {
-            localStorage.removeItem('praxis_locked');
-            try {
-                await signOut(auth);
-                localStorage.clear();
-                window.location.replace("login.html");
-            } catch (err) {
-                window.location.reload();
-            }
-        }
-    }
-}
 async function mostrarBienvenidaProfesor(uid) {
     if (document.getElementById('bienvenida-profesor-ui')) return;
 
@@ -8527,24 +8492,69 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
             sessionStorage.setItem('e_seen', id);
         }
     }
-});window.mostrarConsejo = (titulo, contenidoOMsg, opciones = null, encuestaId = null) => {
+});window.mostrarConsejo = async (titulo, contenidoOMsg, opciones = null, encuestaId = null) => {
     // 1. Intentar capturar instancias globales de Firebase por seguridad de scope
     const databaseInst = window.db || (typeof db !== 'undefined' ? db : null);
     const authInst = window.auth || (typeof auth !== 'undefined' ? auth : null);
 
-    // 2. Normalizar opciones (Soporta Arrays de JS u Objetos estructurados de Firebase RTDB)
+    // 2. Normalizar opciones extrayendo los VALORES del objeto Firebase
     let arrayOpciones = [];
     if (opciones !== null) {
         if (Array.isArray(opciones)) {
             arrayOpciones = opciones;
         } else if (typeof opciones === 'object') {
-            arrayOpciones = Object.keys(opciones); // Extrae las llaves seguras del objeto
+            arrayOpciones = Object.values(opciones); 
         }
     }
 
     const esEncuesta = arrayOpciones.length > 0 && encuestaId !== null;
 
-    // 3. Crear el contenedor con animaciones Neo-Brutalistas mejoradas
+    // ==========================================
+    // NUEVA LÓGICA: VERIFICACIÓN DE VOTO PREVIO
+    // ==========================================
+    if (esEncuesta) {
+        // Si no hay instancias de Firebase listas, no podemos verificar aún
+        if (!databaseInst || !authInst) {
+            console.warn("Firebase no está inicializado globalmente todavía.");
+            return;
+        }
+
+        // Esperar un momento a que Auth detecte al usuario (por si la página acaba de cargar)
+        const obtenerUsuarioActivo = () => {
+            return new Promise((resolve) => {
+                if (authInst.currentUser) return resolve(authInst.currentUser);
+                const unsubscribe = authInst.onAuthStateChanged(user => {
+                    unsubscribe();
+                    resolve(user);
+                });
+            });
+        };
+
+        const user = await obtenerUsuarioActivo();
+
+        if (user) {
+            try {
+                // Importamos los métodos necesarios para leer (get) de RTDB
+                const { ref: fRef, get: fGet } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+                
+                // Apuntamos directamente al nodo del voto de este usuario específico
+                const votoRef = fRef(databaseInst, `encuestas/${encuestaId}/votos/${user.uid}`);
+                const snapshot = await fGet(votoRef);
+
+                // SI EL SNAPSHOT EXISTE, SIGNIFICA QUE YA VOTÓ. Cortamos la ejecución aquí.
+                if (snapshot.exists()) {
+                    console.log(`El usuario ${user.uid} ya participó en la encuesta ${encuestaId}. No se muestra.`);
+                    return; 
+                }
+            } catch (error) {
+                console.error("Error al verificar voto previo en Firebase:", error);
+                // Si falla la red, por seguridad dejamos que continúe para no romper la UX
+            }
+        }
+    }
+    // ==========================================
+
+    // 3. Crear el contenedor con animaciones Neo-Brutalistas
     const avisoContainer = document.createElement("div");
     avisoContainer.style = `
         position: fixed; bottom: 24px; right: 24px; width: 90%; max-width: 420px;
@@ -8555,7 +8565,7 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
         will-change: transform, opacity;
     `;
 
-    // 4. Estructura Base (Si es encuesta, NO se renderiza el botón 'X' para hacerla obligatoria)
+    // 4. Estructura Base
     let HTMLContenido = `
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 3px solid #000;">
             <h4 style="margin: 0; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; color: #000; letter-spacing: -0.5px;">
@@ -8568,7 +8578,7 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
         </p>
     `;
 
-    // 5. Inyección de botones interactivos si se valida una consulta
+    // 5. Inyección de botones interactivos
     if (esEncuesta) {
         HTMLContenido += `<div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px;">`;
         arrayOpciones.forEach((opcion) => {
@@ -8581,7 +8591,6 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
         HTMLContenido += `</div>`;
     }
 
-    // Estilos CSS inyectados dinámicamente con animaciones fluidas de interacción dura
     avisoContainer.innerHTML = HTMLContenido + `
         <style>
             @keyframes brutalPopIn {
@@ -8604,13 +8613,13 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
             .btn-opcion-encuesta { transition: transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.15s ease, background-color 0.2s; }
             .btn-opcion-encuesta:hover { background: #f3f4f6; transform: translate(-3px, -3px); box-shadow: 7px 7px 0px #000; }
             .btn-opcion-encuesta:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px #000; }
-            .btn-opcion-encuesta:disabled { pointer-events: none; }
+            .btn-opcion-encuesta:disabled { pointer-events: none; opacity: 0.7; }
         </style>
     `;
 
     document.body.appendChild(avisoContainer);
 
-    // 6. Animación de cierre controlado para comunicados ordinarios
+    // 6. Animación de cierre controlado
     const cerrarConAnimacion = () => {
         avisoContainer.style.animation = "brutalPopOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards";
         avisoContainer.addEventListener("animationend", () => avisoContainer.remove());
@@ -8620,39 +8629,41 @@ onValue(query(ref(db, 'encuestas'), limitToLast(1)), (s) => {
         avisoContainer.querySelector("#btn-cerrar-aviso").onclick = cerrarConAnimacion;
     }
 
-    // 7. Lógica de votación obligatoria e inyección asíncrona hacia Firebase
+    // 7. Lógica de votación obligatoria
     if (esEncuesta) {
+        let guardando = false;
+
         avisoContainer.querySelectorAll(".btn-opcion-encuesta").forEach(btn => {
-            btn.onclick = async () => {
+            btn.onclick = async (e) => {
+                e.preventDefault();
+                if (guardando) return;
+
                 if (!authInst || !authInst.currentUser) {
-                    return alert("Identificación requerida: Inicia sesión para registrar tu respuesta en la consulta.");
+                    return alert("Identificación requerida: Inicia sesión para registrar tu respuesta.");
                 }
 
+                guardando = true;
                 const user = authInst.currentUser;
                 const seleccionada = btn.getAttribute("data-opcion");
                 
-                // Deshabilitar controles para bloquear re-entrada de eventos de clic
                 avisoContainer.querySelectorAll(".btn-opcion-encuesta").forEach(b => b.disabled = true);
                 
-                // Animación de feedback de éxito en la opción elegida
                 btn.style.animation = "pulseSuccess 0.4s forwards";
                 btn.style.border = "3px solid #000";
                 btn.innerText = "📥 Procesando Respuesta...";
 
                 try {
-                    // Importación de módulos bajo demanda por si no se exponen globalmente
                     const { ref: fRef, set: fSet } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
                     
-                    // Almacena el texto limpio de la opción usando el UID único del estudiante
+                    // Guarda el voto bajo el UID único del estudiante
                     const votoRef = fRef(databaseInst, `encuestas/${encuestaId}/votos/${user.uid}`);
                     await fSet(votoRef, seleccionada);
                     
-                    // Pequeña pausa para apreciar la animación de éxito antes de desmontar el banner
                     setTimeout(cerrarConAnimacion, 600);
                 } catch (err) {
                     console.error("Error crítico de red en Firebase RTDB:", err);
                     alert("Ocurrió un inconveniente al guardar tu respuesta.");
-                    // Reactivar opciones si la transacción falla
+                    guardando = false;
                     avisoContainer.querySelectorAll(".btn-opcion-encuesta").forEach(b => {
                         b.disabled = false;
                         b.style.animation = "";
