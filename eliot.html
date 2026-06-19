@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliot Ness | Global Information Hub</title>
+    <style>
+        :root {
+            --primary: #000000;
+            --accent: #2563eb;
+            --bg: #ffffff;
+            --border: #e5e7eb;
+            --text-muted: #6b7280;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); }
+
+        /* COOKIES */
+        .cookie-banner {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 450px; background: #111; color: white;
+            padding: 15px 25px; border-radius: 12px; display: flex;
+            justify-content: space-between; align-items: center; z-index: 10000;
+        }
+        .cookie-banner button { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+        /* LOGIN MODAL */
+        .auth-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            z-index: 5000; align-items: center; justify-content: center;
+        }
+        .auth-box { background: white; padding: 40px; border-radius: 15px; width: 350px; text-align: center; }
+        .auth-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 5px; }
+        .auth-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* HEADER */
+        header { padding: 15px 5%; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1000; }
+        .logo { font-weight: 900; font-size: 1.5rem; letter-spacing: -1px; }
+        .user-status { display: flex; align-items: center; gap: 15px; }
+        #user-profile { display: none; font-weight: bold; color: var(--accent); }
+
+        /* HERO */
+        .hero { padding: 50px 5%; text-align: center; background: #f9fafb; border-bottom: 1px solid var(--border); }
+        .search-bar { max-width: 600px; margin: 20px auto; display: flex; gap: 10px; }
+        .search-bar input { flex: 1; padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
+
+        /* GRID */
+        .main-grid { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        .card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: 0.3s; }
+        .card:hover { box-shadow: var(--card-shadow); transform: translateY(-3px); }
+        .card-img { width: 100%; height: 180px; background: #eee; } /* Pon tus imágenes aquí */
+        .card-body { padding: 20px; }
+        .tag { font-size: 0.7rem; font-weight: bold; color: var(--accent); text-transform: uppercase; }
+        .card-title { font-size: 1.2rem; margin: 10px 0; cursor: pointer; }
+        .card-title:hover { text-decoration: underline; }
+
+        /* PAGINACIÓN */
+        .pagination { margin: 50px auto; display: flex; justify-content: center; gap: 10px; padding-bottom: 50px; }
+        .page-btn { padding: 8px 15px; border: 1px solid var(--border); background: white; cursor: pointer; border-radius: 5px; }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* MODAL LISTA */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(5px); }
+        .modal-content { background: white; width: 90%; max-width: 550px; margin: 50px auto; border-radius: 15px; padding: 30px; }
+        .project-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .project-item:hover { background: #f9f9f9; }
+    </style>
+</head>
+<body>
+
+    <div class="cookie-banner" id="cookie-banner">
+        <span>Acepta el uso de cookies en la red Eliot Ness.</span>
+        <button onclick="document.getElementById('cookie-banner').remove()">Aceptar</button>
+    </div>
+
+    <div class="auth-modal" id="login-modal">
+        <div class="auth-box">
+            <h2>Iniciar Sesión</h2>
+            <p style="color:var(--text-muted); font-size: 0.8rem; margin-bottom: 15px;">Acceso a la base de datos central</p>
+            <input type="text" id="user-input" placeholder="Usuario o Email">
+            <input type="password" placeholder="Contraseña">
+            <button onclick="handleLogin()">ENTRAR</button>
+            <p style="margin-top: 15px; font-size: 0.8rem; cursor: pointer;" onclick="document.getElementById('login-modal').style.display='none'">Cancelar</p>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">ELIOT NESS</div>
+        <div class="user-status">
+            <span id="user-profile">ID: <span id="display-name"></span></span>
+            <button class="page-btn" id="login-trigger" onclick="document.getElementById('login-modal').style.display='flex'">Acceder</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Repositorio de Información Masiva</h1>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar entre millones de archivos...">
+        </div>
+    </section>
+
+    <main class="main-grid">
+        <article class="card">
+            <div class="card-img" id="img1"></div>
+            <div class="card-body">
+                <span class="tag">Academia</span>
+                <h2 class="card-title" onclick="openEureka()">Trabajar en un proyecto de Eureka</h2>
+                <p class="text-muted" style="font-size:0.9rem">Colaboración en tiempo real en proyectos de investigación 2026.</p>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="card-img" id="img2"></div>
+            <div class="card-body">
+                <span class="tag">Mantenimiento</span>
+                <h2 class="card-title" onclick="checkAccess()">Base de Datos: Reparación Móvil</h2>
+                <p class="text-muted" style="font-size:0.9rem">Planos y soluciones para dispositivos Honor y Xiaomi.</p>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="card-img" id="img3"></div>
+            <div class="card-body">
+                <span class="tag">Dev / Cloud</span>
+                <h2 class="card-title" onclick="checkAccess()">Alonixz-Cloud Sync Logs</h2>
+                <p class="text-muted" style="font-size:0.9rem">Historial de migraciones y errores en Firebase Realtime.</p>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="card-img" id="img4"></div>
+            <div class="card-body">
+                <span class="tag">Diseño Urbano</span>
+                <h2 class="card-title" onclick="checkAccess()">Planos: Residencial Juliaca</h2>
+                <p class="text-muted" style="font-size:0.9rem">Prototipos de diseño minimalista para alquileres modernos.</p>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="card-img" id="img5"></div>
+            <div class="card-body">
+                <span class="tag">Educación</span>
+                <h2 class="card-title" onclick="checkAccess()">Resolución de Geometría Avanzada</h2>
+                <p class="text-muted" style="font-size:0.9rem">Ejercicios resueltos de congruencia y segmentos complejos.</p>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="card-img" id="img6"></div>
+            <div class="card-body">
+                <span class="tag">Gaming API</span>
+                <h2 class="card-title" onclick="checkAccess()">Clash Royale Data Mining</h2>
+                <p class="text-muted" style="font-size:0.9rem">Acceso a estadísticas de cofres y mazos ganadores.</p>
+            </div>
+        </article>
+    </main>
+
+    <div class="pagination">
+        <button class="page-btn active">1</button>
+        <button class="page-btn" onclick="alert('Inicia sesión para navegar a otras páginas')">2</button>
+        <button class="page-btn" onclick="alert('Inicia sesión para navegar a otras páginas')">3</button>
+        <span>...</span>
+        <button class="page-btn" onclick="alert('Inicia sesión para navegar a otras páginas')">100</button>
+    </div>
+
+    <div class="modal" id="eureka-modal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3>Colaboradores: Eureka 2026</h3>
+                <b style="cursor:pointer" onclick="document.getElementById('eureka-modal').style.display='none'">✕</b>
+            </div>
+            <div class="project-item" onclick="checkLucas()">
+                <div><b>Lucas_Dev26</b><br><small>Filtros de Agua Residual</small></div>
+                <span style="color:green">Online</span>
+            </div>
+            <div class="project-item" onclick="alert('Error: Base de datos saturada')">
+                <div><b>Mateo_Arequipa</b><br><small>Energía Eólica Urbana</small></div>
+                <span style="color:red">Error</span>
+            </div>
+            <div class="project-item" onclick="alert('Error: Acceso 403 Forbidden')">
+                <div><b>Santi_Juliaca</b><br><small>Robot Sembrador</small></div>
+                <span style="color:red">Error</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoggedIn = false;
+
+        function handleLogin() {
+            const user = document.getElementById('user-input').value;
+            if(user.trim() === "") return alert("Ingresa un usuario");
+            
+            isLoggedIn = true;
+            document.getElementById('login-modal').style.display = 'none';
+            document.getElementById('login-trigger').style.display = 'none';
+            document.getElementById('user-profile').style.display = 'block';
+            document.getElementById('display-name').innerText = user;
+            alert("Bienvenido, " + user + ". Acceso total concedido.");
+        }
+
+        function checkAccess() {
+            if(!isLoggedIn) {
+                alert("Primero inicia sesión primero para acceder a esta información.");
+            } else {
+                alert("Abriendo repositorio seguro...");
+            }
+        }
+
+        function openEureka() {
+            document.getElementById('eureka-modal').style.display = 'block';
+        }
+
+        function checkLucas() {
+            if(!isLoggedIn) {
+                alert("Debes iniciar sesión primero");
+            } else {
+                alert("Entrando al workspace de Lucas...");
+            }
+        }
+
+        // Bloqueo de clics derechos o inspección (opcional para dar vibra de seguridad)
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+</body>
+</html>

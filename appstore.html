@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alonixz-Group Core</title>
+    
+    <!-- FUENTES DE CÓDIGO E INTERFAZ -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --fondo-liquido: #03060b;
+            --fondo-tarjeta: #090e16;
+            --texto-principal: #ffffff;
+            --texto-secundario: #828fa5;
+            
+            /* NEONES Y TIRAS LED */
+            --neon-cian: #00f0ff;
+            --neon-rosa: #ff0055;
+            --neon-verde: #00ff66;
+            --neon-amarillo: #ffb700;
+            --borde-tecnologico: rgba(255, 255, 255, 0.05);
+            
+            /* DIFUSIÓN DE LUZ EFECTO LED */
+            --brillo-cian: 0 0 20px rgba(0, 240, 255, 0.35), inset 0 0 12px rgba(0, 240, 255, 0.1);
+            --brillo-rosa: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 12px rgba(255, 0, 85, 0.1);
+            --brillo-verde: 0 0 20px rgba(0, 255, 102, 0.3), inset 0 0 12px rgba(0, 255, 102, 0.1);
+            --brillo-amarillo: 0 0 20px rgba(255, 183, 0, 0.4), inset 0 0 12px rgba(255, 183, 0, 0.1);
+            
+            --curva-fluida: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--fondo-liquido);
+            color: var(--texto-principal);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- ANIMACIÓN DE CARGA CIBERNÉTICA --- */
+        #cargadorSistema {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #020408;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s var(--curva-fluida), transform 0.8s var(--curva-fluida);
+        }
+
+        .anillo-carga-led {
+            position: relative;
+            width: 80px; height: 80px;
+        }
+
+        .anillo-carga-led::before, .anillo-carga-led::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            inset: 0;
+            border: 3px solid transparent;
+        }
+
+        .anillo-carga-led::before {
+            border-top-color: var(--neon-cian);
+            border-bottom-color: var(--neon-cian);
+            animation: giroAcelerado 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            box-shadow: var(--brillo-cian);
+        }
+
+        .anillo-carga-led::after {
+            border-left-color: var(--neon-rosa);
+            border-right-color: var(--neon-rosa);
+            animation: giroInverso 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            box-shadow: var(--brillo-rosa);
+            opacity: 0.6;
+        }
+
+        .texto-carga-consola {
+            margin-top: 28px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--neon-cian);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            animation: pulsoTexto 1.5s infinite alternate;
+        }
+
+        @keyframes giroAcelerado { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes giroInverso { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
+        @keyframes pulsoTexto { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        /* --- CONTENEDOR MAESTRO --- */
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* BARRA SUPERIOR */
+        .barra-superior {
+            background: rgba(4, 7, 12, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--borde-tecnologico);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .logo-bloque {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .emblema-alonixz {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, var(--neon-cian), var(--neon-rosa));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            box-shadow: var(--brillo-cian);
+            letter-spacing: -1px;
+        }
+
+        .titulo-plataforma {
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: var(--texto-principal);
+        }
+
+        .metricas-servidor-servicios {
+            display: flex;
+            gap: 16px;
+        }
+
+        .indicador-led-nodo {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--borde-tecnologico);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            color: var(--neon-verde);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .indicador-led-nodo::before {
+            content: '';
+            width: 6px; height: 6px;
+            background-color: var(--neon-verde);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-verde);
+        }
+
+        .perfil-usuario-zona {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .contenedor-avatar-autenticado {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--neon-cian);
+            box-shadow: var(--brillo-cian);
+            background: rgba(0, 240, 255, 0.05);
+            transition: transform 0.3s var(--curva-fluida);
+        }
+
+        .contenedor-avatar-autenticado:hover {
+            transform: scale(1.05);
+        }
+
+        .imagen-perfil-real {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        .letra-perfil-defecto {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--neon-cian);
+        }
+
+        /* BOTONES MECÁNICOS LED */
+        .boton-sistema-led {
+            background: linear-gradient(135deg, var(--neon-rosa), #cc0044);
+            color: white; border: none; padding: 10px 24px;
+            font-weight: 500; font-size: 12px; border-radius: 30px;
+            cursor: pointer; font-family: 'Space Mono', monospace;
+            transition: all 0.4s var(--curva-fluida);
+        }
+
+        .boton-sistema-led:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--brillo-rosa);
+        }
+
+        .boton-sistema-led-secundario {
+            background: transparent;
+            color: var(--texto-secundario);
+            border: 1px solid var(--borde-tecnologico);
+        }
+
+        .boton-sistema-led-secundario:hover {
+            border-color: var(--neon-cian);
+            color: white;
+            box-shadow: var(--brillo-cian);
+            transform: translateY(-2px);
+        }
+
+        .boton-sistema-led-ia {
+            background: linear-gradient(135deg, var(--neon-cian), #0099ff);
+            color: #020408;
+            font-weight: 700;
+            box-shadow: var(--brillo-cian);
+        }
+
+        .boton-sistema-led-ia:hover {
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+        }
+
+        /* --- VISTA DE CATÁLOGO --- */
+        .seccion-principal-interfaz {
+            padding: 40px;
+            max-width: 1500px;
+            width: 100%;
+            margin: 0 auto;
+            transition: opacity 0.5s var(--curva-fluida), transform 0.5s var(--curva-fluida);
+        }
+
+        /* CONSOLA DE IA AVANZADA */
+        .consola-ia-inteligente {
+            background: linear-gradient(135deg, rgba(9, 14, 22, 0.95), rgba(4, 7, 12, 0.98));
+            border: 1px solid var(--neon-cian);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: var(--brillo-cian);
+        }
+
+        .cabecera-modulo-ia {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--neon-cian);
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            margin-bottom: 18px;
+            letter-spacing: 2px;
+        }
+
+        .pantalla-salida-ia {
+            font-size: 14px;
+            color: #e2e8f0;
+            font-family: 'Space Mono', monospace;
+            background: rgba(2, 4, 8, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--neon-cian);
+            line-height: 1.6;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .log-ia-linea {
+            margin-bottom: 6px;
+            color: #cbd5e1;
+        }
+        
+        .log-ia-linea.unicamente-admin {
+            color: var(--neon-verde);
+            font-weight: bold;
+        }
+
+        /* FILTROS Y BÚSQUEDA */
+        .bloque-filtros-navegacion {
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .entrada-busqueda-cyber {
+            width: 100%;
+            background-color: var(--fondo-tarjeta);
+            border: 1px solid var(--borde-tecnologico);
+            padding: 18px 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            color: var(--texto-principal);
+            font-family: 'Space Mono', monospace;
+            outline: none;
+            transition: all 0.4s var(--curva-fluida);
+        }
+
+        .entrada-busqueda-cyber:focus {
+            border-color: var(--neon-cian);
+            box-shadow: var(--brillo-cian);
+        }
+
+        .fila-etiquetas-categorias {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .pildora-filtro-accion {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--texto-secundario);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .pildora-filtro-accion:hover {
+            color: var(--neon-cian);
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        .pildora-filtro-accion.activa {
+            background: rgba(0, 240, 255, 0.05);
+            color: var(--neon-cian);
+            border-color: var(--neon-cian);
+            box-shadow: var(--brillo-cian);
+            font-weight: 700;
+        }
+
+        /* SMART FEED RECOMENDADOS */
+        #contenedorZonaSugeridos {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: linear-gradient(180deg, rgba(0, 240, 255, 0.02) 0%, transparent 100%);
+            border-radius: 24px;
+            border: 1px dashed rgba(0, 240, 255, 0.15);
+        }
+
+        .titulo-seccion-tecnologica {
+            font-size: 15px;
+            font-family: 'Space Mono', monospace;
+            margin-bottom: 24px;
+            color: var(--texto-secundario);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rejilla-aplicaciones-core {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 30px;
+        }
+
+        /* TARJETAS DEL NÚCLEO */
+        .tarjeta-modulo-software {
+            background-color: var(--fondo-tarjeta);
+            border: 1px solid var(--borde-tecnologico);
+            border-radius: 20px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s var(--curva-fluida), border-color 0.4s var(--curva-fluida), box-shadow 0.4s var(--curva-fluida);
+        }
+
+        .tarjeta-modulo-software:hover {
+            border-color: rgba(0, 240, 255, 0.25);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: var(--brillo-cian);
+        }
+
+        .encabezado-tarjeta-datos {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .bloque-icono-visualizado {
+            width: 58px; height: 58px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .nombre-software-nodo {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .autoria-software-firma {
+            font-size: 11px;
+            color: var(--neon-verde);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .estadisticas-mini-bloque {
+            display: flex;
+            gap: 14px;
+            font-size: 11px;
+            font-family: 'Space Mono', monospace;
+            color: var(--texto-secundario);
+            margin-top: 6px;
+        }
+
+        .sinopsis-breve-software {
+            font-size: 14px;
+            color: var(--texto-secundario);
+            margin-bottom: 24px;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .base-tarjeta-metadatos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding-top: 16px;
+        }
+
+        .etiqueta-categoria-sistema {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--neon-cian);
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            font-size: 11px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .accion-compilacion-visual {
+            background: transparent;
+            border: none;
+            color: var(--neon-rosa);
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tarjeta-modulo-software:hover .accion-compilacion-visual {
+            color: white;
+            text-shadow: var(--brillo-rosa);
+        }
+
+        /* --- ESPACIO DE TRABAJO INMERSIVO --- */
+        #vistaEspacioTrabajo {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .boton-retorno-plataforma {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--borde-tecnologico);
+            color: var(--neon-cian);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: all 0.3s var(--curva-fluida);
+        }
+
+        .boton-retorno-plataforma:hover {
+            box-shadow: var(--brillo-cian);
+            color: white;
+            transform: translateX(-2px);
+        }
+
+        .banner-inmersivo-software {
+            width: 100%;
+            padding: 50px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--borde-tecnologico);
+        }
+
+        .banner-inmersivo-software::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, #04070c 35%, transparent 100%);
+            z-index: 1;
+        }
+
+        .bloque-identidad-banner {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .emblema-banner-gigante {
+            width: 90px; height: 90px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .info-banner-textos h2 {
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .fila-metricas-banner {
+            display: flex;
+            gap: 24px;
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            color: var(--neon-verde);
+        }
+
+        .arquitectura-dos-columnas {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+
+        .consola-bloque-interno {
+            background: var(--fondo-tarjeta);
+            border: 1px solid var(--borde-tecnologico);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .subtitulo-consola-tech {
+            font-size: 13px;
+            font-family: 'Space Mono', monospace;
+            color: var(--texto-secundario);
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+
+        .descripcion-consola-parrafo {
+            font-size: 15.5px;
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        .boton-despliegue-servidor {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--neon-cian), #0099ff);
+            color: #020408;
+            border: none;
+            border-radius: 14px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            transition: all 0.4s var(--curva-fluida);
+            box-shadow: var(--brillo-cian);
+        }
+
+        .boton-despliegue-servidor:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+        }
+
+        /* AUDITORÍA EN TIEMPO REAL */
+        .tarjeta-auditoria-reportes {
+            background: rgba(9, 14, 22, 0.4);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--borde-tecnologico);
+            margin-bottom: 30px;
+        }
+
+        .estrellas-selector-led {
+            display: flex;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.05);
+            font-size: 30px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .estrellas-selector-led span {
+            transition: color 0.2s ease, text-shadow 0.2s ease;
+        }
+
+        .estrellas-selector-led span.active {
+            color: var(--neon-amarillo);
+            text-shadow: 0 0 12px rgba(255, 183, 0, 0.6);
+        }
+
+        .area-texto-consola {
+            width: 100%; height: 110px;
+            padding: 16px;
+            background: #04070c;
+            color: white;
+            border: 1px solid var(--borde-tecnologico);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 20px;
+            font-family: 'Space Mono', monospace;
+            resize: none;
+        }
+
+        .area-texto-consola:focus {
+            border-color: var(--neon-cian);
+            box-shadow: var(--brillo-cian);
+        }
+
+        #historialReportesContenedor {
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .reporte-auditoria-instancia {
+            background-color: rgba(255, 255, 255, 0.01);
+            padding: 20px;
+            border-radius: 14px;
+            border-left: 3px solid var(--neon-rosa);
+            border-top: 1px solid var(--borde-tecnologico);
+            border-right: 1px solid var(--borde-tecnologico);
+            border-bottom: 1px solid var(--borde-tecnologico);
+        }
+
+        .meta-datos-reporte-instancia {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* MODAL DE SEGURIDAD */
+        .modal-seguridad-global {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(2, 4, 8, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3000;
+            transition: opacity 0.4s var(--curva-fluida);
+        }
+
+        .modal-seguridad-global.activo {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tarjeta-auth-nucleo {
+            background: var(--fondo-tarjeta);
+            border: 1px solid rgba(255, 0, 85, 0.2);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            box-shadow: var(--brillo-rosa);
+            transform: scale(0.95);
+            transition: transform 0.4s var(--curva-fluida);
+        }
+
+        .modal-seguridad-global.activo .tarjeta-auth-nucleo {
+            transform: scale(1);
+        }
+
+        .boton-cerrar-modal-x {
+            position: absolute;
+            top: 22px; right: 22px;
+            background: none; border: none;
+            color: var(--texto-secundario);
+            cursor: pointer; font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .boton-cerrar-modal-x:hover { color: white; }
+
+        .boton-proveedor-google {
+            width: 100%; padding: 14px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--borde-tecnologico);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            cursor: pointer;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+        }
+
+        .boton-proveedor-google:hover {
+            border-color: var(--neon-cian);
+            background: rgba(0, 240, 255, 0.02);
+            box-shadow: var(--brillo-cian);
+        }
+
+        .linea-divisor-texto {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 11px;
+            font-family: 'Space Mono', monospace;
+            color: var(--texto-secundario);
+            letter-spacing: 2px;
+        }
+
+        .formulario-bloque-credenciales input {
+            width: 100%; padding: 16px;
+            background: #04070c;
+            border: 1px solid var(--borde-tecnologico);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            margin-bottom: 16px;
+            outline: none;
+            font-size: 13.5px;
+        }
+
+        .formulario-bloque-credenciales input:focus {
+            border-color: var(--neon-cian);
+            box-shadow: var(--brillo-cian);
+        }
+
+        @media (max-width: 1024px) {
+            .arquitectura-dos-columnas { grid-template-columns: 1fr; }
+            .barra-superior { padding: 16px 24px; }
+            .seccion-principal-interfaz { padding: 24px; }
+        }
+    </style>
+</head><body>
+
+    <div id="cargadorSistema">
+        <div class="anillo-carga-led"></div>
+        <div class="texto-carga-consola">ALONIXZ CORESYSTEM // INICIALIZANDO INTERFAZ</div>
+    </div>
+
+    <div class="app-layout">
+        
+        <header class="barra-superior">
+            <div class="logo-bloque">
+                <div class="emblema-alonixz">A</div>
+                <div class="titulo-plataforma">
+                    <strong>Alonixz-Group</strong> Core
+                </div>
+            </div>
+            
+            <div class="metricas-servidor-servicios">
+                <div class="indicador-led-nodo">
+                    VISITAS: <span id="registroVisitasGlobal">0</span>
+                </div>
+                <div class="indicador-led-nodo" style="color: var(--neon-amarillo); border-color: rgba(255,183,0,0.15);">
+                    RATING: <span id="registroRatingGlobal">0.0</span>/5
+                </div>
+            </div>
+
+            <div class="perfil-usuario-zona" id="bloqueAutenticacionDinamico">
+                <button class="boton-sistema-led" onclick="window.abrirPortalAutenticacion()">CONECTAR NODO</button>
+            </div>
+        </header>
+
+        <main class="seccion-principal-interfaz" id="contenedorCatalogoProyectos">
+            
+            <section class="consola-ia-inteligente">
+                <div class="cabecera-modulo-ia">
+                    <span>⚡ ALONIXZ IA INTELLIGENCE ENGINE // MODEL: GEMINI-PRO-CORE</span>
+                </div>
+                <div class="pantalla-salida-ia" id="consolaSalidaIa">
+                    <div class="log-ia-linea">> Esperando inicialización del perfil de usuario...</div>
+                </div>
+                
+                <div id="panelEjecucionAdminIA" style="margin-top: 18px; display: none; gap: 12px; align-items: center;">
+                    <button class="boton-sistema-led boton-sistema-led-ia" onclick="window.ejecutarRecomendacionesIA()">
+                        ✨ EJECUTAR RECOMENDACIONES IA
+                    </button>
+                    <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: var(--neon-verde);">
+                        [Modo Root/Administrador Detectado]
+                    </span>
+                </div>
+            </section>
+
+            <div class="bloque-filtros-navegacion">
+                <input type="text" id="campoBusquedaInteractiva" class="entrada-busqueda-cyber" placeholder="> Buscar módulo por palabra clave o token de arquitectura..." oninput="window.filtrarCatalogoModulos()">
+                
+                <div class="fila-etiquetas-categorias">
+                    <div class="pildora-filtro-accion activa" data-filtro="TODAS" onclick="window.cambiarFiltroCategoria(this)">TODAS LAS APLICACIONES</div>
+                    <div class="pildora-filtro-accion" data-filtro="Educativo" onclick="window.cambiarFiltroCategoria(this)">EDUCATIVO</div>
+                    <div class="pildora-filtro-accion" data-filtro="Productividad" onclick="window.cambiarFiltroCategoria(this)">PRODUCTIVIDAD</div>
+                    <div class="pildora-filtro-accion" data-filtro="Gaming" onclick="window.cambiarFiltroCategoria(this)">GAMING</div>
+                    <div class="pildora-filtro-accion" data-filtro="Herramientas" onclick="window.cambiarFiltroCategoria(this)">HERRAMIENTAS</div>
+                </div>
+            </div>
+
+            <div id="contenedorZonaSugeridos" style="display: none;">
+                <div class="titulo-seccion-tecnologica">⚡ COMPONENTES RECOMENDADOS PARA DESARROLLO FIEL</div>
+                <div class="rejilla-aplicaciones-core" id="rejillaSugeridosIA"></div>
+            </div>
+
+            <div class="titulo-seccion-tecnologica">📁 REPOSITORIO DE COMPILACIONES ACTIVAS</div>
+            <div class="rejilla-aplicaciones-core" id="rejillaBaseProyectos">
+                
+                <div class="tarjeta-modulo-software" id="modulo-praxis" data-titulo="praxis" data-categoria="Educativo" onclick="window.desplegarEspacioTrabajo('praxis')">
+                    <div class="encabezado-tarjeta-datos">
+                        <div class="bloque-icono-visualizado" style="background: linear-gradient(135deg, #00f0ff, #0066ff); box-shadow: 0 0 15px rgba(0,240,255,0.2);">P</div>
+                        <div>
+                            <div class="nombre-software-nodo">Praxis</div>
+                            <div class="autoria-software-firma">Google Classroom Extension</div>
+                        </div>
+                    </div>
+                    <p class="sinopsis-breve-software">Entorno comunitario diseñado para amplificar la interacción académica, optimizando el compromiso y centralizando recursos colaborativos.</p>
+                    <div class="base-tarjeta-metadatos">
+                        <span class="etiqueta-categoria-sistema">EDUCATIVO</span>
+                        <button class="accion-compilacion-visual">DESPLEGAR_</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta-modulo-software" id="modulo-edusolve" data-titulo="edusolve pro" data-categoria="Productividad" onclick="window.desplegarEspacioTrabajo('edusolve')">
+                    <div class="encabezado-tarjeta-datos">
+                        <div class="bloque-icono-visualizado" style="background: linear-gradient(135deg, #ff0055, #990033); box-shadow: 0 0 15px rgba(255,0,85,0.2);">E</div>
+                        <div>
+                            <div class="nombre-software-nodo">EduSolve PRO</div>
+                            <div class="autoria-software-firma">Academic Knowledge Network</div>
+                        </div>
+                    </div>
+                    <p class="sinopsis-breve-software">Base de datos dinámica distribuida para estudiantes. Permite la publicación de recursos estructurados, capturas de pizarras y enlaces verificados.</p>
+                    <div class="base-tarjeta-metadatos">
+                        <span class="etiqueta-categoria-sistema">PRODUCTIVIDAD</span>
+                        <button class="accion-compilacion-visual">DESPLEGAR_</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta-modulo-software" id="modulo-zentax" data-titulo="zentax" data-categoria="Gaming" onclick="window.desplegarEspacioTrabajo('zentax')">
+                    <div class="encabezado-tarjeta-datos">
+                        <div class="bloque-icono-visualizado" style="background: linear-gradient(135deg, #00ff66, #006622); box-shadow: 0 0 15px rgba(0,255,102,0.2);">Z</div>
+                        <div>
+                            <div class="nombre-software-nodo">Zentax</div>
+                            <div class="autoria-software-firma">Gamer Identity Framework</div>
+                        </div>
+                    </div>
+                    <p class="sinopsis-breve-software">Sistema de perfiles gamer estilo credencial DNI, con intercambio automatizado de insignias coleccionables y métricas de reputación integradas.</p>
+                    <div class="base-tarjeta-metadatos">
+                        <span class="etiqueta-categoria-sistema">GAMING</span>
+                        <button class="accion-compilacion-visual">DESPLEGAR_</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta-modulo-software" id="modulo-realestate" data-titulo="inmuebles" data-categoria="Herramientas" onclick="window.desplegarEspacioTrabajo('realestate')">
+                    <div class="encabezado-tarjeta-datos">
+                        <div class="bloque-icono-visualizado" style="background: linear-gradient(135deg, #ffb700, #996600); box-shadow: 0 0 15px rgba(255,183,0,0.2);">I</div>
+                        <div>
+                            <div class="nombre-software-nodo">Inmuebles Residencial Aeropuerto</div>
+                            <div class="autoria-software-firma">Real Estate Pricing Tool</div>
+                        </div>
+                    </div>
+                    <p class="sinopsis-breve-software">Plataforma de visualización y tasación ajustada al valor de mercado en Juliaca para departamentos de dos habitaciones, optimizada con tarifas reales de la zona.</p>
+                    <div class="base-tarjeta-metadatos">
+                        <span class="etiqueta-categoria-sistema">HERRAMIENTAS</span>
+                        <button class="accion-compilacion-visual">DESPLEGAR_</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <main class="seccion-principal-interfaz" id="vistaEspacioTrabajo">
+            <button class="boton-retorno-plataforma" onclick="window.cerrarEspacioTrabajo()">
+                ⟵ REGRESAR AL REPOSITORIO CORE
+            </button>
+
+            <div class="banner-inmersivo-software" id="bannerMetaDinamico">
+                <div class="bloque-identidad-banner">
+                    <div class="emblema-banner-gigante" id="emblemaProyectoActivo">A</div>
+                    <div class="info-banner-textos">
+                        <h2 id="nombreProyectoActivo">Cargando Módulo...</h2>
+                        <div class="fila-metricas-banner">
+                            <span>ID: <span id="tokenProyectoActivo" style="color:white;">NONE</span></span>
+                            <span>FASE: <span id="faseProyectoActivo" style="color:var(--neon-cian);">DESARROLLO</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arquitectura-dos-columnas">
+                <div class="bloque-flujo-izquierdo">
+                    
+                    <div class="consola-bloque-interno" style="padding: 10px; height: 500px; overflow: hidden; background: #000; border-color: var(--neon-cian); box-shadow: var(--brillo-cian);">
+                        <iframe id="visorProyectoEnVivo" src="" style="width:100%; height:100%; border:none; background: #020408;" allow="autoplay; encrypted-media"></iframe>
+                    </div>
+
+                    <div class="consola-bloque-interno">
+                        <div class="subtitulo-consola-tech">// ARQUITECTURA TEÓRICA Y JUSTIFICACIÓN TÉCNICA</div>
+                        <p class="descripcion-consola-parrafo" id="descripcionProyectoActivo">Ninguna descripción cargada en el búfer actual del sistema.</p>
+                    </div>
+                </div>
+
+                <div class="bloque-flujo-derecho">
+                    <div class="consola-bloque-interno">
+                        <a href="" id="enlaceExternoProyecto" target="_blank" class="boton-despliegue-servidor">
+                            ABRIR EN SERVIDOR EXTERNO ↗
+                        </a>
+                    </div>
+
+                    <div class="tarjeta-auditoria-reportes">
+                        <div class="subtitulo-consola-tech">// REGISTRAR AUDITORÍA EN REALTIME DATABASE</div>
+                        
+                        <div class="estrellas-selector-led" id="starsSelector">
+                            <span onclick="window.establecerPuntuacionAuditoria(1)">★</span>
+                            <span onclick="window.establecerPuntuacionAuditoria(2)">★</span>
+                            <span onclick="window.establecerPuntuacionAuditoria(3)">★</span>
+                            <span onclick="window.establecerPuntuacionAuditoria(4)">★</span>
+                            <span onclick="window.establecerPuntuacionAuditoria(5)">★</span>
+                        </div>
+
+                        <textarea id="textoReporteAuditoria" class="area-texto-consola" placeholder="> Ingrese logs de compilación o reporte de errores para el equipo de Alonixz-Group..."></textarea>
+                        
+                        <button class="boton-sistema-led" style="width: 100%;" onclick="window.enviarReporteAuditoriaRTDB()">
+                            TRANSMITIR REPORTE DE AUDITORÍA
+                        </button>
+                    </div>
+
+                    <div class="titulo-seccion-tecnologica">// LOGS RECIENTES DE PRODUCCIÓN</div>
+                    <div id="historialReportesContenedor">
+                        </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-seguridad-global" id="modalPortalSeguridad">
+        <div class="tarjeta-auth-nucleo">
+            <button class="boton-cerrar-modal-x" onclick="window.cerrarPortalAutenticacion()">✕</button>
+            <div class="subtitulo-consola-tech" style="text-align: center; color: var(--neon-rosa); margin-bottom: 24px;">
+                // SECURE ACCESS GATEWAY
+            </div>
+            
+            <button class="boton-proveedor-google" onclick="window.procesarAutenticacionGooglePopup()">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style="width:16px; height:16px;">
+                AUTENTICAR CON NODE GOOGLE
+            </button>
+
+            <div class="linea-divisor-texto">O CONECTAR CON CREDENCIALES</div>
+
+            <div class="formulario-bloque-credenciales">
+                <input type="email" id="correoAccesoAuth" placeholder="CORREO ELECTRÓNICO">
+                <input type="password" id="claveAccesoAuth" placeholder="CONTRASEÑA DE ACCESO">
+                
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <button class="boton-sistema-led" style="flex:1;" onclick="window.procesarAutenticacionEmailClave(false)">ACCEDER</button>
+                    <button class="boton-sistema-led boton-sistema-led-secundario" style="flex:1;" onclick="window.procesarAutenticacionEmailClave(true)">REGISTRAR</button>
+                </div>
+            </div>
+        </div>
+    </div><script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue, runTransaction, push, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+        // CREDENCIALES OPERATIVAS DE ALONIXZ DEPLOYMENT
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnXpJt53dyFA8rsHAchNu-Mv6zV0-1fC4",
+            authDomain: "intel-call.firebaseapp.com",
+            databaseURL: "https://intel-call-default-rtdb.firebaseio.com",
+            projectId: "intel-call",
+            storageBucket: "intel-call.firebasestorage.app",
+            messagingSenderId: "799942738742",
+            appId: "1:799942738742:web:57fd4ef69d7bdf0d418e87"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const proveedorGoogle = new GoogleAuthProvider();
+
+        // REPOSITORIO DE COMPILACIONES REALES DE ALONIXZ-GROUP
+        const baseConocimientoProyectos = {
+            praxis: {
+                titulo: "Praxis",
+                firma: "Google Classroom Extension",
+                fase: "DESARROLLO",
+                tag: "Educativo",
+                emblema: "P",
+                color: "linear-gradient(135deg, #00f0ff, #0066ff)",
+                url: "https://praxis-edu.netlify.app", 
+                descripcion: "Praxis se consolida como una extensión comunitaria directa para Google Classroom, diseñada específicamente para incrementar el compromiso de los estudiantes a través de dinámicas colectivas, tableros colaborativos y canales microscópicos de feedback."
+            },
+            edusolve: {
+                titulo: "EduSolve PRO",
+                firma: "Academic Knowledge Network",
+                fase: "PRODUCCIÓN",
+                tag: "Productividad",
+                emblema: "E",
+                color: "linear-gradient(135deg, #ff0055, #990033)",
+                url: "https://edusolve-pro.netlify.app",
+                descripcion: "Un entorno tecnológico colaborativo que permite a comunidades de estudiantes capturar, indexar y distribuir recursos educativos críticos de nivel secundario o preuniversitario."
+            },
+            zentax: {
+                titulo: "Zentax",
+                firma: "Gamer Identity Framework",
+                fase: "DESARROLLO",
+                tag: "Gaming",
+                emblema: "Z",
+                color: "linear-gradient(135deg, #00ff66, #006622)",
+                url: "https://zentax-gamer.netlify.app",
+                descripcion: "Proyecto de identidad digital diseñado exclusivamente para videojugadores. Permite compilar un perfil con diseño minimalista/brutalista similar a un DNI Gamer basado en insignias."
+            },
+            realestate: {
+                titulo: "Inmuebles Residencial Aeropuerto",
+                firma: "Inmuebles",
+                fase: "PRODUCCIÓN",
+                tag: "Herramientas",
+                emblema: "I",
+                color: "linear-gradient(135deg, #ffb700, #996600)",
+                url: "https://residencial-aeropuerto-juliaca.netlify.app",
+                descripcion: "Plataforma de visualización y control de mercado inmobiliario enfocada en la oferta de departamentos de 2 habitaciones en la urbanización Residencial Aeropuerto de Juliaca."
+            }
+        };
+
+        // --- SISTEMA DE TELEMETRÍA PERSISTENTE (CON CONTADORES SEGUROS) ---
+        const cargarTelemetria = () => {
+            const localData = localStorage.getItem("alonixz_telemetria");
+            if (localData) return JSON.parse(localData);
+            return {
+                clicksPorApp: { praxis: 0, edusolve: 0, zentax: 0, realestate: 0 },
+                tagsConsultados: { Educativo: 0, Productividad: 0, Gaming: 0, Herramientas: 0 },
+                totalClicks: 0,
+                ultimaRecomendacionApp: null,
+                marcaTiempoUltimaEjecucion: 0
+            };
+        };
+
+        const guardarTelemetria = (data) => {
+            localStorage.setItem("alonixz_telemetria", JSON.stringify(data));
+        };
+
+        let telemetria = cargarTelemetria();
+
+        // --- DICCIONARIO DE SEGURIDAD ULTRA-ROOT EN MATRIZ (AQ.Ab8RN6...) ---
+        const diccionarioMatrizSeguridad = [65,81,46,65,98,56,82,78,54,75,117,110,76,78,52,101,118,50,69,98,73,81,85,113,105,109,109,89,86,75,122,54,104,104,118,111,68,52,45,84,110,98,103,73,98,95,107,76,107,85,118,68,81];
+        const obtenerLlaveDecodificada = () => diccionarioMatrizSeguridad.map(c => String.fromCharCode(c)).join('');
+
+        let proyectoActivoKey = null;
+        let puntuacionAuditoriaSeleccionada = 0;
+        let desvincularEscuchaReportes = null;
+
+        // --- MANEJO DE ESTADO DE AUTENTICACIÓN ---
+        onAuthStateChanged(auth, (usuario) => {
+            const bloqueAuth = document.getElementById("bloqueAutenticacionDinamico");
+            const panelAdminIA = document.getElementById("panelEjecucionAdminIA");
+            const salidaIa = document.getElementById("consolaSalidaIa");
+            
+            const loader = document.getElementById("cargadorSistema");
+            if (loader) {
+                loader.style.opacity = "0";
+                setTimeout(() => loader.style.display = "none", 800);
+            }
+
+            if (usuario) {
+                bloqueAuth.innerHTML = `
+                    <div class="contenedor-avatar-autenticado" title="${usuario.email}">
+                        ${usuario.photoURL ? `<img src="${usuario.photoURL}" class="imagen-perfil-real" alt="Avatar">` : `<span class="letra-perfil-defecto">${(usuario.email || "U").charAt(0).toUpperCase()}</span>`}
+                    </div>
+                    <button class="boton-sistema-led boton-sistema-led-secundario" onclick="window.procesarCierreSesion()">DESCONECTAR</button>
+                `;
+
+                // FILTRO MAESTRO: Si eres tú, te da tu botón. Si es un usuario común, inicia la automatización temporal
+                if (usuario.email && usuario.email.toLowerCase().includes("ajuliuszch")) {
+                    panelAdminIA.innerHTML = `
+                        <button class="boton-sistema-led boton-sistema-led-ia" onclick="window.inicializarAnalisisIA(true)">
+                            ⚡ INICIALIZAR MOTOR DE IA (FORZAR)
+                        </button>
+                        <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: var(--neon-verde);">[Modo Root: Alonso]</span>
+                    `;
+                    panelAdminIA.style.display = "flex";
+                    if(salidaIa) salidaIa.innerHTML = `<div class="log-ia-linea unicamente-admin">> [PERMISO TOTAL] Panel Root activo. Pulsa el botón para ejecutar análisis inmediato.</div>`;
+                } else {
+                    panelAdminIA.style.display = "none";
+                    window.verificarEjecucionAutomaticaUsuario();
+                }
+            } else {
+                bloqueAuth.innerHTML = `<button class="boton-sistema-led" onclick="window.abrirPortalAutenticacion()">CONECTAR NODO</button>`;
+                panelAdminIA.style.display = "none";
+                window.verificarEjecucionAutomaticaUsuario();
+            }
+        });
+
+        // --- SISTEMA DE AUTOMATIZACIÓN DE TIEMPO PARA USUARIOS ---
+        window.verificarEjecucionAutomaticaUsuario = () => {
+            const ahora = Date.now();
+            const tiempoTranscurrido = ahora - telemetria.marcaTiempoUltimaEjecucion;
+            
+            // Regla de umbral de datos suficientes (ejemplo: mínimo 3 clicks totales)
+            const tieneDatosSuficientes = telemetria.totalClicks >= 3;
+            const cooldownRequerido = tieneDatosSuficientes ? (24 * 60 * 60 * 1000) : (5 * 60 * 1000); // 24 horas vs 5 minutos
+
+            if (tiempoTranscurrido >= cooldownRequerido) {
+                console.log(`> [IA_CORE] Ejecutando análisis automático. Datos suficientes: ${tieneDatosSuficientes}`);
+                window.inicializarAnalisisIA(false); // Ejecución silenciosa/automática
+            } else {
+                const minutosRestantes = Math.ceil((cooldownRequerido - tiempoTranscurrido) / (60 * 1000));
+                console.log(`> [IA_CORE] Próximo escaneo automático en ${minutosRestantes} minutos.`);
+                // Cargar caché previa si existe
+                window.renderizarCacheExistente();
+            }
+        };
+
+        // --- EXPOSICIÓN DE ACCIONES DE INTERFAZ EN WINDOW ---
+        window.abrirPortalAutenticacion = () => document.getElementById("modalPortalSeguridad").classList.add("activo");
+        window.cerrarPortalAutenticacion = () => document.getElementById("modalPortalSeguridad").classList.remove("activo");
+        window.procesarAutenticacionGooglePopup = () => signInWithPopup(auth, proveedorGoogle).then(() => window.cerrarPortalAutenticacion()).catch(err => console.error(err));
+        window.procesarCierreSesion = () => signOut(auth).catch(err => console.error(err));
+
+        // --- CAPTURADOR DE CONTADORES Y CLICKS EN EL WORKSPACE ---
+        window.desplegarEspacioTrabajo = (appKey) => {
+            const datosProyecto = baseConocimientoProyectos[appKey];
+            if (!datosProyecto) return;
+
+            // Registrar telemetría persistente
+            telemetria.clicksPorApp[appKey] = (telemetria.clicksPorApp[appKey] || 0) + 1;
+            telemetria.tagsConsultados[datosProyecto.tag] = (telemetria.tagsConsultados[datosProyecto.tag] || 0) + 1;
+            telemetria.totalClicks += 1;
+            guardarTelemetria(telemetria);
+
+            proyectoActivoKey = appKey;
+            
+            document.getElementById("contenedorCatalogoProyectos").style.display = "none";
+            const vistaWorkspace = document.getElementById("vistaEspacioTrabajo");
+            vistaWorkspace.style.display = "block";
+            setTimeout(() => { vistaWorkspace.style.opacity = "1"; vistaWorkspace.style.transform = "translateY(0)"; }, 50);
+
+            document.getElementById("emblemaProyectoActivo").innerText = datosProyecto.emblema;
+            document.getElementById("emblemaProyectoActivo").style.background = datosProyecto.color;
+            document.getElementById("nombreProyectoActivo").innerText = datosProyecto.titulo;
+            document.getElementById("tokenProyectoActivo").innerText = appKey.toUpperCase();
+            document.getElementById("faseProyectoActivo").innerText = datosProyecto.fase;
+            document.getElementById("descripcionProyectoActivo").innerText = datosProyecto.descripcion;
+            
+            document.getElementById("visorProyectoEnVivo").src = datosProyecto.url;
+            document.getElementById("enlaceExternoProyecto").href = datosProyecto.url;
+
+            window.establecerPuntuacionAuditoria(0);
+            document.getElementById("textoReporteAuditoria").value = "";
+            
+            if (typeof desvincularEscuchaReportes === "function") desvincularEscuchaReportes();
+
+            desvincularEscuchaReportes = onValue(ref(db, `plataforma/reportes/${appKey}`), (snapshot) => {
+                const contenedorLogs = document.getElementById("historialReportesContenedor");
+                contenedorLogs.innerHTML = "";
+                const data = snapshot.val();
+                if (data) {
+                    Object.values(data).reverse().forEach(log => {
+                        const div = document.createElement("div");
+                        div.className = "reporte-auditoria-instancia";
+                        div.innerHTML = `<div class="meta-datos-reporte-instancia"><span style="color:var(--neon-cian); font-weight:700;">${log.operador}</span><span style="color:var(--neon-amarillo);">${"★".repeat(log.estrellas)}</span></div><p style="font-family:'Space Mono', monospace; font-size:13px; color:#cbd5e1;">> ${log.detalles}</p>`;
+                        contenedorLogs.appendChild(div);
+                    });
+                } else {
+                    contenedorLogs.innerHTML = `<div style="font-size:12px; font-family:'Space Mono', monospace; color:var(--texto-secundario)">> STATUS: Sin reportes en la RTDB.</div>`;
+                }
+            });
+        };
+
+        window.cerrarEspacioTrabajo = () => {
+            if (typeof desvincularEscuchaReportes === "function") desvincularEscuchaReportes();
+            document.getElementById("visorProyectoEnVivo").src = "";
+            document.getElementById("vistaEspacioTrabajo").style.display = "none";
+            document.getElementById("contenedorCatalogoProyectos").style.display = "block";
+            proyectoActivoKey = null;
+            // Al cerrar el workspace, si es un usuario común, reevaluamos si sus nuevos clicks habilitan la IA
+            if (!auth.currentUser || !auth.currentUser.email.toLowerCase().includes("ajuliuszch")) {
+                window.verificarEjecucionAutomaticaUsuario();
+            }
+        };
+
+        // --- RUNTIME DE IA INTELIGENTE ---
+        window.inicializarAnalisisIA = async (esForzadoPorAlonso = false) => {
+            const btnIA = document.querySelector('.boton-sistema-led-ia');
+            const consola = document.getElementById("consolaSalidaIa");
+            const zonaSugeridos = document.getElementById("contenedorZonaSugeridos");
+            const rejillaSugeridos = document.getElementById("rejillaSugeridosIA");
+
+            if (esForzadoPorAlonso && btnIA) {
+                btnIA.disabled = true;
+                btnIA.innerText = "PROCESANDO INTEGRIDAD INTERNA...";
+            }
+
+            const tieneDatosSuficientes = telemetria.totalClicks >= 3;
+            const decryptedKey = obtenerLlaveDecodificada();
+
+            try {
+                const promptSistema = `
+                    Eres el Arquitecto de Software de Inteligencia Artificial para Alonixz-Group Core. 
+                    Analiza la telemetría de navegación del cliente para recomendar la aplicación del repositorio que debe revisar.
+
+                    Ecosistema Real: ${JSON.stringify(baseConocimientoProyectos)}
+                    Métricas de clicks del usuario: ${JSON.stringify(telemetria.clicksPorApp)}
+                    Tags consultados: ${JSON.stringify(telemetria.tagsConsultados)}
+                    ¿Tiene datos suficientes explorados?: ${tieneDatosSuficientes}
+
+                    REGLA DE SALIDA OBLIGATORIA:
+                    Si la variable "tieneDatosSuficientes" es FALSE, debes poner EXACTAMENTE lo siguiente en el campo "appsrecomendadas": "no has explorado lo suficiente para recomendarte".
+                    Si es TRUE, selecciona el nombre exacto de la aplicación recomendada (ejemplo: Praxis o EduSolve PRO). No inventes aplicaciones.
+
+                    Retorna un objeto JSON plano sin markdown (\`\`\`json):
+                    {
+                        "appsrecomendadas": "...",
+                        "textia": "Le recomende tal app porque..."
+                    }
+                `;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-lite:generateContent?key=${decryptedKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: promptSistema }] }] })
+                });
+
+                const result = await response.json();
+                let rawText = result.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+                const jsonIa = JSON.parse(rawText);
+
+                // Guardar resultado en caché local para evitar llamadas innecesarias en los reintentos temporales
+                telemetria.ultimoResultadoJSON = jsonIa;
+                telemetria.marcaTiempoUltimaEjecucion = Date.now();
+                guardarTelemetria(telemetria);
+
+                window.renderizarComponentesIA(jsonIa);
+
+            } catch (err) {
+                console.error("ERR_IA_STREAM: ", err);
+            } finally {
+                if (esForzadoPorAlonso && btnIA) {
+                    btnIA.disabled = false;
+                    btnIA.innerText = "⚡ INICIALIZAR MOTOR DE IA (FORZAR)";
+                }
+            }
+        };
+
+        // --- RENDERIZADOR COMPLETO DE SECCIONES (A PRIMERA LÍNEA ARRIBA) ---
+        window.renderizarComponentesIA = (jsonIa) => {
+            const zonaSugeridos = document.getElementById("contenedorZonaSugeridos");
+            const rejillaSugeridos = document.getElementById("rejillaSugeridosIA");
+            const consola = document.getElementById("consolaSalidaIa");
+
+            if (!zonaSugeridos || !rejillaSugeridos) return;
+
+            zonaSugeridos.style.display = "block";
+
+            // CASO A: Comando de datos insuficientes detectado
+            if (jsonIa.appsrecomendadas.toLowerCase().includes("no has explorado lo suficiente")) {
+                rejillaSugeridos.innerHTML = `
+                    <div class="tarjeta-modulo-software" style="border-color: var(--neon-rosa); cursor:default; width:100%; max-width:500px;">
+                        <div class="encabezado-tarjeta-datos">
+                            <div class="bloque-icono-visualizado" style="background:var(--neon-rosa); color:#000; font-weight:700;">!</div>
+                            <div>
+                                <div class="nombre-software-nodo" style="color:var(--neon-rosa)">SISTEMA EN ESPERA</div>
+                                <div class="autoria-software-firma">Telemetría Incompleta</div>
+                            </div>
+                        </div>
+                        <p class="sinopsis-breve-software" style="color:#cbd5e1; font-family:'Space Mono', monospace;">> no has explorado lo suficiente para recomendarte. Abre módulos del catálogo para acumular registros.</p>
+                    </div>
+                `;
+                if (consola) {
+                    consola.innerHTML = `<div class="log-ia-linea" style="color:var(--neon-rosa)">> [REGISTRO DE TEXTIA]: El usuario actual no posee historial base. Reintento en 5 minutos.</div>`;
+                }
+                return;
+            }
+
+            // CASO B: Recomendación exitosa y mapeada
+            const claveApp = Object.keys(baseConocimientoProyectos).find(key => 
+                baseConocimientoProyectos[key].titulo.toLowerCase() === jsonIa.appsrecomendadas.toLowerCase()
+            ) || "praxis";
+
+            const appSugerida = baseConocimientoProyectos[claveApp];
+
+            rejillaSugeridos.innerHTML = `
+                <div class="tarjeta-modulo-software" style="border-color: var(--neon-verde); cursor:pointer; width:100%; max-width:450px;" onclick="window.desplegarEspacioTrabajo('${claveApp}')">
+                    <div class="encabezado-tarjeta-datos">
+                        <div class="bloque-icono-visualizado" style="background: ${appSugerida.color}">
+                            ${appSugerida.emblema}
+                        </div>
+                        <div>
+                            <div class="nombre-software-nodo">${appSugerida.titulo} <span style="font-size:10px; color:var(--neon-verde); margin-left:8px;">★ PARA TI</span></div>
+                            <div class="autoria-software-firma">${appSugerida.firma}</div>
+                        </div>
+                    </div>
+                    <p class="sinopsis-breve-software">${appSugerida.descripcion}</p>
+                    <div class="base-tarjeta-metadatos">
+                        <span class="etiqueta-categoria-sistema">TAG: ${appSugerida.tag.toUpperCase()}</span>
+                        <button class="accion-compilacion-visual">DESPLEGAR_</button>
+                    </div>
+                </div>
+            `;
+
+            if (consola) {
+                consola.innerHTML = `
+                    <div class="log-ia-linea unicamente-admin" style="color: var(--neon-cian); font-weight:bold;">> [appsrecomendadas]: ${appSugerida.titulo}</div>
+                    <div class="log-ia-linea" style="margin-top:6px; padding-left:10px; border-left:2px solid var(--neon-verde); color:#cbd5e1;">> [registro de textia]: ${jsonIa.textia}</div>
+                `;
+            }
+        };
+
+        window.renderizarCacheExistente = () => {
+            if (telemetria.ultimoResultadoJSON) {
+                window.renderizarComponentesIA(telemetria.ultimoResultadoJSON);
+            }
+        };
+
+        // --- SISTEMAS DE SOPORTE TRADICIONALES ---
+        window.establecerPuntuacionAuditoria = (num) => {
+            puntuacionAuditoriaSeleccionada = num;
+            document.querySelectorAll("#starsSelector span").forEach((e, i) => e.classList.toggle("active", i < num));
+        };
+
+        window.enviarReporteAuditoriaRTDB = () => {
+            const usuarioActual = auth.currentUser;
+            if (!usuarioActual) return alert("Conecte su nodo.");
+            const texto = document.getElementById("textoReporteAuditoria").value.trim();
+            if (!texto || puntuacionAuditoriaSeleccionada === 0) return alert("Complete los campos.");
+
+            push(ref(db, `plataforma/reportes/${proyectoActivoKey}`), {
+                operador: usuarioActual.email.split("@")[0],
+                estrellas: puntuacionAuditoriaSeleccionada,
+                detalles: texto,
+                timestamp: Date.now()
+            }).then(() => {
+                document.getElementById("textoReporteAuditoria").value = "";
+                window.establecerPuntuacionAuditoria(0);
+            });
+        };
+
+        window.filtrarCatalogoModulos = () => {
+            const termino = document.getElementById("campoBusquedaInteractiva").value.toLowerCase();
+            document.querySelectorAll("#rejillaBaseProyectos .tarjeta-modulo-software").forEach(tarjeta => {
+                const matchTexto = tarjeta.getAttribute("data-titulo").toLowerCase().includes(termino);
+                const pildoraActiva = document.querySelector(".pildora-filtro-accion.activa");
+                const cat = pildoraActiva ? pildoraActiva.getAttribute("data-filtro") : "TODAS";
+                tarjeta.style.display = (matchTexto && (cat === "TODAS" || tarjeta.getAttribute("data-categoria") === cat)) ? "flex" : "none";
+            });
+        };
+
+        window.cambiarFiltroCategoria = (elementoPildora) => {
+            document.querySelectorAll(".pildora-filtro-accion").forEach(p => p.classList.remove("activa"));
+            elementoPildora.classList.add("activa");
+            window.filtrarCatalogoModulos();
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loader = document.getElementById("cargadorSistema");
+            setTimeout(() => {
+                if (loader && loader.style.display !== "none") {
+                    loader.style.opacity = "0";
+                    setTimeout(() => loader.style.display = "none", 800);
+                }
+            }, 3000);
+        });
+    </script>
+
+</body>
+</html>

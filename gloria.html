@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camposanto Gloria Eterna | Portal de Gestión e Información Oficial</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%23050505' stroke='%23b39152' stroke-width='10'/><path d='M 74 30 L 30 30 L 30 70 L 74 70 L 74 50 L 50 50' fill='none' stroke='%23b39152' stroke-width='14' stroke-linecap='square' stroke-linejoin='miter'/></svg>">
+    <!-- Recursos de Alta Calidad -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ==========================================================================
+           1. VARIABLES DE DISEÑO (BRUTALISMO REFINADO - ALONIXZ GROUP)
+           ========================================================================== */
+        :root {
+            --bg-deep: #050505;
+            --bg-surface: #0f0f0f;
+            --bg-card: #141414;
+            --gold-base: #b39152;
+            --gold-light: #d4af37;
+            --gold-dark: #8a6d35;
+            --text-pure: #ffffff;
+            --text-body: #e0e0e0;
+            --text-muted: #777777;
+            --accent-alert: #901a1a;
+            --border-thin: 1px solid rgba(255, 255, 255, 0.08);
+            --border-gold: 1px solid rgba(179, 145, 82, 0.3);
+            --fx-bezier: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-main: all 0.6s var(--fx-bezier);
+        }
+
+        /* ==========================================================================
+           2. ESTILOS BASE Y RESET
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-body);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* ==========================================================================
+           3. MOTOR DE ANIMACIONES INTERSECTION OBSERVER
+           ========================================================================== */
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s var(--fx-bezier), transform 1s var(--fx-bezier);
+        }
+
+        .reveal-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 1s var(--fx-bezier), transform 1s var(--fx-bezier);
+        }
+
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .stagger-1 { transition-delay: 0.15s; }
+        .stagger-2 { transition-delay: 0.3s; }
+        .stagger-3 { transition-delay: 0.45s; }
+        .stagger-4 { transition-delay: 0.6s; }
+
+        /* ==========================================================================
+           4. COMPONENTE: NAVEGACIÓN CORPORATIVA
+           ========================================================================== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 13px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(5,5,5,0.95), transparent);
+            backdrop-filter: blur(8px);
+            transition: var(--transition-main);
+            border-bottom: 1px solid transparent;
+        }
+
+        nav.sticky {
+            padding: 15px 6%;
+            background: rgba(10, 10, 10, 0.98);
+            border-bottom: var(--border-thin);
+        }
+
+        .nav-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--gold-base);
+            text-decoration: none;
+            transition: var(--transition-main);
+        }
+
+        .nav-brand:hover {
+            color: var(--gold-light);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: var(--text-pure);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: var(--gold-base);
+        }
+
+        .btn-nav-emergency {
+            background: var(--accent-alert);
+            padding: 12px 24px;
+            border-radius: 0px;
+            font-weight: 700 !important;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: background 0.3s;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .btn-nav-emergency:hover {
+            background: #b32424;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(144, 26, 26, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(144, 26, 26, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(144, 26, 26, 0); }
+        }
+
+        /* ==========================================================================
+           5. SECCIÓN: HERO DINÁMICO
+           ========================================================================== */
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(rgba(5,5,5,0.85), rgba(5,5,5,0.7)), 
+                        url('https://radioondaazul.com/wp-content/uploads/2022/07/cementerios.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .hero-wrapper {
+            max-width: 850px;
+        }
+
+        .hero-subtitle {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: var(--gold-base);
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .hero-section h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 6vw, 5.5rem);
+            line-height: 1.1;
+            color: var(--text-pure);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .hero-divider {
+            width: 120px;
+            height: 2px;
+            background: var(--gold-base);
+            margin-bottom: 35px;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            color: #b5b5b5;
+            margin-bottom: 45px;
+            max-width: 650px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--gold-base);
+            color: var(--bg-deep);
+            padding: 18px 36px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: var(--transition-main);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(179, 145, 82, 0.25);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-pure);
+            padding: 18px 36px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: var(--transition-main);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--gold-base);
+        }
+
+        /* ==========================================================================
+           6. SECCIÓN: SERVICIOS DETALLADOS (GRID)
+           ========================================================================== */
+        .section-padding {
+            padding: 140px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 90px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-tag {
+            color: var(--gold-base);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .section-main-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.8rem;
+            color: var(--text-pure);
+            font-weight: 700;
+        }
+
+        .services-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .grid-card {
+            background: var(--bg-surface);
+            padding: 50px 40px;
+            border: var(--border-thin);
+            transition: var(--transition-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .grid-card:hover {
+            border-color: var(--gold-base);
+            transform: translateY(-8px);
+            background: var(--bg-card);
+        }
+
+        .card-icon-box {
+            width: 65px;
+            height: 65px;
+            background: rgba(179, 145, 82, 0.05);
+            border: 1px solid rgba(179, 145, 82, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 35px;
+            transition: 0.4s;
+        }
+
+        .grid-card:hover .card-icon-box {
+            background: var(--gold-base);
+        }
+
+        .grid-card:hover .card-icon-box i {
+            color: var(--bg-deep);
+        }
+
+        .card-icon-box i {
+            font-size: 1.6rem;
+            color: var(--gold-base);
+            transition: 0.4s;
+        }
+
+        .grid-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            color: var(--text-pure);
+            margin-bottom: 20px;
+        }
+
+        .grid-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        .card-link {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold-base);
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ==========================================================================
+           7. SECCIÓN: LOCALIZADOR DE DIFUNTOS (REALTIME DATABASE CONNECTED)
+           ========================================================================== */
+        .search-section {
+            background: var(--bg-surface);
+            border-top: var(--border-thin);
+            border-bottom: var(--border-thin);
+            padding: 100px 0;
+        }
+
+        .search-box-wrapper {
+            background: var(--bg-deep);
+            border: var(--border-gold);
+            padding: 50px;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .search-form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .search-input-field {
+            background: var(--bg-surface);
+            border: var(--border-thin);
+            padding: 15px 20px;
+            color: var(--text-pure);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-input-field:focus {
+            border-color: var(--gold-base);
+        }
+
+        .search-results-output {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.02);
+            padding: 25px;
+            display: none;
+            border-left: 3px solid var(--gold-base);
+        }
+
+        /* ==========================================================================
+           8. SECCIÓN: SIMULADOR DE PRESUPUESTOS (UX INTERACTIVA)
+           ========================================================================== */
+        .simulator-section {
+            padding: 120px 0;
+            background: var(--bg-deep);
+        }
+
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .simulator-options {
+            background: var(--bg-surface);
+            padding: 45px;
+            border: var(--border-thin);
+        }
+
+        .option-group {
+            margin-bottom: 35px;
+        }
+
+        .option-group label {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold-base);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .custom-radio-tile {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .radio-tile-item {
+            position: relative;
+        }
+
+        .radio-tile-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .tile-content {
+            background: var(--bg-deep);
+            border: var(--border-thin);
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .radio-tile-item input[type="radio"]:checked + .tile-content {
+            border-color: var(--gold-base);
+            background: rgba(179, 145, 82, 0.05);
+        }
+
+        .tile-content span {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .tile-content small {
+            color: var(--text-muted);
+            display: block;
+            margin-top: 5px;
+        }
+
+        .simulator-summary {
+            background: var(--bg-card);
+            border: var(--border-gold);
+            padding: 50px;
+            position: sticky;
+            top: 120px;
+        }
+
+        .summary-price-display {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            color: var(--gold-base);
+            margin: 30px 0;
+            font-weight: 700;
+        }
+
+        /* ==========================================================================
+           9. SECCIÓN: REQUISITOS Y HUB DE ATENCIÓN DIRECTA (FIREBASE WRITE)
+           ========================================================================== */
+        .hub-section {
+            background: #0a0a0a;
+            padding: 140px 0;
+            border-top: var(--border-thin);
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+        }
+
+        .requirement-block {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .req-index {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--gold-base);
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.6;
+        }
+
+        .req-text h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            color: var(--text-pure);
+            margin-bottom: 10px;
+        }
+
+        .req-text p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .form-container-box {
+            background: var(--bg-surface);
+            padding: 55px;
+            border: var(--border-thin);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-group-style {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 25px;
+        }
+
+        .input-group-style label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold-base);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .input-group-style input, 
+        .input-group-style select, 
+        .input-group-style textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding: 12px 0;
+            color: var(--text-pure);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+        }
+
+        .input-group-style input:focus, 
+        .input-group-style select:focus, 
+        .input-group-style textarea:focus {
+            border-bottom-color: var(--gold-base);
+        }
+
+        /* ==========================================================================
+           10. SECCIÓN: PREGUNTAS FRECUENTES (FAQ INTERACTIVO)
+           ========================================================================== */
+        .faq-section {
+            padding: 120px 0;
+            background: var(--bg-deep);
+            border-top: var(--border-thin);
+        }
+
+        .faq-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: var(--border-thin);
+            padding: 25px 0;
+        }
+
+        .faq-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .faq-trigger h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.15rem;
+            color: var(--text-pure);
+            font-weight: 600;
+        }
+
+        .faq-icon {
+            font-size: 1.2rem;
+            color: var(--gold-base);
+            transition: transform 0.4s;
+        }
+
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s var(--fx-bezier);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0;
+        }
+
+        .faq-item.active .faq-content {
+            max-height: 200px;
+            margin-top: 15px;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        /* ==========================================================================
+           11. SECCIÓN NUEVA: PLANES DE PREVISIÓN DETALLADOS
+           ========================================================================== */
+        .plans-section {
+            padding: 120px 0;
+            background: var(--bg-surface);
+            border-top: var(--border-thin);
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .plan-card {
+            background: var(--bg-deep);
+            border: var(--border-thin);
+            padding: 50px 40px;
+            position: relative;
+            transition: var(--transition-main);
+        }
+
+        .plan-card.featured {
+            border-color: var(--gold-base);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--gold-base);
+            color: var(--bg-deep);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 5px 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plan-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--text-pure);
+            margin-bottom: 15px;
+        }
+
+        .plan-price {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--gold-base);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        .plan-features li {
+            font-size: 0.9rem;
+            color: var(--text-body);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .plan-features li i {
+            color: var(--gold-base);
+            font-size: 0.8rem;
+        }
+
+        /* ==========================================================================
+           12. FOOTER CORPORATIVO (SELLO DE AUTOR - ALONIXZ GROUP)
+           ========================================================================== */
+        footer {
+            background: #030303;
+            padding: 100px 0 40px;
+            border-top: var(--border-thin);
+        }
+
+        .footer-columns {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 50px;
+            margin-bottom: 70px;
+        }
+
+        .footer-col h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold-base);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .footer-col p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-col ul li a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--text-pure);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            border-top: var(--border-thin);
+            padding-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #444;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        /* ==========================================================================
+           13. ADAPTACIÓN RESPONSIVA (MEDIA QUERIES)
+           ========================================================================== */
+        @media (max-width: 1024px) {
+            .hub-grid, .simulator-container, .footer-columns {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+            .search-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .hero-section h1 { font-size: 2.8rem; }
+            .section-main-title { font-size: 2rem; }
+            .container { padding: 0 20px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. NAVEGACIÓN PRINCIPAL -->
+    <nav id="navbar">
+        <a href="#" class="nav-brand">GLORIA ETERNA</a>
+        <ul class="nav-menu">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#buscador">Localizador</a></li>
+            <li><a href="#simulador">Presupuesto</a></li>
+            <li><a href="#planes">Planes</a></li>
+            <li><a href="#requisitos">Requisitos</a></li>
+            <li><a href="#emergencias" class="btn-nav-emergency">Urgencias 24h</a></li>
+        </ul>
+    </nav>
+
+    <!-- 2. SECCIÓN HERO -->
+    <section class="hero-section" id="inicio">
+        <div class="container">
+            <div class="hero-wrapper reveal-left">
+                <span class="hero-subtitle">Camposanto Oficial</span>
+                <h1>Un legado de paz, dignidad y memoria</h1>
+                <div class="hero-divider"></div>
+                <p class="hero-description">
+                    Ofrecemos la infraestructura funeraria más moderna y respetuosa, asegurando tranquilidad absoluta a las familias en los momentos más complejos del destino.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#emergencias" class="btn-primary">Asistencia Inmediata</a>
+                    <a href="#simulador" class="btn-secondary">Simular Planes</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SECCIÓN SERVICIOS -->
+    <section class="section-padding" id="servicios">
+        <div class="container">
+            <div class="section-header reveal-up">
+                <span class="section-tag">Servicios Exclusivos</span>
+                <h2 class="section-main-title">Soluciones Integrales de Previsión y Sepelio</h2>
+            </div>
+            
+            <div class="services-layout">
+                <div class="grid-card reveal-up stagger-1">
+                    <div class="card-icon-box"><i class="fa-solid fa-vault"></i></div>
+                    <h3>Pabellones de Concreto</h3>
+                    <p>Estructuras sismorresistentes edificadas con acabados de primera calidad, diseñadas para preservar la memoria con máxima solemnidad.</p>
+                    <a href="#emergencias" class="card-link">Saber más <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="grid-card reveal-up stagger-2">
+                    <div class="card-icon-box"><i class="fa-solid fa-file-contract"></i></div>
+                    <h3>Títulos a Perpetuidad</h3>
+                    <p>Garantía jurídica absoluta sobre la propiedad adquirida, respaldada por registros oficiales y contratos transparentes.</p>
+                    <a href="#emergencias" class="card-link">Saber más <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="grid-card reveal-up stagger-3">
+                    <div class="card-icon-box"><i class="fa-solid fa-truck-moving"></i></div>
+                    <h3>Traslados Regionales</h3>
+                    <p>Servicio logístico de transporte especializado desde cualquier punto de la región hacia nuestras instalaciones.</p>
+                    <a href="#emergencias" class="card-link">Saber más <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <div class="grid-card reveal-up stagger-4">
+                    <div class="card-icon-box"><i class="fa-solid fa-息"></i><i class="fa-solid fa-church"></i></div>
+                    <h3>Capillas de Velación</h3>
+                    <p>Ambientes óptimos equipados con sistemas de climatización y mobiliario ceremonial para la despedida íntima familiar.</p>
+                    <a href="#emergencias" class="card-link">Saber más <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. SECCIÓN: LOCALIZADOR DE DIFUNTOS (FIREBASE REALTIME QUERY) -->
+    <section class="search-section" id="buscador">
+        <div class="container">
+            <div class="search-box-wrapper reveal-up">
+                <span class="section-tag" style="text-align: left;">Sistemas Digitales</span>
+                <h3 class="style-title" style="font-family: 'Cinzel', serif; font-size: 1.8rem; margin-bottom: 10px;">Buscador Universal de Ubicaciones</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Encuentre la ubicación exacta de su ser querido (Pabellón, Fila y Número) realizando una consulta a nuestra base de datos centralizada.</p>
+                
+                <form id="searchMemorialForm" class="search-form-grid">
+                    <input type="text" id="searchName" class="search-input-field" placeholder="Escriba los APELLIDOS completos del difunto..." required autocomplete="off">
+                    <button type="submit" class="btn-primary" style="padding: 0;">BUSCAR REGISTRO</button>
+                </form>
+
+                <div id="searchResults" class="search-results-output"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. SECCIÓN: SIMULADOR DE PRESUPUESTO INTERACTIVO -->
+    <section class="simulator-section" id="simulador">
+        <div class="container">
+            <div class="section-header reveal-up">
+                <span class="section-tag">Transparencia Operativa</span>
+                <h2 class="section-main-title">Cotizador en Tiempo Real</h2>
+            </div>
+
+            <div class="simulator-container reveal-up">
+                <div class="simulator-options">
+                    <div class="option-group">
+                        <label>1. Tipo de Espacio requerido</label>
+                        <div class="custom-radio-tile">
+                            <div class="radio-tile-item">
+                                <input type="radio" name="espacio" value="2500" checked id="opt1">
+                                <div class="tile-content"><span>Nicho Estándar</span><small>Fila Superior</small></div>
+                            </div>
+                            <div class="radio-tile-item">
+                                <input type="radio" name="espacio" value="3800" id="opt2">
+                                <div class="tile-content"><span>Nicho Preferencial</span><small>Filas Centrales</small></div>
+                            </div>
+                            <div class="radio-tile-item">
+                                <input type="radio" name="espacio" value="1500" id="opt3">
+                                <div class="tile-content"><span>Nicho Párvulo</span><small>Infantil</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <label>2. Servicios Adicionales</label>
+                        <div class="custom-radio-tile">
+                            <div class="radio-tile-item">
+                                <input type="radio" name="servicio_add" value="0" checked id="ser1">
+                                <div class="tile-content"><span>Solo Apertura</span><small>Trámite básico</small></div>
+                            </div>
+                            <div class="radio-tile-item">
+                                <input type="radio" name="servicio_add" value="1200" id="ser2">
+                                <div class="tile-content"><span>Protocolo Completo</span><small>Capilla + Carroza</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="simulator-summary">
+                    <h3 style="font-family: 'Cinzel', serif; color: var(--text-pure);">Estimación de Costo Base</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Monto proyectado sujeto a variaciones de ley municipales locales.</p>
+                    <div class="summary-price-display">S/. <span id="priceDisplay">2500</span></div>
+                    <button class="btn-primary" style="width: 100%;" id="btnApplyQuote">RESERVAR ESTA CONFIGURACIÓN</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. SECCIÓN PLANES DE PREVISIÓN -->
+    <section class="plans-section" id="planes">
+        <div class="container">
+            <div class="section-header reveal-up">
+                <span class="section-tag">Tranquilidad Familiar</span>
+                <h2 class="section-main-title">Planes de Necesidad Futura</h2>
+            </div>
+
+            <div class="plans-grid">
+                <div class="plan-card reveal-up stagger-1">
+                    <h3>Plan Familiar Básico</h3>
+                    <div class="plan-price">S/. 4,500</div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-check"></i> 1 Nicho Estándar asignado</li>
+                        <li><i class="fa-solid fa-check"></i> Apertura y cierre de espacio</li>
+                        <li><i class="fa-solid fa-check"></i> Gestión de permisos básicos</li>
+                        <li><i class="fa-solid fa-check"></i> Mantenimiento regular</li>
+                    </ul>
+                    <a href="#emergencias" class="btn-secondary" style="display:block; text-align:center; font-size:0.8rem;">Solicitar Asesoría</a>
+                </div>
+
+                <div class="plan-card featured reveal-up stagger-2">
+                    <div class="plan-badge">Más Solicitado</div>
+                    <h3>Plan Excelencia Oro</h3>
+                    <div class="plan-price">S/. 7,200</div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-check"></i> 1 Nicho en Fila Preferencial</li>
+                        <li><i class="fa-solid fa-check"></i> Capilla de Velación Completa</li>
+                        <li><i class="fa-solid fa-check"></i> Carroza fúnebre de lujo</li>
+                        <li><i class="fa-solid fa-check"></i> Placa conmemorativa grabada</li>
+                        <li><i class="fa-solid fa-check"></i> Asesoría legal total</li>
+                    </ul>
+                    <a href="#emergencias" class="btn-primary" style="display:block; text-align:center; font-size:0.8rem; padding: 15px 0;">Adquirir Plan</a>
+                </div>
+
+                <div class="plan-card reveal-up stagger-3">
+                    <h3>Plan Previsión Integral</h3>
+                    <div class="plan-price">S/. 9,800</div>
+                    <ul class="plan-features">
+                        <li><i class="fa-solid fa-check"></i> 2 Nichos Preferenciales contiguos</li>
+                        <li><i class="fa-solid fa-check"></i> Servicios ceremoniales premium</li>
+                        <li><i class="fa-solid fa-check"></i> Financiamiento hasta en 24 meses</li>
+                        <li><i class="fa-solid fa-check"></i> Cobertura total de traslados</li>
+                    </ul>
+                    <a href="#emergencias" class="btn-secondary" style="display:block; text-align:center; font-size:0.8rem;">Solicitar Asesoría</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. SECCIÓN HUB: REQUISITOS DE LEY Y FORMULARIO (FIREBASE DIRECT WRITE) -->
+    <section class="hub-section" id="requisitos">
+        <div class="container">
+            <div class="hub-grid">
+                
+                <div class="reveal-left">
+                    <span class="section-tag" style="text-align: left;">Guía Legal</span>
+                    <h2 class="section-main-title" style="margin-bottom: 50px;">Documentación Obligatoria</h2>
+                    
+                    <div class="requirement-block">
+                        <div class="req-index">01</div>
+                        <div class="req-text">
+                            <h4>Certificado Médico de Defunción</h4>
+                            <p>Emitido de forma física o con validación digital por el profesional de salud acreditado. Es indispensable para iniciar cualquier protocolo físico.</p>
+                        </div>
+                    </div>
+
+                    <div class="requirement-block">
+                        <div class="req-index">02</div>
+                        <div class="req-text">
+                            <h4>DNI del Titular y del Fallecido</h4>
+                            <p>Documentos de identidad originales y copias simples totalmente legibles para la correcta emisión de los registros de propiedad y títulos.</p>
+                        </div>
+                    </div>
+
+                    <div class="requirement-block">
+                        <div class="req-index">03</div>
+                        <div class="req-text">
+                            <h4>Licencia Municipal de Inhumación</h4>
+                            <p>Autorización formal emitida por la oficina de registro civil de la municipalidad de la jurisdicción donde ocurrió el lamentable deceso.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-container-box reveal-up" id="emergencias">
+                    <h3 style="font-family: 'Cinzel', serif; color: var(--gold-base); margin-bottom: 10px; font-size: 1.6rem;">Asistencia Inmediata 24 Horas</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 35px;">Las solicitudes ingresadas en este panel se transmiten con prioridad alta a nuestros servidores.</p>
+                    
+                    <form id="firebaseMainForm">
+                        <div class="form-row">
+                            <div class="input-group-style">
+                                <label>Nombre del Solicitante</label>
+                                <input type="text" id="form_name" required autocomplete="off">
+                            </div>
+                            <div class="input-group-style">
+                                <label>Celular de Contacto</label>
+                                <input type="tel" id="form_phone" required autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="input-group-style">
+                            <label>Tipo de Gestión Solicitada</label>
+                            <select id="service_type" style="background: var(--bg-surface);">
+                                <option value="sepelio">Sepelio de Emergencia Inmediata</option>
+                                <option value="compra">Adquisición Programada / Previsión</option>
+                                <option value="traslado">Traslado de Restos Interno o Regional</option>
+                                <option value="mantenimiento">Renovación y Mantenimiento de Lápida</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group-style">
+                            <label>Detalle de la Consulta / Observaciones</label>
+                            <textarea id="form_message" rows="3" placeholder="Detalle información relevante aquí..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;">PROCESAR REGISTRO EN TIEMPO REAL</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. SECCIÓN: PREGUNTAS FRECUENTES -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-header reveal-up">
+                <span class="section-tag">Resolución de Dudas</span>
+                <h2 class="section-main-title">Preguntas Frecuentes</h2>
+            </div>
+
+            <div class="faq-wrapper reveal-up">
+                <div class="faq-item">
+                    <div class="faq-trigger">
+                        <h3>¿Qué incluye el derecho de sepultura a perpetuidad?</h3>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        <p>Garantiza la permanencia del resto en el nicho asignado de forma indefinida, sin necesidad de realizar pagos de renovación anual por el espacio físico, respaldado por un título formal emitido por la administración jurídica.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-trigger">
+                        <h3>¿Cuáles son los horarios para visitas y entierros?</h3>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        <p>El ingreso general para visitas es de lunes a domingo de 08:00 a 17:00 horas. Las programaciones de entierros se coordinan con un mínimo de 6 horas de anticipación dentro del mismo rango de atención.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-trigger">
+                        <h3>¿Puedo realizar el traslado de un familiar desde otro camposanto?</h3>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        <p>Sí, brindamos asesoría técnica completa. Para proceder se requiere haber cumplido el tiempo mínimo de permanencia exigido por las leyes sanitarias en el lugar de origen y tramitar el permiso de exhumación correspondiente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. FOOTER CORPORATIVO -->
+    <footer>
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-col">
+                    <h4>Gloria Eterna</h4>
+                    <p>Comprometidos con brindar solemnidad, infraestructura moderna y seguridad jurídica definitiva a cada familia del país.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Navegación</h4>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#servicios">Servicios</a></li>
+                        <li><a href="#simulador">Cotizador</a></li>
+                        <li><a href="#requisitos">Requisitos Legales</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Soporte Legal</h4>
+                    <ul>
+                        <li><a href="#">Términos Contractuales</a></li>
+                        <li><a href="#">Reglamento Interno</a></li>
+                        <li><a href="#">Derechos del Usuario</a></li>
+                        <li><a href="#">Libro de Reclamaciones</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contacto y Sede</h4>
+                    <p style="margin-bottom: 10px;"><i class="fa-solid fa-location-dot" style="color: var(--gold-base); margin-right: 10px;"></i> Sede Administrativa Oficial, Perú</p>
+                    <p style="margin-bottom: 10px;"><i class="fa-solid fa-phone" style="color: var(--gold-base); margin-right: 10px;"></i> Central Emergencias: +51 987 654 321</p>
+                    <p><i class="fa-solid fa-envelope" style="color: var(--gold-base); margin-right: 10px;"></i> operaciones@gloriaeterna.pe</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div>INFRAESTRUCTURA DIGITAL DESARROLLADA POR <strong>ALONIXZ-GROUP</strong> &copy; 2026 | INTEGRACIÓN FIREBASE REALTIME DATABASE</div>
+                <div>ESTILO DIGITAL BRUTALISTA</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==========================================================================
+       14. CONTROLADORES LÓGICOS DE LA APLICACIÓN (JAVASCRIPT MODULAR - FIREBASE)
+       ========================================================================== -->
+    <script type="module">
+        // A. Importación oficial de módulos del SDK de Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+   //  Código corregido con la importación completa
+import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. Tus credenciales reales de Gloria Eterna
+    const firebaseConfig = {
+        apiKey: "AIzaSyBhLqQ1tjx5Mc15chMcVBKNY7Li80q_dQg",
+        authDomain: "gloria-eterna-86972.firebaseapp.com",
+        databaseURL: "https://gloria-eterna-86972-default-rtdb.firebaseio.com",
+        projectId: "gloria-eterna-86972",
+        storageBucket: "gloria-eterna-86972.firebasestorage.app",
+        messagingSenderId: "933559161364",
+        appId: "1:933559161364:web:2a007e0678a6c4bcd90d01",
+        measurementId: "G-8BGT16Z10C"
+    };
+
+    // 2. Inicialización (Aquí se define "database")
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app); // <-- ESTA ES LA VARIABLE QUE BUSCA EL ERROR
+        // D. Control Dinámico de Barra de Navegación Sticky
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 60) {
+                navbar.classList.add('sticky');
+            } else {
+                navbar.classList.remove('sticky');
+            }
+        });
+
+        // E. Motor de Animación con Intersection Observer
+        const observerOptions = { threshold: 0.12, rootMargin: "0px 0px -40px 0px" };
+        const animationObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    animationObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-up, .reveal-left').forEach(element => {
+            animationObserver.observe(element);
+        });
+
+        // F. Calculador del Cotizador Interactivo
+        const radios = document.querySelectorAll('input[name="espacio"], input[name="servicio_add"]');
+        function calcularPresupuesto() {
+            const precioEspacio = parseFloat(document.querySelector('input[name="espacio"]:checked')?.value || 0);
+            const precioServicio = parseFloat(document.querySelector('input[name="servicio_add"]:checked')?.value || 0);
+            document.getElementById('priceDisplay').innerText = precioEspacio + precioServicio;
+        }
+        radios.forEach(radio => radio.addEventListener('change', calcularPresupuesto));
+
+        document.getElementById('btnApplyQuote').addEventListener('click', () => {
+            document.getElementById('service_type').value = 'compra';
+            window.location.href = '#emergencias';
+        });
+
+        // G. Lógica de Interacción de Acordeones (FAQ)
+        document.querySelectorAll('.faq-trigger').forEach(trigger => {
+            trigger.addEventListener('click', function() {
+                const parent = this.parentElement;
+                const isActive = parent.classList.contains('active');
+                document.querySelectorAll('.faq-item').forEach(item => item.classList.remove('active'));
+                if (!isActive) parent.classList.add('active');
+            });
+        });
+// H. CONSULTA DIRECTA A FIREBASE (Buscador de Difuntos)
+document.getElementById('searchMemorialForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const query = document.getElementById('searchName').value.trim().toUpperCase();
+    const resultsBox = document.getElementById('searchResults');
+    
+    // Hacer visible el contenedor de resultados
+    resultsBox.style.display = "block";
+    resultsBox.innerHTML = `
+        <p style="color: var(--gold); font-size: 0.95rem; margin: 1rem 0;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Extrayendo registros en tiempo real desde Firebase...
+        </p>
+    `;
+
+    // Cambiado a 'database' para hacer match exacto con el objeto inicializado de tu proyecto
+    const difuntosRef = ref(database, 'difuntos'); 
+    
+    onValue(difuntosRef, (snapshot) => {
+        const data = snapshot.val();
+        resultsBox.innerHTML = ""; // Limpiar panel de carga
+
+        if (data) {
+            let HTMLString = "";
+            let hallado = false;
+
+            // Iterar sobre las llaves dentro del nodo (reversado para mostrar los últimos registros arriba)
+            Object.keys(data).reverse().forEach(key => {
+                const difunto = data[key];
+                const nombreCompleto = difunto.nombre ? difunto.nombre.toUpperCase() : "";
+
+                // Validación de coincidencia por filtro de texto
+                if (nombreCompleto.includes(query)) {
+                    hallado = true;
+                    
+                    // CORRECCIÓN CLAVE: Cambiado 'difunto.nicho' por 'difunto.numero' para que lea tu JSON real
+                    HTMLString += `
+                        <div style="background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem;">
+                            <strong style="color: var(--text-title); display: block; font-size: 1.05rem; margin-bottom: 0.5rem;">${nombreCompleto}</strong>
+                            <div style="color: var(--text-main); font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 10px 15px;">
+                                <span><i class="fa-solid fa-layer-group" style="color: var(--gold);"></i> Sector: ${difunto.pabellon || '—'}</span>
+                                <span><i class="fa-solid fa-hashtag" style="color: var(--gold);"></i> Código: ${difunto.numero || '—'}</span>
+                                <span><i class="fa-solid fa-arrows-up-down" style="color: var(--gold);"></i> Fila: ${difunto.fila || '—'}</span>
+                                <span class="badge" style="background: var(--gold-light); color: var(--gold); border: none; font-size: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 4px;">${difunto.tipo || 'Nicho'}</span>
+                            </div>
+                        </div>`;
+                }
+            });
+
+            if (hallado) {
+                resultsBox.innerHTML = HTMLString;
+            } else {
+                resultsBox.innerHTML = `
+                    <p style="color: #ef4444; font-size: 0.95rem; margin: 1rem 0;">
+                        <i class="fa-solid fa-circle-xmark"></i> No se encontraron registros que coincidan con los apellidos ingresados.
+                    </p>`;
+            }
+        } else {
+            resultsBox.innerHTML = `
+                <p style="color: var(--text-main); opacity: 0.5; font-size: 0.95rem; margin: 1rem 0;">
+                    La base de datos se encuentra vacía o el nodo 'difuntos' no ha sido creado aún.
+                </p>`;
+        }
+    }, {
+        onlyOnce: true // Mantiene tu optimización de consumo de cuota de lectura en Firebase
+    });
+});
+
+// I. ESCRITURA EN TIEMPO REAL EN FIREBASE (Formulario de Asistencia)
+        document.getElementById('firebaseMainForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerText;
+            
+            // CORRECCIÓN: Se cambia 'db' por 'database' para que coincida con tu inicialización
+            const consultasRef = ref(database, 'consultas_emergencia');
+            const nuevaConsultaRef = push(consultasRef);
+
+            const payload = {
+                remitente: document.getElementById('form_name').value.trim(),
+                telefono: document.getElementById('form_phone').value.trim(),
+                categoria: document.getElementById('service_type').value,
+                anotaciones: document.getElementById('form_message').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+
+            submitButton.innerText = "ALMACENANDO EN DATABASES...";
+            submitButton.disabled = true;
+
+            // Escritura directa del objeto en Firebase Realtime Database
+            set(nuevaConsultaRef, payload)
+                .then(() => {
+                    alert("Los datos han sido transmitidos y respaldados en la base de datos de Gloria Eterna con éxito. Nos comunicaremos de inmediato.");
+                    document.getElementById('firebaseMainForm').reset();
+                })
+                .catch((error) => {
+                    console.error("Error detectado en la operación: ", error);
+                    alert("Error de red: No se pudo escribir en la base de datos. Verifique las Reglas de Seguridad de su Firebase.");
+                })
+                .finally(() => {
+                    submitButton.innerText = originalButtonText;
+                    submitButton.disabled = false;
+                });
+        });
+    </script>
+</body>
+</html>

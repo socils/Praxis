@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimiento | Praxis</title>
+    
+    <link rel="icon" type="image/png" href="praxis.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@800;900&family=Fira+Code:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1a73e8; /* Tu azul original favorito */
+            --primary-light: rgba(26, 115, 232, 0.12);
+            --dark: #0b0c10;
+            --text-muted: #9e9e9e;
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #00ffcc; /* Verde menta interactivo */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--dark);
+            color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            padding: 40px 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        #game-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            cursor: crosshair;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(26, 115, 232, 0.04) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(26, 115, 232, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* --- INTERFAZ SUPERIOR --- */
+        .header-ui {
+            z-index: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-box img {
+            width: 46px;
+            height: auto;
+            animation: pulseLogo 2.5s infinite ease-in-out;
+        }
+
+        .logo-box span {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 2rem;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 40%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .score-board {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .score-board:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* --- NÚCLEO CENTRAL --- */
+        .center-ui {
+            z-index: 3;
+            text-align: center;
+            max-width: 650px;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* El cargador de doble anillo que te gustó */
+        .spinner-box {
+            position: relative;
+            width: 75px;
+            height: 75px;
+            margin-bottom: 25px;
+        }
+
+        .spinner-outer {
+            width: 100%; height: 100%;
+            border: 4px solid transparent;
+            border-top-color: var(--primary);
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .spinner-inner {
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 3px solid transparent;
+            border-left-color: var(--accent);
+            border-right-color: var(--accent);
+            border-radius: 50%;
+            animation: spinReverse 1s linear infinite;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+            line-height: 1.1;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        .desc-text {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 35px;
+            font-weight: 500;
+        }
+
+        .fact-box {
+            background: rgba(15, 17, 23, 0.75);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(14px);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 520px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .fact-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .fact-text {
+            font-size: 0.98rem;
+            color: #e2e8f0;
+            line-height: 1.5;
+            font-weight: 600;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .fact-text.changing { opacity: 0; transform: scale(0.98) translateY(-4px); }
+
+        /* --- TERMINAL FLOTANTE MODAL --- */
+        .terminal-overlay {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%; max-width: 550px;
+            background: #090a0f;
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            z-index: 10;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .terminal-overlay.active {
+            display: flex;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .terminal-header {
+            background: #12141c;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .terminal-close {
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .terminal-close:hover { color: #ffffff; }
+
+        .terminal-body {
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            height: 250px;
+            overflow-y: auto;
+            line-height: 1.5;
+            background: #050608;
+        }
+
+        /* --- FOOTER UI --- */
+        .footer-ui {
+            z-index: 3;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge-status {
+            background: var(--primary-light);
+            border: 1px solid rgba(26, 115, 232, 0.3);
+            color: #ffffff;
+            font-family: 'Fira Code', monospace;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .contact-link {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.02);
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .contact-link:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinReverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+        
+        @keyframes pulseLogo {
+            0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(26,115,232,0)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 5px 15px rgba(26,115,232,0.3)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(26,115,232,0)); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-overlay"></div>
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HEADER UI -->
+    <div class="header-ui">
+        <div class="logo-box">
+            <img src="praxis.png" alt="Logo">
+            <span>Praxis</span>
+        </div>
+        <div class="score-board" id="scoreDisplay" onclick="provocarExplosionMasiva()">
+            ⚡ ENERGÍA CORE: 000
+        </div>
+    </div>
+
+    <!-- CUERPO CENTRAL -->
+    <div class="center-ui">
+        <div class="spinner-box">
+            <div class="spinner-outer"></div>
+            <div class="spinner-inner"></div>
+        </div>
+        <h1>Actualizando la Plataforma</h1>
+        <p class="desc-text">Estamos solucionando errores e inyectando optimizaciones en Alonixz-Cloud para mejorar tu experiencia.</p>
+
+        <div class="fact-box">
+            <div class="fact-title">¿Sabías que?</div>
+            <div id="factContent" class="fact-text">Praxis cuenta con su propio asistente IA diseñado para guiarte en tus objetivos de estudio.</div>
+        </div>
+    </div>
+
+    <!-- FOOTER UI -->
+    <div class="footer-ui">
+        <!-- ESTATUS EN TIEMPO REAL CON FIREBASE -->
+        <div class="badge-status" id="dbStatusDisplay">
+            CONEXIÓN: COMPROBANDO...
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
+            &copy; 2026 Alonixz-Group &bull; Arequipa
+        </p>
+        <a href="#" class="contact-link" onclick="abrirTerminalEmergencia(event)">Consola de Diagnóstico</a>
+    </div>
+
+    <!-- VENTANA DE DIAGNÓSTICO -->
+    <div class="terminal-overlay" id="terminalModal">
+        <div class="terminal-header">
+            <span class="terminal-title">>_ ALONIXZ-CLOUD MONITOR</span>
+            <span class="terminal-close" onclick="cerrarTerminalEmergencia()">&times;</span>
+        </div>
+        <div class="terminal-body" id="terminalLog"></div>
+    </div>
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUopIjgNXXAzDNhnp_E9krHVwPiwD0WQ8",
+            authDomain: "praxis-79b9a.firebaseapp.com",
+            projectId: "praxis-79b9a",
+            databaseURL: "https://praxis-79b9a-default-rtdb.firebaseio.com",
+            storageBucket: "praxis-79b9a.firebasestorage.app",
+            messagingSenderId: "596083977949",
+            appId: "1:596083977949:web:71064f89a23f8d9738f534"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const mRef = ref(db, "config/mantenimiento_activo");
+        const statusDisplay = document.getElementById("dbStatusDisplay");
+
+        // ESCUCHADOR Y CONTROLADOR DE ESTATUS EN TIEMPO REAL
+        onValue(mRef, (snapshot) => {
+            const activo = snapshot.val();
+            if (activo === true) {
+                statusDisplay.innerText = "ESTATUS: MANTENIMIENTO_ACTIVO";
+                statusDisplay.style.borderColor = "rgba(26, 115, 232, 0.4)";
+                statusDisplay.style.color = "#ffffff";
+            } else if (activo === false || activo === null) {
+                statusDisplay.innerText = "ESTATUS: EN LÍNEA / REDIRECCIONANDO";
+                statusDisplay.style.borderColor = "#00ffcc";
+                statusDisplay.style.color = "#00ffcc"; // Corregido: Texto plano en lugar de var(--accent)
+                
+                document.body.style.opacity = "0";
+                setTimeout(() => { window.location.href = "menu.html"; }, 600);
+            }
+        });
+
+        // --- CURIOSIDADES ---
+        const curiosidades = [
+            "Praxis cuenta con su propio asistente IA diseñado para guiarte en tus objetivos de estudio.",
+            "A través de Alonixz-Cloud garantizamos que tus datos e historial de tareas estén siempre seguros.",
+            "La plataforma optimiza el consumo de datos para que puedas revisar tus actividades sin problemas.",
+            "Puedes interactuar con las herramientas analíticas para proyectar tu rendimiento en cada materia.",
+            "¡Destruye los nodos flotantes haciendo clic para sumar energía al Core central!"
+        ];
+
+        let index = 0;
+        const factElement = document.getElementById("factContent");
+        setInterval(() => {
+            factElement.classList.add("changing");
+            setTimeout(() => {
+                index = (index + 1) % curiosidades.length;
+                factElement.textContent = curiosidades[index];
+                factElement.classList.remove("changing");
+            }, 300);
+        }, 5500);
+
+        // --- MOTOR CANVAS DEL JUEGO INTERACTIVO ---
+        const canvas = document.getElementById("game-canvas");
+        const ctx = canvas.getContext("2d");
+        const scoreDisplay = document.getElementById("scoreDisplay");
+
+        let score = 0;
+        let bubbles = [];
+        let splinters = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        class Bubble {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 50;
+                this.radius = Math.random() * 18 + 14;
+                this.speed = Math.random() * 1.5 + 0.6;
+                this.color = Math.random() > 0.4 ? "#1a73e8" : "#00ffcc";
+                this.alpha = Math.random() * 0.3 + 0.2;
+                this.wobble = 0;
+                this.wobbleInc = Math.random() * 0.03 + 0.01;
+            }
+            update() {
+                this.y -= this.speed;
+                this.wobble += this.wobbleInc;
+                this.x += Math.sin(this.wobble) * 0.4;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        class Splinter {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                this.radius = Math.random() * 2.5 + 1;
+                this.vx = (Math.random() - 0.5) * 5;
+                this.vy = (Math.random() - 0.5) * 5;
+                this.alpha = 1;
+            }
+            update() { this.x += this.vx; this.y += this.vy; this.alpha -= 0.03; }
+            draw() {
+                ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color; ctx.fill(); ctx.restore();
+            }
+        }
+
+        canvas.addEventListener("mousedown", (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            bubbles.forEach((b, idx) => {
+                const distance = Math.hypot(b.x - mx, b.y - my);
+                if (distance < b.radius + 15) {
+                    for (let i = 0; i < 10; i++) splinters.push(new Splinter(b.x, b.y, b.color));
+                    bubbles.splice(idx, 1);
+                    score += 10;
+                    scoreDisplay.innerText = `⚡ ENERGÍA CORE: ${String(score).padStart(3, '0')}`;
+                }
+            });
+        });
+
+        window.provocarExplosionMasiva = function() {
+            bubbles.forEach((b) => {
+                for (let i = 0; i < 8; i++) splinters.push(new Splinter(b.x, b.y, b.color));
+            });
+            score += bubbles.length * 10;
+            bubbles = [];
+            scoreDisplay.innerText = `⚡ ENERGÍA CORE: ${String(score).padStart(3, '0')}`;
+        };
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (bubbles.length < 25 && Math.random() < 0.04) bubbles.push(new Bubble());
+            bubbles.forEach((b, idx) => { b.update(); b.draw(); if (b.y + b.radius < 0) bubbles.splice(idx, 1); });
+            splinters.forEach((s, idx) => { s.update(); s.draw(); if (s.alpha <= 0) splinters.splice(idx, 1); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- CONSOLA DE DIAGNÓSTICO ---
+        const logs = [
+            "[INFO] Estableciendo conexión segura con Alonixz-Cloud...",
+            "[INFO] Comprobando integridad en config/mantenimiento_activo",
+            "[SYSTEM] Analizando reportes de errores de la interfaz...",
+            "[SUCCESS] Corrección de bugs menores completada en tiempo récord.",
+            "[PROCESS] Optimizando base de datos para la plataforma Praxis...",
+            "[MONITOR] Escuchando cambios en la red en tiempo real..."
+        ];
+
+        window.abrirTerminalEmergencia = function(e) {
+            e.preventDefault();
+            const modal = document.getElementById("terminalModal");
+            const logBox = document.getElementById("terminalLog");
+            modal.style.display = "flex";
+            setTimeout(() => modal.classList.add("active"), 10);
+
+            logBox.innerHTML = "> Ejecutando diagnóstico de rutina...<br>";
+            let line = 0;
+            const logInterval = setInterval(() => {
+                if (line < logs.length) {
+                    logBox.innerHTML += `> ${logs[line]}<br>`;
+                    logBox.scrollTop = logBox.scrollHeight;
+                    line++;
+                } else {
+                    logBox.innerHTML += `><br><span style='color:#00ffcc'>> [ESTADO]: SISTEMA ESTABLE. EN ESPERA...</span>`;
+                    clearInterval(logInterval);
+                }
+            }, 500);
+        };
+
+        window.cerrarTerminalEmergencia = function() {
+            const modal = document.getElementById("terminalModal");
+            modal.classList.remove("active");
+            setTimeout(() => modal.style.display = "none", 300);
+        };
+    </script>
+</body>
+</html>

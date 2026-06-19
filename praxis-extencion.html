@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Extensión</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --p-500: #3b82f6;
+            --p-900: #1e3a8a;
+            --n-0: #ffffff;
+            --n-50: #f8fafc;
+            --n-900: #0f172a;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--n-50);
+            color: var(--n-900);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            background: var(--n-0);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-text {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        main {
+            flex: 1;
+            padding: 60px 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        h1 { font-size: 40px; margin-bottom: 10px; font-weight: 800; }
+        p { color: #64748b; margin-bottom: 40px; font-size: 18px; }
+
+        .grid-modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .card-module {
+            background: var(--n-0);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .card-module:hover {
+            border-color: var(--p-500);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.15);
+            transform: translateY(-10px);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #e2e8f0;
+        }
+
+        .card-content { padding: 24px; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--p-500);
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        h3 { margin: 0 0 8px 0; font-size: 20px; color: var(--n-900); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-text">Praxis</div>
+        <div style="height: 20px; width: 1px; background: #ccc;"></div>
+        <span style="font-weight: 600;">Extensión</span>
+    </header>
+
+    <main>
+        <h1>Dinámicas Praxis</h1>
+        <p>Selecciona una extensión activa para comenzar.</p>
+        
+        <div class="grid-modules">
+            <a href="Mundial.html" class="card-module">
+                <img src="https://blob.cuartopoder.mx/images/2025/12/04/c9-1_focus_0_0_1125_667.webp" alt="Mundial de Figuritas" class="card-image">
+                <div class="card-content">
+                    <span class="badge">Activo</span>
+                    <h3>Mundial de Figuritas</h3>
+                    <p style="font-size: 14px; margin: 0;">Marketplace oficial de intercambio y gestión.</p>
+                </div>
+            </a>
+            
+            <div class="card-module" style="opacity: 0.7; border-style: dashed;">
+                <div class="card-image" style="background: #f1f5f9;"></div>
+                <div class="card-content">
+                    <span class="badge" style="background: #94a3b8;">Próximamente</span>
+                    <h3>-</h3>
+                    <p style="font-size: 14px; margin: 0;">Nueva dinámica en desarrollo.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
